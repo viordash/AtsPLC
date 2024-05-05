@@ -6,13 +6,16 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-#include "esp_spi_flash.h"
-#include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/uart.h"
+#include "esp_spi_flash.h"
+#include "esp_system.h"
 #include <stdio.h>
 
 void app_main() {
+
+    uart_set_baudrate(UART_NUM_0, 921600);
     printf("Hello world!\n");
 
     /* Print chip information */
