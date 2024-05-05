@@ -14,9 +14,9 @@
 #include <stdio.h>
 
 void app_main() {
-
+int t = 0; 
     uart_set_baudrate(UART_NUM_0, 921600);
-    printf("Hello world!\n");
+    printf("Hello world1111!\n");
 
     /* Print chip information */
     esp_chip_info_t chip_info;
