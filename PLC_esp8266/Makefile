@@ -13,5 +13,7 @@ SHELL := env PATH=$(PATH) /bin/bash
 xtensa-lx106-elf-gcc:
 	@tar -xzf $(PWD)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(PWD)/../SDK/
 
+ifeq ($(filter xtensa-lx106-elf-gcc,$(MAKECMDGOALS)),)
 include $(IDF_PATH)/make/project.mk
+endif
 
