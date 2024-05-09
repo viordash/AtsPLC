@@ -4,4 +4,7 @@
 
 TEST_GROUP_C_WRAPPER(Crc32TestsGroup){};
 
-TEST_C_WRAPPER(Crc32TestsGroup, calc_crc32);
+TEST_C_WRAPPER(Crc32TestsGroup, data_32);
+TEST_C_WRAPPER(Crc32TestsGroup, data_16);
+TEST_C_WRAPPER(Crc32TestsGroup, empty_data);
+TEST_C_WRAPPER(Crc32TestsGroup, null_data);

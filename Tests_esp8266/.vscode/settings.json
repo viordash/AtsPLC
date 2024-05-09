@@ -18,6 +18,7 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "new": "cpp",
-        "testharness_c.h": "c"
+        "testharness_c.h": "c",
+        "type_traits": "cpp"
     }
 }
