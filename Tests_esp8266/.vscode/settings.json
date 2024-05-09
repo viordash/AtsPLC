@@ -1,0 +1,22 @@
+{
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "files.associations": {
+        "stdlib.h": "c",
+        "deep_thought.h": "c",
+        "stdio.h": "c",
+        "ios": "cpp",
+        "xiosbase": "cpp",
+        "iterator": "cpp",
+        "xmemory": "cpp",
+        "xutility": "cpp",
+        "algorithm": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "array": "cpp",
+        "typeinfo": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "new": "cpp"
+    }
+}
