@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "rtc.h": "c"
+        "rtc.h": "c",
+        "pin_mux_register.h": "c"
     }
 }

@@ -12,11 +12,20 @@
 #include "driver/uart.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
+#include "hotreload_service.h"
 #include <stdio.h>
+
+hotreload hotreload_data;
+
+bool try_load_hotreload(hotreload *data);
+void store_hotreload(hotreload *data);
 
 void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
-    printf("Hello world1111!\n");
+
+    if (try_load_hotreload(&hotreload_data)) {
+        printf("hotreload, gpio:%u\n", hotreload_data.gpio);
+    }
 
     /* Print chip information */
     esp_chip_info_t chip_info;
@@ -34,7 +43,9 @@ void app_main() {
     for (int i = 10; i >= 0; i--) {
         printf("Restarting in %d seconds...\n", i);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        hotreload_data.gpio++;
     }
+    store_hotreload(&hotreload_data);
     printf("Restarting now.\n");
     fflush(stdout);
     esp_restart();
