@@ -2,4 +2,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/TestHarness_c.h"
 
-IMPORT_TEST_GROUP(Ya_Task1_TestsGroup);
+TEST_GROUP_C_WRAPPER(Crc32TestsGroup){};
+
+TEST_C_WRAPPER(Crc32TestsGroup, calc_crc32);
