@@ -1,3 +1,6 @@
 [submodule "SDK/ESP8266_RTOS_SDK"]
 	path = SDK/ESP8266_RTOS_SDK
 	url = https://github.com/espressif/ESP8266_RTOS_SDK.git
+[submodule "TestsFramework/CppuTest"]
+	path = TestsFramework/CppuTest
+	url = https://github.com/cpputest/cpputest.git
