@@ -4,6 +4,8 @@ include $(PWD)/../TestsFramework/cpputest.mk
 # 'make clean'  removes all .o and executable files
 #
 
+
+SOURCES_DIR := $(PWD)/../PLC_esp8266/src
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 
 # define the Cpp compiler to use
