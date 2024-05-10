@@ -20,6 +20,9 @@ void gpio_init(uint32_t startup_state) {
     io_conf.pull_up_en = 0;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
+    set_digital_value(OUTPUT_0, startup_state & OUTPUT_0);
+    set_digital_value(OUTPUT_1, startup_state & OUTPUT_1);
+
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
     io_conf.mode = GPIO_MODE_INPUT;
