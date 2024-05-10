@@ -3,10 +3,10 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#define GPIO_OUTPUT_IO_0 2
-#define GPIO_OUTPUT_IO_1 15
+#define GPIO_OUTPUT_IO_0 GPIO_NUM_2
+#define GPIO_OUTPUT_IO_1 GPIO_NUM_15
 #define GPIO_OUTPUT_PIN_SEL ((1ULL << GPIO_OUTPUT_IO_0) | (1ULL << GPIO_OUTPUT_IO_1))
-#define GPIO_INPUT_IO_0 0
+#define GPIO_INPUT_IO_0 GPIO_NUM_0
 #define GPIO_INPUT_PIN_SEL ((1ULL << GPIO_INPUT_IO_0))
 
 static const char *TAG = "gpio";

@@ -14,3 +14,8 @@ TEST_GROUP_C_WRAPPER(HotReloadTestsGroup) {
 };
 TEST_C_WRAPPER(HotReloadTestsGroup, store_load);
 TEST_C_WRAPPER(HotReloadTestsGroup, load_if_memory_cleared);
+
+TEST_GROUP_C_WRAPPER(GpioTestsGroup){};
+TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_cleared_startup_value);
+TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
+TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
