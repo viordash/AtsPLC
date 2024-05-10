@@ -10,11 +10,13 @@
 #include "freertos/task.h"
 #include "crc32.h"
 #include "driver/uart.h"
+#include "esp_log.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
 #include "hotreload_service.h"
 #include <stdio.h>
 
+static const char *TAG = "main";
 hotreload hotreload_data;
 
 bool try_load_hotreload(hotreload *data);
@@ -24,6 +26,8 @@ void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
 
     if (try_load_hotreload(&hotreload_data)) {
+
+        ESP_LOGI(TAG, "get_digital_value, err:0x%X\r\n", ESP_ERR_NOT_FOUND);
         printf("hotreload, gpio:%u\n", hotreload_data.gpio);
     }
 
