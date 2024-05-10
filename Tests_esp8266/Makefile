@@ -47,7 +47,7 @@ RM = rm -f
 MD	:= mkdir -p
 endif
 
-INCLUDES	:= -I$(CPPUTEST_INCLUDE_DIR) -I$(SOURCE_PROJECT_DIR) \
+INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) -I$(SOURCE_PROJECT_DIR) \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorMallocMacros.h \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorNewMacros.h
 

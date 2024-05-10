@@ -19,6 +19,9 @@
         "utility": "cpp",
         "new": "cpp",
         "testharness_c.h": "c",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "hotreload_service.h": "c",
+        "string": "c",
+        "unistd.h": "c"
     }
 }
