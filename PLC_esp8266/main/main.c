@@ -15,10 +15,16 @@
 #include "esp_system.h"
 #include "gpio.h"
 #include "hotreload_service.h"
+#include "storage.h"
 #include <stdio.h>
 
 static const char *TAG = "main";
 static hotreload hotreload_data;
+
+static const char *storage_0_partition = "storage_0";
+static const char *storage_1_partition = "storage_1";
+static const char *storage_0_path = "/storage_0";
+static const char *storage_1_path = "/storage_1";
 
 void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
@@ -30,6 +36,9 @@ void app_main() {
     }
 
     gpio_init(hotreload_data.gpio);
+
+    open_storage(storage_0_partition, storage_0_path);
+    open_storage(storage_1_partition, storage_1_path);
 
     /* Print chip information */
     esp_chip_info_t chip_info;
@@ -50,6 +59,10 @@ void app_main() {
         hotreload_data.gpio++;
     }
     store_hotreload(&hotreload_data);
+
+    close_storage(storage_0_partition);
+    close_storage(storage_1_partition);
+
     printf("Restarting now.\n");
     fflush(stdout);
     esp_restart();
