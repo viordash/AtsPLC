@@ -4,85 +4,114 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_spiffs.h"
+#include "storage.h"
+#include <stdlib.h>
 #include <sys/stat.h>
 
 typedef struct {
-    size_t size;
     uint32_t crc;
-    uint32_t version;
 } redundant_storage_header;
 
 static const char *TAG = "redundant_storage";
 
-// static bool file_exists(const char *path) {
-//     struct stat st;
-//     if (stat(path, &st) != 0) {
-//         return false;
-//     }
-//     return st.st_size >= sizeof(redundant_storage_header);
-// }
-
-static bool check_file(const char *path, size_t size) {
-    FILE *f = fopen(path, "rb");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "check_file");
-        return false;
+static redundant_storage read_file(FILE *file) {
+    redundant_storage storage = {};
+    if (file == NULL) {
+        ESP_LOGE(TAG, "check_file, file not exists");
+        return storage;
     }
-    fprintf(f, "Hello World!\n");
-    fclose(f);
+
+    struct stat st;
+
+    if (fstat(fileno(file), &st) != 0 || st.st_size < sizeof(redundant_storage_header)) {
+        ESP_LOGE(TAG, "check_file, file size wrong");
+        return storage;
+    }
+
+    redundant_storage_header header;
+    if (fread(&header, sizeof(redundant_storage_header), 1, file) != 1) {
+        ESP_LOGE(TAG, "check_file, read header error");
+        return storage;
+    }
+
+    storage.size = st.st_size - sizeof(redundant_storage_header);
+    storage.data = malloc(storage.size);
+
+    if (fread(storage.data, 1, storage.size, file) != storage.size) {
+        ESP_LOGE(TAG, "check_file, read data error");
+        free(storage.data);
+        storage.size = 0;
+        storage.data = NULL;
+        return storage;
+    }
+
+    if (header.crc != calc_crc32(CRC32_INIT, storage.data, storage.size)) {
+        ESP_LOGW(TAG, "check_file, wrong crc\r\n");
+        free(storage.data);
+        storage.size = 0;
+        storage.data = NULL;
+        return storage;
+    }
+
+    return storage;
 }
 
-uint8_t *
-open_redundant_storage(const char *path_0, const char *path_1, size_t size, uint32_t version) {
-    ESP_LOGI(TAG, "Initializing redundant_storage path_0:'%s', path_1:'%s'", path_0, path_1);
+static void write_file(const char *path, redundant_storage storage) {
+    FILE *file = fopen(path, "wb");
 
-    // if (file_exists(path_0))
-    //     ESP_LOGI(TAG, "Opening file");
+    redundant_storage_header header;
+    header.crc = calc_crc32(CRC32_INIT, storage.data, storage.size);
 
-    //     ESP_LOGI(TAG, "File written");
+    if (fwrite(&header, sizeof(redundant_storage_header), 1, file) != 1
+        || fwrite(storage.data, 1, storage.size, file) != storage.size) {
+        ESP_LOGE(TAG, "write_file, write error");
+    }
 
-    return NULL;
+    fclose(file);
 }
 
-void store_redundant_storage(const char *path_0, const char *path_1, uint8_t *data) {
+redundant_storage redundant_storage_load(const char *partition_0,
+                                         const char *path_0,
+                                         const char *partition_1,
+                                         const char *path_1) {
+    ESP_LOGI(TAG, "redundant_storage load path_0:'%s', path_1:'%s'", path_0, path_1);
+
+    open_storage(partition_0, path_0);
+    open_storage(partition_1, path_1);
+
+    FILE *file_0 = fopen(path_0, "rb");
+    FILE *file_1 = fopen(path_1, "rb");
+
+    redundant_storage storage_0 = read_file(file_0);
+    redundant_storage storage_1 = read_file(file_1);
+
+    fclose(file_0);
+    fclose(file_1);
+
+    if (storage_0.data != NULL && storage_1.data == NULL) {
+        write_file(path_1, storage_0);
+    }
+    if (storage_0.data == NULL && storage_1.data != NULL) {
+        write_file(path_0, storage_1);
+    }
+
+    close_storage(partition_0);
+    close_storage(partition_1);
+
+    return storage_0;
 }
 
-void close_redundant_storage(uint8_t *data) {
+void redundant_storage_store(const char *partition_0,
+                             const char *path_0,
+                             const char *partition_1,
+                             const char *path_1,
+                             redundant_storage storage) {
+
+    open_storage(partition_0, path_0);
+    write_file(path_0, storage);
+    close_storage(partition_0);
+
+    open_storage(partition_1, path_1);
+    write_file(path_1, storage);
+    close_storage(partition_1);
 }
-
-// bool StorageService::CalcCrc(Storage *storage, int len, uint32_t *pCrc) {
-// 	uint8_t buffer[4096];
-// 	while (len > 0) {
-// 		int32_t readLen = len;
-// 		if (readLen > sizeof(buffer)) {
-// 			readLen = sizeof(buffer);
-// 		}
-// 		readLen = storage->Read((uint8_t *)buffer, readLen);
-// 		if (readLen < 0) {
-// 			return false;
-// 		}
-// 		*pCrc = crc32(*pCrc, (uint8_t *)buffer, readLen);
-// 		len -= readLen;
-// 	}
-// 	return true;
-// }
-
-// bool StorageService::LoadHeader(Storage *storage, PTStorageHeader pStorageHeader) {
-// 	uint32_t readedCrc;
-// 	uint32_t crc = 0xFFFFFFFF;
-
-// 	if (!storage->Read((uint8_t *)pStorageHeader, sizeof(TStorageHeader))) {
-// 		return false;
-// 	}
-// 	if (pStorageHeader->Length < sizeof(TStorageHeader) || pStorageHeader->Length > MAX_STORAGE_SIZE) {
-// 		return false;
-// 	}
-// 	if (pStorageHeader->Version != version) {
-// 		return false;
-// 	}
-// 	readedCrc = pStorageHeader->Crc;
-// 	pStorageHeader->Crc = 0;
-// 	crc = crc32(crc, (uint8_t *)pStorageHeader, sizeof(TStorageHeader));
-
-// 	return CalcCrc(storage, pStorageHeader->Length - sizeof(TStorageHeader), &crc) && readedCrc == crc;
-// }

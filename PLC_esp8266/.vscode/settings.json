@@ -6,6 +6,8 @@
         "string_view": "c",
         "*.inc": "c",
         "storage.h": "c",
-        "esp_err.h": "c"
+        "esp_err.h": "c",
+        "unistd.h": "c",
+        "esp_spiffs.h": "c"
     }
 }
