@@ -4,6 +4,8 @@
         "freertos.h": "c",
         "esp_system.h": "c",
         "string_view": "c",
-        "*.inc": "c"
+        "*.inc": "c",
+        "storage.h": "c",
+        "esp_err.h": "c"
     }
 }
