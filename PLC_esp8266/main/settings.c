@@ -6,9 +6,8 @@
 #include "redundant_storage.h"
 
 static const char *storage_name = "settings";
-static const char *TAG = "settings";
 
-device_settings *settings;
+device_settings *settings = NULL;
 
 void load_settings() {
     redundant_storage storage = redundant_storage_load(storage_0_partition,
@@ -20,9 +19,13 @@ void load_settings() {
 }
 
 void store_settings() {
+    if (settings == NULL) {
+        return;
+    }
+
     redundant_storage storage;
-    storage.data = &settings;
-    storage.size = sizeof(settings);
+    storage.data = (uint8_t *)settings;
+    storage.size = sizeof(*settings);
 
     redundant_storage_store(storage_0_partition,
                             storage_0_path,

@@ -11,16 +11,16 @@
 #include "redundant_storage.c"
 #include "storage.c"
 
-static const char *storage_0_partition = "storage_0";
-static const char *storage_1_partition = "storage_1";
-static const char *storage_0_path = "/tmp/storage_0";
-static const char *storage_1_path = "/tmp/storage_1";
-static const char *storage_name = "settings";
+#define storage_0_partition "storage_0"
+#define storage_1_partition "storage_1"
+#define storage_0_path "/tmp/storage_0"
+#define storage_1_path "/tmp/storage_1"
+#define storage_name "settings"
 
-static void create_storage_0() {    
+static void create_storage_0() {
     mkdir(storage_0_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
-static void create_storage_1() {    
+static void create_storage_1() {
     mkdir(storage_1_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 static void remove_storage_0() {

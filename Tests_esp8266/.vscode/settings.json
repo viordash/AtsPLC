@@ -27,6 +27,7 @@
         "gpio.h": "c",
         "storage.h": "c",
         "atomic": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "esp_log.h": "c"
     }
 }
