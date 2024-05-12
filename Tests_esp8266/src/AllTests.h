@@ -30,8 +30,4 @@ TEST_C_WRAPPER(RedundantStorageTestsGroup, load);
 TEST_C_WRAPPER(RedundantStorageTestsGroup, second_storage_restored_when_load);
 TEST_C_WRAPPER(RedundantStorageTestsGroup, first_storage_restored_when_load);
 
-TEST_GROUP_C_WRAPPER(SettingsTestsGroup) {
-    TEST_GROUP_C_SETUP_WRAPPER(SettingsTestsGroup);
-    TEST_GROUP_C_TEARDOWN_WRAPPER(SettingsTestsGroup);
-};
-TEST_C_WRAPPER(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings);
+IMPORT_TEST_GROUP(SettingsTestsGroup);
