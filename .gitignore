@@ -36,3 +36,6 @@
 **/SDK/xtensa-lx106-elf/*
 
 **/output/*
+
+**/main/MigrateAnyData.cpp
+**/main/MigrateAnyData.h

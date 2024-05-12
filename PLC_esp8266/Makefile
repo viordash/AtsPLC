@@ -10,10 +10,12 @@ export IDF_PATH := $(PWD)/../SDK/ESP8266_RTOS_SDK
 PATH  := $(PATH):$(PWD)/../SDK/xtensa-lx106-elf/bin
 SHELL := env PATH=$(PATH) /bin/bash
 
-xtensa-lx106-elf-gcc:
+project_prepare:
 	@tar -xzf $(PWD)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(PWD)/../SDK/
+	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.cpp $(PWD)/main/MigrateAnyData.cpp
+	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.h $(PWD)/main/MigrateAnyData.h
 
-ifeq ($(filter xtensa-lx106-elf-gcc,$(MAKECMDGOALS)),)
+ifeq ($(filter project_prepare,$(MAKECMDGOALS)),)
 include $(IDF_PATH)/make/project.mk
 endif
 
