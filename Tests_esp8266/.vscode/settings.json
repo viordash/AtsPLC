@@ -1,0 +1,33 @@
+{
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "files.associations": {
+        "stdlib.h": "c",
+        "deep_thought.h": "c",
+        "stdio.h": "c",
+        "ios": "cpp",
+        "xiosbase": "cpp",
+        "iterator": "cpp",
+        "xmemory": "cpp",
+        "xutility": "cpp",
+        "algorithm": "cpp",
+        "random": "cpp",
+        "limits": "cpp",
+        "array": "cpp",
+        "typeinfo": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "new": "cpp",
+        "testharness_c.h": "c",
+        "type_traits": "cpp",
+        "hotreload_service.h": "c",
+        "string": "c",
+        "unistd.h": "c",
+        "adc.h": "c",
+        "gpio.h": "c",
+        "storage.h": "c",
+        "atomic": "c",
+        "errno.h": "c",
+        "esp_log.h": "c"
+    }
+}

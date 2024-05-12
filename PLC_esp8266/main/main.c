@@ -8,20 +8,42 @@
 */
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "crc32.h"
 #include "driver/uart.h"
+#include "esp_log.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
+#include "gpio.h"
+#include "hotreload_service.h"
+#include "redundant_storage.h"
+#include "settings.h"
+#include "storage.h"
 #include <stdio.h>
 
+static const char *TAG = "main";
+static hotreload hotreload_data;
+
+extern device_settings *settings;
+
 void app_main() {
-int t = 0; 
     uart_set_baudrate(UART_NUM_0, 921600);
-    printf("Hello world1111!\n");
+
+    if (try_load_hotreload(&hotreload_data)) {
+        ESP_LOGI(TAG, "hotreload, gpio:%u\n", hotreload_data.gpio);
+    } else {
+        hotreload_data.gpio = 0x00;
+    }
+
+    gpio_init(hotreload_data.gpio);
+
+    load_settings();
 
     /* Print chip information */
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    printf("This is ESP8266 chip with %d CPU cores, WiFi, ", chip_info.cores);
+    printf("This is ESP8266 chip with %d CPU cores, WiFi, , crc32:%u",
+           chip_info.cores,
+           calc_crc32(CRC32_INIT, &chip_info, sizeof(&chip_info)));
 
     printf("silicon revision %d, ", chip_info.revision);
 
@@ -32,7 +54,10 @@ int t = 0;
     for (int i = 10; i >= 0; i--) {
         printf("Restarting in %d seconds...\n", i);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        hotreload_data.gpio++;
     }
+    store_hotreload(&hotreload_data);
+
     printf("Restarting now.\n");
     fflush(stdout);
     esp_restart();

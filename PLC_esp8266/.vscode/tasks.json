@@ -16,7 +16,7 @@
         {
             "label": "build & install tzsl",
             "type": "shell",
-            "command": "make flash",
+            "command": "make xtensa-lx106-elf-gcc && make flash",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -26,7 +26,7 @@
         {
             "label": "rebuild",
             "type": "shell",
-            "command": "make clean && make size",
+            "command": "make xtensa-lx106-elf-gcc && make clean && make size",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
