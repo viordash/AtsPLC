@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+
+
 typedef struct {
     uint32_t crc;
 } redundant_storage_header;

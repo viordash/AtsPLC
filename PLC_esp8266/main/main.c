@@ -16,25 +16,14 @@
 #include "gpio.h"
 #include "hotreload_service.h"
 #include "redundant_storage.h"
+#include "settings.h"
 #include "storage.h"
 #include <stdio.h>
 
 static const char *TAG = "main";
 static hotreload hotreload_data;
 
-static const char *storage_0_partition = "storage_0";
-static const char *storage_1_partition = "storage_1";
-static const char *storage_0_path = "/storage_0";
-static const char *storage_1_path = "/storage_1";
-static const char *settings_storage_name = "settings";
-
-typedef struct {
-    size_t size;
-    uint32_t crc;
-    uint32_t version;
-} device_settings;
-
-static device_settings *settings;
+extern device_settings *settings;
 
 void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
@@ -47,13 +36,7 @@ void app_main() {
 
     gpio_init(hotreload_data.gpio);
 
-    redundant_storage settings_storage = redundant_storage_load(storage_0_partition,
-                                                                storage_0_path,
-                                                                storage_1_partition,
-                                                                storage_1_path,
-                                                                settings_storage_name);
-
-    settings = (device_settings *)settings_storage.data;
+    load_settings();
 
     /* Print chip information */
     esp_chip_info_t chip_info;
