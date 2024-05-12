@@ -25,6 +25,8 @@
         "unistd.h": "c",
         "adc.h": "c",
         "gpio.h": "c",
-        "storage.h": "c"
+        "storage.h": "c",
+        "atomic": "c",
+        "errno.h": "c"
     }
 }

@@ -58,6 +58,11 @@ static redundant_storage read_file(FILE *file) {
 static void write_file(const char *path, redundant_storage storage) {
     FILE *file = fopen(path, "wb");
 
+    if (file == NULL) {
+        ESP_LOGE(TAG_R, "write_file, file open error");
+        return;
+    }
+
     redundant_storage_header header;
     header.crc = calc_crc32(CRC32_INIT, storage.data, storage.size);
 
@@ -72,14 +77,23 @@ static void write_file(const char *path, redundant_storage storage) {
 redundant_storage redundant_storage_load(const char *partition_0,
                                          const char *path_0,
                                          const char *partition_1,
-                                         const char *path_1) {
-    ESP_LOGI(TAG_R, "redundant_storage load path_0:'%s', path_1:'%s'", path_0, path_1);
+                                         const char *path_1,
+                                         const char *name) {
+    ESP_LOGI(TAG_R,
+             "redundant_storage load path_0:'%s', path_1:'%s', name:'%s'",
+             path_0,
+             path_1,
+             name);
+
+    char filename[256];
 
     open_storage(partition_0, path_0);
     open_storage(partition_1, path_1);
 
-    FILE *file_0 = fopen(path_0, "rb");
-    FILE *file_1 = fopen(path_1, "rb");
+    snprintf(filename, sizeof(filename), "%s/%s", path_0, name);
+    FILE *file_0 = fopen(filename, "rb");
+    snprintf(filename, sizeof(filename), "%s/%s", path_1, name);
+    FILE *file_1 = fopen(filename, "rb");
 
     redundant_storage storage_0 = read_file(file_0);
     redundant_storage storage_1 = read_file(file_1);
@@ -109,13 +123,17 @@ void redundant_storage_store(const char *partition_0,
                              const char *path_0,
                              const char *partition_1,
                              const char *path_1,
+                             const char *name,
                              redundant_storage storage) {
 
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", path_0, name);
     open_storage(partition_0, path_0);
-    write_file(path_0, storage);
+    write_file(filename, storage);
     close_storage(partition_0);
 
+    snprintf(filename, sizeof(filename), "%s/%s", path_1, name);
     open_storage(partition_1, path_1);
-    write_file(path_1, storage);
+    write_file(filename, storage);
     close_storage(partition_1);
 }

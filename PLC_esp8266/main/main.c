@@ -26,6 +26,7 @@ static const char *storage_0_partition = "storage_0";
 static const char *storage_1_partition = "storage_1";
 static const char *storage_0_path = "/storage_0";
 static const char *storage_1_path = "/storage_1";
+static const char *settings_storage_name = "settings";
 
 typedef struct {
     size_t size;
@@ -33,7 +34,7 @@ typedef struct {
     uint32_t version;
 } device_settings;
 
- static device_settings *settings;
+static device_settings *settings;
 
 void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
@@ -47,9 +48,10 @@ void app_main() {
     gpio_init(hotreload_data.gpio);
 
     redundant_storage settings_storage = redundant_storage_load(storage_0_partition,
-                                                        storage_0_path,
-                                                        storage_1_partition,
-                                                        storage_1_path);
+                                                                storage_0_path,
+                                                                storage_1_partition,
+                                                                storage_1_path,
+                                                                settings_storage_name);
 
     settings = (device_settings *)settings_storage.data;
 
