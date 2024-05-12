@@ -3,7 +3,6 @@
 #include "crc32.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_spiffs.h"
 #include "storage.h"
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -12,25 +11,25 @@ typedef struct {
     uint32_t crc;
 } redundant_storage_header;
 
-static const char *TAG = "redundant_storage";
+static const char *TAG_R = "redundant_storage";
 
 static redundant_storage read_file(FILE *file) {
     redundant_storage storage = {};
     if (file == NULL) {
-        ESP_LOGE(TAG, "check_file, file not exists");
+        ESP_LOGE(TAG_R, "check_file, file not exists");
         return storage;
     }
 
     struct stat st;
 
-    if (fstat(fileno(file), &st) != 0 || st.st_size < sizeof(redundant_storage_header)) {
-        ESP_LOGE(TAG, "check_file, file size wrong");
+    if (fstat(fileno(file), &st) != 0 || (size_t)st.st_size < sizeof(redundant_storage_header)) {
+        ESP_LOGE(TAG_R, "check_file, file size wrong");
         return storage;
     }
 
     redundant_storage_header header;
     if (fread(&header, sizeof(redundant_storage_header), 1, file) != 1) {
-        ESP_LOGE(TAG, "check_file, read header error");
+        ESP_LOGE(TAG_R, "check_file, read header error");
         return storage;
     }
 
@@ -38,7 +37,7 @@ static redundant_storage read_file(FILE *file) {
     storage.data = malloc(storage.size);
 
     if (fread(storage.data, 1, storage.size, file) != storage.size) {
-        ESP_LOGE(TAG, "check_file, read data error");
+        ESP_LOGE(TAG_R, "check_file, read data error");
         free(storage.data);
         storage.size = 0;
         storage.data = NULL;
@@ -46,7 +45,7 @@ static redundant_storage read_file(FILE *file) {
     }
 
     if (header.crc != calc_crc32(CRC32_INIT, storage.data, storage.size)) {
-        ESP_LOGW(TAG, "check_file, wrong crc\r\n");
+        ESP_LOGW(TAG_R, "check_file, wrong crc\r\n");
         free(storage.data);
         storage.size = 0;
         storage.data = NULL;
@@ -64,7 +63,7 @@ static void write_file(const char *path, redundant_storage storage) {
 
     if (fwrite(&header, sizeof(redundant_storage_header), 1, file) != 1
         || fwrite(storage.data, 1, storage.size, file) != storage.size) {
-        ESP_LOGE(TAG, "write_file, write error");
+        ESP_LOGE(TAG_R, "write_file, write error");
     }
 
     fclose(file);
@@ -74,7 +73,7 @@ redundant_storage redundant_storage_load(const char *partition_0,
                                          const char *path_0,
                                          const char *partition_1,
                                          const char *path_1) {
-    ESP_LOGI(TAG, "redundant_storage load path_0:'%s', path_1:'%s'", path_0, path_1);
+    ESP_LOGI(TAG_R, "redundant_storage load path_0:'%s', path_1:'%s'", path_0, path_1);
 
     open_storage(partition_0, path_0);
     open_storage(partition_1, path_1);
@@ -85,14 +84,19 @@ redundant_storage redundant_storage_load(const char *partition_0,
     redundant_storage storage_0 = read_file(file_0);
     redundant_storage storage_1 = read_file(file_1);
 
-    fclose(file_0);
-    fclose(file_1);
+    if (file_0 != NULL) {
+        fclose(file_0);
+    }
+    if (file_1 != NULL) {
+        fclose(file_1);
+    }
 
     if (storage_0.data != NULL && storage_1.data == NULL) {
         write_file(path_1, storage_0);
     }
     if (storage_0.data == NULL && storage_1.data != NULL) {
         write_file(path_0, storage_1);
+        storage_0 = storage_1;
     }
 
     close_storage(partition_0);

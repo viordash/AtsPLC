@@ -24,6 +24,7 @@
         "string": "c",
         "unistd.h": "c",
         "adc.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "storage.h": "c"
     }
 }

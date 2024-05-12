@@ -19,3 +19,6 @@ TEST_GROUP_C_WRAPPER(GpioTestsGroup){};
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_cleared_startup_value);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
+
+TEST_GROUP_C_WRAPPER(RedundantStorageTestsGroup){};
+TEST_C_WRAPPER(RedundantStorageTestsGroup, load_if_clear_storage_return_NULL);

@@ -19,7 +19,7 @@ void open_storage(const char *partition, const char *path) {
         ESP_LOGE(TAG, "Failed to mount or format filesystem");
     } else if (ret == ESP_ERR_NOT_FOUND) {
         ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-    } else {
+    } else if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
     }
 }
