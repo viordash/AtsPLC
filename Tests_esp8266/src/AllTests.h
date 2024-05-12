@@ -26,3 +26,6 @@ TEST_GROUP_C_WRAPPER(RedundantStorageTestsGroup) {
 };
 TEST_C_WRAPPER(RedundantStorageTestsGroup, load_if_clear_storage_return_NULL);
 TEST_C_WRAPPER(RedundantStorageTestsGroup, store);
+TEST_C_WRAPPER(RedundantStorageTestsGroup, load);
+TEST_C_WRAPPER(RedundantStorageTestsGroup, second_storage_restored_when_load);
+TEST_C_WRAPPER(RedundantStorageTestsGroup, first_storage_restored_when_load);

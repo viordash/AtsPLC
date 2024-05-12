@@ -85,36 +85,41 @@ redundant_storage redundant_storage_load(const char *partition_0,
              path_1,
              name);
 
-    char filename[256];
+    char filename_0[256];
+    char filename_1[256];
 
     open_storage(partition_0, path_0);
-    open_storage(partition_1, path_1);
-
-    snprintf(filename, sizeof(filename), "%s/%s", path_0, name);
-    FILE *file_0 = fopen(filename, "rb");
-    snprintf(filename, sizeof(filename), "%s/%s", path_1, name);
-    FILE *file_1 = fopen(filename, "rb");
-
+    snprintf(filename_0, sizeof(filename_0), "%s/%s", path_0, name);
+    FILE *file_0 = fopen(filename_0, "rb");
     redundant_storage storage_0 = read_file(file_0);
-    redundant_storage storage_1 = read_file(file_1);
 
     if (file_0 != NULL) {
         fclose(file_0);
     }
+    close_storage(partition_0);
+
+    open_storage(partition_1, path_1);
+    snprintf(filename_1, sizeof(filename_1), "%s/%s", path_1, name);
+    FILE *file_1 = fopen(filename_1, "rb");
+    redundant_storage storage_1 = read_file(file_1);
+
     if (file_1 != NULL) {
         fclose(file_1);
     }
+    close_storage(partition_1);
 
-    if (storage_0.data != NULL && storage_1.data == NULL) {
-        write_file(path_1, storage_0);
+    if (storage_0.data != NULL) {
+        if (storage_1.data == NULL) {
+            write_file(filename_1, storage_0);
+        } else {
+            free(storage_1.data);
+        }
     }
+
     if (storage_0.data == NULL && storage_1.data != NULL) {
-        write_file(path_0, storage_1);
+        write_file(filename_0, storage_1);
         storage_0 = storage_1;
     }
-
-    close_storage(partition_0);
-    close_storage(partition_1);
 
     return storage_0;
 }
