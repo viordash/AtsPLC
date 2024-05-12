@@ -4,3 +4,6 @@
 [submodule "TestsFramework/CppUTest"]
 	path = TestsFramework/CppUTest
 	url = https://github.com/cpputest/cpputest.git
+[submodule "SDK/MigrateAnyCppData"]
+	path = SDK/MigrateAnyCppData
+	url = https://github.com/viordash/MigrateAnyCppData.git
