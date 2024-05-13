@@ -48,10 +48,56 @@ TEST_TEARDOWN() {
 ;
 
 TEST(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings) {
+    redundant_storage storage = {};
+    mock()
+        .expectOneCall("redundant_storage_load")
+        .withOutputParameterReturning("storage", &storage, sizeof(storage))
+        .ignoreOtherParameters();
+
     settings = (device_settings *)19;
     load_settings();
 
     CHECK(settings == NULL);
+}
+
+TEST(SettingsTestsGroup, load_settings) {
+    device_settings stored_settings;
+    stored_settings.state = 42;
+    redundant_storage storage;
+    storage.data = (uint8_t *)&stored_settings;
+    storage.size = sizeof(stored_settings);
+
+    mock()
+        .expectOneCall("redundant_storage_load")
+        .withStringParameter("partition_0", "storage_0")
+        .withStringParameter("path_0", "/storage_0")
+        .withStringParameter("partition_1", "storage_1")
+        .withStringParameter("path_1", "/storage_1")
+        .withStringParameter("name", "settings")
+        .withOutputParameterReturning("storage", &storage, sizeof(storage));
+
+    settings = (device_settings *)19;
+    load_settings();
+
+    CHECK(settings != NULL);
+    CHECK_EQUAL(42, settings->state);
+}
+
+TEST(SettingsTestsGroup, store_settings) {
+    device_settings stored_settings = {};
+
+    mock()
+        .expectOneCall("redundant_storage_store")
+        .withStringParameter("partition_0", "storage_0")
+        .withStringParameter("path_0", "/storage_0")
+        .withStringParameter("partition_1", "storage_1")
+        .withStringParameter("path_1", "/storage_1")
+        .withStringParameter("name", "settings")
+        .withPointerParameter("storage.data", (uint8_t *)&stored_settings)
+        .withUnsignedIntParameter("storage.size", sizeof(stored_settings));
+
+    settings = &stored_settings;
+    store_settings();
 }
 
 redundant_storage redundant_storage_load(const char *partition_0,
@@ -68,7 +114,7 @@ redundant_storage redundant_storage_load(const char *partition_0,
         .withStringParameter("partition_1", partition_1)
         .withStringParameter("path_1", path_1)
         .withStringParameter("name", name)
-        .withOutputParameterOfType("redundant_storage", "storage", &storage);
+        .withOutputParameter("storage", &storage);
     return storage;
 }
 
@@ -80,7 +126,7 @@ void redundant_storage_store(const char *partition_0,
                              redundant_storage storage) {
 
     mock()
-        .actualCall("redundant_storage_load")
+        .actualCall("redundant_storage_store")
         .withStringParameter("partition_0", partition_0)
         .withStringParameter("path_0", path_0)
         .withStringParameter("partition_1", partition_1)

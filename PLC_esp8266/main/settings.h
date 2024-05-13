@@ -4,7 +4,7 @@
 
 typedef struct {
     size_t size;
-    uint32_t crc;
+    uint32_t state;
     uint32_t version;
 } device_settings;
 
