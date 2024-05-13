@@ -29,6 +29,7 @@ namespace MigrateSettings {
         }
 
         inline void MigrateUp(void *pCurr, void *pPrev) {
+            (void)pPrev;
             auto pSettings = (Snapshot::device_settings *)pCurr;
             memset(pSettings, 0, sizeof(*pSettings));
             pSettings->count = 1;
@@ -40,6 +41,8 @@ namespace MigrateSettings {
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {
+            (void)pCurr;
+            (void)pPrev;
         }
 
     } // namespace Initial

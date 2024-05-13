@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "MigrateAnyData.cpp"
 #include "settings.cpp"
 
 #undef storage_0_partition
@@ -54,15 +55,18 @@ TEST(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings) {
         .withOutputParameterReturning("storage", &storage, sizeof(storage))
         .ignoreOtherParameters();
 
-    settings = (device_settings *)19;
+    settings.count = 42;
+    settings.state = 19;
     load_settings();
 
-    CHECK(settings == NULL);
+    CHECK_EQUAL(0, settings.count);
+    CHECK_EQUAL(0, settings.state);
 }
 
 TEST(SettingsTestsGroup, load_settings) {
     device_settings stored_settings;
-    stored_settings.state = 42;
+    stored_settings.count = 42;
+    stored_settings.state = 1;
     redundant_storage storage;
     storage.data = (uint8_t *)&stored_settings;
     storage.size = sizeof(stored_settings);
@@ -76,11 +80,12 @@ TEST(SettingsTestsGroup, load_settings) {
         .withStringParameter("name", "settings")
         .withOutputParameterReturning("storage", &storage, sizeof(storage));
 
-    settings = (device_settings *)19;
+    settings.count = 0;
+    settings.state = 0;
     load_settings();
 
-    CHECK(settings != NULL);
-    CHECK_EQUAL(42, settings->state);
+    CHECK_EQUAL(42, settings.count);
+    CHECK_EQUAL(1, settings.state);
 }
 
 TEST(SettingsTestsGroup, store_settings) {
@@ -96,7 +101,7 @@ TEST(SettingsTestsGroup, store_settings) {
         .withPointerParameter("storage.data", (uint8_t *)&stored_settings)
         .withUnsignedIntParameter("storage.size", sizeof(stored_settings));
 
-    settings = &stored_settings;
+    // settings = &stored_settings;
     store_settings();
 }
 
