@@ -23,7 +23,7 @@
 static const char *TAG = "main";
 static hotreload hotreload_data;
 
-extern device_settings *settings;
+extern device_settings settings;
 
 void app_main() {
     uart_set_baudrate(UART_NUM_0, 921600);
