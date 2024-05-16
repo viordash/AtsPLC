@@ -68,6 +68,7 @@ TEST_C(RedundantStorageTestsGroup, load_if_clear_storage_return_NULL) {
                                                        storage_name);
     CHECK_EQUAL_C_POINTER(NULL, storage.data);
     CHECK_EQUAL_C_UINT(0, storage.size);
+    CHECK_EQUAL_C_UINT(0, storage.version);
 }
 
 TEST_C(RedundantStorageTestsGroup, store) {
@@ -83,6 +84,7 @@ TEST_C(RedundantStorageTestsGroup, store) {
     redundant_storage storage;
     storage.data = data;
     storage.size = sizeof(data);
+    storage.version = 42;
 
     redundant_storage_store(storage_0_partition,
                             storage_0_path,
@@ -100,6 +102,7 @@ TEST_C(RedundantStorageTestsGroup, load) {
     redundant_storage storage;
     storage.data = data;
     storage.size = sizeof(data);
+    storage.version = 42;
 
     mock_c()->disable();
     redundant_storage_store(storage_0_partition,
@@ -122,6 +125,7 @@ TEST_C(RedundantStorageTestsGroup, load) {
                                      storage_name);
     CHECK_EQUAL_C_MEMCMP(data, storage.data, sizeof(data));
     CHECK_EQUAL_C_UINT(sizeof(data), storage.size);
+    CHECK_EQUAL_C_UINT(42, storage.version);
     free(storage.data);
 }
 
@@ -131,6 +135,7 @@ TEST_C(RedundantStorageTestsGroup, second_storage_restored_when_load) {
     redundant_storage storage;
     storage.data = data;
     storage.size = sizeof(data);
+    storage.version = 19;
 
     mock_c()->disable();
     redundant_storage_store(storage_0_partition,
@@ -158,6 +163,7 @@ TEST_C(RedundantStorageTestsGroup, second_storage_restored_when_load) {
                                      storage_name);
     CHECK_EQUAL_C_MEMCMP(data, storage.data, sizeof(data));
     CHECK_EQUAL_C_UINT(sizeof(data), storage.size);
+    CHECK_EQUAL_C_UINT(19, storage.version);
     free(storage.data);
 
     CHECK_EQUAL_C_BOOL(true, storage_0_exists());
@@ -170,6 +176,7 @@ TEST_C(RedundantStorageTestsGroup, first_storage_restored_when_load) {
     redundant_storage storage;
     storage.data = data;
     storage.size = sizeof(data);
+    storage.version = 42;
 
     mock_c()->disable();
     redundant_storage_store(storage_0_partition,
@@ -197,6 +204,7 @@ TEST_C(RedundantStorageTestsGroup, first_storage_restored_when_load) {
                                      storage_name);
     CHECK_EQUAL_C_MEMCMP(data, storage.data, sizeof(data));
     CHECK_EQUAL_C_UINT(sizeof(data), storage.size);
+    CHECK_EQUAL_C_UINT(42, storage.version);
     free(storage.data);
 
     CHECK_EQUAL_C_BOOL(true, storage_0_exists());
