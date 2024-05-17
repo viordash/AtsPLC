@@ -48,7 +48,7 @@ TEST_TEARDOWN() {
 }
 ;
 
-TEST(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings) {
+TEST(SettingsTestsGroup, load_if_clear_storage_return_default_settings) {
     redundant_storage storage = {};
     mock()
         .expectOneCall("redundant_storage_load")
@@ -59,17 +59,18 @@ TEST(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings) {
     settings.state = 19;
     load_settings();
 
-    CHECK_EQUAL(0, settings.count);
-    CHECK_EQUAL(0, settings.state);
+    CHECK_EQUAL(1, settings.count);
+    CHECK_EQUAL(0xFF, settings.state);
 }
 
-TEST(SettingsTestsGroup, load_settings) {
-    device_settings stored_settings;
-    stored_settings.count = 42;
-    stored_settings.state = 1;
+TEST(SettingsTestsGroup, load_settings_without_migration) {
+    device_settings *stored_settings = (device_settings *)malloc(sizeof(device_settings));
+    stored_settings->count = 42;
+    stored_settings->state = 1;
     redundant_storage storage;
-    storage.data = (uint8_t *)&stored_settings;
+    storage.data = (uint8_t *)stored_settings;
     storage.size = sizeof(stored_settings);
+    storage.version = DEVICE_SETTINGS_VERSION;
 
     mock()
         .expectOneCall("redundant_storage_load")
@@ -88,9 +89,33 @@ TEST(SettingsTestsGroup, load_settings) {
     CHECK_EQUAL(1, settings.state);
 }
 
-TEST(SettingsTestsGroup, store_settings) {
-    device_settings stored_settings = {};
+TEST(SettingsTestsGroup, load_settings_and_migrate) {
+    device_settings *stored_settings = (device_settings *)malloc(sizeof(device_settings));
+    stored_settings->count = 42;
+    stored_settings->state = 1;
+    redundant_storage storage;
+    storage.data = (uint8_t *)stored_settings;
+    storage.size = sizeof(stored_settings);
+    storage.version = 0;
 
+    mock()
+        .expectOneCall("redundant_storage_load")
+        .withStringParameter("partition_0", "storage_0")
+        .withStringParameter("path_0", "/storage_0")
+        .withStringParameter("partition_1", "storage_1")
+        .withStringParameter("path_1", "/storage_1")
+        .withStringParameter("name", "settings")
+        .withOutputParameterReturning("storage", &storage, sizeof(storage));
+
+    settings.count = 0;
+    settings.state = 0;
+    load_settings();
+
+    CHECK_EQUAL(1, settings.count);
+    CHECK_EQUAL(0xFF, settings.state);
+}
+
+TEST(SettingsTestsGroup, store_settings) {
     mock()
         .expectOneCall("redundant_storage_store")
         .withStringParameter("partition_0", "storage_0")
@@ -98,10 +123,10 @@ TEST(SettingsTestsGroup, store_settings) {
         .withStringParameter("partition_1", "storage_1")
         .withStringParameter("path_1", "/storage_1")
         .withStringParameter("name", "settings")
-        .withPointerParameter("storage.data", (uint8_t *)&stored_settings)
-        .withUnsignedIntParameter("storage.size", sizeof(stored_settings));
+        .withPointerParameter("storage.data", (uint8_t *)&settings)
+        .withUnsignedIntParameter("storage.size", sizeof(settings))
+        .withUnsignedIntParameter("storage.version", DEVICE_SETTINGS_VERSION);
 
-    // settings = &stored_settings;
     store_settings();
 }
 
@@ -138,5 +163,6 @@ void redundant_storage_store(const char *partition_0,
         .withStringParameter("path_1", path_1)
         .withStringParameter("name", name)
         .withPointerParameter("storage.data", storage.data)
-        .withUnsignedIntParameter("storage.size", storage.size);
+        .withUnsignedIntParameter("storage.size", storage.size)
+        .withUnsignedIntParameter("storage.version", storage.version);
 }
