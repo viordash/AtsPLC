@@ -41,11 +41,11 @@ static redundant_storage read_file(FILE *file) {
     uint32_t crc = calc_crc32(CRC32_INIT, &storage.version, sizeof(storage.version));
 
     storage.size = st.st_size - sizeof(redundant_storage_header) - sizeof(storage.version);
-    storage.data = malloc(storage.size);
+    storage.data = new uint8_t[storage.size];
 
     if (fread(storage.data, 1, storage.size, file) != storage.size) {
         ESP_LOGE(TAG_R, "check_file, read data error");
-        free(storage.data);
+        delete[] storage.data;
         storage.size = 0;
         storage.data = NULL;
         return storage;
@@ -53,7 +53,7 @@ static redundant_storage read_file(FILE *file) {
 
     if (header.crc != calc_crc32(crc, storage.data, storage.size)) {
         ESP_LOGW(TAG_R, "check_file, wrong crc\r\n");
-        free(storage.data);
+        delete[] storage.data;
         storage.size = 0;
         storage.data = NULL;
         return storage;
@@ -123,7 +123,7 @@ redundant_storage redundant_storage_load(const char *partition_0,
         if (storage_1.data == NULL) {
             write_file(filename_1, storage_0);
         } else {
-            free(storage_1.data);
+            delete[] storage_1.data;
         }
     }
 

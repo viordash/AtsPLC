@@ -49,7 +49,7 @@ void load_settings() {
         ESP_LOGE(TAG, "Settings. migrate error\n");
     }
 
-    free(storage.data);
+    delete[] storage.data;
 }
 
 void store_settings() {
