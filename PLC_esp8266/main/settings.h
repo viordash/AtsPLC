@@ -15,5 +15,13 @@ typedef struct {
 
 extern device_settings settings;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void load_settings();
 void store_settings();
+
+#ifdef __cplusplus
+}
+#endif
