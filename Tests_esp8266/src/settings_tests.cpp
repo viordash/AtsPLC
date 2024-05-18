@@ -55,17 +55,17 @@ TEST(SettingsTestsGroup, load_if_clear_storage_return_default_settings) {
         .withOutputParameterReturning("storage", &storage, sizeof(storage))
         .ignoreOtherParameters();
 
-    settings.count = 42;
+    settings.smartconfig.counter = 42;
     settings.state = 19;
     load_settings();
 
-    CHECK_EQUAL(1, settings.count);
+    CHECK_EQUAL(1, settings.smartconfig.counter);
     CHECK_EQUAL(0xFF, settings.state);
 }
 
 TEST(SettingsTestsGroup, load_settings_without_migration) {
     device_settings *stored_settings = (device_settings *)malloc(sizeof(device_settings));
-    stored_settings->count = 42;
+    stored_settings->smartconfig.counter = 42;
     stored_settings->state = 1;
     redundant_storage storage;
     storage.data = (uint8_t *)stored_settings;
@@ -81,17 +81,17 @@ TEST(SettingsTestsGroup, load_settings_without_migration) {
         .withStringParameter("name", "settings")
         .withOutputParameterReturning("storage", &storage, sizeof(storage));
 
-    settings.count = 0;
+    settings.smartconfig.counter = 0;
     settings.state = 0;
     load_settings();
 
-    CHECK_EQUAL(42, settings.count);
+    CHECK_EQUAL(42, settings.smartconfig.counter);
     CHECK_EQUAL(1, settings.state);
 }
 
 TEST(SettingsTestsGroup, load_settings_and_migrate) {
     device_settings *stored_settings = (device_settings *)malloc(sizeof(device_settings));
-    stored_settings->count = 42;
+    stored_settings->smartconfig.counter = 42;
     stored_settings->state = 1;
     redundant_storage storage;
     storage.data = (uint8_t *)stored_settings;
@@ -107,11 +107,11 @@ TEST(SettingsTestsGroup, load_settings_and_migrate) {
         .withStringParameter("name", "settings")
         .withOutputParameterReturning("storage", &storage, sizeof(storage));
 
-    settings.count = 0;
+    settings.smartconfig.counter = 0;
     settings.state = 0;
     load_settings();
 
-    CHECK_EQUAL(1, settings.count);
+    CHECK_EQUAL(1, settings.smartconfig.counter);
     CHECK_EQUAL(0xFF, settings.state);
 }
 

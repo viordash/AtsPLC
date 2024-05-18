@@ -19,7 +19,11 @@ namespace MigrateSettings {
 
         namespace Snapshot {
             typedef struct {
-                size_t count;
+                uint32_t counter;
+            } smartconfig_settings;
+
+            typedef struct {
+                smartconfig_settings smartconfig;
                 uint32_t state;
             } device_settings;
         } // namespace Snapshot
@@ -32,7 +36,7 @@ namespace MigrateSettings {
             (void)pPrev;
             auto pSettings = (Snapshot::device_settings *)pCurr;
             memset(pSettings, 0, sizeof(*pSettings));
-            pSettings->count = 1;
+            pSettings->smartconfig.counter = 0;
             pSettings->state = 0xFF;
 
             ESP_LOGI("Settings_Initial",
