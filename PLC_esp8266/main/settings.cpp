@@ -44,6 +44,9 @@ void load_settings() {
         ESP_LOGI(TAG, "Settings. migrated\n");
     } else if (migrateResult == MigrateRes_Skipped && storedData != NULL) {
         memcpy(&settings, storedData, sizeof(settings));
+        ESP_LOGI(TAG, "Settings. loaded\n");
+    } else {
+        ESP_LOGE(TAG, "Settings. migrate error\n");
     }
 
     free(storage.data);
