@@ -59,7 +59,7 @@ TEST(SettingsTestsGroup, load_if_clear_storage_return_default_settings) {
     settings.state = 19;
     load_settings();
 
-    CHECK_EQUAL(1, settings.smartconfig.counter);
+    CHECK_EQUAL(0, settings.smartconfig.counter);
     CHECK_EQUAL(0xFF, settings.state);
 }
 
@@ -107,11 +107,11 @@ TEST(SettingsTestsGroup, load_settings_and_migrate) {
         .withStringParameter("name", "settings")
         .withOutputParameterReturning("storage", &storage, sizeof(storage));
 
-    settings.smartconfig.counter = 0;
-    settings.state = 0;
+    settings.smartconfig.counter = 1234;
+    settings.state = 5678;
     load_settings();
 
-    CHECK_EQUAL(1, settings.smartconfig.counter);
+    CHECK_EQUAL(0, settings.smartconfig.counter);
     CHECK_EQUAL(0xFF, settings.state);
 }
 
