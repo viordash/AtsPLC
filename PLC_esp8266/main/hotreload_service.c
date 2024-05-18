@@ -22,11 +22,11 @@ bool try_load_hotreload(hotreload *data) {
         ESP_LOGW(TAG, "try_load_hotreload, wrong crc\r\n");
         return false;
     }
-    memcpy((void *)data, (const void *)&_hotreload_data->data, sizeof(*data));
+    *data = _hotreload_data->data;
     return true;
 }
 
 void store_hotreload(hotreload *data) {
     _hotreload_data->crc = calc_crc32(CRC32_INIT, data, sizeof(*data));
-    memcpy((void *)&_hotreload_data->data, (const void *)data, sizeof(_hotreload_data->data));
+    _hotreload_data->data = *data;
 }
