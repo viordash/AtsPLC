@@ -14,5 +14,5 @@ void hot_restart() {
     hotreload_data.restart_count++;
     store_hotreload(&hotreload_data);
 
-    ESP_LOGI(TAG_restart_counter, "count:%u\n", hotreload_data.restart_count);
+    ESP_LOGI(TAG_restart_counter, "count:%u", hotreload_data.restart_count);
 }

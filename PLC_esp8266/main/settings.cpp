@@ -40,12 +40,12 @@ void load_settings() {
                                                     });
 
     if (migrateResult == MigrateRes_Migrate) {
-        ESP_LOGI(TAG, "Settings. migrated\n");
+        ESP_LOGI(TAG, "Settings. migrated");
     } else if (migrateResult == MigrateRes_Skipped && storedData != NULL) {
         memcpy(&settings, storedData, sizeof(settings));
-        ESP_LOGI(TAG, "Settings. loaded\n");
+        ESP_LOGI(TAG, "Settings. loaded");
     } else {
-        ESP_LOGE(TAG, "Settings. migrate error\n");
+        ESP_LOGE(TAG, "Settings. migrate error");
     }
 
     delete[] storage.data;

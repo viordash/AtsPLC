@@ -52,7 +52,7 @@ static redundant_storage read_file(FILE *file) {
     }
 
     if (header.crc != calc_crc32(crc, storage.data, storage.size)) {
-        ESP_LOGW(TAG_R, "check_file, wrong crc\r\n");
+        ESP_LOGW(TAG_R, "check_file, wrong crc\r");
         delete[] storage.data;
         storage.size = 0;
         storage.data = NULL;
