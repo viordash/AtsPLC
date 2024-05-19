@@ -62,5 +62,5 @@ void store_settings() {
                             storage_1_partition,
                             storage_1_path,
                             settings_storage_name,
-                            storage);
+                            &storage);
 }
