@@ -28,4 +28,4 @@ TEST_GROUP_C_WRAPPER(RestartCounterTestsGroup) {
     TEST_GROUP_C_SETUP_WRAPPER(RestartCounterTestsGroup);
     TEST_GROUP_C_TEARDOWN_WRAPPER(RestartCounterTestsGroup);
 };
-TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart);
+TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart_counter);

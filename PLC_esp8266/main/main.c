@@ -25,22 +25,22 @@ static const char *TAG = "main";
 
 extern device_settings settings;
 
-static void init_gpio() {
+static void startup() {
+    hot_restart_counter();
+
     hotreload hotreload_data;
-    if (try_load_hotreload(&hotreload_data)) {
-        ESP_LOGI(TAG, "hotreload, gpio:%u\n", hotreload_data.gpio);
+    bool is_hotstart = try_load_hotreload(&hotreload_data);
+
+    if (is_hotstart) {
+        ESP_LOGI(TAG, "hotreload, gpio:%u", hotreload_data.gpio);
     } else {
         hotreload_data.gpio = 0x00;
     }
-
     gpio_init(hotreload_data.gpio);
 }
 
 void app_main() {
-    hot_restart();
-    uart_set_baudrate(UART_NUM_0, 921600);
-    init_gpio();
-
+    startup();
     load_settings();
 
     /* Print chip information */

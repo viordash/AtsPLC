@@ -4,4 +4,4 @@
 #include <stdint.h>
 #include <unistd.h>
 
-void hot_restart();
+void hot_restart_counter();

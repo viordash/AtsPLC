@@ -6,7 +6,7 @@
 
 static const char *TAG_restart_counter = "restart_counter";
 
-void hot_restart() {
+void hot_restart_counter() {
     hotreload hotreload_data;
     if (!try_load_hotreload(&hotreload_data)) {
         memset(&hotreload_data, 0, sizeof(hotreload_data));

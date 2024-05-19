@@ -17,18 +17,18 @@ TEST_GROUP_C_TEARDOWN(RestartCounterTestsGroup) {
 #define RTC_USER_BASE testable
 #include "restart_counter.c"
 
-TEST_C(RestartCounterTestsGroup, hot_restart) {
+TEST_C(RestartCounterTestsGroup, hot_restart_counter) {
     hotreload load_data = {};
 
     CHECK_EQUAL_C_BOOL(false, try_load_hotreload(&load_data));
 
-    hot_restart();
+    hot_restart_counter();
 
     CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
     CHECK_EQUAL_C_UINT(1, load_data.restart_count);
 
-    hot_restart();
-    hot_restart();
+    hot_restart_counter();
+    hot_restart_counter();
 
     CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
     CHECK_EQUAL_C_UINT(3, load_data.restart_count);
