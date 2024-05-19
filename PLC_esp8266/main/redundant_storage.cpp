@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-
-
 typedef struct {
     uint32_t crc;
 } redundant_storage_header;
@@ -30,25 +28,32 @@ static redundant_storage read_file(FILE *file) {
     }
 
     redundant_storage_header header;
-    if (fread(&header, sizeof(redundant_storage_header), 1, file) != 1) {
+    if (fread(&header, 1, sizeof(redundant_storage_header), file)
+        != sizeof(redundant_storage_header)) {
         ESP_LOGE(TAG_R, "check_file, read header error");
         return storage;
     }
 
-    storage.size = st.st_size - sizeof(redundant_storage_header);
-    storage.data = malloc(storage.size);
+    if (fread(&storage.version, 1, sizeof(storage.version), file) != sizeof(storage.version)) {
+        ESP_LOGE(TAG_R, "check_file, read version error");
+        return storage;
+    }
+    uint32_t crc = calc_crc32(CRC32_INIT, &storage.version, sizeof(storage.version));
+
+    storage.size = st.st_size - sizeof(redundant_storage_header) - sizeof(storage.version);
+    storage.data = new uint8_t[storage.size];
 
     if (fread(storage.data, 1, storage.size, file) != storage.size) {
         ESP_LOGE(TAG_R, "check_file, read data error");
-        free(storage.data);
+        delete[] storage.data;
         storage.size = 0;
         storage.data = NULL;
         return storage;
     }
 
-    if (header.crc != calc_crc32(CRC32_INIT, storage.data, storage.size)) {
-        ESP_LOGW(TAG_R, "check_file, wrong crc\r\n");
-        free(storage.data);
+    if (header.crc != calc_crc32(crc, storage.data, storage.size)) {
+        ESP_LOGW(TAG_R, "check_file, wrong crc\r");
+        delete[] storage.data;
         storage.size = 0;
         storage.data = NULL;
         return storage;
@@ -66,9 +71,13 @@ static void write_file(const char *path, redundant_storage storage) {
     }
 
     redundant_storage_header header;
-    header.crc = calc_crc32(CRC32_INIT, storage.data, storage.size);
 
-    if (fwrite(&header, sizeof(redundant_storage_header), 1, file) != 1
+    header.crc = calc_crc32(CRC32_INIT, &storage.version, sizeof(storage.version));
+    header.crc = calc_crc32(header.crc, storage.data, storage.size);
+
+    if (fwrite(&header, 1, sizeof(redundant_storage_header), file)
+            != sizeof(redundant_storage_header)
+        || fwrite(&storage.version, 1, sizeof(storage.version), file) != sizeof(storage.version)
         || fwrite(storage.data, 1, storage.size, file) != storage.size) {
         ESP_LOGE(TAG_R, "write_file, write error");
     }
@@ -114,7 +123,7 @@ redundant_storage redundant_storage_load(const char *partition_0,
         if (storage_1.data == NULL) {
             write_file(filename_1, storage_0);
         } else {
-            free(storage_1.data);
+            delete[] storage_1.data;
         }
     }
 

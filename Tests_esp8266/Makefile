@@ -27,6 +27,8 @@ OUTPUT	:= output
 # define source directory
 SRC		:= src
 
+INCLUDE := params
+
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
@@ -47,7 +49,7 @@ RM = rm -f
 MD	:= mkdir -p
 endif
 
-INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) -I$(SOURCE_PROJECT_DIR) \
+INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) -I$(SOURCE_PROJECT_DIR) \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorMallocMacros.h \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorNewMacros.h
 

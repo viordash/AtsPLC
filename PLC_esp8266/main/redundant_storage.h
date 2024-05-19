@@ -1,9 +1,12 @@
+#pragma once
+
 #include <stdint.h>
 #include <unistd.h>
 
 typedef struct {
     uint8_t *data;
     size_t size;
+    uint32_t version;
 } redundant_storage;
 
 redundant_storage redundant_storage_load(const char *partition_0,

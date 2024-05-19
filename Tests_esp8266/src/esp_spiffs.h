@@ -14,6 +14,10 @@ typedef struct {
         format_if_mount_failed; /*!< If true, it will format the file system if it fails to mount. */
 } esp_vfs_spiffs_conf_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Register and mount SPIFFS to VFS with given path prefix.
  *
@@ -38,4 +42,9 @@ esp_err_t esp_vfs_spiffs_register(const esp_vfs_spiffs_conf_t *conf);
  *          - ESP_OK if successful
  *          - ESP_ERR_INVALID_STATE already unregistered
  */
+
 esp_err_t esp_vfs_spiffs_unregister(const char *partition_label);
+
+#ifdef __cplusplus
+}
+#endif

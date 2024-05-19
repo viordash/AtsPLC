@@ -10,6 +10,11 @@
         "unistd.h": "c",
         "esp_spiffs.h": "c",
         "esp_log.h": "c",
-        "redundant_storage.h": "c"
+        "redundant_storage.h": "c",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp",
+        "hotreload_service.h": "c",
+        "restart_counter.h": "c"
     }
 }

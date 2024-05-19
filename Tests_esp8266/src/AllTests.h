@@ -20,18 +20,12 @@ TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_cleared_startup_value);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
 
-TEST_GROUP_C_WRAPPER(RedundantStorageTestsGroup) {
-    TEST_GROUP_C_SETUP_WRAPPER(RedundantStorageTestsGroup);
-    TEST_GROUP_C_TEARDOWN_WRAPPER(RedundantStorageTestsGroup);
-};
-TEST_C_WRAPPER(RedundantStorageTestsGroup, load_if_clear_storage_return_NULL);
-TEST_C_WRAPPER(RedundantStorageTestsGroup, store);
-TEST_C_WRAPPER(RedundantStorageTestsGroup, load);
-TEST_C_WRAPPER(RedundantStorageTestsGroup, second_storage_restored_when_load);
-TEST_C_WRAPPER(RedundantStorageTestsGroup, first_storage_restored_when_load);
+IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 
-TEST_GROUP_C_WRAPPER(SettingsTestsGroup) {
-    TEST_GROUP_C_SETUP_WRAPPER(SettingsTestsGroup);
-    TEST_GROUP_C_TEARDOWN_WRAPPER(SettingsTestsGroup);
+IMPORT_TEST_GROUP(SettingsTestsGroup);
+
+TEST_GROUP_C_WRAPPER(RestartCounterTestsGroup) {
+    TEST_GROUP_C_SETUP_WRAPPER(RestartCounterTestsGroup);
+    TEST_GROUP_C_TEARDOWN_WRAPPER(RestartCounterTestsGroup);
 };
-TEST_C_WRAPPER(SettingsTestsGroup, load_if_clear_storage_return_NULL_settings);
+TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart_counter);
