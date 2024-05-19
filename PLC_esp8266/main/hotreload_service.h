@@ -1,9 +1,12 @@
+#pragma once
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
 
 typedef struct {
     uint32_t gpio;
+    uint32_t restart_count;
 } hotreload;
 
 bool try_load_hotreload(hotreload *data);

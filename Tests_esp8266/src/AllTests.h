@@ -23,3 +23,9 @@ TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
 IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 
 IMPORT_TEST_GROUP(SettingsTestsGroup);
+
+TEST_GROUP_C_WRAPPER(RestartCounterTestsGroup) {
+    TEST_GROUP_C_SETUP_WRAPPER(RestartCounterTestsGroup);
+    TEST_GROUP_C_TEARDOWN_WRAPPER(RestartCounterTestsGroup);
+};
+TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart);

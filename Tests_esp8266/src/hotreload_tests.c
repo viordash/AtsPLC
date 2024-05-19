@@ -22,12 +22,14 @@ TEST_C(HotReloadTestsGroup, store_load) {
     hotreload load_data = {};
 
     store_data.gpio = 42;
+    store_data.restart_count = 19;
 
     store_hotreload(&store_data);
 
     CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
 
-    CHECK_EQUAL_C_MEMCMP(&store_data, &load_data, sizeof(store_data));
+    CHECK_EQUAL_C_UINT(store_data.gpio, load_data.gpio);
+    CHECK_EQUAL_C_UINT(store_data.restart_count, load_data.restart_count);
 }
 
 TEST_C(HotReloadTestsGroup, load_if_memory_cleared) {

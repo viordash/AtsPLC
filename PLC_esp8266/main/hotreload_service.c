@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include <string.h>
 
-static const char *TAG = "hotreload";
+static const char *TAG_hotreload = "hotreload";
 
 static const uint32_t MAGIC = 0xDE4572BB;
 
@@ -23,7 +23,7 @@ volatile hotreload_data *_hotreload_data = (volatile hotreload_data *)RTC_USER_B
 
 bool try_load_hotreload(hotreload *data) {
     if (_hotreload_data->magic != MAGIC) {
-        ESP_LOGW(TAG, "try_load_hotreload, incorrect magic\r\n");
+        ESP_LOGW(TAG_hotreload, "try_load_hotreload, incorrect magic\r\n");
         return false;
     }
 
@@ -32,7 +32,7 @@ bool try_load_hotreload(hotreload *data) {
     crc = calc_crc32(crc, (const void *)&_hotreload_data->dummy, sizeof(_hotreload_data->dummy));
 
     if (_hotreload_data->crc != crc) {
-        ESP_LOGW(TAG, "try_load_hotreload, wrong crc\r\n");
+        ESP_LOGW(TAG_hotreload, "try_load_hotreload, wrong crc\r\n");
         return false;
     }
     *data = _hotreload_data->data;

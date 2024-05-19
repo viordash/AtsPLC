@@ -16,18 +16,17 @@
 #include "gpio.h"
 #include "hotreload_service.h"
 #include "redundant_storage.h"
+#include "restart_counter.h"
 #include "settings.h"
 #include "storage.h"
 #include <stdio.h>
 
 static const char *TAG = "main";
-static hotreload hotreload_data;
 
 extern device_settings settings;
 
-void app_main() {
-    uart_set_baudrate(UART_NUM_0, 921600);
-
+static void init_gpio() {
+    hotreload hotreload_data;
     if (try_load_hotreload(&hotreload_data)) {
         ESP_LOGI(TAG, "hotreload, gpio:%u\n", hotreload_data.gpio);
     } else {
@@ -35,6 +34,12 @@ void app_main() {
     }
 
     gpio_init(hotreload_data.gpio);
+}
+
+void app_main() {
+    hot_restart();
+    uart_set_baudrate(UART_NUM_0, 921600);
+    init_gpio();
 
     load_settings();
 
@@ -54,13 +59,10 @@ void app_main() {
     for (int i = 10; i >= 0; i--) {
         printf("Restarting in %d seconds...\n", i);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        hotreload_data.gpio++;
     }
-    store_hotreload(&hotreload_data);
 
     store_settings();
     printf("Restarting now.\n");
-    try_load_hotreload(&hotreload_data);
     fflush(stdout);
     esp_restart();
 }
