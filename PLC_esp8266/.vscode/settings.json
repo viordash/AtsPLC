@@ -15,6 +15,14 @@
         "chrono": "cpp",
         "algorithm": "cpp",
         "hotreload_service.h": "c",
-        "restart_counter.h": "c"
+        "restart_counter.h": "c",
+        "settings.h": "c",
+        "event_groups.h": "c",
+        "stdint.h": "c",
+        "string.h": "c",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "string": "cpp"
     }
 }

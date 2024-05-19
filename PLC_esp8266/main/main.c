@@ -8,6 +8,7 @@
 */
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 #include "crc32.h"
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -18,6 +19,7 @@
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"
+#include "smartconfig_service.h"
 #include "storage.h"
 #include <stdio.h>
 
@@ -26,8 +28,6 @@ static const char *TAG = "main";
 extern device_settings settings;
 
 static void startup() {
-    hot_restart_counter();
-
     hotreload hotreload_data;
     bool is_hotstart = try_load_hotreload(&hotreload_data);
 
@@ -37,11 +37,17 @@ static void startup() {
         hotreload_data.gpio = 0x00;
     }
     gpio_init(hotreload_data.gpio);
+
+    load_settings();
+
+    if (!is_hotstart) {
+        try_smartconfig();
+    }
 }
 
 void app_main() {
     startup();
-    load_settings();
+    hot_restart_counter();
 
     /* Print chip information */
     esp_chip_info_t chip_info;

@@ -1,11 +1,17 @@
 
-#include "settings.h"
+extern "C" {
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
+}
+
 #include "MigrateAnyData.h"
 #include "MigrateSettings.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "partitions.h"
 #include "redundant_storage.h"
+#include "settings.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,7 +19,16 @@ static const char *TAG = "settings";
 
 device_settings settings = {};
 
+static SemaphoreHandle_t mutex = NULL;
+
 void load_settings() {
+    if (mutex == NULL) {
+        mutex = xSemaphoreCreateMutex();
+    }
+
+    ESP_ERROR_CHECK(mutex == NULL ? ESP_ERR_NO_MEM : ESP_OK);
+    ESP_ERROR_CHECK(xSemaphoreTake(mutex, portMAX_DELAY) != pdTRUE ? ESP_ERR_NO_MEM : ESP_OK);
+
     uint8_t *storedData = NULL;
     size_t storedSize = 0;
     uint32_t version = INITIAL_VERSION;
@@ -49,9 +64,12 @@ void load_settings() {
     }
 
     delete[] storage.data;
+    xSemaphoreGive(mutex);
 }
 
 void store_settings() {
+    ESP_ERROR_CHECK(xSemaphoreTake(mutex, portMAX_DELAY) != pdTRUE ? ESP_ERR_NO_MEM : ESP_OK);
+
     redundant_storage storage;
     storage.data = (uint8_t *)&settings;
     storage.size = sizeof(settings);
@@ -63,4 +81,6 @@ void store_settings() {
                             storage_1_path,
                             settings_storage_name,
                             &storage);
+
+    xSemaphoreGive(mutex);
 }
