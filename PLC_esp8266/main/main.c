@@ -58,7 +58,9 @@ void app_main() {
     }
     store_hotreload(&hotreload_data);
 
+    store_settings();
     printf("Restarting now.\n");
+    try_load_hotreload(&hotreload_data);
     fflush(stdout);
     esp_restart();
 }

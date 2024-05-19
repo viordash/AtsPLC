@@ -29,5 +29,11 @@ typedef int32_t esp_err_t;
         }                                                                                          \
     } while (0);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 const char *esp_err_to_name(esp_err_t code);
+#ifdef __cplusplus
+}
+#endif

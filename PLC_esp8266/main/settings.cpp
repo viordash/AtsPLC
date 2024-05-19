@@ -10,7 +10,6 @@
 #include <string.h>
 
 static const char *TAG = "settings";
-static const char *storage_name = "settings";
 
 device_settings settings = {};
 
@@ -22,7 +21,7 @@ void load_settings() {
                                                        storage_0_path,
                                                        storage_1_partition,
                                                        storage_1_path,
-                                                       storage_name);
+                                                       settings_storage_name);
     if (storage.size > 0) {
         version = storage.version;
         storedData = storage.data;
@@ -62,6 +61,6 @@ void store_settings() {
                             storage_0_path,
                             storage_1_partition,
                             storage_1_path,
-                            storage_name,
+                            settings_storage_name,
                             storage);
 }

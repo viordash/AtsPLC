@@ -29,6 +29,8 @@
         "atomic": "c",
         "errno.h": "c",
         "esp_log.h": "c",
-        "mocksupport_c.h": "c"
+        "mocksupport_c.h": "c",
+        "redundant_storage.h": "c",
+        "stat.h": "c"
     }
 }
