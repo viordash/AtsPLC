@@ -7,7 +7,7 @@
 static const char *TAG = "storage";
 
 void open_storage(const char *partition, const char *path) {
-    ESP_LOGI(TAG, "Initializing storage '%s'", partition);
+    ESP_LOGD(TAG, "Initializing storage '%s'", partition);
 
     esp_vfs_spiffs_conf_t conf = { .base_path = path,
                                    .partition_label = partition,
@@ -26,5 +26,5 @@ void open_storage(const char *partition, const char *path) {
 
 void close_storage(const char *partition) {
     esp_vfs_spiffs_unregister(partition);
-    ESP_LOGI(TAG, "unmount storage '%s'", partition);
+    ESP_LOGD(TAG, "unmount storage '%s'", partition);
 }
