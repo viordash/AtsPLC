@@ -84,7 +84,7 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
     }
 }
 
-static void initialise_wifi(void) {
+static void initialize_wifi(void) {
     tcpip_adapter_init();
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -102,20 +102,28 @@ static void initialise_wifi(void) {
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
+static void stop_wifi(void) {
+    esp_smartconfig_stop();
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+    ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
+    ESP_ERROR_CHECK(esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+}
+
 static void start_smartconfig() {
     ESP_LOGW(TAG, "Start process");
     s_wifi_event_group = xEventGroupCreate();
 
-    initialise_wifi();
+    initialize_wifi();
 
     EventBits_t uxBits = ~(CONNECTED_BIT | ESPTOUCH_DONE_BIT);
     while (uxBits != 0) {
         ESP_LOGW(TAG, "Start process 0");
         uxBits = xEventGroupWaitBits(s_wifi_event_group,
-                                                 CONNECTED_BIT | ESPTOUCH_DONE_BIT,
-                                                 true,
-                                                 false,
-                                                 timeout_ms / portTICK_RATE_MS);
+                                     CONNECTED_BIT | ESPTOUCH_DONE_BIT,
+                                     true,
+                                     false,
+                                     timeout_ms / portTICK_RATE_MS);
 
         ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
         if (uxBits & CONNECTED_BIT) {
@@ -128,6 +136,7 @@ static void start_smartconfig() {
             break;
         }
     }
+    stop_wifi();
     ESP_LOGW(TAG, "Finish process");
 }
 
