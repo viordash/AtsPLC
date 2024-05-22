@@ -1,6 +1,5 @@
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
 #include "freertos/task.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -52,12 +51,8 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         ESP_LOGI(TAG, "Got SSID and password");
 
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
-        wifi_config_t wifi_config;
-        uint8_t ssid[33] = {};
-        uint8_t password[65] = {};
-        uint8_t rvd_data[33] = {};
+        wifi_config_t wifi_config = {};
 
-        bzero(&wifi_config, sizeof(wifi_config_t));
         memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
         memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
         wifi_config.sta.bssid_set = evt->bssid_set;
@@ -66,11 +61,8 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
             memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
         }
 
-        memcpy(ssid, evt->ssid, sizeof(evt->ssid));
-        memcpy(password, evt->password, sizeof(evt->password));
-        ESP_LOGI(TAG, "SSID:%s", ssid);
-        ESP_LOGI(TAG, "PASSWORD:%s", password);
         if (evt->type == SC_TYPE_ESPTOUCH_V2) {
+            uint8_t rvd_data[65] = {};
             ESP_ERROR_CHECK(esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)));
             ESP_LOGI(TAG, "RVD_DATA:%s", rvd_data);
         }
@@ -110,15 +102,15 @@ static void stop_wifi(void) {
     ESP_ERROR_CHECK(esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler));
 }
 
-static void start_smartconfig() {
+static void start_smartconfig(EventGroupHandle_t smartconfig_ready_event) {
     ESP_LOGW(TAG, "Start process");
     s_wifi_event_group = xEventGroupCreate();
 
     initialize_wifi();
 
     EventBits_t uxBits = ~(CONNECTED_BIT | ESPTOUCH_DONE_BIT);
+    bool connected = false;
     while (uxBits != 0) {
-        ESP_LOGW(TAG, "Start process 0");
         uxBits = xEventGroupWaitBits(s_wifi_event_group,
                                      CONNECTED_BIT | ESPTOUCH_DONE_BIT,
                                      true,
@@ -126,8 +118,10 @@ static void start_smartconfig() {
                                      timeout_ms / portTICK_RATE_MS);
 
         ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
+
         if (uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "WiFi Connected to ap");
+            connected = true;
         }
 
         if (uxBits & ESPTOUCH_DONE_BIT) {
@@ -136,11 +130,27 @@ static void start_smartconfig() {
             break;
         }
     }
+
     stop_wifi();
+    vEventGroupDelete(s_wifi_event_group);
+
+    if (connected) {
+        wifi_config_t wifi_config = {};
+        char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
+        char pwd[sizeof(wifi_config.sta.password) + 1] = {};
+
+        ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config));
+        memcpy(ssid, wifi_config.sta.ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(pwd, wifi_config.sta.password, sizeof(wifi_config.sta.password));
+        ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
+
+        xEventGroupSetBits(smartconfig_ready_event, smartconfig_ready_bit);
+    }
     ESP_LOGW(TAG, "Finish process");
 }
 
 static void smartconfig_task(void *parm) {
+    EventGroupHandle_t smartconfig_ready_event = (EventGroupHandle_t)parm;
     ESP_LOGI(TAG, "Start task");
 
     settings.smartconfig.counter++;
@@ -158,11 +168,17 @@ static void smartconfig_task(void *parm) {
     store_settings();
 
     if (ready_to_smartconfig) {
-        start_smartconfig();
+        start_smartconfig(smartconfig_ready_event);
     }
     vTaskDelete(NULL);
 }
 
-void try_smartconfig() {
-    xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
+EventGroupHandle_t try_smartconfig() {
+    EventGroupHandle_t smartconfig_ready_event = xEventGroupCreate();
+    ESP_ERROR_CHECK(
+        xTaskCreate(smartconfig_task, "smartconfig_task", 4096, smartconfig_ready_event, 3, NULL)
+                != pdPASS
+            ? ESP_FAIL
+            : ESP_OK);
+    return smartconfig_ready_event;
 }
