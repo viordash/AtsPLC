@@ -24,6 +24,16 @@ extern "C" {
 void load_settings();
 void store_settings();
 
+void lock_settings();
+void unlock_settings();
+
+#define SAFE_SETTINGS(action)                                                                      \
+    {                                                                                              \
+        lock_settings();                                                                           \
+        action;                                                                                    \
+        unlock_settings();                                                                         \
+    }
+
 #ifdef __cplusplus
 }
 #endif

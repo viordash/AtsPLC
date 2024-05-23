@@ -153,19 +153,26 @@ static void smartconfig_task(void *parm) {
     EventGroupHandle_t smartconfig_ready_event = (EventGroupHandle_t)parm;
     ESP_LOGI(TAG, "Start task");
 
-    settings.smartconfig.counter++;
+    SAFE_SETTINGS(                      //
+        settings.smartconfig.counter++; //
+    );
+
     bool ready_to_smartconfig = settings.smartconfig.counter == start_smartconfig_counter;
 
     if (!ready_to_smartconfig) {
         TickType_t ticks_start = 0;
         vTaskDelayUntil(&ticks_start, min_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "Begin check period, %u", settings.smartconfig.counter);
-        store_settings();
+        SAFE_SETTINGS(        //
+            store_settings(); //
+        );
         vTaskDelayUntil(&ticks_start, max_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "End check period, %u", settings.smartconfig.counter);
     }
-    settings.smartconfig.counter = 0;
-    store_settings();
+    SAFE_SETTINGS(                        //
+        settings.smartconfig.counter = 0; //
+        store_settings();                 //
+    );
 
     if (ready_to_smartconfig) {
         start_smartconfig(smartconfig_ready_event);
