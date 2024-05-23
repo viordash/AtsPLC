@@ -11,8 +11,8 @@ typedef struct {
 } smartconfig_settings;
 
 typedef struct {
-    char ssid[32 + 1];
-    char password[64 + 1];
+    char ssid[32];
+    char password[64];
 } wifi_settings;
 
 typedef struct {
@@ -33,7 +33,7 @@ void store_settings();
 void lock_settings();
 void unlock_settings();
 
-#define SAFE_SETTINGS(action)                                                                      \
+#define SAFETY_SETTINGS(action)                                                                      \
     {                                                                                              \
         lock_settings();                                                                           \
         action;                                                                                    \

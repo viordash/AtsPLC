@@ -140,8 +140,15 @@ static void start_smartconfig(EventGroupHandle_t smartconfig_ready_event) {
         char pwd[sizeof(wifi_config.sta.password) + 1] = {};
 
         ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config));
-        memcpy(ssid, wifi_config.sta.ssid, sizeof(wifi_config.sta.ssid));
-        memcpy(pwd, wifi_config.sta.password, sizeof(wifi_config.sta.password));
+        memcpy(ssid, wifi_config.sta.ssid, sizeof(ssid));
+        memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
+
+        SAFETY_SETTINGS( //
+            memcpy(settings.wifi.ssid, wifi_config.sta.ssid, sizeof(settings.wifi.ssid));
+            memcpy(settings.wifi.password, wifi_config.sta.password, sizeof(settings.wifi.ssid));
+            store_settings();                 //
+        );
+
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
 
         xEventGroupSetBits(smartconfig_ready_event, smartconfig_ready_bit);
@@ -153,7 +160,7 @@ static void smartconfig_task(void *parm) {
     EventGroupHandle_t smartconfig_ready_event = (EventGroupHandle_t)parm;
     ESP_LOGI(TAG, "Start task");
 
-    SAFE_SETTINGS(                      //
+    SAFETY_SETTINGS(                      //
         settings.smartconfig.counter++; //
     );
 
@@ -163,13 +170,13 @@ static void smartconfig_task(void *parm) {
         TickType_t ticks_start = 0;
         vTaskDelayUntil(&ticks_start, min_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "Begin check period, %u", settings.smartconfig.counter);
-        SAFE_SETTINGS(        //
+        SAFETY_SETTINGS(        //
             store_settings(); //
         );
         vTaskDelayUntil(&ticks_start, max_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "End check period, %u", settings.smartconfig.counter);
     }
-    SAFE_SETTINGS(                        //
+    SAFETY_SETTINGS(                        //
         settings.smartconfig.counter = 0; //
         store_settings();                 //
     );

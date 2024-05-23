@@ -23,8 +23,8 @@ namespace MigrateSettings {
             } smartconfig_settings;
 
             typedef struct {
-                char ssid[32 + 1];
-                char password[64 + 1];
+                char ssid[32];
+                char password[64];
             } wifi_settings;
 
             typedef struct {
