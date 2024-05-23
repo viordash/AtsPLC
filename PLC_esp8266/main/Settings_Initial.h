@@ -23,7 +23,13 @@ namespace MigrateSettings {
             } smartconfig_settings;
 
             typedef struct {
+                char ssid[32 + 1];
+                char password[64 + 1];
+            } wifi_settings;
+
+            typedef struct {
                 smartconfig_settings smartconfig;
+                wifi_settings wifi;
                 uint32_t state;
             } device_settings;
         } // namespace Snapshot
@@ -35,8 +41,10 @@ namespace MigrateSettings {
         inline void MigrateUp(void *pCurr, void *pPrev) {
             (void)pPrev;
             auto pSettings = (Snapshot::device_settings *)pCurr;
-            memset(pSettings, 0, sizeof(*pSettings));
+
             pSettings->smartconfig.counter = 0;
+            memset(pSettings->wifi.ssid, 0, sizeof(pSettings->wifi.ssid));
+            memset(pSettings->wifi.password, 0, sizeof(pSettings->wifi.password));
             pSettings->state = 0xFF;
 
             ESP_LOGI("Settings_Initial",

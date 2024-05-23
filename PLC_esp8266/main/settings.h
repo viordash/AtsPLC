@@ -11,7 +11,13 @@ typedef struct {
 } smartconfig_settings;
 
 typedef struct {
+    char ssid[32 + 1];
+    char password[64 + 1];
+} wifi_settings;
+
+typedef struct {
     smartconfig_settings smartconfig;
+    wifi_settings wifi;
     uint32_t state;
 } device_settings;
 
