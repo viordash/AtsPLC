@@ -22,11 +22,13 @@ static const uint32_t timeout_ms = 600000;
 
 extern device_settings settings;
 
-/* FreeRTOS event group to signal when we are connected & ready to make a request */
-static EventGroupHandle_t s_wifi_event_group;
+static struct {
+    EventGroupHandle_t event;
+} service;
 
 static const int CONNECTED_BIT = BIT0;
 static const int ESPTOUCH_DONE_BIT = BIT1;
+static const int READY_BIT = BIT2;
 
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
@@ -36,18 +38,28 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
 
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        return;
+    }
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         esp_wifi_connect();
         ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
-        xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        xEventGroupClearBits(service.event, CONNECTED_BIT);
+        return;
+    }
+    if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP");
-        xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
-    } else if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
+        xEventGroupSetBits(service.event, CONNECTED_BIT);
+        return;
+    }
+    if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
         ESP_LOGI(TAG, "Scan done");
-    } else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
+        return;
+    }
+    if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
         ESP_LOGI(TAG, "Found channel");
-    } else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
+        return;
+    }
+    if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
         ESP_LOGI(TAG, "Got SSID and password");
 
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
@@ -70,9 +82,12 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         ESP_ERROR_CHECK(esp_wifi_disconnect());
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_connect());
-    } else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
-        xEventGroupSetBits(s_wifi_event_group, ESPTOUCH_DONE_BIT);
+        return;
+    }
+    if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
+        xEventGroupSetBits(service.event, ESPTOUCH_DONE_BIT);
         ESP_LOGI(TAG, "SC_EVENT_SEND_ACK_DONE");
+        return;
     }
 }
 
@@ -102,16 +117,15 @@ static void stop_wifi(void) {
     ESP_ERROR_CHECK(esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler));
 }
 
-static void start_smartconfig(EventGroupHandle_t smartconfig_ready_event) {
+static void start_smartconfig() {
     ESP_LOGW(TAG, "Start process");
-    s_wifi_event_group = xEventGroupCreate();
 
     initialize_wifi();
 
     EventBits_t uxBits = ~(CONNECTED_BIT | ESPTOUCH_DONE_BIT);
     bool connected = false;
     while (uxBits != 0) {
-        uxBits = xEventGroupWaitBits(s_wifi_event_group,
+        uxBits = xEventGroupWaitBits(service.event,
                                      CONNECTED_BIT | ESPTOUCH_DONE_BIT,
                                      true,
                                      false,
@@ -126,14 +140,11 @@ static void start_smartconfig(EventGroupHandle_t smartconfig_ready_event) {
 
         if (uxBits & ESPTOUCH_DONE_BIT) {
             ESP_LOGI(TAG, "smartconfig over");
-            esp_smartconfig_stop();
             break;
         }
     }
 
     stop_wifi();
-    vEventGroupDelete(s_wifi_event_group);
-
     if (connected) {
         wifi_config_t wifi_config = {};
         char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
@@ -146,21 +157,20 @@ static void start_smartconfig(EventGroupHandle_t smartconfig_ready_event) {
         SAFETY_SETTINGS( //
             memcpy(settings.wifi.ssid, wifi_config.sta.ssid, sizeof(settings.wifi.ssid));
             memcpy(settings.wifi.password, wifi_config.sta.password, sizeof(settings.wifi.ssid));
-            store_settings();                 //
+            store_settings(); //
         );
 
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
-
-        xEventGroupSetBits(smartconfig_ready_event, smartconfig_ready_bit);
+        xEventGroupSetBits(service.event, READY_BIT);
     }
+
     ESP_LOGW(TAG, "Finish process");
 }
 
 static void smartconfig_task(void *parm) {
-    EventGroupHandle_t smartconfig_ready_event = (EventGroupHandle_t)parm;
     ESP_LOGI(TAG, "Start task");
 
-    SAFETY_SETTINGS(                      //
+    SAFETY_SETTINGS(                    //
         settings.smartconfig.counter++; //
     );
 
@@ -170,29 +180,43 @@ static void smartconfig_task(void *parm) {
         TickType_t ticks_start = 0;
         vTaskDelayUntil(&ticks_start, min_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "Begin check period, %u", settings.smartconfig.counter);
-        SAFETY_SETTINGS(        //
+        SAFETY_SETTINGS(      //
             store_settings(); //
         );
         vTaskDelayUntil(&ticks_start, max_period_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG, "End check period, %u", settings.smartconfig.counter);
     }
-    SAFETY_SETTINGS(                        //
+    SAFETY_SETTINGS(                      //
         settings.smartconfig.counter = 0; //
         store_settings();                 //
     );
 
     if (ready_to_smartconfig) {
-        start_smartconfig(smartconfig_ready_event);
+        start_smartconfig();
     }
     vTaskDelete(NULL);
 }
 
-EventGroupHandle_t try_smartconfig() {
-    EventGroupHandle_t smartconfig_ready_event = xEventGroupCreate();
-    ESP_ERROR_CHECK(
-        xTaskCreate(smartconfig_task, "smartconfig_task", 4096, smartconfig_ready_event, 3, NULL)
-                != pdPASS
-            ? ESP_FAIL
-            : ESP_OK);
-    return smartconfig_ready_event;
+void try_smartconfig() {
+    service.event = xEventGroupCreate();
+    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS
+                        ? ESP_FAIL
+                        : ESP_OK);
+}
+
+bool smartconfig_is_runned() {
+    return service.event != NULL;
+}
+
+bool smartconfig_has_ready(TickType_t xTicksToWait) {
+    EventBits_t uxBits = xEventGroupWaitBits(service.event, READY_BIT, true, false, xTicksToWait);
+    if (uxBits & READY_BIT) {
+        ESP_LOGI(TAG, "Smartconfig ready!!!!");
+    }
+    return uxBits & READY_BIT;
+}
+
+void stop_smartconfig() {
+    vEventGroupDelete(service.event);
+    service.event = NULL;
 }

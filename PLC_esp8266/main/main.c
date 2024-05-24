@@ -27,8 +27,6 @@ static const char *TAG = "main";
 
 extern device_settings settings;
 
-static EventGroupHandle_t smartconfig_ready_event = NULL;
-
 static void startup() {
     hotreload hotreload_data;
     bool is_hotstart = try_load_hotreload(&hotreload_data);
@@ -42,9 +40,9 @@ static void startup() {
 
     load_settings();
 
-    if (!is_hotstart) {
-        smartconfig_ready_event = try_smartconfig();
-    }
+    // if (!is_hotstart) {
+    try_smartconfig();
+    // }
 }
 
 void app_main() {
@@ -67,21 +65,16 @@ void app_main() {
     for (int i = 1000; i >= 0; i -= 2) {
         printf("Restarting in %d seconds...\n", i);
 
-        if (smartconfig_ready_event != NULL) {
-            EventBits_t uxBits = xEventGroupWaitBits(smartconfig_ready_event,
-                                                     smartconfig_ready_bit,
-                                                     true,
-                                                     false,
-                                                     2000 / portTICK_RATE_MS);
-            if (uxBits & smartconfig_ready_bit) {
-                ESP_LOGI(TAG, "Smartconfig ready!!!!");
+        if (smartconfig_is_runned()) {
+            if (smartconfig_has_ready(2000 / portTICK_RATE_MS)) {
+                stop_smartconfig();
             }
         } else {
             vTaskDelay(2000 / portTICK_PERIOD_MS);
         }
     }
-    if (smartconfig_ready_event != NULL) {
-        vEventGroupDelete(smartconfig_ready_event);
+    if (smartconfig_is_runned()) {
+        stop_smartconfig();
     }
     store_settings();
     printf("Restarting now.\n");
