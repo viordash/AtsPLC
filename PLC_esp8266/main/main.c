@@ -21,7 +21,9 @@
 #include "settings.h"
 #include "smartconfig_service.h"
 #include "storage.h"
+#include "wifi_sta.h"
 #include <stdio.h>
+#include <string.h>
 
 static const char *TAG = "main";
 
@@ -40,9 +42,9 @@ static void startup() {
 
     load_settings();
 
-    // if (!is_hotstart) {
-    start_smartconfig();
-    // }
+    if (!is_hotstart) {
+        start_smartconfig();
+    }
 }
 
 void app_main() {
@@ -62,10 +64,24 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
+    while (smartconfig_is_runned()) {
+        printf("wait smartconfig...\n");
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+    }
+
+    bool has_wifi_sta_settings;
+    SAFETY_SETTINGS(                                        //
+        has_wifi_sta_settings = settings.wifi.ssid[0] != 0; //
+    );
+    if (has_wifi_sta_settings) {
+        // start_wifi_sta();
+    }
+
     for (int i = 1000; i >= 0; i -= 5) {
-        if (smartconfig_is_runned()) {
-            printf("wait smartconfig ");
+        if (i > 100 && wifi_sta_is_runned()) {
+            stop_wifi_sta();
         }
+
         printf("Restarting in %d seconds...\n", i);
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }

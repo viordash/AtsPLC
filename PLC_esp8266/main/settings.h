@@ -13,6 +13,7 @@ typedef struct {
 typedef struct {
     char ssid[32];
     char password[64];
+    int32_t connect_max_retry_count;
 } wifi_settings;
 
 typedef struct {

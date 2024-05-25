@@ -24,6 +24,10 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "string": "cpp",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "smartconfig_ack.h": "c",
+        "smartconfig_service.h": "c",
+        "esp_smartconfig.h": "c",
+        "wifi_sta.h": "c"
     }
 }

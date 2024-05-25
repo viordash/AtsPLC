@@ -163,7 +163,7 @@ static void start_process() {
     ESP_LOGW(TAG, "Finish process");
 }
 
-static void smartconfig_task(void *parm) {
+static void task(void *parm) {
     ESP_LOGI(TAG, "Start task");
 
     xEventGroupSetBits(service.event, RUNNED_BIT);
@@ -199,9 +199,8 @@ static void smartconfig_task(void *parm) {
 
 void start_smartconfig() {
     service.event = xEventGroupCreate();
-    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS
-                        ? ESP_FAIL
-                        : ESP_OK);
+    ESP_ERROR_CHECK(xTaskCreate(task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS ? ESP_FAIL
+                                                                                         : ESP_OK);
 }
 
 bool smartconfig_is_runned() {
@@ -211,7 +210,7 @@ bool smartconfig_is_runned() {
     EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
 
     if (uxBits & RUNNED_BIT) {
-        ESP_LOGD(TAG, "smartconfig_is_runned, uxBits:0x%08X", uxBits);
+        ESP_LOGD(TAG, "is_runned, uxBits:0x%08X", uxBits);
     }
     return uxBits & RUNNED_BIT;
 }

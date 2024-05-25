@@ -25,6 +25,7 @@ namespace MigrateSettings {
             typedef struct {
                 char ssid[32];
                 char password[64];
+                int32_t connect_max_retry_count;
             } wifi_settings;
 
             typedef struct {
@@ -45,6 +46,7 @@ namespace MigrateSettings {
             pSettings->smartconfig.counter = 0;
             memset(pSettings->wifi.ssid, 0, sizeof(pSettings->wifi.ssid));
             memset(pSettings->wifi.password, 0, sizeof(pSettings->wifi.password));
+            pSettings->wifi.connect_max_retry_count = -1;
             pSettings->state = 0xFF;
 
             ESP_LOGI("Settings_Initial",
