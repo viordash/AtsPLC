@@ -143,7 +143,6 @@ static void start_process() {
             break;
         }
     } while ((uxBits & (CONNECTED_BIT | ESPTOUCH_DONE_BIT)) != 0);
-
     stop_wifi();
     if (connected) {
         wifi_config_t wifi_config = {};
@@ -200,8 +199,7 @@ static void smartconfig_task(void *parm) {
 
 void start_smartconfig() {
     service.event = xEventGroupCreate();
-    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL)
-                            != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
