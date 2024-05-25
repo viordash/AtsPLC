@@ -41,7 +41,7 @@ static void startup() {
     load_settings();
 
     // if (!is_hotstart) {
-    try_smartconfig();
+    start_smartconfig();
     // }
 }
 
@@ -62,20 +62,14 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    for (int i = 1000; i >= 0; i -= 2) {
-        printf("Restarting in %d seconds...\n", i);
-
+    for (int i = 1000; i >= 0; i -= 5) {
         if (smartconfig_is_runned()) {
-            if (smartconfig_has_ready(2000 / portTICK_RATE_MS)) {
-                stop_smartconfig();
-            }
-        } else {
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            printf("wait smartconfig ");
         }
+        printf("Restarting in %d seconds...\n", i);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
-    if (smartconfig_is_runned()) {
-        stop_smartconfig();
-    }
+
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);

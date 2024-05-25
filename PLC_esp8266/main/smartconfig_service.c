@@ -28,7 +28,7 @@ static struct {
 
 static const int CONNECTED_BIT = BIT0;
 static const int ESPTOUCH_DONE_BIT = BIT1;
-static const int READY_BIT = BIT2;
+static const int RUNNED_BIT = BIT2;
 
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
@@ -117,14 +117,14 @@ static void stop_wifi(void) {
     ESP_ERROR_CHECK(esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler));
 }
 
-static void start_smartconfig() {
+static void start_process() {
     ESP_LOGW(TAG, "Start process");
 
     initialize_wifi();
 
-    EventBits_t uxBits = ~(CONNECTED_BIT | ESPTOUCH_DONE_BIT);
+    EventBits_t uxBits;
     bool connected = false;
-    while (uxBits != 0) {
+    do {
         uxBits = xEventGroupWaitBits(service.event,
                                      CONNECTED_BIT | ESPTOUCH_DONE_BIT,
                                      true,
@@ -142,7 +142,7 @@ static void start_smartconfig() {
             ESP_LOGI(TAG, "smartconfig over");
             break;
         }
-    }
+    } while ((uxBits & (CONNECTED_BIT | ESPTOUCH_DONE_BIT)) != 0);
 
     stop_wifi();
     if (connected) {
@@ -159,16 +159,15 @@ static void start_smartconfig() {
             memcpy(settings.wifi.password, wifi_config.sta.password, sizeof(settings.wifi.ssid));
             store_settings(); //
         );
-
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
-        xEventGroupSetBits(service.event, READY_BIT);
     }
-
     ESP_LOGW(TAG, "Finish process");
 }
 
 static void smartconfig_task(void *parm) {
     ESP_LOGI(TAG, "Start task");
+
+    xEventGroupSetBits(service.event, RUNNED_BIT);
 
     SAFETY_SETTINGS(                    //
         settings.smartconfig.counter++; //
@@ -192,31 +191,29 @@ static void smartconfig_task(void *parm) {
     );
 
     if (ready_to_smartconfig) {
-        start_smartconfig();
+        start_process();
     }
+
+    xEventGroupClearBits(service.event, RUNNED_BIT);
     vTaskDelete(NULL);
 }
 
-void try_smartconfig() {
+void start_smartconfig() {
     service.event = xEventGroupCreate();
-    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL)
+                            != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
 
 bool smartconfig_is_runned() {
-    return service.event != NULL;
-}
-
-bool smartconfig_has_ready(TickType_t xTicksToWait) {
-    EventBits_t uxBits = xEventGroupWaitBits(service.event, READY_BIT, true, false, xTicksToWait);
-    if (uxBits & READY_BIT) {
-        ESP_LOGI(TAG, "Smartconfig ready!!!!");
+    if (service.event == NULL) {
+        return false;
     }
-    return uxBits & READY_BIT;
-}
+    EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
 
-void stop_smartconfig() {
-    vEventGroupDelete(service.event);
-    service.event = NULL;
+    if (uxBits & RUNNED_BIT) {
+        ESP_LOGD(TAG, "smartconfig_is_runned, uxBits:0x%08X", uxBits);
+    }
+    return uxBits & RUNNED_BIT;
 }

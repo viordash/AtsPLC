@@ -5,8 +5,5 @@
 #include <stdint.h>
 #include <unistd.h>
 
-
-void try_smartconfig();
+void start_smartconfig();
 bool smartconfig_is_runned();
-bool smartconfig_has_ready(TickType_t xTicksToWait);
-void stop_smartconfig();
