@@ -22,10 +22,12 @@ static struct {
     int connect_retry_num;
 } service;
 
-static const int FAILED_BIT = BIT0;
-static const int CONNECTED_BIT = BIT1;
-static const int RUNNED_BIT = BIT2;
-static const int STOP_BIT = BIT3;
+static const int STARTED_BIT = BIT0;
+static const int RUNNED_BIT = BIT1;
+static const int STOP_BIT = BIT2;
+static const int STOPPED_BIT = BIT3;
+static const int FAILED_BIT = BIT4;
+static const int CONNECTED_BIT = BIT5;
 
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
@@ -142,14 +144,15 @@ static void task(void *parm) {
 
     } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
-    xEventGroupClearBits(service.event, RUNNED_BIT);
     ESP_LOGW(TAG, "Finish task");
+    xEventGroupSetBits(service.event, STOPPED_BIT);
     vTaskDelete(NULL);
 }
 
 void start_wifi_sta() {
     ESP_LOGW(TAG, "start_wifi_sta");
     service.event = xEventGroupCreate();
+    xEventGroupSetBits(service.event, STARTED_BIT);
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -169,7 +172,17 @@ void stop_wifi_sta() {
     }
 
     xEventGroupSetBits(service.event, STOP_BIT);
-    xEventGroupClearBits(service.event, RUNNED_BIT);
+
+    EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
+    bool runned = (uxBits & RUNNED_BIT) != 0;
+    if (runned) {
+        ESP_LOGI(TAG, "stop_wifi_sta is_runned, uxBits:0x%08X", uxBits);
+
+        uxBits = xEventGroupWaitBits(service.event, STOPPED_BIT, false, false, portMAX_DELAY);
+        if (uxBits & STOPPED_BIT) {
+            ESP_LOGI(TAG, "stopped, uxBits:0x%08X", uxBits);
+        }
+    }
 
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
@@ -178,6 +191,7 @@ void stop_wifi_sta() {
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
 
+    xEventGroupClearBits(service.event, STARTED_BIT);
     EventGroupHandle_t event = service.event;
     service.event = NULL;
     vEventGroupDelete(event);
@@ -187,10 +201,10 @@ bool wifi_sta_is_runned() {
     if (service.event == NULL) {
         return false;
     }
-    EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
+    EventBits_t uxBits = xEventGroupWaitBits(service.event, STARTED_BIT, false, false, 0);
 
-    if (uxBits & RUNNED_BIT) {
+    if (uxBits & STARTED_BIT) {
         ESP_LOGI(TAG, "is_runned, uxBits:0x%08X", uxBits);
     }
-    return uxBits & RUNNED_BIT;
+    return uxBits & STARTED_BIT;
 }
