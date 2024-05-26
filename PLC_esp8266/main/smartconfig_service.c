@@ -92,10 +92,6 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
 }
 
 static void initialize_wifi(void) {
-    tcpip_adapter_init();
-
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -110,11 +106,14 @@ static void initialize_wifi(void) {
 }
 
 static void stop_wifi(void) {
-    esp_smartconfig_stop();
-    ESP_ERROR_CHECK(esp_wifi_stop());
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
     ESP_ERROR_CHECK(esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+
+    esp_smartconfig_stop();
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    ESP_ERROR_CHECK(esp_wifi_deinit());
+    ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
 }
 
 static void start_process() {
@@ -143,7 +142,6 @@ static void start_process() {
             break;
         }
     } while ((uxBits & (CONNECTED_BIT | ESPTOUCH_DONE_BIT)) != 0);
-    stop_wifi();
     if (connected) {
         wifi_config_t wifi_config = {};
         char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
@@ -160,6 +158,8 @@ static void start_process() {
         );
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
     }
+
+    stop_wifi();
     ESP_LOGW(TAG, "Finish process");
 }
 

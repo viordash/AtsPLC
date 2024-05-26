@@ -11,6 +11,7 @@
 
 #include "crc32.h"
 #include "driver/uart.h"
+#include "esp_event.h"
 #include "esp_log.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
@@ -29,6 +30,12 @@ static const char *TAG = "main";
 
 extern device_settings settings;
 
+static void system_init() {
+
+    tcpip_adapter_init();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+}
+
 static void startup() {
     hotreload hotreload_data;
     bool is_hotstart = try_load_hotreload(&hotreload_data);
@@ -41,6 +48,8 @@ static void startup() {
     gpio_init(hotreload_data.gpio);
 
     load_settings();
+
+    system_init();
 
     if (!is_hotstart) {
         start_smartconfig();
@@ -74,12 +83,16 @@ void app_main() {
         has_wifi_sta_settings = settings.wifi.ssid[0] != 0; //
     );
     if (has_wifi_sta_settings) {
-        // start_wifi_sta();
+        start_wifi_sta();
     }
 
     for (int i = 1000; i >= 0; i -= 5) {
-        if (i > 100 && wifi_sta_is_runned()) {
-            stop_wifi_sta();
+        if (i < 980) {
+            if (wifi_sta_is_runned()) {
+                stop_wifi_sta();
+            } else if (i < 970 && has_wifi_sta_settings) {
+                start_wifi_sta();
+            }
         }
 
         printf("Restarting in %d seconds...\n", i);

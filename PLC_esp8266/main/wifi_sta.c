@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG = "wifi";
+static const char *TAG = "wifi sta";
 extern device_settings settings;
 
 #define INFINITY_CONNECT_RETRY -1
@@ -30,6 +30,7 @@ static const int STOP_BIT = BIT3;
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        ESP_LOGI(TAG, "start wifi event");
         esp_wifi_connect();
         return;
     }
@@ -37,6 +38,16 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGI(TAG, "connect to the AP fail");
         xEventGroupSetBits(service.event, FAILED_BIT);
+        return;
+    }
+
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_STOP) {
+        ESP_LOGI(TAG, "stop wifi event");
+        return;
+    }
+
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
+        ESP_LOGI(TAG, "wifi connected event");
         return;
     }
 
@@ -86,6 +97,9 @@ static void task(void *parm) {
     service.connect_retry_num = 0;
     EventBits_t uxBits;
     do {
+
+        TickType_t connect_ticks = xTaskGetTickCount();
+
         connect();
 
         uxBits = xEventGroupWaitBits(service.event,
@@ -96,10 +110,10 @@ static void task(void *parm) {
 
         ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
 
-        if (uxBits & CONNECTED_BIT) {
+        if ((uxBits & CONNECTED_BIT) != 0) {
             ESP_LOGI(TAG, "Connected to ap");
             service.connect_retry_num = 0;
-        } else {
+        } else if ((uxBits & STOP_BIT) == 0) {
             disconnect();
         }
 
@@ -108,28 +122,34 @@ static void task(void *parm) {
             max_retry_count = settings.wifi.connect_max_retry_count; //
         );
 
-        if ((uxBits & FAILED_BIT)
-            && (max_retry_count == INFINITY_CONNECT_RETRY
-                || service.connect_retry_num < max_retry_count)) {
+        if ((uxBits & FAILED_BIT) != 0) {
+            bool retry_connect = (max_retry_count == INFINITY_CONNECT_RETRY
+                                  || service.connect_retry_num < max_retry_count);
 
-            service.connect_retry_num++;
-            ESP_LOGI(TAG, "failed. reconnect, num:%d", service.connect_retry_num);
-            esp_wifi_connect();
+            if (retry_connect) {
+                service.connect_retry_num++;
+                ESP_LOGI(TAG,
+                         "failed. reconnect, num:%d of %d",
+                         service.connect_retry_num,
+                         max_retry_count);
+
+                vTaskDelayUntil(&connect_ticks, 1000 / portTICK_RATE_MS);
+            } else {
+                ESP_LOGI(TAG, "failed. unable reconnect");
+                break;
+            }
         }
 
     } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
     xEventGroupClearBits(service.event, RUNNED_BIT);
     ESP_LOGW(TAG, "Finish task");
+    vTaskDelete(NULL);
 }
 
 void start_wifi_sta() {
     ESP_LOGW(TAG, "start_wifi_sta");
     service.event = xEventGroupCreate();
-
-    tcpip_adapter_init();
-
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -143,7 +163,7 @@ void start_wifi_sta() {
 }
 
 void stop_wifi_sta() {
-    ESP_LOGW(TAG, "start_wifi_sta");
+    ESP_LOGW(TAG, "stop_wifi_sta");
     if (!wifi_sta_is_runned()) {
         return;
     }
@@ -153,8 +173,14 @@ void stop_wifi_sta() {
 
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+
     disconnect();
-    vEventGroupDelete(service.event);
+    ESP_ERROR_CHECK(esp_wifi_deinit());
+    ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
+
+    EventGroupHandle_t event = service.event;
+    service.event = NULL;
+    vEventGroupDelete(event);
 }
 
 bool wifi_sta_is_runned() {
@@ -164,7 +190,7 @@ bool wifi_sta_is_runned() {
     EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
 
     if (uxBits & RUNNED_BIT) {
-        ESP_LOGD(TAG, "is_runned, uxBits:0x%08X", uxBits);
+        ESP_LOGI(TAG, "is_runned, uxBits:0x%08X", uxBits);
     }
     return uxBits & RUNNED_BIT;
 }

@@ -64,7 +64,6 @@ void load_settings() {
     ESP_LOGI(TAG, "wifi.password:%.*s", sizeof(settings.wifi.password) - 1, settings.wifi.password);
 
     delete[] storage.data;
-    xSemaphoreGive(mutex);
 }
 
 void store_settings() {
