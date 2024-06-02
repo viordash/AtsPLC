@@ -18,4 +18,5 @@ void start_http_server() {
 void stop_http_server() {
     httpServer->Stop();
     delete mainController;
+    delete httpServer;
 }

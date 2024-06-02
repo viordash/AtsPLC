@@ -16,11 +16,6 @@ HttpServer::~HttpServer() {
     Stop();
 }
 
-static void close_func(httpd_handle_t hd, int sockfd) {
-    httpd_stop(hd);
-    close(sockfd);
-}
-
 bool HttpServer::Start() {
     httpd_config_t config = { //
                               .task_priority = tskIDLE_PRIORITY + 5,
@@ -39,7 +34,7 @@ bool HttpServer::Start() {
                               .global_transport_ctx = NULL,
                               .global_transport_ctx_free_fn = NULL,
                               .open_fn = NULL,
-                              .close_fn = close_func
+                              .close_fn = NULL
     };
 
     if (httpd_start(&server, &config) != ESP_OK) {
@@ -61,7 +56,7 @@ bool HttpServer::Start() {
 void HttpServer::Stop() {
     if (server != NULL) {
         httpd_stop(server);
+        ESP_LOGI(TAG, "Stopped");
     }
     server = NULL;
-    ESP_LOGI(TAG, "Stopped");
 }
