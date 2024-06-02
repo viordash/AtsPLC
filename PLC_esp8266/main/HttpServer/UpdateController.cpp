@@ -38,10 +38,7 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
         return ESP_FAIL;
     }
 
-    char resp[HTTPD_MAX_URI_LEN + 64];
-    sprintf(resp, "%s%s, res:%d", "Update POST Response", req->uri, res);
-    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
-    ESP_LOGI(TAG, "Handler resp: '%s'", resp);
+    httpd_resp_send(req, "Upload new firmware successfull", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
@@ -76,7 +73,7 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
             return false;
         }
         file_size -= received;
-        ESP_LOGI(TAG, "ReceiveFile, received: %u, remained: %u", received, file_size);
+        ESP_LOGD(TAG, "ReceiveFile, received: %u, remained: %u", received, file_size);
 
         err = esp_ota_write(update_handle, (const void *)buffer, received);
         if (err != ESP_OK) {
