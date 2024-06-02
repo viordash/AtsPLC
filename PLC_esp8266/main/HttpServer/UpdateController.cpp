@@ -5,7 +5,7 @@
 
 static const char *TAG = "update_controller";
 
-#define SCRATCH_BUFSIZE 1024
+#define SCRATCH_BUFSIZE 4096
 
 UpdateController::UpdateController() : BaseController() {
 
@@ -48,6 +48,13 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
 bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
     ESP_LOGI(TAG, "ReceiveFile, size: '%u'", req->content_len);
 
+    esp_err_t err;
+    const esp_partition_t *update_partition;
+    esp_ota_handle_t update_handle;
+    if (!BeginOta(&update_partition, &update_handle, req->content_len)) {
+        return false;
+    }
+
     int file_size = (int)req->content_len;
     while (file_size > 0) {
         int received = httpd_req_recv(req, buffer, MIN(SCRATCH_BUFSIZE, file_size));
@@ -70,6 +77,81 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
         }
         file_size -= received;
         ESP_LOGI(TAG, "ReceiveFile, received: %u, remained: %u", received, file_size);
+
+        err = esp_ota_write(update_handle, (const void *)buffer, received);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "Error: esp_ota_write failed! err=0x%x", err);
+            SendHttpError_500(req);
+            return false;
+        }
     }
+
+    if (!FinishOta(update_partition, &update_handle)) {
+        SendHttpError_500(req);
+        return false;
+    }
+
+    return true;
+}
+
+bool UpdateController::BeginOta(const esp_partition_t **update_partition,
+                                esp_ota_handle_t *update_handle,
+                                size_t image_size) {
+    esp_err_t err;
+    const esp_partition_t *configured = esp_ota_get_boot_partition();
+    const esp_partition_t *running = esp_ota_get_running_partition();
+
+    if (configured != running) {
+        ESP_LOGW(TAG,
+                 "Configured OTA boot partition at offset 0x%08x, but running from offset 0x%08x",
+                 configured->address,
+                 running->address);
+        ESP_LOGW(TAG,
+                 "(This can happen if either the OTA boot data or preferred boot image become "
+                 "corrupted somehow.)");
+    }
+
+    ESP_LOGI(TAG,
+             "Running partition type %d subtype %d (offset 0x%08x)",
+             running->type,
+             running->subtype,
+             running->address);
+
+    *update_partition = esp_ota_get_next_update_partition(NULL);
+
+    if (*update_partition == NULL) {
+        ESP_LOGE(TAG, "update_partition == NULL");
+        return false;
+    }
+    ESP_LOGI(TAG,
+             "Writing to partition subtype %d at offset 0x%x",
+             (*update_partition)->subtype,
+             (*update_partition)->address);
+
+    err = esp_ota_begin(*update_partition, image_size, update_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "esp_ota_begin failed, error=%d", err);
+        return false;
+    }
+
+    ESP_LOGI(TAG, "BeginOta succeeded");
+
+    return true;
+}
+
+bool UpdateController::FinishOta(const esp_partition_t *update_partition,
+                                 esp_ota_handle_t *update_handle) {
+    esp_err_t err;
+    if (esp_ota_end(*update_handle) != ESP_OK) {
+        ESP_LOGE(TAG, "esp_ota_end failed!");
+        return false;
+    }
+
+    err = esp_ota_set_boot_partition(update_partition);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "esp_ota_set_boot_partition failed! err=0x%x", err);
+        return false;
+    }
+    ESP_LOGI(TAG, "FinishOta succeeded");
     return true;
 }
