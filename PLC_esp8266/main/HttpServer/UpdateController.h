@@ -13,4 +13,6 @@ class UpdateController : public BaseController {
 
   private:
     httpd_uri_t uriHandler;
+
+    bool ReceiveFile(httpd_req_t *req, char *buffer);
 };

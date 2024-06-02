@@ -30,3 +30,23 @@ esp_err_t BaseController::GetUrlQueryParamValue(httpd_req_t *req,
 
     return res;
 }
+
+esp_err_t BaseController::SendHttpError_400(httpd_req_t *req) {
+    return SendHttpError(req,
+                         "400 Bad Request",
+                         "Server unable to understand request due to invalid syntax");
+}
+
+esp_err_t BaseController::SendHttpError_408(httpd_req_t *req) {
+    return SendHttpError(req, "408 Request Timeout", "Server closed this connection");
+}
+
+esp_err_t BaseController::SendHttpError_500(httpd_req_t *req) {
+    return SendHttpError(req, "500 Server Error", "Server has encountered an unexpected error");
+}
+
+esp_err_t BaseController::SendHttpError(httpd_req_t *req, const char *status, const char *msg) {
+    httpd_resp_set_status(req, status);
+    httpd_resp_set_type(req, HTTPD_TYPE_TEXT);
+    return httpd_resp_send(req, msg, strlen(msg));
+}
