@@ -88,15 +88,13 @@ void app_main() {
         start_http_server();
     }
 
-    int wifi_restart = 980;
+    int wifi_restart = -980;
     for (int i = 1000; i >= 0; i -= 5) {
         if (i < wifi_restart) {
             if (wifi_sta_is_runned()) {
                 stop_wifi_sta();
-                stop_http_server();
             } else if (i < wifi_restart - 10 && has_wifi_sta_settings) {
                 start_wifi_sta();
-                start_http_server();
                 wifi_restart -= 100;
             }
         }
@@ -105,6 +103,7 @@ void app_main() {
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 
+    stop_http_server();
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);
