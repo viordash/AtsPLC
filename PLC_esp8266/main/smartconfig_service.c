@@ -36,14 +36,16 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2));
         smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
         ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
-
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
         return;
     }
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        esp_wifi_connect();
-        ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
         xEventGroupClearBits(service.event, CONNECTED_BIT);
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED. restart smartconfig");
+        ESP_ERROR_CHECK(esp_smartconfig_stop());
+        ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2));
+        smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
         return;
     }
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
