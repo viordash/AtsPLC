@@ -17,6 +17,7 @@
 #include "esp_system.h"
 #include "gpio.h"
 #include "hotreload_service.h"
+#include "http_server.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"
@@ -84,6 +85,7 @@ void app_main() {
     );
     if (has_wifi_sta_settings) {
         start_wifi_sta();
+        start_http_server();
     }
 
     int wifi_restart = 980;
@@ -91,8 +93,10 @@ void app_main() {
         if (i < wifi_restart) {
             if (wifi_sta_is_runned()) {
                 stop_wifi_sta();
+                stop_http_server();
             } else if (i < wifi_restart - 10 && has_wifi_sta_settings) {
                 start_wifi_sta();
+                start_http_server();
                 wifi_restart -= 100;
             }
         }
