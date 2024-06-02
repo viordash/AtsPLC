@@ -84,6 +84,7 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "http_server.h": "c",
-        "esp_event.h": "c"
+        "esp_event.h": "c",
+        "buttons.h": "c"
     }
 }
