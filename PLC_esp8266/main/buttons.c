@@ -12,7 +12,7 @@
 
 static const char *TAG = "gpio";
 
-void gpio_init(uint32_t startup_state) {
+void buttons_init() {
     gpio_config_t io_conf;
     io_conf.pull_down_en = 0;
     io_conf.intr_type = GPIO_INTR_DISABLE;

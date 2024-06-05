@@ -85,6 +85,7 @@
         "typeinfo": "cpp",
         "http_server.h": "c",
         "esp_event.h": "c",
-        "buttons.h": "c"
+        "buttons.h": "c",
+        "stdlib.h": "c"
     }
 }

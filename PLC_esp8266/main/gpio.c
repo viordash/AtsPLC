@@ -1,17 +1,32 @@
-#include "gpio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#include "freertos/task.h"
+
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "gpio.h"
 
 #define GPIO_OUTPUT_IO_0 GPIO_NUM_2
 #define GPIO_OUTPUT_IO_1 GPIO_NUM_15
 #define GPIO_OUTPUT_PIN_SEL ((1ULL << GPIO_OUTPUT_IO_0) | (1ULL << GPIO_OUTPUT_IO_1))
-#define GPIO_INPUT_IO_0 GPIO_NUM_0
-#define GPIO_INPUT_PIN_SEL ((1ULL << GPIO_INPUT_IO_0))
+
+#define BUTTON_UP_IO GPIO_NUM_12
+#define BUTTON_DOWN_IO GPIO_NUM_13
+#define BUTTON_LEFT_IO GPIO_NUM_0
+#define BUTTON_RIGHT_IO
+#define BUTTON_SELECT_IO GPIO_NUM_14
+#define GPIO_INPUT_PIN_SEL                                                                         \
+    ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_LEFT_IO)                  \
+     | (1ULL << BUTTON_SELECT_IO))
 
 static const char *TAG = "gpio";
 
-void gpio_init(uint32_t startup_state) {
+static struct {
+    xQueueHandle evt_queue;
+} gpio;
+
+static void outputs_init(uint32_t startup_state) {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
@@ -22,13 +37,24 @@ void gpio_init(uint32_t startup_state) {
 
     set_digital_value(OUTPUT_0, startup_state & OUTPUT_0);
     set_digital_value(OUTPUT_1, startup_state & OUTPUT_1);
+}
 
-    io_conf.intr_type = GPIO_INTR_DISABLE;
+static void inputs_init() {
+
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_ANYEDGE;
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
     io_conf.mode = GPIO_MODE_INPUT;
     io_conf.pull_up_en = 1;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
+
+    gpio_install_isr_service(0);
+
+    // gpio_isr_handler_add(GPIO_INPUT_IO_0, gpio_isr_handler, (void *) GPIO_INPUT_IO_0);
+}
+
+static void analog_init() {
     adc_config_t adc_config;
 
     // Depend on menuconfig->Component config->PHY->vdd33_const value
@@ -36,6 +62,16 @@ void gpio_init(uint32_t startup_state) {
     adc_config.mode = ADC_READ_TOUT_MODE;
     adc_config.clk_div = 8; // ADC sample collection clock = 80MHz/clk_div = 10MHz
     ESP_ERROR_CHECK(adc_init(&adc_config));
+}
+
+void gpio_init(uint32_t startup_state) {
+    outputs_init(startup_state);
+
+    gpio.evt_queue = xQueueCreate(10, sizeof(uint32_t));
+
+    inputs_init();
+
+    analog_init();
 }
 
 bool get_digital_value(gpio_output gpio) {
