@@ -24,6 +24,16 @@
             }
         },
         {
+            "label": "build & ota",
+            "type": "shell",
+            "command": "make project_prepare && make ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.0.109/update",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
             "label": "rebuild",
             "type": "shell",
             "command": "make project_prepare && make clean && make size",

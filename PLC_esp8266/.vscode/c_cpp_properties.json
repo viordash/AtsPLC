@@ -7,7 +7,14 @@
                 "${workspaceFolder}",
                 "${workspaceFolder}/../SDK/ESP8266_RTOS_SDK/**"
             ],
-            "defines": [],
+            "defines": [
+                "__ESP_FILE__=1",
+                "CONFIG_ESP8266_WIFI_RX_BUFFER_NUM=16",
+                "CONFIG_ESP8266_WIFI_RX_PKT_NUM=7",
+                "CONFIG_ESP8266_WIFI_TX_PKT_NUM=6",
+                "CONFIG_ESP8266_WIFI_LEFT_CONTINUOUS_RX_BUFFER_NUM=16",
+                "CONFIG_FREERTOS_HZ=100"
+            ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",

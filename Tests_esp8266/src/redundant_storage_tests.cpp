@@ -61,7 +61,7 @@ TEST(RedundantStorageTestsGroup, store) {
                             storage_1_partition,
                             storage_1_path,
                             settings_storage_name,
-                            storage);
+                            &storage);
 }
 
 TEST(RedundantStorageTestsGroup, load) {
@@ -80,7 +80,7 @@ TEST(RedundantStorageTestsGroup, load) {
                             storage_1_partition,
                             storage_1_path,
                             settings_storage_name,
-                            storage);
+                            &storage);
     mock().enable();
 
     mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
@@ -113,7 +113,7 @@ TEST(RedundantStorageTestsGroup, second_storage_restored_when_load) {
                             storage_1_partition,
                             storage_1_path,
                             settings_storage_name,
-                            storage);
+                            &storage);
     mock().enable();
 
     remove_storage_1();
@@ -154,7 +154,7 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
                             storage_1_partition,
                             storage_1_path,
                             settings_storage_name,
-                            storage);
+                            &storage);
     mock().enable();
 
     remove_storage_0();
