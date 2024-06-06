@@ -103,6 +103,7 @@ void app_main() {
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 
+    stop_wifi_sta();
     stop_http_server();
     store_settings();
     printf("Restarting now.\n");
