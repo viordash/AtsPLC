@@ -26,6 +26,8 @@ static struct {
     xQueueHandle evt_queue;
 } gpio;
 
+static void gpio_task(void *arg);
+
 static void outputs_init(uint32_t startup_state) {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -39,8 +41,12 @@ static void outputs_init(uint32_t startup_state) {
     set_digital_value(OUTPUT_1, startup_state & OUTPUT_1);
 }
 
-static void inputs_init() {
+static void gpio_isr_handler(void *arg) {
+    uint32_t gpio_num = (uint32_t)arg;
+    xQueueSendFromISR(gpio.evt_queue, &gpio_num, NULL);
+}
 
+static void inputs_init() {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_ANYEDGE;
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
@@ -48,10 +54,12 @@ static void inputs_init() {
     io_conf.pull_up_en = 1;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
-
     gpio_install_isr_service(0);
 
-    // gpio_isr_handler_add(GPIO_INPUT_IO_0, gpio_isr_handler, (void *) GPIO_INPUT_IO_0);
+    gpio_isr_handler_add(BUTTON_UP_IO, gpio_isr_handler, (void *)BUTTON_UP_IO);
+    gpio_isr_handler_add(BUTTON_DOWN_IO, gpio_isr_handler, (void *)BUTTON_DOWN_IO);
+    gpio_isr_handler_add(BUTTON_LEFT_IO, gpio_isr_handler, (void *)BUTTON_LEFT_IO);
+    gpio_isr_handler_add(BUTTON_SELECT_IO, gpio_isr_handler, (void *)BUTTON_SELECT_IO);
 }
 
 static void analog_init() {
@@ -70,8 +78,8 @@ void gpio_init(uint32_t startup_state) {
     gpio.evt_queue = xQueueCreate(10, sizeof(uint32_t));
 
     inputs_init();
-
     analog_init();
+    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 }
 
 bool get_digital_value(gpio_output gpio) {
@@ -107,4 +115,14 @@ uint16_t get_analog_value() {
         ESP_LOGE(TAG, "get_analog_value, err:0x%X\r\n", err);
     }
     return adc;
+}
+
+static void gpio_task(void *arg) {
+    uint32_t io_num;
+
+    while (true) {
+        if (xQueueReceive(gpio.evt_queue, &io_num, portMAX_DELAY)) {
+            ESP_LOGI(TAG, "GPIO[%d] intr, val: %d", io_num, gpio_get_level(io_num));
+        }
+    }
 }
