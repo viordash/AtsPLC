@@ -9,6 +9,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "buttons.h"
 #include "crc32.h"
 #include "driver/uart.h"
 #include "esp_event.h"
@@ -46,7 +47,9 @@ static void startup() {
     } else {
         hotreload_data.gpio = 0x00;
     }
-    gpio_init(hotreload_data.gpio);
+
+    EventGroupHandle_t gpio_events = gpio_init(hotreload_data.gpio);
+    buttons_init(gpio_events);
 
     load_settings();
 

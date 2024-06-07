@@ -96,14 +96,14 @@ static void analog_init() {
     ESP_ERROR_CHECK(adc_init(&adc_config));
 }
 
-void gpio_init(uint32_t startup_state) {
+EventGroupHandle_t gpio_init(uint32_t startup_state) {
     outputs_init(startup_state);
 
     gpio.event = xEventGroupCreate();
 
     inputs_init();
     analog_init();
-    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
+    return gpio.event;
 }
 
 bool get_digital_value(gpio_output gpio) {
@@ -139,19 +139,4 @@ uint16_t get_analog_value() {
         ESP_LOGE(TAG, "get_analog_value, err:0x%X\r\n", err);
     }
     return adc;
-}
-
-static void gpio_task(void *arg) {
-    while (true) {
-        EventBits_t uxBits = xEventGroupWaitBits(
-            gpio.event,
-            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
-                | BUTTON_LEFT_IO_CLOSE | BUTTON_LEFT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
-                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
-            true,
-            false,
-            portMAX_DELAY);
-
-        ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
-    }
 }
