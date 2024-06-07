@@ -86,6 +86,7 @@
         "http_server.h": "c",
         "esp_event.h": "c",
         "buttons.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "gpio.h": "c"
     }
 }

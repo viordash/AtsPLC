@@ -23,7 +23,7 @@
 static const char *TAG = "gpio";
 
 static struct {
-    xQueueHandle evt_queue;
+    EventGroupHandle_t event;
 } gpio;
 
 static void gpio_task(void *arg);
@@ -41,9 +41,33 @@ static void outputs_init(uint32_t startup_state) {
     set_digital_value(OUTPUT_1, startup_state & OUTPUT_1);
 }
 
-static void gpio_isr_handler(void *arg) {
-    uint32_t gpio_num = (uint32_t)arg;
-    xQueueSendFromISR(gpio.evt_queue, &gpio_num, NULL);
+static void BUTTON_UP_IO_isr_handler(void *arg) {
+    if (gpio_get_level(BUTTON_UP_IO)) {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, NULL);
+    } else {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_OPEN, NULL);
+    }
+}
+static void BUTTON_DOWN_IO_isr_handler(void *arg) {
+    if (gpio_get_level(BUTTON_DOWN_IO)) {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, NULL);
+    } else {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_OPEN, NULL);
+    }
+}
+static void BUTTON_LEFT_IO_isr_handler(void *arg) {
+    if (gpio_get_level(BUTTON_LEFT_IO)) {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_CLOSE | INPUT_1_IO_CLOSE, NULL);
+    } else {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_OPEN | INPUT_1_IO_OPEN, NULL);
+    }
+}
+static void BUTTON_SELECT_IO_isr_handler(void *arg) {
+    if (gpio_get_level(BUTTON_SELECT_IO)) {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_CLOSE, NULL);
+    } else {
+        xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_OPEN, NULL);
+    }
 }
 
 static void inputs_init() {
@@ -56,10 +80,10 @@ static void inputs_init() {
 
     gpio_install_isr_service(0);
 
-    gpio_isr_handler_add(BUTTON_UP_IO, gpio_isr_handler, (void *)BUTTON_UP_IO);
-    gpio_isr_handler_add(BUTTON_DOWN_IO, gpio_isr_handler, (void *)BUTTON_DOWN_IO);
-    gpio_isr_handler_add(BUTTON_LEFT_IO, gpio_isr_handler, (void *)BUTTON_LEFT_IO);
-    gpio_isr_handler_add(BUTTON_SELECT_IO, gpio_isr_handler, (void *)BUTTON_SELECT_IO);
+    gpio_isr_handler_add(BUTTON_UP_IO, BUTTON_UP_IO_isr_handler, NULL);
+    gpio_isr_handler_add(BUTTON_DOWN_IO, BUTTON_DOWN_IO_isr_handler, NULL);
+    gpio_isr_handler_add(BUTTON_LEFT_IO, BUTTON_LEFT_IO_isr_handler, NULL);
+    gpio_isr_handler_add(BUTTON_SELECT_IO, BUTTON_SELECT_IO_isr_handler, NULL);
 }
 
 static void analog_init() {
@@ -75,7 +99,7 @@ static void analog_init() {
 void gpio_init(uint32_t startup_state) {
     outputs_init(startup_state);
 
-    gpio.evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    gpio.event = xEventGroupCreate();
 
     inputs_init();
     analog_init();
@@ -118,11 +142,16 @@ uint16_t get_analog_value() {
 }
 
 static void gpio_task(void *arg) {
-    uint32_t io_num;
-
     while (true) {
-        if (xQueueReceive(gpio.evt_queue, &io_num, portMAX_DELAY)) {
-            ESP_LOGI(TAG, "GPIO[%d] intr, val: %d", io_num, gpio_get_level(io_num));
-        }
+        EventBits_t uxBits = xEventGroupWaitBits(
+            gpio.event,
+            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
+                | BUTTON_LEFT_IO_CLOSE | BUTTON_LEFT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
+                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
+            true,
+            false,
+            portMAX_DELAY);
+
+        ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
     }
 }
