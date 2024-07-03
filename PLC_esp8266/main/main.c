@@ -33,7 +33,6 @@ static const char *TAG = "main";
 extern device_settings settings;
 
 static void system_init() {
-
     tcpip_adapter_init();
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 }
