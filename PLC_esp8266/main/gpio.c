@@ -26,8 +26,6 @@ static struct {
     EventGroupHandle_t event;
 } gpio;
 
-static void gpio_task(void *arg);
-
 static void outputs_init(uint32_t startup_state) {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -42,6 +40,7 @@ static void outputs_init(uint32_t startup_state) {
 }
 
 static void BUTTON_UP_IO_isr_handler(void *arg) {
+    (void)arg;
     if (gpio_get_level(BUTTON_UP_IO)) {
         xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, NULL);
     } else {
@@ -49,6 +48,7 @@ static void BUTTON_UP_IO_isr_handler(void *arg) {
     }
 }
 static void BUTTON_DOWN_IO_isr_handler(void *arg) {
+    (void)arg;
     if (gpio_get_level(BUTTON_DOWN_IO)) {
         xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, NULL);
     } else {
@@ -56,6 +56,7 @@ static void BUTTON_DOWN_IO_isr_handler(void *arg) {
     }
 }
 static void BUTTON_LEFT_IO_isr_handler(void *arg) {
+    (void)arg;
     if (gpio_get_level(BUTTON_LEFT_IO)) {
         xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_CLOSE | INPUT_1_IO_CLOSE, NULL);
     } else {
@@ -63,6 +64,7 @@ static void BUTTON_LEFT_IO_isr_handler(void *arg) {
     }
 }
 static void BUTTON_SELECT_IO_isr_handler(void *arg) {
+    (void)arg;
     if (gpio_get_level(BUTTON_SELECT_IO)) {
         xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_CLOSE, NULL);
     } else {

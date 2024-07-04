@@ -1,5 +1,12 @@
 #pragma once
 
-typedef void * EventGroupHandle_t;
+#include "FreeRTOS.h"
 
-#define xEventGroupSetBitsFromISR( xEventGroup, uxBitsToSet, pxHigherPriorityTaskWoken )
+typedef void *EventGroupHandle_t;
+typedef TickType_t EventBits_t;
+
+EventGroupHandle_t xEventGroupCreate(void);
+
+BaseType_t xEventGroupSetBitsFromISR(EventGroupHandle_t xEventGroup,
+                                     const EventBits_t uxBitsToSet,
+                                     BaseType_t *pxHigherPriorityTaskWoken);

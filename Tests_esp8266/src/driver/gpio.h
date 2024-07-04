@@ -113,3 +113,6 @@ esp_err_t gpio_config(const gpio_config_t *config);
 int gpio_get_level(gpio_num_t gpio_num);
 
 esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level);
+
+esp_err_t gpio_install_isr_service(int no_use);
+esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args);
