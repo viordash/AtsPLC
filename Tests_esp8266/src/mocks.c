@@ -32,27 +32,13 @@ int gpio_get_level(gpio_num_t gpio_num) {
 }
 
 esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level) {
-    switch (gpio_num) {
-        case GPIO_NUM_2:
-            return mock_c()
-                ->actualCall("gpio_set_level_0")
-                ->withIntParameters("gpio_num", gpio_num)
-                ->withUnsignedIntParameters("level", level)
-                ->returnIntValueOrDefault(ESP_OK);
-
-        case GPIO_NUM_15:
-            return mock_c()
-                ->actualCall("gpio_set_level_1")
-                ->withIntParameters("gpio_num", gpio_num)
-                ->withUnsignedIntParameters("level", level)
-                ->returnIntValueOrDefault(ESP_OK);
-        default:
-            return mock_c()
-                ->actualCall("gpio_set_level")
-                ->withIntParameters("gpio_num", gpio_num)
-                ->withUnsignedIntParameters("level", level)
-                ->returnIntValueOrDefault(ESP_OK);
-    }
+    char buffer[32];
+    sprintf(buffer, "%d", gpio_num);
+    return mock_scope_c(buffer)
+        ->actualCall("gpio_set_level")
+        ->withIntParameters("gpio_num", gpio_num)
+        ->withUnsignedIntParameters("level", level)
+        ->returnIntValueOrDefault(ESP_OK);
 }
 
 esp_err_t adc_read(uint16_t *data) {
