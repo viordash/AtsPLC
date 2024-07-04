@@ -2,6 +2,7 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_spiffs.h"
+#include "freertos/event_groups.h"
 
 const char *esp_err_to_name(esp_err_t code) {
     (void)code;
@@ -74,4 +75,22 @@ esp_err_t esp_vfs_spiffs_unregister(const char *partition_label) {
     return mock_scope_c(partition_label)
         ->actualCall("esp_vfs_spiffs_unregister")
         ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t gpio_install_isr_service(int no_use) {
+    (void)no_use;
+    return mock_c()->actualCall("gpio_install_isr_service")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args) {
+    return mock_c()
+        ->actualCall("gpio_isr_handler_add")
+        ->withIntParameters("gpio_num", gpio_num)
+        ->withPointerParameters("gpio_isr_t", isr_handler)
+        ->withPointerParameters("args", args)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+EventGroupHandle_t xEventGroupCreate(void) {
+    return mock_c()->actualCall("xEventGroupCreate")->returnPointerValueOrDefault(NULL);
 }

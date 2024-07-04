@@ -5,7 +5,7 @@ include $(PWD)/../TestsFramework/cpputest.mk
 #
 
 
-SOURCE_PROJECT_DIR := $(PWD)/../PLC_esp8266/main
+SOURCE_PROJECT_DIR := -I$(PWD)/../PLC_esp8266/main -I$(PWD)/../PLC_esp8266/main/MigrateAnyData -I$(PWD)/../PLC_esp8266/main/DataMigrations
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 
 # define the Cpp compiler to use
@@ -49,7 +49,7 @@ RM = rm -f
 MD	:= mkdir -p
 endif
 
-INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) -I$(SOURCE_PROJECT_DIR) \
+INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) $(SOURCE_PROJECT_DIR) \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorMallocMacros.h \
 	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorNewMacros.h
 
