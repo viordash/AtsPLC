@@ -70,3 +70,5 @@ typedef uint32_t TickType_t;
 #define portTICK_PERIOD_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT			4
 /*-----------------------------------------------------------*/
+
+void portYIELD_FROM_ISR(void);

@@ -103,3 +103,6 @@ TickType_t xTaskGetTickCount(void) {
     mock_c()->actualCall("xTaskGetTickCount")->withOutputParameter("ticks", &ticks);
     return ticks;
 }
+
+void portYIELD_FROM_ISR(void) {
+}

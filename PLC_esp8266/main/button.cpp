@@ -20,13 +20,15 @@ button::state button::handle(EventBits_t bits) {
     if (down && (bits & open_bit) != 0) {
         down = false;
         TickType_t now_time = xTaskGetTickCount();
-        uint32_t duration = now_time >= down_time ? now_time - down_time : (UINT32_MAX - down_time) + now_time;
+        uint32_t duration =
+            now_time >= down_time ? now_time - down_time : (UINT32_MAX - down_time) + now_time;
         if (duration >= button::long_pressed_time) {
             return button::state::btLongPressed;
         }
         if (duration >= button::pressed_time) {
             return button::state::btPressed;
         }
+        return button::state::btShortPressed;
     }
     return button::state::btNone;
 }

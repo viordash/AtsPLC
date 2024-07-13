@@ -45,22 +45,6 @@ TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
     CHECK_EQUAL(button::state::btNone, state);
 }
 
-TEST(ButtonTestsGroup, handle_quick_press_returns_none) {
-    TickType_t ticks = 0 / portTICK_PERIOD_MS;
-    mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
-
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
-
-    auto state = testable.handle(BUTTON_UP_IO_CLOSE);
-    CHECK_EQUAL(button::state::btDown, state);
-
-    ticks = 29 / portTICK_PERIOD_MS;
-    state = testable.handle(BUTTON_UP_IO_OPEN);
-    CHECK_EQUAL(button::state::btNone, state);
-}
-
 TEST(ButtonTestsGroup, handle_normal_press) {
     TickType_t ticks = 0 / portTICK_PERIOD_MS;
     mock()
@@ -107,4 +91,20 @@ TEST(ButtonTestsGroup, handle_longpress_when_ticks_overflowed) {
     ticks = 2900 / portTICK_PERIOD_MS;
     state = testable.handle(BUTTON_UP_IO_OPEN);
     CHECK_EQUAL(button::state::btLongPressed, state);
+}
+
+TEST(ButtonTestsGroup, handle_short_press) {
+    volatile TickType_t ticks = 0;
+    mock()
+        .expectNCalls(2, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE);
+    CHECK_EQUAL(button::state::btDown, state);
+
+    ticks = 2;
+    state = testable.handle(BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btShortPressed, state);
 }

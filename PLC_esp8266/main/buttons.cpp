@@ -8,8 +8,6 @@
 #include "gpio.h"
 #include <vector>
 
-
-
 static void buttons_task(void *arg);
 
 std::vector<button> buttons{
@@ -42,6 +40,9 @@ static void buttons_task(void *arg) {
             switch (button.handle(uxBits)) {
                 case button::state::btDown:
                     ESP_LOGI(button.TAG, "process, uxBits:0x%08X btDown", uxBits);
+                    break;
+                case button::state::btShortPressed:
+                    ESP_LOGI(button.TAG, "process, uxBits:0x%08X btShortPressed", uxBits);
                     break;
                 case button::state::btPressed:
                     ESP_LOGI(button.TAG, "process, uxBits:0x%08X btPressed", uxBits);
