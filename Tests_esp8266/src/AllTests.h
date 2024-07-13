@@ -19,6 +19,8 @@ TEST_GROUP_C_WRAPPER(GpioTestsGroup){};
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_cleared_startup_value);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_open);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_close);
 
 IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 

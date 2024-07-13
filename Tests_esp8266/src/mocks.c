@@ -25,9 +25,10 @@ esp_err_t adc_init(adc_config_t *config) {
 }
 
 int gpio_get_level(gpio_num_t gpio_num) {
-    return mock_c()
+    char buffer[32];
+    sprintf(buffer, "%d", gpio_num);
+    return mock_scope_c(buffer)
         ->actualCall("gpio_get_level")
-        ->withIntParameters("gpio_num", gpio_num)
         ->returnIntValueOrDefault(-1);
 }
 
@@ -36,7 +37,6 @@ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level) {
     sprintf(buffer, "%d", gpio_num);
     return mock_scope_c(buffer)
         ->actualCall("gpio_set_level")
-        ->withIntParameters("gpio_num", gpio_num)
         ->withUnsignedIntParameters("level", level)
         ->returnIntValueOrDefault(ESP_OK);
 }
@@ -74,9 +74,12 @@ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void
     char buffer[32];
     sprintf(buffer, "%d", gpio_num);
 
+    gpio_isr_t *p = (gpio_isr_t *)mock_scope_c(buffer)->getData("isr_handler").value.pointerValue;
+    if (p != NULL) {
+        *p = isr_handler;
+    }
     return mock_scope_c(buffer)
         ->actualCall("gpio_isr_handler_add")
-        ->withPointerParameters("gpio_isr_t", isr_handler)
         ->returnIntValueOrDefault(ESP_OK);
 }
 
