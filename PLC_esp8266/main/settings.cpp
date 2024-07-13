@@ -5,8 +5,8 @@ extern "C" {
 #include "freertos/task.h"
 }
 
-#include "MigrateAnyData.h"
-#include "MigrateSettings.h"
+#include "MigrateAnyData/MigrateAnyData.h"
+#include "DataMigrations/MigrateSettings.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "partitions.h"

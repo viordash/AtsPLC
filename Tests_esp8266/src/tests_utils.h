@@ -1,3 +1,5 @@
+#pragma once
+
 #include "partitions.h"
 #include <stdbool.h>
 #include <stdint.h>

@@ -8,8 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "redundant_storage.cpp"
-#include "storage.cpp"
+#include "main/redundant_storage.cpp"
+#include "main/storage.cpp"
 
 #include "tests_utils.h"
 

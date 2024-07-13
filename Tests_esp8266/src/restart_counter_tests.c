@@ -15,7 +15,7 @@ TEST_GROUP_C_TEARDOWN(RestartCounterTestsGroup) {
 }
 
 #define RTC_USER_BASE testable
-#include "restart_counter.c"
+#include "main/restart_counter.c"
 
 TEST_C(RestartCounterTestsGroup, hot_restart_counter) {
     hotreload load_data = {};

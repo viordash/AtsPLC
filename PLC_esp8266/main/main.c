@@ -18,7 +18,7 @@
 #include "esp_system.h"
 #include "gpio.h"
 #include "hotreload_service.h"
-#include "http_server.h"
+#include "HttpServer/http_server.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"

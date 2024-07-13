@@ -15,7 +15,7 @@ TEST_GROUP_C_TEARDOWN(HotReloadTestsGroup) {
 }
 
 #define RTC_USER_BASE testable
-#include "hotreload_service.c"
+#include "main/hotreload_service.c"
 
 TEST_C(HotReloadTestsGroup, store_load) {
     hotreload store_data = {};

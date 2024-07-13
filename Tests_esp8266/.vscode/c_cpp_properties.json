@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../TestsFramework/CppUTest/**",
-                "${workspaceFolder}/../PLC_esp8266/main/**"
+                "${workspaceFolder}/../PLC_esp8266/**"
             ],
             "defines": [],
             "cStandard": "c17",

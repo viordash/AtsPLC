@@ -8,8 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "MigrateAnyData.cpp"
-#include "settings.cpp"
+#include "main/MigrateAnyData/MigrateAnyData.cpp"
+#include "main/settings.cpp"
 
 #include "tests_utils.h"
 

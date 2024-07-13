@@ -1,4 +1,6 @@
 #pragma once
+#include <stdint.h>
+#include <unistd.h>
 
 /* Type definitions. */
 #define portCHAR int8_t
@@ -52,3 +54,17 @@ typedef uint32_t TickType_t;
 #define BIT2    0x00000004
 #define BIT1    0x00000002
 #define BIT0    0x00000001
+
+/*-----------------------------------------------------------*/
+#define portTickType TickType_t
+
+#define CONFIG_FREERTOS_HZ 100
+#define configUSE_TICKLESS_IDLE 	1
+#define configCPU_CLOCK_HZ			( ( unsigned long ) 80000000 )	
+#define configTICK_RATE_HZ			( ( portTickType ) CONFIG_FREERTOS_HZ )
+
+/* Architecture specifics. */
+#define portSTACK_GROWTH			( -1 )
+#define portTICK_PERIOD_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )
+#define portBYTE_ALIGNMENT			4
+/*-----------------------------------------------------------*/

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MigrateAnyData.h"
+#include "MigrateAnyData/MigrateAnyData.h"
 #include "Settings_Initial.h"
 
 const TDataMigrate Migrate_Settings[] = {

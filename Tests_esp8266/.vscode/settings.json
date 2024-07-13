@@ -33,6 +33,7 @@
         "mocksupport_c.h": "c",
         "redundant_storage.h": "c",
         "stat.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "event_groups.h": "c"
     }
 }
