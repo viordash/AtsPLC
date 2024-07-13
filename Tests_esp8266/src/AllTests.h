@@ -21,6 +21,10 @@ TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_open);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_close);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_open);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_close);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_open);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_close);
 
 IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 
