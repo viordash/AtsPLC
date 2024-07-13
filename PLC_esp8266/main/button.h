@@ -21,7 +21,6 @@ class button {
     enum state {
         btNone = 0,
         btDown = 0x01,
-        // btUp = 0x02,
         btPressed = 0x04,
         btLongPressed = 0x08,
     };

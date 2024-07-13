@@ -43,9 +43,6 @@ static void buttons_task(void *arg) {
                 case button::state::btDown:
                     ESP_LOGI(button.TAG, "process, uxBits:0x%08X btDown", uxBits);
                     break;
-                // case button::state::btUp:
-                //     ESP_LOGI(button.TAG, "process, uxBits:0x%08X btUp", uxBits);
-                //     break;
                 case button::state::btPressed:
                     ESP_LOGI(button.TAG, "process, uxBits:0x%08X btPressed", uxBits);
                     break;

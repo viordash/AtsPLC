@@ -85,7 +85,7 @@ static void test_BUTTON_XXX_isr_handler(const char *testable_gpio_num,
     mock_scope_c(testable_gpio_num)->setPointerData("isr_handler", &isr_handler);
     mock_scope_c(testable_gpio_num)
         ->expectOneCall("gpio_get_level")
-        ->andReturnIntValue(opened ? 0 : 1);
+        ->andReturnIntValue(opened ? 1 : 0);
     mock_scope_c(buffer)
         ->expectOneCall("xEventGroupSetBitsFromISR")
         ->withPointerParameters("xEventGroup", &event);

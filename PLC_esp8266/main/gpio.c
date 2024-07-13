@@ -41,34 +41,58 @@ static void outputs_init(uint32_t startup_state) {
 
 static void BUTTON_UP_IO_isr_handler(void *arg) {
     (void)arg;
-    if (gpio_get_level(BUTTON_UP_IO)) {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, NULL);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xResult;
+    if (gpio_get_level(BUTTON_UP_IO) == 0) {
+        xResult =
+            xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_OPEN, NULL);
+        xResult =
+            xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_OPEN, &xHigherPriorityTaskWoken);
+    }
+    if (xResult == pdPASS && xHigherPriorityTaskWoken != pdFALSE) {
+        portYIELD_FROM_ISR();
     }
 }
 static void BUTTON_DOWN_IO_isr_handler(void *arg) {
     (void)arg;
-    if (gpio_get_level(BUTTON_DOWN_IO)) {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, NULL);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xResult;
+    if (gpio_get_level(BUTTON_DOWN_IO) == 0) {
+        xResult = xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_OPEN, NULL);
+        xResult = xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_OPEN, &xHigherPriorityTaskWoken);
+    }
+    if (xResult == pdPASS && xHigherPriorityTaskWoken != pdFALSE) {
+        portYIELD_FROM_ISR();
     }
 }
 static void BUTTON_LEFT_IO_isr_handler(void *arg) {
     (void)arg;
-    if (gpio_get_level(BUTTON_LEFT_IO)) {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_CLOSE | INPUT_1_IO_CLOSE, NULL);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xResult;
+    if (gpio_get_level(BUTTON_LEFT_IO) == 0) {
+        xResult =
+            xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_CLOSE | INPUT_1_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_OPEN | INPUT_1_IO_OPEN, NULL);
+        xResult =
+            xEventGroupSetBitsFromISR(gpio.event, BUTTON_LEFT_IO_OPEN | INPUT_1_IO_OPEN, &xHigherPriorityTaskWoken);
+    }
+    if (xResult == pdPASS && xHigherPriorityTaskWoken != pdFALSE) {
+        portYIELD_FROM_ISR();
     }
 }
 static void BUTTON_SELECT_IO_isr_handler(void *arg) {
     (void)arg;
-    if (gpio_get_level(BUTTON_SELECT_IO)) {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_CLOSE, NULL);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xResult;
+    if (gpio_get_level(BUTTON_SELECT_IO) == 0) {
+        xResult = xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
-        xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_OPEN, NULL);
+        xResult = xEventGroupSetBitsFromISR(gpio.event, BUTTON_SELECT_IO_OPEN, &xHigherPriorityTaskWoken);
+    }
+    if (xResult == pdPASS && xHigherPriorityTaskWoken != pdFALSE) {
+        portYIELD_FROM_ISR();
     }
 }
 

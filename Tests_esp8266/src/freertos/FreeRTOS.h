@@ -20,6 +20,8 @@ typedef uint32_t TickType_t;
 
 #define pdFALSE ((BaseType_t)0)
 #define pdTRUE ((BaseType_t)1)
+#define pdPASS			( pdTRUE )
+#define pdFAIL			( pdFALSE )
 
 
 #define BIT31   0x80000000
