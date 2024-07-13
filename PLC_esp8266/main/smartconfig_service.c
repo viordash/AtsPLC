@@ -6,6 +6,7 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "gpio.h"
 #include "settings.h"
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
@@ -174,7 +175,8 @@ static void task(void *parm) {
         settings.smartconfig.counter++; //
     );
 
-    bool ready_to_smartconfig = settings.smartconfig.counter == start_smartconfig_counter;
+    bool ready_to_smartconfig =
+        settings.smartconfig.counter == start_smartconfig_counter || select_button_pressed();
 
     if (!ready_to_smartconfig) {
         TickType_t ticks_start = 0;
