@@ -27,9 +27,7 @@ esp_err_t adc_init(adc_config_t *config) {
 int gpio_get_level(gpio_num_t gpio_num) {
     char buffer[32];
     sprintf(buffer, "%d", gpio_num);
-    return mock_scope_c(buffer)
-        ->actualCall("gpio_get_level")
-        ->returnIntValueOrDefault(-1);
+    return mock_scope_c(buffer)->actualCall("gpio_get_level")->returnIntValueOrDefault(-1);
 }
 
 esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level) {
@@ -98,4 +96,10 @@ BaseType_t xEventGroupSetBitsFromISR(EventGroupHandle_t xEventGroup,
         ->actualCall("xEventGroupSetBitsFromISR")
         ->withPointerParameters("xEventGroup", xEventGroup)
         ->returnIntValueOrDefault(pdTRUE);
+}
+
+TickType_t xTaskGetTickCount(void) {
+    TickType_t ticks;
+    mock_c()->actualCall("xTaskGetTickCount")->withOutputParameter("ticks", &ticks);
+    return ticks;
 }
