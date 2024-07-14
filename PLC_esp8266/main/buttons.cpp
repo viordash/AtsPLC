@@ -22,11 +22,11 @@ static struct {
                  BUTTON_DOWN_IO_OPEN,
                  BUTTON_DOWN_PRESSED,
                  BUTTON_DOWN_LONG_PRESSED) },
-        { button("button LEFT",
-                 BUTTON_LEFT_IO_CLOSE,
-                 BUTTON_LEFT_IO_OPEN,
-                 BUTTON_LEFT_PRESSED,
-                 BUTTON_LEFT_LONG_PRESSED) },
+        { button("button RIGHT",
+                 BUTTON_RIGHT_IO_CLOSE,
+                 BUTTON_RIGHT_IO_OPEN,
+                 BUTTON_RIGHT_PRESSED,
+                 BUTTON_RIGHT_LONG_PRESSED) },
         { button("button SELECT",
                  BUTTON_SELECT_IO_CLOSE,
                  BUTTON_SELECT_IO_OPEN,
@@ -41,7 +41,7 @@ EventGroupHandle_t buttons_init(EventGroupHandle_t gpio_events, bool is_hotstart
     service.event = xEventGroupCreate();
 
     if (is_hotstart) {
-        xEventGroupSetBits(service.event, BUTTON_RIGHT_PRESSED);
+        xEventGroupSetBits(service.event, BUTTON_LEFT_PRESSED);
     }
 
     xTaskCreate(buttons_task, "buttons_task", 1024, (void *)gpio_events, 10, NULL);
@@ -54,7 +54,7 @@ static void buttons_task(void *arg) {
         EventBits_t uxBits = xEventGroupWaitBits(
             gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
-                | BUTTON_LEFT_IO_CLOSE | BUTTON_LEFT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
+                | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
                 | BUTTON_SELECT_IO_OPEN,
             true,
             false,

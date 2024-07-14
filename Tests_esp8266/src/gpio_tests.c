@@ -95,30 +95,43 @@ static void test_BUTTON_XXX_isr_handler(const char *testable_gpio_num,
 }
 
 TEST_C(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_open) {
-    test_BUTTON_XXX_isr_handler("12", "13", "14", "0", BUTTON_UP_IO_OPEN, true);
+    test_BUTTON_XXX_isr_handler("13", "12", "14", "0", BUTTON_UP_IO_OPEN, true);
 }
 
 TEST_C(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_close) {
-    test_BUTTON_XXX_isr_handler("12", "13", "14", "0", BUTTON_UP_IO_CLOSE, false);
+    test_BUTTON_XXX_isr_handler("13", "12", "14", "0", BUTTON_UP_IO_CLOSE, false);
 }
 
 TEST_C(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_open) {
-    test_BUTTON_XXX_isr_handler("13", "12", "14", "0", BUTTON_DOWN_IO_OPEN, true);
+    test_BUTTON_XXX_isr_handler("12", "13", "14", "0", BUTTON_DOWN_IO_OPEN, true);
 }
 
 TEST_C(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_close) {
-    test_BUTTON_XXX_isr_handler("13", "12", "14", "0", BUTTON_DOWN_IO_CLOSE, false);
+    test_BUTTON_XXX_isr_handler("12", "13", "14", "0", BUTTON_DOWN_IO_CLOSE, false);
 }
 
-TEST_C(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_open) {
-    test_BUTTON_XXX_isr_handler("0", "13", "12", "14", BUTTON_LEFT_IO_OPEN | INPUT_1_IO_OPEN, true);
-}
-
-TEST_C(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_close) {
+TEST_C(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_open) {
     test_BUTTON_XXX_isr_handler("0",
                                 "13",
                                 "12",
                                 "14",
-                                BUTTON_LEFT_IO_CLOSE | INPUT_1_IO_CLOSE,
+                                BUTTON_RIGHT_IO_OPEN | INPUT_1_IO_OPEN,
+                                true);
+}
+
+TEST_C(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_close) {
+    test_BUTTON_XXX_isr_handler("0",
+                                "13",
+                                "12",
+                                "14",
+                                BUTTON_RIGHT_IO_CLOSE | INPUT_1_IO_CLOSE,
                                 false);
+}
+
+TEST_C(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_open) {
+    test_BUTTON_XXX_isr_handler("14", "13", "12", "0", BUTTON_SELECT_IO_OPEN, true);
+}
+
+TEST_C(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_close) {
+    test_BUTTON_XXX_isr_handler("14", "13", "12", "0", BUTTON_SELECT_IO_CLOSE, false);
 }

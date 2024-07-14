@@ -111,8 +111,8 @@ void app_main() {
             EventBits_t buttons_bits = xEventGroupWaitBits(
                 buttons_events,
                 BUTTON_UP_PRESSED | BUTTON_UP_LONG_PRESSED | BUTTON_DOWN_PRESSED
-                    | BUTTON_DOWN_LONG_PRESSED | BUTTON_LEFT_PRESSED | BUTTON_LEFT_LONG_PRESSED
-                    | BUTTON_SELECT_PRESSED | BUTTON_SELECT_LONG_PRESSED | BUTTON_RIGHT_PRESSED,
+                    | BUTTON_DOWN_LONG_PRESSED | BUTTON_RIGHT_PRESSED | BUTTON_RIGHT_LONG_PRESSED
+                    | BUTTON_SELECT_PRESSED | BUTTON_SELECT_LONG_PRESSED | BUTTON_LEFT_PRESSED,
                 true,
                 false,
                 5000 / portTICK_PERIOD_MS);
@@ -129,11 +129,11 @@ void app_main() {
             if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
             }
-            if (buttons_bits & BUTTON_LEFT_PRESSED) {
-                ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
+            if (buttons_bits & BUTTON_RIGHT_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
             }
-            if (buttons_bits & BUTTON_LEFT_LONG_PRESSED) {
-                ESP_LOGI(TAG, "BUTTON_LEFT_LONG_PRESSED");
+            if (buttons_bits & BUTTON_RIGHT_LONG_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_RIGHT_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_SELECT_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
@@ -141,8 +141,8 @@ void app_main() {
             if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
             }
-            if (buttons_bits & BUTTON_RIGHT_PRESSED) {
-                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
+            if (buttons_bits & BUTTON_LEFT_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
             }
         }
         // vTaskDelay(5000 / portTICK_PERIOD_MS);

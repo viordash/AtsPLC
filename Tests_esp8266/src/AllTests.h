@@ -23,8 +23,10 @@ TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_open);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_UP_IO_isr_handler__when_input_is_close);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_open);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_close);
-TEST_C_WRAPPER(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_open);
-TEST_C_WRAPPER(GpioTestsGroup, BUTTON_LEFT_IO_isr_handler__when_input_is_close);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_open);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_close);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_open);
+TEST_C_WRAPPER(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_close);
 
 IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 
@@ -35,6 +37,5 @@ TEST_GROUP_C_WRAPPER(RestartCounterTestsGroup) {
     TEST_GROUP_C_TEARDOWN_WRAPPER(RestartCounterTestsGroup);
 };
 TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart_counter);
-
 
 IMPORT_TEST_GROUP(ButtonTestsGroup);
