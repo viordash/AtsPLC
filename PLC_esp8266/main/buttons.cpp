@@ -35,17 +35,17 @@ static struct {
     };
 
     EventGroupHandle_t event;
-} service;
+} buttons;
 
 EventGroupHandle_t buttons_init(EventGroupHandle_t gpio_events, bool is_hotstart) {
-    service.event = xEventGroupCreate();
+    buttons.event = xEventGroupCreate();
 
     if (is_hotstart) {
-        xEventGroupSetBits(service.event, BUTTON_LEFT_PRESSED);
+        xEventGroupSetBits(buttons.event, BUTTON_LEFT_PRESSED);
     }
 
     xTaskCreate(buttons_task, "buttons_task", 1024, (void *)gpio_events, 10, NULL);
-    return service.event;
+    return buttons.event;
 }
 
 static void buttons_task(void *arg) {
@@ -60,7 +60,7 @@ static void buttons_task(void *arg) {
             false,
             portMAX_DELAY);
 
-        for (auto &button : service.buttons) {
+        for (auto &button : buttons.buttons) {
             switch (button.handle(uxBits)) {
                 case button::state::btDown:
                     ESP_LOGD(button.TAG, "process, uxBits:0x%08X btDown", uxBits);
@@ -70,11 +70,11 @@ static void buttons_task(void *arg) {
                     break;
                 case button::state::btPressed:
                     ESP_LOGD(button.TAG, "process, uxBits:0x%08X btPressed", uxBits);
-                    xEventGroupSetBits(service.event, button.pressed_bit);
+                    xEventGroupSetBits(buttons.event, button.pressed_bit);
                     break;
                 case button::state::btLongPressed:
                     ESP_LOGD(button.TAG, "process, uxBits:0x%08X btLongPressed", uxBits);
-                    xEventGroupSetBits(service.event, button.long_pressed_bit);
+                    xEventGroupSetBits(buttons.event, button.long_pressed_bit);
                     break;
 
                 default:
