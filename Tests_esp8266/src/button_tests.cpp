@@ -23,7 +23,7 @@ TEST(ButtonTestsGroup, handle_btDown) {
         .expectOneCall("xTaskGetTickCount")
         .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -36,7 +36,7 @@ TEST(ButtonTestsGroup, handle_btDown) {
 TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
     mock().expectNoCall("xTaskGetTickCount");
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_DOWN_IO_CLOSE);
     CHECK_EQUAL(button::state::btNone, state);
@@ -51,7 +51,7 @@ TEST(ButtonTestsGroup, handle_normal_press) {
         .expectNCalls(2, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -67,7 +67,7 @@ TEST(ButtonTestsGroup, handle_press_when_ticks_overflowed) {
         .expectNCalls(2, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -83,7 +83,7 @@ TEST(ButtonTestsGroup, handle_longpress_when_ticks_overflowed) {
         .expectNCalls(2, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -99,7 +99,7 @@ TEST(ButtonTestsGroup, handle_short_press) {
         .expectNCalls(2, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN);
+    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);

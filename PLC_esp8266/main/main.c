@@ -9,6 +9,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "HttpServer/http_server.h"
 #include "buttons.h"
 #include "crc32.h"
 #include "driver/uart.h"
@@ -18,7 +19,6 @@
 #include "esp_system.h"
 #include "gpio.h"
 #include "hotreload_service.h"
-#include "HttpServer/http_server.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"
@@ -31,6 +31,8 @@
 static const char *TAG = "main";
 
 extern device_settings settings;
+
+static EventGroupHandle_t buttons_events;
 
 static void system_init() {
     tcpip_adapter_init();
@@ -48,7 +50,7 @@ static void startup() {
     }
 
     EventGroupHandle_t gpio_events = gpio_init(hotreload_data.gpio);
-    buttons_init(gpio_events);
+    buttons_events = buttons_init(gpio_events, is_hotstart);
 
     load_settings();
 
@@ -102,7 +104,45 @@ void app_main() {
         }
 
         printf("Restarting in %d seconds...  [free mem:%u]\n", i, esp_get_free_heap_size());
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        {
+            EventBits_t buttons_bits = xEventGroupWaitBits(
+                buttons_events,
+                BUTTON_UP_PRESSED | BUTTON_UP_LONG_PRESSED | BUTTON_DOWN_PRESSED
+                    | BUTTON_DOWN_LONG_PRESSED | BUTTON_LEFT_PRESSED | BUTTON_LEFT_LONG_PRESSED
+                    | BUTTON_SELECT_PRESSED | BUTTON_SELECT_LONG_PRESSED | BUTTON_RIGHT_PRESSED,
+                true,
+                false,
+                5000 / portTICK_PERIOD_MS);
+
+            if (buttons_bits & BUTTON_UP_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
+            }
+            if (buttons_bits & BUTTON_UP_LONG_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_UP_LONG_PRESSED");
+            }
+            if (buttons_bits & BUTTON_DOWN_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
+            }
+            if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
+            }
+            if (buttons_bits & BUTTON_LEFT_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
+            }
+            if (buttons_bits & BUTTON_LEFT_LONG_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_LEFT_LONG_PRESSED");
+            }
+            if (buttons_bits & BUTTON_SELECT_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
+            }
+            if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
+            }
+            if (buttons_bits & BUTTON_RIGHT_PRESSED) {
+                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
+            }
+        }
+        // vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 
     stop_wifi_sta();

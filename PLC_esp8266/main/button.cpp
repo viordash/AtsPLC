@@ -3,10 +3,16 @@
 #include "freertos/task.h"
 #include "button.h"
 
-button::button(const char *tag, EventBits_t close_bit, EventBits_t open_bit) {
+button::button(const char *tag,
+               EventBits_t close_bit,
+               EventBits_t open_bit,
+               EventBits_t pressed_bit,
+               EventBits_t long_pressed_bit) {
     this->TAG = tag;
     this->close_bit = close_bit;
     this->open_bit = open_bit;
+    this->pressed_bit = pressed_bit;
+    this->long_pressed_bit = long_pressed_bit;
     down = false;
 }
 
