@@ -9,6 +9,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "Display/display.h"
 #include "HttpServer/http_server.h"
 #include "buttons.h"
 #include "crc32.h"
@@ -77,6 +78,8 @@ void app_main() {
     printf("%dMB %s flash\n",
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
+
+    display_init();
 
     while (smartconfig_is_runned()) {
         printf("wait smartconfig...\n");
