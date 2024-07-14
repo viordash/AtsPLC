@@ -49,27 +49,67 @@ void display_init() {
 
     ssd1306_draw_string(&dev,
                         buffer,
-                        font_builtin_fonts[FONT_FACE_GLCD5x7],
+                        font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
                         0,
                         0,
-                        "Hello, esp-rtos!",
+                        "Hello, esp-rtos 0!",
                         OLED_COLOR_WHITE,
                         OLED_COLOR_BLACK);
 
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    ssd1306_draw_string(&dev,
+                        buffer,
+                        font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
+                        0,
+                        12,
+                        "Hello, esp-rtos 1!",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
 
-#define CIRCLE_COUNT_ICON_X 50
-#define CIRCLE_COUNT_ICON_Y 30
-    for (uint8_t i = 0; i < 10; i++) {
-        ssd1306_draw_circle(&dev,
-                            buffer,
-                            CIRCLE_COUNT_ICON_X,
-                            CIRCLE_COUNT_ICON_Y,
-                            i,
-                            OLED_COLOR_WHITE);
-        ssd1306_load_frame_buffer(&dev, buffer);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
+    ssd1306_draw_string(&dev,
+                        buffer,
+                        font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
+                        0,
+                        24,
+                        "Hello, esp-rtos 2!",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
+    ssd1306_draw_string(&dev,
+                        buffer,
+                        font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
+                        0,
+                        36,
+                        "Hello, esp-rtos 3!",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
+    ssd1306_draw_string(&dev,
+                        buffer,
+                        font_builtin_fonts[FONT_FACE_TERMINUS_8X14_ISO8859_1],
+                        0,
+                        48,
+                        "Hello, esp-rtos 4!",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
+
+
+    ssd1306_load_frame_buffer(&dev, buffer);
+
+//     vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+// #define CIRCLE_COUNT_ICON_X 64
+// #define CIRCLE_COUNT_ICON_Y 48
+//     for (uint8_t i = 0; i < 10; i++) {
+//         ssd1306_draw_circle(&dev,
+//                             buffer,
+//                             CIRCLE_COUNT_ICON_X,
+//                             CIRCLE_COUNT_ICON_Y,
+//                             i,
+//                             OLED_COLOR_WHITE);
+//         ssd1306_load_frame_buffer(&dev, buffer);
+//         vTaskDelay(100 / portTICK_PERIOD_MS);
+//     }
 
     ESP_LOGI(TAG, "init succesfully");
 }

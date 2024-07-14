@@ -93,6 +93,8 @@
         "uart.h": "c",
         "display.h": "c",
         "font_glcd_5x7.h": "c",
-        "fonts.h": "c"
+        "fonts.h": "c",
+        "font_terminus_6x12_iso8859_1.h": "c",
+        "font_roboto_8pt.h": "c"
     }
 }

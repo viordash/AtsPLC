@@ -8,8 +8,13 @@
  */
 #include "fonts.h"
 
-#ifndef FONTS_GLCD_5X7
-#define FONTS_GLCD_5X7
+
+#ifndef FONTS_TERMINUS_6X12_ISO8859_1
+#define FONTS_TERMINUS_6X12_ISO8859_1
+#endif
+
+#ifndef FONTS_TERMINUS_8X14_ISO8859_1
+#define FONTS_TERMINUS_8X14_ISO8859_1
 #endif
 
 #ifdef FONTS_GLCD_5X7
