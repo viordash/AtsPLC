@@ -8,6 +8,9 @@
  */
 #include "fonts.h"
 
+#ifndef FONTS_BITOCRA_4X7
+#define FONTS_BITOCRA_4X7
+#endif
 
 #ifndef FONTS_TERMINUS_6X12_ISO8859_1
 #define FONTS_TERMINUS_6X12_ISO8859_1

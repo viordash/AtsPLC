@@ -49,10 +49,10 @@ void display_init() {
 
     ssd1306_draw_string(&dev,
                         buffer,
-                        font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
+                        font_builtin_fonts[FONT_FACE_BITOCRA_4X7],
                         0,
                         0,
-                        "Hello, esp-rtos 0!",
+                        "001.IN0 ? OUT0<1 : OUT1<1",
                         OLED_COLOR_WHITE,
                         OLED_COLOR_BLACK);
 
@@ -61,7 +61,7 @@ void display_init() {
                         font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1],
                         0,
                         12,
-                        "Hello, esp-rtos 1!",
+                        "002.IN0 | IN1 ? OUT0<0",
                         OLED_COLOR_WHITE,
                         OLED_COLOR_BLACK);
 
