@@ -9,6 +9,10 @@ extern "C" {
 
 void display_init();
 
+void display_demo_0();
+void display_demo_1();
+void display_demo_2();
+
 #ifdef __cplusplus
 }
 #endif

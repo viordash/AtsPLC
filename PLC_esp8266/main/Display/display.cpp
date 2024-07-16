@@ -1,4 +1,5 @@
 #include "display.h"
+#include "demo.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -56,23 +57,39 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    ssd1306_draw_string(&display.dev,
-                        display.buffer,
-                        display.font_4X7,
-                        0,
-                        0,
-                        "001.IN0 ? OUT0<1 : OUT1<1",
-                        OLED_COLOR_WHITE,
-                        OLED_COLOR_BLACK);
+    // memcpy(display.buffer, bitmap_demo_0, sizeof(display.buffer));
+    ssd1306_load_xbm(&display.dev, bitmap_demo_2, display.buffer);
 
-    ladder_diagram(16, 12);
-    ladder_diagram(16, 29);
-    ladder_diagram(16, 46);
-    // ladder_diagram_acsii(14, 32);
+    // ssd1306_draw_string(&display.dev,
+    //                     display.buffer,
+    //                     display.font_4X7,
+    //                     0,
+    //                     0,
+    //                     "001.IN0 ? OUT0<1 : OUT1<1",
+    //                     OLED_COLOR_WHITE,
+    //                     OLED_COLOR_BLACK);
 
-    ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, display.buffer) != 0 ? ESP_FAIL
-                                                                                 : ESP_OK);
+    // ladder_diagram(16, 12);
+    // ladder_diagram(16, 29);
+    // ladder_diagram(16, 46);
+    // // ladder_diagram_acsii(14, 32);
+
+    // ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, display.buffer) != 0 ? ESP_FAIL
+    //                                                                              : ESP_OK);
     ESP_LOGI(TAG, "init succesfully");
+}
+
+void display_demo_0() {
+    memset(display.buffer, 0, sizeof(display.buffer));
+    ssd1306_load_xbm(&display.dev, bitmap_demo_0, display.buffer);
+}
+void display_demo_1() {
+    memset(display.buffer, 0, sizeof(display.buffer));
+    ssd1306_load_xbm(&display.dev, bitmap_demo_1, display.buffer);
+}
+void display_demo_2() {
+    memset(display.buffer, 0, sizeof(display.buffer));
+    ssd1306_load_xbm(&display.dev, bitmap_demo_2, display.buffer);
 }
 
 void ladder_diagram(int8_t x, int8_t y) {

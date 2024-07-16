@@ -119,18 +119,21 @@ void app_main() {
 
             if (buttons_bits & BUTTON_UP_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
+                display_demo_0();
             }
             if (buttons_bits & BUTTON_UP_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_UP_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_DOWN_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
+                display_demo_1();
             }
             if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_RIGHT_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
+                display_demo_2();
             }
             if (buttons_bits & BUTTON_RIGHT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_RIGHT_LONG_PRESSED");

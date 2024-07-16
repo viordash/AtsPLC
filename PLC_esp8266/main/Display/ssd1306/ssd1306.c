@@ -371,7 +371,7 @@ int ssd1306_load_xbm(const ssd1306_t *dev, uint8_t *xbm, uint8_t *fb) {
         for (column = 0; column < dev->width / 8; column++) {
             uint16_t xbm_offset = row * 16 + column;
             for (bit = 0; bit < 8; bit++) {
-                if (*(xbm + xbm_offset) & 1 << bit) {
+                if (*(xbm + xbm_offset) & 1 << (7 - bit)) {
                     *(fb + dev->width * (row / 8) + column * 8 + bit) |= 1 << row % 8;
                 }
             }
