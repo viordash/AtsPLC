@@ -2,6 +2,12 @@
 
 namespace Bmp2Ssd1306 {
     public class BitmapFile {
+        public struct Dib {
+            public byte[] Data;
+            public int Width;
+            public int Height;
+        }
+
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         public struct BITMAPFILEHEADER {
             public ushort bfType;
@@ -15,7 +21,7 @@ namespace Bmp2Ssd1306 {
             }
         }
 
-        public static byte[] ExtractDib(byte[] bytesBmp) {
+        public static Dib ExtractDib(byte[] bytesBmp) {
             if (bytesBmp.Length < StructHelper.Size<BITMAPFILEHEADER>()) {
                 throw new ArgumentException("bmp size is too small");
             }
@@ -41,9 +47,12 @@ namespace Bmp2Ssd1306 {
                     throw new ArgumentException("incorrect bmp bit count");
                 }
             }
+            return new Dib {
+                Data = bytesBmp.Skip((int)header.bfOffBits).ToArray(),
+                Height = bitmapInfo.bmiHeader.biHeight,
+                Width = bitmapInfo.bmiHeader.biWidth
 
-            return bmp.Skip((int)bitmapInfo.bmiHeader.biSize).ToArray();
+            };
         }
-
     }
 }
