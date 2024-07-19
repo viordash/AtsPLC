@@ -33,7 +33,7 @@ namespace Bmp2Ssd1306 {
                 for (int column = 0; column < dib.Width / 8; column++) {
                     var xbm_offset = row * 16 + column;
                     for (byte bit = 0; bit < 8; bit++) {
-                        if ((dib.Data[xbm_offset] & 1) << (7 - bit) != 0) {
+                        if ((dib.Data[xbm_offset] & 1 << (7 - bit)) != 0) {
                             fb[dib.Width * (row / 8) + column * 8 + bit] |= (byte)(1 << row % 8);
                         }
                     }
