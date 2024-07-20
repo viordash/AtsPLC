@@ -57,8 +57,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    // memcpy(display.buffer, bitmap_demo_0, sizeof(display.buffer));
-    ssd1306_load_xbm(&display.dev, bitmap_demo_2, display.buffer);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
 
     // ssd1306_draw_string(&display.dev,
     //                     display.buffer,
@@ -80,16 +79,13 @@ void display_init() {
 }
 
 void display_demo_0() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    ssd1306_load_xbm(&display.dev, bitmap_demo_0, display.buffer);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 }
 void display_demo_1() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    ssd1306_load_xbm(&display.dev, bitmap_demo_1, display.buffer);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_1);
 }
 void display_demo_2() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    ssd1306_load_xbm(&display.dev, bitmap_demo_2, display.buffer);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
 }
 
 void ladder_diagram(int8_t x, int8_t y) {
