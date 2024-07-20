@@ -12,7 +12,9 @@
             "program": "${workspaceFolder}/Bmp2Ssd1306/bin/Debug/Bmp2Ssd1306.dll",
             "args": [
                 "/home/viordash/Downloads/AtPLC_Ladder_diagram_0.bmp",
-                "/home/viordash/Downloads/AtPLC_Ladder_diagram_0.h"
+                "/home/viordash/Downloads/AtPLC_Ladder_diagram_0.h",
+                "-fv",
+                "-nc"
             ],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

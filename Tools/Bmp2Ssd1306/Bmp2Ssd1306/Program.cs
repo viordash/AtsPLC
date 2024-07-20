@@ -8,7 +8,7 @@ namespace Bmp2Ssd1306 {
             if (args.Length < 2) {
                 Console.WriteLine("Use: Bmp2Ssd1306 input.bmp output.h [-fv][-nc]");
                 Console.WriteLine("\t-fv flip vertical");
-                Console.WriteLine("\t-ng negative color");
+                Console.WriteLine("\t-nc negative color");
             }
 
             var inputFilename = args[0];
@@ -20,6 +20,9 @@ namespace Bmp2Ssd1306 {
 
             if (args.Contains("-fv")) {
                 FlipVertical(dib);
+            }
+            if (args.Contains("-nc")) {
+                NegativeColor(dib);
             }
             var ssd1306 = Convert2Ssd1306(dib);
             var code = CreateCCodeArray(ssd1306, outputArrayName);
@@ -40,6 +43,15 @@ namespace Bmp2Ssd1306 {
                     var t = dib.Data[id0];
                     dib.Data[id0] = dib.Data[id1];
                     dib.Data[id1] = t;
+                }
+            }
+        }
+
+        static void NegativeColor(BitmapFile.Dib dib) {
+            for (int row = 0; row < dib.Height; row++) {
+                for (int column = 0; column < dib.Width / 8; column++) {
+                    var id = row * (dib.Width / 8) + column;
+                    dib.Data[id] = (byte)~dib.Data[id];
                 }
             }
         }
