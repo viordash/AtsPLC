@@ -5,15 +5,20 @@ using System.Text;
 namespace Bmp2Ssd1306 {
     internal class Program {
         static void Main(string[] args) {
-            if (args.Length < 2) {
-                Console.WriteLine("Use: Bmp2Ssd1306 input.bmp output.h [-fv][-nc]");
+            if (args.Length < 1) {
+                Console.WriteLine("Use: Bmp2Ssd1306 input.bmp [output.h] [-fv][-nc]");
                 Console.WriteLine("\t-fv flip vertical");
                 Console.WriteLine("\t-nc negative color");
                 return;
             }
 
             var inputFilename = args[0];
-            var outputFilename = args[1];
+            string outputFilename;
+            if (args.Length >= 2 && Path.GetExtension(args[1]) == ".h") {
+                outputFilename = args[1];
+            } else {
+                outputFilename = Path.ChangeExtension(inputFilename, ".h");
+            }
             var outputArrayName = Path.GetFileNameWithoutExtension(outputFilename);
 
             var bytes = File.ReadAllBytes(inputFilename);
