@@ -57,7 +57,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_3);
 
     // ssd1306_draw_string(&display.dev,
     //                     display.buffer,

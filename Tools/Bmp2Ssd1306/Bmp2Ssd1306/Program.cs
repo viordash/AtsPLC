@@ -27,7 +27,7 @@ namespace Bmp2Ssd1306 {
             var ssd1306 = Convert2Ssd1306(dib);
             var code = CreateCCodeArray(ssd1306, outputArrayName);
             File.WriteAllText(outputFilename, code);
-            Console.WriteLine($"File '{outputFilename}' ready");
+            Console.WriteLine($"File '{outputFilename}' (w:{dib.Width}, h:{dib.Height}) ready");
         }
 
         static BitmapFile.Dib ParseBmpFile(byte[] bytes) {

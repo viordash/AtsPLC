@@ -11,8 +11,8 @@
             "preLaunchTask": "dotnet: build",
             "program": "${workspaceFolder}/Bmp2Ssd1306/bin/Debug/Bmp2Ssd1306.dll",
             "args": [
-                "/home/viordash/Downloads/AtPLC_Ladder_diagram_0.bmp",
-                "/home/viordash/Downloads/AtPLC_Ladder_diagram_0.h",
+                "/home/viordash/Downloads/demo3.bmp",
+                "/home/viordash/Downloads/demo3.h",
                 "-fv",
                 "-nc"
             ],
