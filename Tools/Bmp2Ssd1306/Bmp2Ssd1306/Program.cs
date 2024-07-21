@@ -9,6 +9,7 @@ namespace Bmp2Ssd1306 {
                 Console.WriteLine("Use: Bmp2Ssd1306 input.bmp output.h [-fv][-nc]");
                 Console.WriteLine("\t-fv flip vertical");
                 Console.WriteLine("\t-nc negative color");
+                return;
             }
 
             var inputFilename = args[0];

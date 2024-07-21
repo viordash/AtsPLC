@@ -9,10 +9,10 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dotnet: build",
-            "program": "${workspaceFolder}/Bmp2Ssd1306/bin/Debug/Bmp2Ssd1306.dll",
+            "program": "${workspaceFolder}/Bmp2Ssd1306/bin/Debug/linux-x64/Bmp2Ssd1306.dll",
             "args": [
-                "/home/viordash/Downloads/demo3.bmp",
-                "/home/viordash/Downloads/demo3.h",
+                "/home/viordash/Downloads/demo0.bmp",
+                "/home/viordash/Downloads/demo0.h",
                 "-fv",
                 "-nc"
             ],

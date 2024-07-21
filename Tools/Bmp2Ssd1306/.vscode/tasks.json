@@ -8,20 +8,28 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"problemMatcher": [],
+			"problemMatcher": "$msCompile",
 			"label": "dotnet: build"
 		},
 		{
 			"type": "dotnet",
 			"task": "clean",
-			"problemMatcher": [],
+			"problemMatcher": "$msCompile",
 			"label": "dotnet: clean"
 		},
 		{
 			"type": "shell",
 			"command": "dotnet clean; dotnet build",
 			"args": [],
-			"label": "rebuild"
+			"label": "rebuild",
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"type": "shell",
+			"command": "dotnet publish -r linux-x64 --self-contained false",
+			"args": [],
+			"label": "publish linux-x64",
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
