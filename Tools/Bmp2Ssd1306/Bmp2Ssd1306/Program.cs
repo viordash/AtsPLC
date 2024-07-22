@@ -22,7 +22,8 @@ namespace Bmp2Ssd1306 {
             var outputArrayName = Path.GetFileNameWithoutExtension(outputFilename);
 
             var bytes = File.ReadAllBytes(inputFilename);
-            var dib = ParseBmpFile(bytes);
+            var roundedDib = ParseBmpFile(bytes);
+            var dib = Convert2RawDib(roundedDib);
 
             if (args.Contains("-fv")) {
                 FlipVertical(dib);
@@ -40,6 +41,25 @@ namespace Bmp2Ssd1306 {
             var dib = BitmapFile.ExtractDib(bytes);
             return dib;
         }
+
+        static BitmapFile.Dib Convert2RawDib(BitmapFile.Dib dib) {
+            var rawDib = new BitmapFile.Dib {
+                Data = new byte[dib.Width / 8 * dib.Height],
+                Height = dib.Height,
+                Width = dib.Width
+            };
+
+            var width_aligned = ((dib.Width + 31) / 32) * 32;
+            for (int row = 0; row < dib.Height; row++) {
+                for (int column = 0; column < dib.Width / 8; column++) {
+                    var id = row * (dib.Width / 8) + column;
+                    var idRounded = row * (width_aligned / 8) + column;
+                    rawDib.Data[id] = dib.Data[idRounded];
+                }
+            }
+            return rawDib;
+        }
+
 
         static void FlipVertical(BitmapFile.Dib dib) {
             for (int row = 0; row < dib.Height / 2; row++) {

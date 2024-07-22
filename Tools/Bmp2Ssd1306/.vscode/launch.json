@@ -11,7 +11,7 @@
             "preLaunchTask": "dotnet: build",
             "program": "${workspaceFolder}/Bmp2Ssd1306/bin/Debug/linux-x64/Bmp2Ssd1306.dll",
             "args": [
-                "/home/viordash/Downloads/demo0.bmp",
+                "/home/viordash/Downloads/cmp_equal_active.bmp",
                 "-fv",
                 "-nc"
             ],
