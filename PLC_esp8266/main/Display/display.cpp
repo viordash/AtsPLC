@@ -84,8 +84,48 @@ void display_demo_0() {
 void display_demo_1() {
     ssd1306_load_frame_buffer(&display.dev, bitmap_demo_1);
 }
+
+void draw_xbm(const ssd1306_t *dev,
+                     uint8_t *fb,
+                     int8_t x,
+                     int8_t y,
+                     const uint8_t *xbm_data,
+                     int8_t xbm_width,
+                     int8_t xbm_height) {
+
+    for (int row = y; row < y + xbm_height; row++) {
+        if (row >= dev->height) {
+            continue;
+        }
+        for (int column = x; column < x + xbm_width; column += 8) {
+            if (column >= dev->width) {
+                continue;
+            }
+            int src_id = ((row - y) * xbm_width / 8) + ((column - x) / 8);
+            int dst_id_h = (row * dev->width / 8) + (column / 8);
+            int dst_id_l = (row * dev->width / 8) + ((column + (x % 8)) / 8);
+
+            uint8_t b = xbm_data[src_id];
+            fb[dst_id_h] |= b >> (x % 8);
+            if (dst_id_h != dst_id_l && column + 1 < dev->width) {
+                fb[dst_id_h] |= b << (8 - (x % 8));
+            }
+        }
+    }
+}
+
 void display_demo_2() {
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
+    memset(display.buffer, 0, sizeof(display.buffer));
+    draw_xbm(&display.dev,
+                     display.buffer,
+                     0,
+                     0,
+                     cmp_equal_active,
+                     cmp_equal_active_height,
+                     cmp_equal_active_width);
+    ssd1306_load_frame_buffer(&display.dev, display.buffer);
+
+    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
 }
 
 void ladder_diagram(int8_t x, int8_t y) {

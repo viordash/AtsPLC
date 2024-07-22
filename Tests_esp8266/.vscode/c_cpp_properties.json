@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../TestsFramework/CppUTest/**",
-                "${workspaceFolder}/../PLC_esp8266/**"
+                "${workspaceFolder}/../PLC_esp8266/**",
+                    "${workspaceFolder}/../PLC_esp8266/main/**"
             ],
             "defines": [],
             "cStandard": "c17",
@@ -17,6 +18,7 @@
                     "${workspaceFolder}/**",
                     "${workspaceFolder}",
                     "${workspaceFolder}/../TestsFramework/CppUTest/**",
+                    "${workspaceFolder}/../PLC_esp8266/**",
                     "${workspaceFolder}/../PLC_esp8266/main/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true

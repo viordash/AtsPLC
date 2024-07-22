@@ -39,3 +39,4 @@ TEST_GROUP_C_WRAPPER(RestartCounterTestsGroup) {
 TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart_counter);
 
 IMPORT_TEST_GROUP(ButtonTestsGroup);
+IMPORT_TEST_GROUP(DisplayTestsGroup);
