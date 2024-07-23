@@ -40,6 +40,13 @@ static struct {
 
 void ladder_diagram(int8_t x, int8_t y);
 void ladder_diagram_acsii(int8_t x, int8_t y);
+static void draw_xbm(const ssd1306_t *dev,
+                     uint8_t *fb,
+                     int8_t x,
+                     int8_t y,
+                     const uint8_t *xbm_data,
+                     int8_t xbm_width,
+                     int8_t xbm_height);
 
 void display_init() {
     i2c_config_t conf;
@@ -82,16 +89,24 @@ void display_demo_0() {
     ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 }
 void display_demo_1() {
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_1);
+    memset(display.buffer, 0, sizeof(display.buffer));
+    draw_xbm(&display.dev,
+             display.buffer,
+             0,
+             0,
+             cmp_equal_active,
+             cmp_equal_active_height,
+             cmp_equal_active_width);
+    ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 
-void draw_xbm(const ssd1306_t *dev,
-              uint8_t *fb,
-              int8_t x,
-              int8_t y,
-              const uint8_t *xbm_data,
-              int8_t xbm_width,
-              int8_t xbm_height) {
+static void draw_xbm(const ssd1306_t *dev,
+                     uint8_t *fb,
+                     int8_t x,
+                     int8_t y,
+                     const uint8_t *xbm_data,
+                     int8_t xbm_width,
+                     int8_t xbm_height) {
 
     for (int row = y; row < y + ((xbm_height + 7) / 8); row++) {
         if (row >= dev->height) {
@@ -102,7 +117,7 @@ void draw_xbm(const ssd1306_t *dev,
                 continue;
             }
             int src_id = ((row - y) * xbm_width) + (column - x);
-            int dst_id_h = (row * dev->width) + column;
+            int dst_id_h = (((row / 8) * 8) * dev->width) + column;
             int dst_id_l = dst_id_h + ((y % 8) * dev->width);
 
             uint8_t b = xbm_data[src_id];
@@ -113,13 +128,12 @@ void draw_xbm(const ssd1306_t *dev,
         }
     }
 }
-
 void display_demo_2() {
     memset(display.buffer, 0, sizeof(display.buffer));
     draw_xbm(&display.dev,
              display.buffer,
              0,
-             0,
+             1,
              cmp_equal_active,
              cmp_equal_active_height,
              cmp_equal_active_width);
