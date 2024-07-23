@@ -35,12 +35,12 @@ TEST(DisplayTestsGroup, draw_xbm_from_zero_position) {
     CHECK_EQUAL(12, display.buffer[11]);
     CHECK_EQUAL(15, display.buffer[14]);
     CHECK_EQUAL(16, display.buffer[15]);
-    CHECK_EQUAL(17, display.buffer[0 + (display.dev.width / 8)]);
-    CHECK_EQUAL(18, display.buffer[1 + (display.dev.width / 8)]);
-    CHECK_EQUAL(19, display.buffer[2 + (display.dev.width / 8)]);
-    CHECK_EQUAL(20, display.buffer[3 + (display.dev.width / 8)]);
-    CHECK_EQUAL(24, display.buffer[7 + (display.dev.width / 8)]);
-    CHECK_EQUAL(28, display.buffer[11 + (display.dev.width / 8)]);
-    CHECK_EQUAL(31, display.buffer[14 + (display.dev.width / 8)]);
-    CHECK_EQUAL(32, display.buffer[15 + (display.dev.width / 8)]);
+    CHECK_EQUAL(17, display.buffer[0 + display.dev.width]);
+    CHECK_EQUAL(18, display.buffer[1 + display.dev.width]);
+    CHECK_EQUAL(19, display.buffer[2 + display.dev.width]);
+    CHECK_EQUAL(20, display.buffer[3 + display.dev.width]);
+    CHECK_EQUAL(24, display.buffer[7 + display.dev.width]);
+    CHECK_EQUAL(28, display.buffer[11 + display.dev.width]);
+    CHECK_EQUAL(31, display.buffer[14 + display.dev.width]);
+    CHECK_EQUAL(32, display.buffer[15 + display.dev.width]);
 }
