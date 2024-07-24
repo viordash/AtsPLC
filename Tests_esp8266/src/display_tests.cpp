@@ -45,7 +45,7 @@ TEST(DisplayTestsGroup, draw_xbm_from_zero_position) {
     CHECK_EQUAL(32, display.buffer[15 + display.dev.width]);
 }
 
-IGNORE_TEST(DisplayTestsGroup, draw_xbm_from_position_0_1) {
+TEST(DisplayTestsGroup, draw_xbm_from_position_0_1) {
     uint8_t xbm_height = 16;
     uint8_t xbm_width = 16;
     uint8_t xbm_data[] = { 0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5,

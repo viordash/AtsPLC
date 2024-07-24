@@ -108,7 +108,7 @@ static void draw_xbm(const ssd1306_t *dev,
                      int8_t xbm_width,
                      int8_t xbm_height) {
 
-    for (int row = y; row < y + ((xbm_height + 7) / 8); row++) {
+    for (int row = y; row < y + xbm_height; row += 8) {
         if (row >= dev->height) {
             continue;
         }
@@ -116,14 +116,13 @@ static void draw_xbm(const ssd1306_t *dev,
             if (column >= dev->width) {
                 continue;
             }
-            int src_id = ((row - y) * xbm_width) + (column - x);
-            int dst_id_h = (((row / 8) * 8) * dev->width) + column;
-            int dst_id_l = dst_id_h + ((y % 8) * dev->width);
+            int src_id = (((row - y) / 8) * xbm_width) + (column - x);
+            int dst_id = ((row / 8) * dev->width) + column;
 
             uint8_t b = xbm_data[src_id];
-            fb[dst_id_h] |= b >> (y % 8);
-            if (dst_id_h != dst_id_l && row + 1 < dev->height) {
-                fb[dst_id_l] |= b << (8 - (y % 8));
+            fb[dst_id] |= b >> (y % 8);
+            if ((y % 8) > 0 && row + 1 < dev->height) {
+                fb[dst_id + dev->width] |= b << (8 - (y % 8));
             }
         }
     }
