@@ -48,26 +48,38 @@ TEST(DisplayTestsGroup, draw_xbm_from_zero_position) {
 TEST(DisplayTestsGroup, draw_xbm_from_position_0_1) {
     uint8_t xbm_height = 16;
     uint8_t xbm_width = 16;
-    uint8_t xbm_data[] = { 0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5,
-                           0xf4, 0xf3, 0xf2, 0xf1, 0xf0, 0xef, 0xee, 0xed, 0xec, 0xeb, 0xea,
-                           0xe9, 0xe8, 0xe7, 0xe6, 0xe5, 0xe4, 0xe3, 0xe2, 0xe1, 0xe0 };
+    uint8_t xbm_data[] = { 0b11111111, 0b11111110, 0b11111101, 0b11111100, 0b11111011, 0b11111010,
+                           0b11111001, 0b11111000, 0b11110111, 0b11110110, 0b11110101, 0b11110100,
+                           0b11110011, 0b11110010, 0b11110001, 0b11110000, //
+                           0b11101111, 0b11101110, 0b11101101, 0b11101100, 0b11101011, 0b11101010,
+                           0b11101001, 0b11101000, 0b11100111, 0b11100110, 0b11100101, 0b11100100,
+                           0b11100011, 0b11100010, 0b11100001, 0b11100000 };
 
     draw_xbm(&display.dev, display.buffer, 0, 1, xbm_data, xbm_height, xbm_width);
 
-    CHECK_EQUAL(0xff, display.buffer[0]);
-    CHECK_EQUAL(2, display.buffer[1]);
-    CHECK_EQUAL(3, display.buffer[2]);
-    CHECK_EQUAL(4, display.buffer[3]);
-    CHECK_EQUAL(8, display.buffer[7]);
-    CHECK_EQUAL(12, display.buffer[11]);
-    CHECK_EQUAL(15, display.buffer[14]);
-    CHECK_EQUAL(16, display.buffer[15]);
-    CHECK_EQUAL(17, display.buffer[0 + display.dev.width]);
-    CHECK_EQUAL(18, display.buffer[1 + display.dev.width]);
-    CHECK_EQUAL(19, display.buffer[2 + display.dev.width]);
-    CHECK_EQUAL(20, display.buffer[3 + display.dev.width]);
-    CHECK_EQUAL(24, display.buffer[7 + display.dev.width]);
-    CHECK_EQUAL(28, display.buffer[11 + display.dev.width]);
-    CHECK_EQUAL(31, display.buffer[14 + display.dev.width]);
-    CHECK_EQUAL(32, display.buffer[15 + display.dev.width]);
+    CHECK_EQUAL(0b11111110, display.buffer[0]);
+    CHECK_EQUAL(0b11111100, display.buffer[1]);
+    CHECK_EQUAL(0b11111010, display.buffer[2]);
+    CHECK_EQUAL(0b11111000, display.buffer[3]);
+    CHECK_EQUAL(0b11110000, display.buffer[7]);
+    CHECK_EQUAL(0b11101000, display.buffer[11]);
+    CHECK_EQUAL(0b11100010, display.buffer[14]);
+    CHECK_EQUAL(0b11100000, display.buffer[15]);
+    CHECK_EQUAL(0b11011111, display.buffer[0 + display.dev.width]);
+    CHECK_EQUAL(0b11011101, display.buffer[1 + display.dev.width]);
+    CHECK_EQUAL(0b11011011, display.buffer[2 + display.dev.width]);
+    CHECK_EQUAL(0b11011001, display.buffer[3 + display.dev.width]);
+    CHECK_EQUAL(0b11010001, display.buffer[7 + display.dev.width]);
+    CHECK_EQUAL(0b11001001, display.buffer[11 + display.dev.width]);
+    CHECK_EQUAL(0b11000011, display.buffer[14 + display.dev.width]);
+    CHECK_EQUAL(0b11000001, display.buffer[15 + display.dev.width]);
+
+    CHECK_EQUAL(0b00000001, display.buffer[0 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[1 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[2 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[3 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[7 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[11 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[14 + display.dev.width * 2]);
+    CHECK_EQUAL(0b00000001, display.buffer[15 + display.dev.width * 2]);
 }

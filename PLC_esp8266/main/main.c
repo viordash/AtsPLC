@@ -117,35 +117,40 @@ void app_main() {
                 false,
                 5000 / portTICK_PERIOD_MS);
 
+            static int8_t x = 0;
+            static int8_t y = 0;
+
             if (buttons_bits & BUTTON_UP_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
-                display_demo_0();
+                display_demo(x, y--);
             }
             if (buttons_bits & BUTTON_UP_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_UP_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_DOWN_PRESSED) {
-                ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
-                display_demo_1();
+                ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");                
+                display_demo(x, y++);
             }
             if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_RIGHT_PRESSED) {
-                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
-                display_demo_2();
+                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");                
+                display_demo(x++, y);
             }
             if (buttons_bits & BUTTON_RIGHT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_RIGHT_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_SELECT_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
+                display_demo_0();
             }
             if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_LEFT_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
+                display_demo(x--, y);
             }
         }
         // vTaskDelay(5000 / portTICK_PERIOD_MS);
