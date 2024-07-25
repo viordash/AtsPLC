@@ -1,4 +1,9 @@
 #include "display.h"
+#include "Display/DisplayItemBase.h"
+#include "Display/Location.h"
+#include "LogicProgram/InputNO.h"
+#include "LogicProgram/LogicItemBase.h"
+#include "LogicProgram/MapIO.h"
 #include "demo.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -85,15 +90,18 @@ void display_init() {
     ESP_LOGI(TAG, "init succesfully");
 }
 
+InputNO input1(MapIO::DI, { 60, 32 });
+
 void display_demo_0() {
     memset(display.buffer, 0, sizeof(display.buffer));
+
     draw_xbm(&display.dev,
              display.buffer,
-             0,
-             0,
-             cmp_equal_active,
-             cmp_equal_active_height,
-             cmp_equal_active_width);
+             input1.GetLocation().x,
+             input1.GetLocation().y,
+             input1.GetBitmap(),
+             input1.GetSize().width,
+             input1.GetSize().height);
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 void display_demo_1() {
