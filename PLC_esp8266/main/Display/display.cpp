@@ -236,6 +236,8 @@ static void draw_xbm(const ssd1306_t *dev,
                      int8_t xbm_width,
                      int8_t xbm_height) {
 
+    ESP_LOGI(TAG, "draw_xbm x:%d, y:%d, width:%d, width:%d", x, y, xbm_width, xbm_height);
+
     for (int row = y; row < y + xbm_height; row += 8) {
         if (row >= dev->height) {
             continue;
