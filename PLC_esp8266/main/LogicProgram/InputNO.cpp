@@ -7,7 +7,7 @@
 #include <string.h>
 
 InputNO::InputNO(const MapIO io_adr, const Point &location)
-    : LogicItemBase(), LabeledLogicItem("DI", location) {
+    : LogicItemBase(), LabeledLogicItem(MapIONames[io_adr], location) {
     this->io_adr = io_adr;
 }
 

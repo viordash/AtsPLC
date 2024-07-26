@@ -96,6 +96,14 @@
         "fonts.h": "c",
         "font_terminus_6x12_iso8859_1.h": "c",
         "font_roboto_8pt.h": "c",
-        "font_bitocra_4x7_ascii.h": "c"
+        "font_bitocra_4x7_ascii.h": "c",
+        "strstream": "cpp",
+        "complex": "cpp",
+        "optional": "cpp",
+        "iomanip": "cpp",
+        "cfenv": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "variant": "cpp"
     }
 }
