@@ -5,7 +5,7 @@ include $(PWD)/../TestsFramework/cpputest.mk
 #
 
 
-SOURCE_PROJECT_DIR := -I$(PWD)/../PLC_esp8266 -I$(PWD)/../PLC_esp8266/main -I$(PWD)/../PLC_esp8266/main/Display
+SOURCE_PROJECT_DIR := -I$(PWD)/../PLC_esp8266 -I$(PWD)/../PLC_esp8266/main -I$(PWD)/../PLC_esp8266/main/Display -I$(PWD)/../PLC_esp8266/main/LogicProgram
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 
 # define the Cpp compiler to use
