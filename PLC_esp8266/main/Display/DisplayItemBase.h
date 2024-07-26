@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Location.h"
+#include "Display/Common.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -13,7 +13,7 @@ class DisplayItemBase {
     DisplayItemBase(const Point &location, const Size &size);
     virtual ~DisplayItemBase();
 
-    virtual uint8_t *GetBitmap() = 0;
+    virtual const uint8_t *GetBitmap() = 0;
     const Point &GetLocation();
     const Size &GetSize();
 };

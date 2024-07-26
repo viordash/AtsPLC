@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Display/Location.h"
+#include "Display/Common.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>

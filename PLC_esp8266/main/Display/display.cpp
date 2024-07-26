@@ -1,6 +1,6 @@
 #include "display.h"
 #include "Display/DisplayItemBase.h"
-#include "Display/Location.h"
+#include "Display/Common.h"
 #include "LogicProgram/InputNO.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
