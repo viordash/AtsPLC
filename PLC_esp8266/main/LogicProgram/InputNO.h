@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayItemBase.h"
+#include "Display/LabeledLogicItem.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class InputNO : public LogicItemBase, public DisplayItemBase {
+class InputNO : public LogicItemBase, public LabeledLogicItem {
   private:
     MapIO io_adr;
 
