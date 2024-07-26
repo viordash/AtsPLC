@@ -4,7 +4,6 @@
 #include "LogicProgram/InputNO.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
-#include "demo.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -69,7 +68,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_3);
+    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_3);
 
     // ssd1306_draw_string(&display.dev,
     //                     display.buffer,
@@ -88,60 +87,6 @@ void display_init() {
     // ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, display.buffer) != 0 ? ESP_FAIL
     //                                                                              : ESP_OK);
     ESP_LOGI(TAG, "init succesfully");
-}
-
-InputNO input1(MapIO::DI, { 60, 32 });
-
-void display_demo_0() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-
-    draw_xbm(&display.dev,
-             display.buffer,
-             input1.GetLocation().x,
-             input1.GetLocation().y,
-             input1.GetBitmap().data,
-             input1.GetBitmap().size.width,
-             input1.GetBitmap().size.height);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-}
-void display_demo_1() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    draw_xbm(&display.dev,
-             display.buffer,
-             0,
-             1,
-             cmp_equal_active,
-             cmp_equal_active_height,
-             cmp_equal_active_width);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-}
-
-void display_demo_2() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    draw_xbm(&display.dev,
-             display.buffer,
-             0,
-             2,
-             cmp_equal_active,
-             cmp_equal_active_height,
-             cmp_equal_active_width);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-
-    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
-}
-
-void display_demo(int8_t x, int8_t y) {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    draw_xbm(&display.dev,
-             display.buffer,
-             x,
-             y,
-             cmp_equal_active,
-             cmp_equal_active_height,
-             cmp_equal_active_width);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-
-    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_2);
 }
 
 void ladder_diagram(int8_t x, int8_t y) {
@@ -264,4 +209,10 @@ static void draw_xbm(const ssd1306_t *dev,
             }
         }
     }
+}
+
+void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, int8_t xbm_width, int8_t xbm_height) {
+    memset(display.buffer, 0, sizeof(display.buffer));
+    draw_xbm(&display.dev, display.buffer, x, y, xbm_data, xbm_width, xbm_height);
+    ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
