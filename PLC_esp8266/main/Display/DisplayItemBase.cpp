@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-DisplayItemBase::DisplayItemBase(const Point &location, const Size &size) {
+DisplayItemBase::DisplayItemBase(const Point &location) {
     this->location = location;
-    this->size = size;
 }
 
 DisplayItemBase::~DisplayItemBase() {
@@ -15,8 +14,4 @@ DisplayItemBase::~DisplayItemBase() {
 
 const Point &DisplayItemBase::GetLocation() {
     return location;
-}
-
-const Size &DisplayItemBase::GetSize() {
-    return size;
 }

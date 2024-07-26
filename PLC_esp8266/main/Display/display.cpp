@@ -1,6 +1,6 @@
 #include "display.h"
-#include "Display/DisplayItemBase.h"
 #include "Display/Common.h"
+#include "Display/DisplayItemBase.h"
 #include "LogicProgram/InputNO.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
@@ -99,9 +99,9 @@ void display_demo_0() {
              display.buffer,
              input1.GetLocation().x,
              input1.GetLocation().y,
-             input1.GetBitmap(),
-             input1.GetSize().width,
-             input1.GetSize().height);
+             input1.GetBitmap().data,
+             input1.GetBitmap().size.width,
+             input1.GetBitmap().size.height);
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 void display_demo_1() {

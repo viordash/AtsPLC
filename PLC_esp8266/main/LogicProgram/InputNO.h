@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Display/DisplayItemBase.h"
 #include "Display/Common.h"
+#include "Display/DisplayItemBase.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
@@ -9,8 +9,6 @@
 
 class InputNO : public LogicItemBase, public DisplayItemBase {
   private:
-    const static Bitmap bitmap;
-    
     MapIO io_adr;
 
   public:
@@ -18,5 +16,5 @@ class InputNO : public LogicItemBase, public DisplayItemBase {
     ~InputNO();
 
     bool DoAction() override;
-    const uint8_t *GetBitmap() override;
+    const Bitmap &GetBitmap() override;
 };

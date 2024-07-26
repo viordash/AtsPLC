@@ -7,8 +7,7 @@
 #include <string.h>
 
 InputNO::InputNO(const MapIO io_adr, const Point &location)
-    : LogicItemBase(),
-      DisplayItemBase(location, { InputNO::bitmap.size.width, InputNO::bitmap.size.height }) {
+    : LogicItemBase(), DisplayItemBase(location) {
     this->io_adr = io_adr;
 }
 
@@ -19,6 +18,6 @@ bool InputNO::DoAction() {
     return true;
 }
 
-const uint8_t *InputNO::GetBitmap() {
-    return InputNO::bitmap.data;
+const Bitmap &InputNO::GetBitmap() {
+    return InputNO::bitmap;
 }

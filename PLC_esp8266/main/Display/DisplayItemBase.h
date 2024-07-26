@@ -5,15 +5,14 @@
 #include <unistd.h>
 
 class DisplayItemBase {
-  private:
+  protected:
     Point location;
-    Size size;
+    const static Bitmap bitmap;
 
   public:
-    DisplayItemBase(const Point &location, const Size &size);
+    DisplayItemBase(const Point &location);
     virtual ~DisplayItemBase();
 
-    virtual const uint8_t *GetBitmap() = 0;
+    virtual const Bitmap &GetBitmap() = 0;
     const Point &GetLocation();
-    const Size &GetSize();
 };
