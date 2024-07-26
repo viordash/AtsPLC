@@ -21,7 +21,8 @@ class TestableInputNO : public InputNO {
   public:
     TestableInputNO(const MapIO io_adr, const Point &location) : InputNO(io_adr, location) {
     }
-    virtual ~TestableInputNO();
+    virtual ~TestableInputNO() {
+    }
 
     const char *GetLabel() {
         return label;
