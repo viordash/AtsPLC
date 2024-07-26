@@ -29,8 +29,17 @@ class TestableInputNO : public InputNO {
     }
 };
 
-TEST(LogicInputNOGroup, handle_btDown) {
+TEST(LogicInputNOGroup, GetLabel_DI) {
     TestableInputNO testable(MapIO::DI, { 0, 0 });
-
     STRCMP_EQUAL("DI", testable.GetLabel());
+}
+
+TEST(LogicInputNOGroup, GetLabel_AI) {
+    TestableInputNO testable(MapIO::AI, { 0, 0 });
+    STRCMP_EQUAL("AI", testable.GetLabel());
+}
+
+TEST(LogicInputNOGroup, GetLabel_V1) {
+    TestableInputNO testable(MapIO::V1, { 0, 0 });
+    STRCMP_EQUAL("V1", testable.GetLabel());
 }
