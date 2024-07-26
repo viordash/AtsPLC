@@ -109,6 +109,8 @@ namespace Bmp2Ssd1306 {
             }
 
             var sb = new StringBuilder();
+            sb.AppendLine("#include \"LogicProgram/InputNO.h\"");
+            sb.AppendLine();
             sb.AppendLine("const Bitmap DisplayItemBase::bitmap = { //");
             sb.AppendLine($"    {{ {dib.Width},                                // width");
             sb.AppendLine($"      {dib.Height} }},                              // height");
