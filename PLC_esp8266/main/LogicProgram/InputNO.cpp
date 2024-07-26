@@ -1,5 +1,5 @@
 #include "LogicProgram/InputNO.h"
-#include "LogicProgram/InputNOBitmap.h"
+#include "Display/bitmaps/input_open_active.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
