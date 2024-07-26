@@ -19,7 +19,6 @@ namespace Bmp2Ssd1306 {
             } else {
                 outputFilename = Path.ChangeExtension(inputFilename, ".h");
             }
-            var outputArrayName = Path.GetFileNameWithoutExtension(outputFilename);
 
             var bytes = File.ReadAllBytes(inputFilename);
             var roundedDib = ParseBmpFile(bytes);
@@ -32,7 +31,7 @@ namespace Bmp2Ssd1306 {
                 NegativeColor(dib);
             }
             var ssd1306 = Convert2Ssd1306(dib);
-            var code = CreateCCodeArray(ssd1306, outputArrayName);
+            var code = CreateCCodeArray(dib, ssd1306);
             File.WriteAllText(outputFilename, code);
             Console.WriteLine($"File '{outputFilename}' (w:{dib.Width}, h:{dib.Height}) ready");
         }
@@ -98,7 +97,7 @@ namespace Bmp2Ssd1306 {
             return fb;
         }
 
-        static string CreateCCodeArray(byte[] bytes, string outputArrayName) {
+        static string CreateCCodeArray(BitmapFile.Dib dib, byte[] bytes) {
             var lines = new List<string>();
             for (int row = 0; row < (bytes.Length + 15) / 16; row++) {
                 var colsCount = Math.Min(16, bytes.Length - row * 16);
@@ -110,13 +109,14 @@ namespace Bmp2Ssd1306 {
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine($"uint8_t {outputArrayName}[] = {{");
-            sb.AppendLine(string.Join(",\n", lines));
+            sb.AppendLine("const Bitmap DisplayItemBase::bitmap = { //");
+            sb.AppendLine($"    {{ {dib.Width},                                // width");
+            sb.AppendLine($"      {dib.Height} }},                              // height");
+            sb.AppendLine($"    {{ {string.Join(",\n", lines)} }}");
             sb.AppendLine("};");
 
             Debug.WriteLine(sb.ToString());
             return sb.ToString();
-
         }
     }
 }
