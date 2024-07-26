@@ -12,3 +12,8 @@ struct Size {
     uint8_t width;
     uint8_t height;
 };
+
+struct Bitmap {
+    const Size size;
+    const uint8_t data[];
+};

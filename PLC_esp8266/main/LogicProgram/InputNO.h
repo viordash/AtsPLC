@@ -9,9 +9,8 @@
 
 class InputNO : public LogicItemBase, public DisplayItemBase {
   private:
-    const static uint8_t width;
-    const static uint8_t height;
-    const static uint8_t bitmap[];
+    const static Bitmap bitmap;
+    
     MapIO io_adr;
 
   public:
