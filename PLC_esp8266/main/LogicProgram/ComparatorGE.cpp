@@ -32,3 +32,11 @@ const Bitmap *ComparatorGE::GetCurrentBitmap() {
             return &ComparatorGE::bitmap_passive;
     }
 }
+
+void ComparatorGE::Render(uint8_t *fb) {
+    InputBase::Render(fb);
+
+    uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
+    // draw_text_f4X7(x_pos, incoming_point.y + 1, "429");
+    draw_text_f5X7(x_pos, incoming_point.y + 2, "42");
+}

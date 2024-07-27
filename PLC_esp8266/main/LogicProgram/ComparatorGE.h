@@ -17,4 +17,6 @@ class ComparatorGE : public InputBase {
     ~ComparatorGE();
 
     bool DoAction() override final;
+
+    void Render(uint8_t *fb) override final;
 };

@@ -23,6 +23,7 @@ void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, uint8_t xbm_width, u
 uint8_t *get_display_buffer();
 void begin_render();
 void end_render();
+void draw_text_f4X7(uint8_t x, uint8_t y, const char *text);
 void draw_text_f5X7(uint8_t x, uint8_t y, const char *text);
 void draw_text_f6X12(uint8_t x, uint8_t y, const char *text);
 void draw_active_network(int8_t x, int8_t y, uint8_t w);

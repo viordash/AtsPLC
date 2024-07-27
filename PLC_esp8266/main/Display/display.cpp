@@ -184,6 +184,17 @@ void end_render() {
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 
+void draw_text_f4X7(uint8_t x, uint8_t y, const char *text) {
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_4X7,
+                        x,
+                        y,
+                        text,
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+}
+
 void draw_text_f5X7(uint8_t x, uint8_t y, const char *text) {
     ssd1306_draw_string(&display.dev,
                         display.buffer,

@@ -11,9 +11,9 @@ void display_demo_0(bool active) {
     begin_render();
 
     InputNO input1(MapIO::DI, { 2, 26 });
-    InputNC input2(MapIO::AI, input1);
+    InputNC input2(MapIO::V2, input1);
     InputNO input3(MapIO::V1, input2);
-    ComparatorGE comparator(MapIO::V2, input3);
+    ComparatorGE comparator(MapIO::AI, input3);
 
     if (active) {
         input1.DoAction();
