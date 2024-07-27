@@ -9,7 +9,8 @@
 
 InputNC::InputNC(const MapIO io_adr, const Point &incoming_point)
     : InputBase(io_adr, incoming_point) {
-    this->io_adr = io_adr;
+}
+InputNC::InputNC(const MapIO io_adr, InputBase &prior_item) : InputBase(io_adr, prior_item) {
 }
 
 InputNC::~InputNC() {

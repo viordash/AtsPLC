@@ -11,6 +11,7 @@
 class InputBase : public LogicItemBase, public NetworkedLogicItem, public LabeledLogicItem {
   protected:
     MapIO io_adr;
+    LogicItemState prior_item_state;
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
@@ -18,6 +19,7 @@ class InputBase : public LogicItemBase, public NetworkedLogicItem, public Labele
     const uint8_t LeftPadding = 2;
     const uint8_t RightPadding = 2;
     InputBase(const MapIO io_adr, const Point &incoming_point);
+    InputBase(const MapIO io_adr, InputBase &prior_item);
     ~InputBase();
 
     void SetOrigin() override final;

@@ -11,8 +11,8 @@ void display_demo_0() {
     begin_render();
 
     InputNO input1(MapIO::DI, { 5, 32 });
-    InputNC input2(MapIO::AI, input1.OutcomingPoint());
-    InputNO input3(MapIO::V1, input2.OutcomingPoint());
+    InputNC input2(MapIO::AI, input1);
+    InputNO input3(MapIO::V1, input2);
 
     input1.Render(get_display_buffer());
     input2.Render(get_display_buffer());
