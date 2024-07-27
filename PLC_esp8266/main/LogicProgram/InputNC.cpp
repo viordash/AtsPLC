@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNC::InputNC(const MapIO io_adr, const Point &location)
-    : LogicItemBase(), LabeledLogicItem(MapIONames[io_adr], location) {
+InputNC::InputNC(const MapIO io_adr, const Point &incoming_point)
+    : LogicItemBase(), NetworkedLogicItem(incoming_point), LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
 }
 
@@ -16,6 +16,10 @@ InputNC::~InputNC() {
 
 bool InputNC::DoAction() {
     return true;
+}
+
+void InputNC::SetOrigin() {
+    origin = { (uint8_t)(incoming_point.x - LeftPadding), incoming_point.y };
 }
 
 void InputNC::Render(uint8_t *fb) {

@@ -1,17 +1,16 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayItemBase.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class LabeledLogicItem : public DisplayItemBase {
+class LabeledLogicItem {
   protected:
     const char *label;
     uint8_t width;
     uint8_t height;
 
   public:
-    LabeledLogicItem(const char *label, const Point &location);
+    explicit LabeledLogicItem(const char *label);
     virtual ~LabeledLogicItem();
 };

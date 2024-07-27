@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNO::InputNO(const MapIO io_adr, const Point &location)
-    : LogicItemBase(), LabeledLogicItem(MapIONames[io_adr], location) {
+InputNO::InputNO(const MapIO io_adr, const Point &incoming_point)
+    : LogicItemBase(), NetworkedLogicItem(incoming_point), LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
 }
 
@@ -16,6 +16,10 @@ InputNO::~InputNO() {
 
 bool InputNO::DoAction() {
     return true;
+}
+
+void InputNO::SetOrigin() {
+    origin = { (uint8_t)(incoming_point.x - LeftPadding), incoming_point.y };
 }
 
 void InputNO::Render(uint8_t *fb) {

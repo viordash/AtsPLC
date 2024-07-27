@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LabeledLogicItem::LabeledLogicItem(const char *label, const Point &location)
-    : DisplayItemBase(location) {
+LabeledLogicItem::LabeledLogicItem(const char *label) {
     this->label = label;
     this->width = 6 * strlen(label);
     this->height = 12;

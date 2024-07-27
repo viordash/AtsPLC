@@ -8,7 +8,7 @@
 
 class LogicItemBase {
   protected:
-    LogicItemState state;
+    LogicItemState state = LogicItemState::lisPassive;
 
   public:
     LogicItemBase();
