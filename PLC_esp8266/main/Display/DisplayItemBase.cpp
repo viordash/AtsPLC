@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-DisplayItemBase::DisplayItemBase(const Point &location) {
-    this->location = location;
+DisplayItemBase::DisplayItemBase(const Point &incoming_point) {
+    this->incoming_point = incoming_point;
 }
 
 DisplayItemBase::~DisplayItemBase() {

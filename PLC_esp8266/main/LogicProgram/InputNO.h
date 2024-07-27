@@ -17,4 +17,5 @@ class InputNO : public LogicItemBase, public LabeledLogicItem {
 
     bool DoAction() override final;
     void Render(uint8_t *fb) override final;
+    Point OutcomingPoint() override final;
 };

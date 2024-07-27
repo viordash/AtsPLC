@@ -16,5 +16,5 @@ LabeledLogicItem::~LabeledLogicItem() {
 }
 
 void LabeledLogicItem::Render(uint8_t *fb) {
-    draw_text_f6X12(location.x, location.y, label);
+    draw_text_f6X12(incoming_point.x, incoming_point.y - LabeledLogicItem::height, label);
 }
