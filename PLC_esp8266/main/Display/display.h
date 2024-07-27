@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+
 #ifdef __cplusplus
 extern "C" {
 #endif

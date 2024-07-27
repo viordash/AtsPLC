@@ -22,8 +22,6 @@ extern "C" {
 
 #define SCL_PIN GPIO_NUM_4
 #define SDA_PIN GPIO_NUM_5
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 64
 
 static const char *TAG = "display";
 

@@ -11,7 +11,7 @@
 #include "main/LogicProgram/InputNO.cpp"
 #include "main/LogicProgram/InputNO.h"
 
-TEST_GROUP(LogicInputNOGroup){ //
+TEST_GROUP(LogicInputNOTestsGroup){ //
                                TEST_SETUP(){}
 
                                TEST_TEARDOWN(){}
@@ -29,17 +29,17 @@ class TestableInputNO : public InputNO {
     }
 };
 
-TEST(LogicInputNOGroup, GetLabel_DI) {
+TEST(LogicInputNOTestsGroup, GetLabel_DI) {
     TestableInputNO testable(MapIO::DI, { 0, 0 });
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
-TEST(LogicInputNOGroup, GetLabel_AI) {
+TEST(LogicInputNOTestsGroup, GetLabel_AI) {
     TestableInputNO testable(MapIO::AI, { 0, 0 });
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
-TEST(LogicInputNOGroup, GetLabel_V1) {
+TEST(LogicInputNOTestsGroup, GetLabel_V1) {
     TestableInputNO testable(MapIO::V1, { 0, 0 });
     STRCMP_EQUAL("V1", testable.GetLabel());
 }
