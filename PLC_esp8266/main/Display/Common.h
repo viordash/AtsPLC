@@ -14,6 +14,6 @@ struct Size {
 };
 
 struct Bitmap {
-    const Size size;
+    const struct Size size;
     const uint8_t data[];
 };

@@ -19,17 +19,26 @@ void InputBase::SetOrigin() {
 
 void InputBase::Render(uint8_t *fb) {
     auto bitmap = GetCurrentBitmap();
-    uint8_t x_pos = incoming_point.x;
-    draw_network(x_pos, incoming_point.y, LabeledLogicItem::width + LeftPadding);
 
-    x_pos += LeftPadding;
+    uint8_t x_pos = incoming_point.x + LeftPadding;
     draw_text_f6X12(x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
     x_pos += LabeledLogicItem::width;
     draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     x_pos += bitmap->size.width;
-    draw_network(x_pos, incoming_point.y, RightPadding);
+    if (state == LogicItemState::lisActive) {
+        draw_active_network(incoming_point.x,
+                            incoming_point.y,
+                            LabeledLogicItem::width + LeftPadding);
+        draw_active_network(x_pos, incoming_point.y, RightPadding);
+    } else {
+        draw_passive_network(incoming_point.x,
+                             incoming_point.y,
+                             LabeledLogicItem::width + LeftPadding,
+                             false);
+        draw_passive_network(x_pos, incoming_point.y, RightPadding, true);
+    }
 }
 
 Point InputBase::OutcomingPoint() {

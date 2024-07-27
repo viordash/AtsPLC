@@ -234,9 +234,23 @@ void draw_text_f6X12(uint8_t x, uint8_t y, const char *text) {
                         OLED_COLOR_BLACK);
 }
 
-void draw_network(int8_t x, int8_t y, uint8_t w) {
+void draw_active_network(int8_t x, int8_t y, uint8_t w) {
     ssd1306_draw_hline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
     ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, w, OLED_COLOR_WHITE);
+}
+
+void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
+    ssd1306_color_t color_top_line = inverse_dash ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
+    ssd1306_color_t color_bottom_line = inverse_dash ? OLED_COLOR_BLACK : OLED_COLOR_WHITE;
+    while (w >= 2) {
+        ssd1306_draw_hline(&display.dev, display.buffer, x, y, 2, color_top_line);
+        ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, 2, color_bottom_line);
+        w -= 2;
+        x += 2;
+        color_top_line = color_top_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
+        color_bottom_line =
+            color_bottom_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
+    }
 }
 
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {

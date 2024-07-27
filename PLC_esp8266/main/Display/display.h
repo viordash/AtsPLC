@@ -8,8 +8,9 @@
 
 #ifdef __cplusplus
 extern "C" {
-#include "Display/Common.h"
 #endif
+
+#include "Display/Common.h"
 
 void display_init();
 
@@ -24,7 +25,8 @@ void begin_render();
 void end_render();
 void draw_text_f5X7(uint8_t x, uint8_t y, const char *text);
 void draw_text_f6X12(uint8_t x, uint8_t y, const char *text);
-void draw_network(int8_t x, int8_t y, uint8_t w);
+void draw_active_network(int8_t x, int8_t y, uint8_t w);
+void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash);
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);
 
 #ifdef __cplusplus
