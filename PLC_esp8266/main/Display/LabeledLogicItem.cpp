@@ -8,7 +8,13 @@
 LabeledLogicItem::LabeledLogicItem(const char *label, const Point &location)
     : DisplayItemBase(location) {
     this->label = label;
+    this->width = 6 * strlen(label);
+    this->height = 12;
 }
 
 LabeledLogicItem::~LabeledLogicItem() {
+}
+
+void LabeledLogicItem::Render(uint8_t *fb) {
+    draw_text_f6X12(location.x, location.y, label);
 }

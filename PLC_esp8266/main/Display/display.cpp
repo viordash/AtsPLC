@@ -225,18 +225,62 @@ void begin_render() {
     memset(display.buffer, 0, sizeof(display.buffer));
 }
 void end_render() {
+
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_4X7,
+                        0,
+                        0,
+                        "DI V2",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_5X7,
+                        30,
+                        0,
+                        "DI V2",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_6X12,
+                        80,
+                        0,
+                        "DI V2",
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 
-void draw_IO_name(uint8_t x, uint8_t y, const char *name) {
+void draw_text_f5X7(uint8_t x, uint8_t y, const char *text) {
     ssd1306_draw_string(&display.dev,
                         display.buffer,
                         display.font_5X7,
                         x,
                         y,
-                        name,
+                        text,
                         OLED_COLOR_WHITE,
                         OLED_COLOR_BLACK);
+}
+
+void draw_text_f6X12(uint8_t x, uint8_t y, const char *text) {
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_6X12,
+                        x,
+                        y,
+                        text,
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+}
+
+void draw_network(int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_hline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
+    ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, w, OLED_COLOR_WHITE);
 }
 
 void display_demo_1() {

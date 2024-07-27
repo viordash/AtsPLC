@@ -9,7 +9,7 @@ class DisplayItemBase {
   protected:
     Point location;
     const static Bitmap bitmap;
-    static void draw(uint8_t *fb, int8_t x, int8_t y, const Bitmap &bitmap);
+    static void draw(uint8_t *fb, uint8_t x, uint8_t y, const Bitmap &bitmap);
 
   public:
     explicit DisplayItemBase(const Point &location);

@@ -15,6 +15,6 @@ class InputNO : public LogicItemBase, public LabeledLogicItem {
     InputNO(const MapIO io_adr, const Point &location);
     ~InputNO();
 
-    bool DoAction() override;
-    void Render(uint8_t *fb) override;
+    bool DoAction() override final;
+    void Render(uint8_t *fb) override final;
 };

@@ -12,7 +12,7 @@ DisplayItemBase::DisplayItemBase(const Point &location) {
 DisplayItemBase::~DisplayItemBase() {
 }
 
-void DisplayItemBase::draw(uint8_t *fb, int8_t x, int8_t y, const Bitmap &bitmap) {
+void DisplayItemBase::draw(uint8_t *fb, uint8_t x, uint8_t y, const Bitmap &bitmap) {
     for (int row = y; row < y + bitmap.size.height; row += 8) {
         if (row >= DISPLAY_HEIGHT) {
             continue;

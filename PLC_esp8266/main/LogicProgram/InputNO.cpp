@@ -19,6 +19,13 @@ bool InputNO::DoAction() {
 }
 
 void InputNO::Render(uint8_t *fb) {
-    DisplayItemBase::draw(fb, location.x + 8 * 2, location.y + 4, InputNO::bitmap);
-    draw_IO_name(location.x, location.y, label);
+    LabeledLogicItem::Render(fb);
+
+    uint8_t x_pos = location.x + LabeledLogicItem::width;
+    uint8_t y_pos = location.y + (LabeledLogicItem::height - InputNO::bitmap.size.height / 2) + 1;
+    DisplayItemBase::draw(fb, x_pos, y_pos, InputNO::bitmap);
+
+    x_pos = location.x;
+    y_pos = location.y + LabeledLogicItem::height;
+    draw_network(x_pos, y_pos, LabeledLogicItem::width);
 }
