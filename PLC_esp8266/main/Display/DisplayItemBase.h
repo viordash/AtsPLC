@@ -8,7 +8,6 @@
 class DisplayItemBase {
   protected:
     Point incoming_point;
-    const static Bitmap bitmap;
 
   public:
     explicit DisplayItemBase(const Point &incoming_point);
