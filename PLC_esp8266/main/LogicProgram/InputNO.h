@@ -12,6 +12,8 @@ class InputNO : public LogicItemBase, public LabeledLogicItem {
     MapIO io_adr;
 
   public:
+    const uint8_t LeftPadding = 2;
+    const uint8_t RightPadding = 2;
     InputNO(const MapIO io_adr, const Point &location);
     ~InputNO();
 

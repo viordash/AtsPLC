@@ -14,7 +14,3 @@ LabeledLogicItem::LabeledLogicItem(const char *label, const Point &location)
 
 LabeledLogicItem::~LabeledLogicItem() {
 }
-
-void LabeledLogicItem::Render(uint8_t *fb) {
-    draw_text_f6X12(incoming_point.x, incoming_point.y - LabeledLogicItem::height, label);
-}

@@ -14,6 +14,4 @@ class LabeledLogicItem : public DisplayItemBase {
   public:
     LabeledLogicItem(const char *label, const Point &location);
     virtual ~LabeledLogicItem();
-
-    void Render(uint8_t *fb) override;
 };

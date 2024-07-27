@@ -8,6 +8,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+#include "Display/Common.h"
 #endif
 
 void display_init();
@@ -17,13 +18,14 @@ void display_demo_1();
 void display_demo_2();
 void display_demo(int8_t x, int8_t y);
 
-void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, int8_t xbm_width, int8_t xbm_height);
+void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, uint8_t xbm_width, uint8_t xbm_height);
 uint8_t *get_display_buffer();
 void begin_render();
 void end_render();
 void draw_text_f5X7(uint8_t x, uint8_t y, const char *text);
 void draw_text_f6X12(uint8_t x, uint8_t y, const char *text);
 void draw_network(int8_t x, int8_t y, uint8_t w);
+void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);
 
 #ifdef __cplusplus
 }

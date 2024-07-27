@@ -1,5 +1,4 @@
 #include "Display/display.h"
-#include "Display/Common.h"
 #include "Display/DisplayItemBase.h"
 #include "Display/demo.h"
 #include "LogicProgram/InputNO.h"
@@ -44,13 +43,6 @@ static struct {
 
 void ladder_diagram(int8_t x, int8_t y);
 void ladder_diagram_acsii(int8_t x, int8_t y);
-static void draw_xbm(const ssd1306_t *dev,
-                     uint8_t *fb,
-                     int8_t x,
-                     int8_t y,
-                     const uint8_t *xbm_data,
-                     int8_t xbm_width,
-                     int8_t xbm_height);
 
 void display_init() {
     i2c_config_t conf;
@@ -181,42 +173,6 @@ void ladder_diagram_acsii(int8_t x, int8_t y) {
                         OLED_COLOR_BLACK);
 }
 
-static void draw_xbm(const ssd1306_t *dev,
-                     uint8_t *fb,
-                     int8_t x,
-                     int8_t y,
-                     const uint8_t *xbm_data,
-                     int8_t xbm_width,
-                     int8_t xbm_height) {
-
-    ESP_LOGI(TAG, "draw_xbm x:%d, y:%d, width:%d, width:%d", x, y, xbm_width, xbm_height);
-
-    for (int row = y; row < y + xbm_height; row += 8) {
-        if (row >= dev->height) {
-            continue;
-        }
-        for (int column = x; column < x + xbm_width; column++) {
-            if (column >= dev->width) {
-                continue;
-            }
-            int src_id = (((row - y) / 8) * xbm_width) + (column - x);
-            int dst_id = ((row / 8) * dev->width) + column;
-
-            uint8_t b = xbm_data[src_id];
-            fb[dst_id] |= b << (y % 8);
-            if ((y % 8) > 0 && row + 1 < dev->height) {
-                fb[dst_id + dev->width] |= b >> (8 - (y % 8));
-            }
-        }
-    }
-}
-
-void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, int8_t xbm_width, int8_t xbm_height) {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    draw_xbm(&display.dev, display.buffer, x, y, xbm_data, xbm_width, xbm_height);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-}
-
 uint8_t *get_display_buffer() {
     return display.buffer;
 }
@@ -283,14 +239,29 @@ void draw_network(int8_t x, int8_t y, uint8_t w) {
     ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, w, OLED_COLOR_WHITE);
 }
 
-void display_demo_1() {
-    draw_demo(0, 1, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
-}
+void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
+    for (int row = y; row < y + bitmap->size.height; row += 8) {
+        if (row >= DISPLAY_HEIGHT) {
+            continue;
+        }
+        for (int column = x; column < x + bitmap->size.width; column++) {
+            if (column >= DISPLAY_WIDTH) {
+                continue;
+            }
+            int src_id = (((row - y) / 8) * bitmap->size.width) + (column - x);
+            int dst_id = ((row / 8) * DISPLAY_WIDTH) + column;
 
-void display_demo_2() {
-    draw_demo(0, 2, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
+            uint8_t b = bitmap->data[src_id];
+            fb[dst_id] |= b << (y % 8);
+            if ((y % 8) > 0 && row + 1 < DISPLAY_HEIGHT) {
+                fb[dst_id + DISPLAY_WIDTH] |= b >> (8 - (y % 8));
+            }
+        }
+    }
 }
 
 void display_demo(int8_t x, int8_t y) {
-    draw_demo(x, y, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
+    memset(display.buffer, 0, sizeof(display.buffer));
+    draw_bitmap(display.buffer, x, y, &cmp_greate_or_equal_active);
+    ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }

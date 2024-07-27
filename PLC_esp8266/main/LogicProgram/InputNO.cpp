@@ -19,19 +19,25 @@ bool InputNO::DoAction() {
 }
 
 void InputNO::Render(uint8_t *fb) {
-    LabeledLogicItem::Render(fb);
-
     uint8_t x_pos = incoming_point.x;
-    uint8_t y_pos = incoming_point.y;
-    draw_network(x_pos, y_pos, LabeledLogicItem::width);
+    draw_network(x_pos, incoming_point.y, LabeledLogicItem::width + LeftPadding);
+
+    x_pos += LeftPadding;
+    draw_text_f6X12(x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
     x_pos += LabeledLogicItem::width;
-    y_pos -= (InputNO::bitmap.size.height / 2) - 1;
-    DisplayItemBase::draw(fb, x_pos, y_pos, InputNO::bitmap);
+    draw_bitmap(fb,
+                x_pos,
+                incoming_point.y - (InputNO::bitmap.size.height / 2) + 1,
+                &InputNO::bitmap);
+
+    x_pos += InputNO::bitmap.size.width;
+    draw_network(x_pos, incoming_point.y, RightPadding);
 }
 
 Point InputNO::OutcomingPoint() {
-    uint8_t x_pos = incoming_point.x + LabeledLogicItem::width + InputNO::bitmap.size.width;
+    uint8_t x_pos = LeftPadding + incoming_point.x + LabeledLogicItem::width
+                  + InputNO::bitmap.size.width + RightPadding;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
 }
