@@ -1,6 +1,6 @@
 #include "LogicProgram/InputNC.h"
 
-const Bitmap InputNC::bitmap = { //
+const Bitmap InputNC::bitmap_active = { //
     { 8,                                 // width
       16 },                              // height
     { 0xFF,

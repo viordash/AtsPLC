@@ -28,16 +28,16 @@ void InputNO::Render(uint8_t *fb) {
     x_pos += LabeledLogicItem::width;
     draw_bitmap(fb,
                 x_pos,
-                incoming_point.y - (InputNO::bitmap.size.height / 2) + 1,
-                &InputNO::bitmap);
+                incoming_point.y - (InputNO::bitmap_active.size.height / 2) + 1,
+                &InputNO::bitmap_active);
 
-    x_pos += InputNO::bitmap.size.width;
+    x_pos += InputNO::bitmap_active.size.width;
     draw_network(x_pos, incoming_point.y, RightPadding);
 }
 
 Point InputNO::OutcomingPoint() {
     uint8_t x_pos = LeftPadding + incoming_point.x + LabeledLogicItem::width
-                  + InputNO::bitmap.size.width + RightPadding;
+                  + InputNO::bitmap_active.size.width + RightPadding;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
 }

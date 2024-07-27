@@ -6,6 +6,7 @@
 #include <string.h>
 
 LogicItemBase::LogicItemBase() {
+    state = LogicItemState::lisPassive;
 }
 
 LogicItemBase::~LogicItemBase() {

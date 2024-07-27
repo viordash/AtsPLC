@@ -10,7 +10,8 @@
 class InputNC : public LogicItemBase, public LabeledLogicItem {
   private:
     MapIO io_adr;
-    const static Bitmap bitmap;
+    const static Bitmap bitmap_active;
+    const static Bitmap bitmap_passive;
 
   public:
     const uint8_t LeftPadding = 2;
