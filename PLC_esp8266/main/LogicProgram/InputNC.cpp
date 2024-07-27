@@ -17,6 +17,8 @@ InputNC::~InputNC() {
 }
 
 bool InputNC::DoAction() {
+    state =
+        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 

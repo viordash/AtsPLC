@@ -17,6 +17,8 @@ InputNO::~InputNO() {
 }
 
 bool InputNO::DoAction() {
+    state =
+        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 

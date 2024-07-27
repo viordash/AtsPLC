@@ -11,7 +11,7 @@
 class InputBase : public LogicItemBase, public NetworkedLogicItem, public LabeledLogicItem {
   protected:
     MapIO io_adr;
-    LogicItemState prior_item_state;
+    InputBase *prior_item;
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 

@@ -143,10 +143,11 @@ void app_main() {
             }
             if (buttons_bits & BUTTON_SELECT_PRESSED) {
                 // ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
-                display_demo_0();
+                display_demo_0(false);
             }
             if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
+                display_demo_0(true);
             }
             if (buttons_bits & BUTTON_LEFT_PRESSED) {
                 // ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");

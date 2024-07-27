@@ -8,13 +8,13 @@
 InputBase::InputBase(const MapIO io_adr, const Point &incoming_point)
     : LogicItemBase(), NetworkedLogicItem(incoming_point), LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
-    this->prior_item_state = LogicItemState::lisActive;
+    this->prior_item = NULL;
 }
 
 InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
     : LogicItemBase(), NetworkedLogicItem(), LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
-    this->prior_item_state = prior_item.state;
+    this->prior_item = &prior_item;
     this->incoming_point = prior_item.OutcomingPoint();
 }
 
@@ -28,6 +28,7 @@ void InputBase::SetOrigin() {
 void InputBase::Render(uint8_t *fb) {
     auto bitmap = GetCurrentBitmap();
 
+    LogicItemState prior_item_state = prior_item != NULL ? prior_item->state : state;
     if (prior_item_state == LogicItemState::lisActive) {
         draw_active_network(incoming_point.x,
                             incoming_point.y,

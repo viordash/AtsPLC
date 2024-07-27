@@ -181,34 +181,6 @@ void begin_render() {
     memset(display.buffer, 0, sizeof(display.buffer));
 }
 void end_render() {
-
-    ssd1306_draw_string(&display.dev,
-                        display.buffer,
-                        display.font_4X7,
-                        0,
-                        0,
-                        "DI V2",
-                        OLED_COLOR_WHITE,
-                        OLED_COLOR_BLACK);
-
-    ssd1306_draw_string(&display.dev,
-                        display.buffer,
-                        display.font_5X7,
-                        30,
-                        0,
-                        "DI V2",
-                        OLED_COLOR_WHITE,
-                        OLED_COLOR_BLACK);
-
-    ssd1306_draw_string(&display.dev,
-                        display.buffer,
-                        display.font_6X12,
-                        80,
-                        0,
-                        "DI V2",
-                        OLED_COLOR_WHITE,
-                        OLED_COLOR_BLACK);
-
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
 }
 
