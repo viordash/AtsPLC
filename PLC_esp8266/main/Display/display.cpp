@@ -1,6 +1,7 @@
-#include "display.h"
+#include "Display/display.h"
 #include "Display/Common.h"
 #include "Display/DisplayItemBase.h"
+#include "Display/demo.h"
 #include "LogicProgram/InputNO.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
@@ -34,6 +35,7 @@ static struct {
     uint8_t buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
     const font_info_t *font_4X7 = font_builtin_fonts[FONT_FACE_BITOCRA_4X7];
+    const font_info_t *font_5X7 = font_builtin_fonts[FONT_FACE_GLCD5x7];
     const font_info_t *font_6X12 = font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1];
     const font_info_t *font_8X14 = font_builtin_fonts[FONT_FACE_TERMINUS_8X14_ISO8859_1];
 } display;
@@ -66,7 +68,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_3);
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 
     // ssd1306_draw_string(&display.dev,
     //                     display.buffer,
@@ -213,4 +215,38 @@ void draw_demo(int8_t x, int8_t y, const uint8_t *xbm_data, int8_t xbm_width, in
     memset(display.buffer, 0, sizeof(display.buffer));
     draw_xbm(&display.dev, display.buffer, x, y, xbm_data, xbm_width, xbm_height);
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
+}
+
+uint8_t *get_display_buffer() {
+    return display.buffer;
+}
+
+void begin_render() {
+    memset(display.buffer, 0, sizeof(display.buffer));
+}
+void end_render() {
+    ssd1306_load_frame_buffer(&display.dev, display.buffer);
+}
+
+void draw_IO_name(uint8_t x, uint8_t y, const char *name) {
+    ssd1306_draw_string(&display.dev,
+                        display.buffer,
+                        display.font_5X7,
+                        x,
+                        y,
+                        name,
+                        OLED_COLOR_WHITE,
+                        OLED_COLOR_BLACK);
+}
+
+void display_demo_1() {
+    draw_demo(0, 1, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
+}
+
+void display_demo_2() {
+    draw_demo(0, 2, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
+}
+
+void display_demo(int8_t x, int8_t y) {
+    draw_demo(x, y, cmp_equal_active, cmp_equal_active_height, cmp_equal_active_width);
 }

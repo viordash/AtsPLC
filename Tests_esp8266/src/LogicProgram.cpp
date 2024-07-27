@@ -6,7 +6,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+
 #include "main/Display/DisplayItemBase.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/LogicProgram/LogicItemBase.cpp"
 #include "main/LogicProgram/MapIO.cpp"
+#include "Display/display.cpp"

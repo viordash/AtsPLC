@@ -16,5 +16,5 @@ class InputNO : public LogicItemBase, public LabeledLogicItem {
     ~InputNO();
 
     bool DoAction() override;
-    const Bitmap &GetBitmap() override;
+    void Render(uint8_t *fb) override;
 };

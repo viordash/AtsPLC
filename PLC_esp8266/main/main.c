@@ -150,7 +150,7 @@ void app_main() {
             }
             if (buttons_bits & BUTTON_LEFT_PRESSED) {
                 // ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
-                display_demo(--x, y);
+                // display_demo(--x, y);
             }
         }
         // vTaskDelay(5000 / portTICK_PERIOD_MS);

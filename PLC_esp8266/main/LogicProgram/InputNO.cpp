@@ -18,6 +18,7 @@ bool InputNO::DoAction() {
     return true;
 }
 
-const Bitmap &InputNO::GetBitmap() {
-    return InputNO::bitmap;
+void InputNO::Render(uint8_t *fb) {
+    DisplayItemBase::draw(fb, location.x + 8 * 2, location.y + 4, InputNO::bitmap);
+    draw_IO_name(location.x, location.y, label);
 }

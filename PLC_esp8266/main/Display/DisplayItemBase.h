@@ -15,7 +15,5 @@ class DisplayItemBase {
     explicit DisplayItemBase(const Point &location);
     virtual ~DisplayItemBase();
 
-    virtual const Bitmap &GetBitmap() = 0;
-    const Point &GetLocation();
-    virtual void Render(const uint8_t *fb) = 0;
+    virtual void Render(uint8_t *fb) = 0;
 };

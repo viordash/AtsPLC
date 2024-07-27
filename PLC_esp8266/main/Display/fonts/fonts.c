@@ -8,6 +8,10 @@
  */
 #include "fonts.h"
 
+#ifndef FONTS_GLCD_5X7
+#define FONTS_GLCD_5X7
+#endif
+
 #ifndef FONTS_BITOCRA_4X7
 #define FONTS_BITOCRA_4X7
 #endif

@@ -12,10 +12,6 @@ DisplayItemBase::DisplayItemBase(const Point &location) {
 DisplayItemBase::~DisplayItemBase() {
 }
 
-const Point &DisplayItemBase::GetLocation() {
-    return location;
-}
-
 void DisplayItemBase::draw(uint8_t *fb, int8_t x, int8_t y, const Bitmap &bitmap) {
     for (int row = y; row < y + bitmap.size.height; row += 8) {
         if (row >= DISPLAY_HEIGHT) {
