@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGE::ComparatorGE(const MapIO io_adr, const Point &incoming_point)
-    : InputBase(io_adr, incoming_point) {
+ComparatorGE::ComparatorGE(int32_t reference, const MapIO io_adr, const Point &incoming_point)
+    : ComparatorBase(reference, io_adr, incoming_point) {
 }
-ComparatorGE::ComparatorGE(const MapIO io_adr, InputBase &prior_item)
-    : InputBase(io_adr, prior_item) {
+ComparatorGE::ComparatorGE(int32_t reference, const MapIO io_adr, InputBase &prior_item)
+    : ComparatorBase(reference, io_adr, prior_item) {
 }
 
 ComparatorGE::~ComparatorGE() {
@@ -31,12 +31,4 @@ const Bitmap *ComparatorGE::GetCurrentBitmap() {
         default:
             return &ComparatorGE::bitmap_passive;
     }
-}
-
-void ComparatorGE::Render(uint8_t *fb) {
-    InputBase::Render(fb);
-
-    uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
-    // draw_text_f4X7(x_pos, incoming_point.y + 1, "429");
-    draw_text_f5X7(x_pos, incoming_point.y + 2, "42");
 }
