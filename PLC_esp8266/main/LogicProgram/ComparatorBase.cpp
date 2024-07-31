@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorBase::ComparatorBase(int32_t reference, const MapIO io_adr, const Point &incoming_point)
-    : InputBase(io_adr, incoming_point) {
-    this->reference = reference;
-    text_f5X7 = sprintf(this->str_reference, "%d", reference) <= 2;
-}
 ComparatorBase::ComparatorBase(int32_t reference, const MapIO io_adr, InputBase &prior_item)
     : InputBase(io_adr, prior_item) {
     this->reference = reference;

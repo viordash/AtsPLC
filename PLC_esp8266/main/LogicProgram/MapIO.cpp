@@ -4,4 +4,4 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *MapIONames[] = { "DI", "AI", "O1", "O2", "V1", "V2", "V3", "V4" };
+const char *MapIONames[] = { "--", "DI", "AI", "O1", "O2", "V1", "V2", "V3", "V4" };

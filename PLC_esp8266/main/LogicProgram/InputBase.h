@@ -13,16 +13,16 @@ class InputBase : public LogicItemBase, public NetworkedLogicItem, public Labele
     MapIO io_adr;
     InputBase *prior_item;
 
+    InputBase(const MapIO io_adr, const Point &incoming_point);
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
     const uint8_t LeftPadding = 2;
     const uint8_t RightPadding = 2;
-    InputBase(const MapIO io_adr, const Point &incoming_point);
     InputBase(const MapIO io_adr, InputBase &prior_item);
     ~InputBase();
 
     void SetOrigin() override final;
     void Render(uint8_t *fb) override;
-    Point OutcomingPoint() override final;
+    Point OutcomingPoint() override;
 };

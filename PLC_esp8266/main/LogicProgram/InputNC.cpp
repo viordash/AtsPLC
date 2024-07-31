@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNC::InputNC(const MapIO io_adr, const Point &incoming_point)
-    : InputBase(io_adr, incoming_point) {
-}
 InputNC::InputNC(const MapIO io_adr, InputBase &prior_item) : InputBase(io_adr, prior_item) {
 }
 

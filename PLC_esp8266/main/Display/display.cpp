@@ -236,6 +236,14 @@ void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
     }
 }
 
+void draw_input_rail(uint8_t network_number) {
+    uint8_t height = INPUT_RAIL_HEIGHT;
+    int8_t y = INPUT_RAIL_TOP + network_number * height;
+    ssd1306_draw_vline(&display.dev, display.buffer, 0, y, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, display.buffer, 1, y, height, OLED_COLOR_WHITE);
+}
+
+
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
     for (int row = y; row < y + bitmap->size.height; row += 8) {
         if (row >= DISPLAY_HEIGHT) {

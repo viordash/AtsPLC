@@ -12,7 +12,6 @@ class InputNC : public InputBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    InputNC(const MapIO io_adr, const Point &incoming_point);
     InputNC(const MapIO io_adr, InputBase &prior_item);
     ~InputNC();
 

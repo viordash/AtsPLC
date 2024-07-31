@@ -13,7 +13,6 @@ class ComparatorBase : public InputBase {
     int32_t reference;
 
   public:
-    ComparatorBase(int32_t reference, const MapIO io_adr, const Point &incoming_point);
     ComparatorBase(int32_t reference, const MapIO io_adr, InputBase &prior_item);
     ~ComparatorBase();
 
