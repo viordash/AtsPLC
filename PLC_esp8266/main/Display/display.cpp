@@ -241,6 +241,18 @@ void draw_input_rail(uint8_t network_number) {
     ssd1306_draw_vline(&display.dev, display.buffer, 1, y, height, OLED_COLOR_WHITE);
 }
 
+void draw_progress_bar(int8_t x, int8_t y, uint8_t percent) {
+    int height = (PROGRESS_BAR_HEIGHT * percent) / 100;
+    int8_t y_pos = y + (PROGRESS_BAR_HEIGHT - height);
+    ssd1306_draw_vline(&display.dev, display.buffer, x + 0, y_pos, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, display.buffer, x + 1, y_pos, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev,
+                       display.buffer,
+                       x + 2,
+                       y,
+                       PROGRESS_BAR_HEIGHT,
+                       OLED_COLOR_WHITE);
+}
 
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
     for (int row = y; row < y + bitmap->size.height; row += 8) {

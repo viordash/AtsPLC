@@ -26,7 +26,7 @@ class TestableComparatorGE : public ComparatorGE {
     virtual ~TestableComparatorGE() {
     }
 
-    const uint16_t GetReference() {
+    uint16_t GetReference() {
         return reference;
     }
 };

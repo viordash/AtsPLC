@@ -12,6 +12,9 @@ class TimerBase : public InputBase {
     char str_time[16];
     int str_size;
 
+    uint64_t GetLeftTime();
+    uint8_t GetProgress();
+
   public:
     explicit TimerBase(InputBase &prior_item);
     ~TimerBase();

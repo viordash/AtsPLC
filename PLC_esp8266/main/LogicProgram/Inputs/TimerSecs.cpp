@@ -19,11 +19,11 @@ TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prior_item) : TimerBase(p
         delay_time_s = 99999;
     }
     this->delay_time_us = delay_time_s * 1000000LL;
-    this->raise_time_us = delay_time_us + (uint64_t)esp_timer_get_time();
+    this->raise_time_us = (uint64_t)esp_timer_get_time() + delay_time_us;
 
     str_size = sprintf(this->str_time, "%d", delay_time_s);
 
-    ESP_LOGI(TAG, "ctor, str_time:%s", this->str_time);
+    ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);
 }
 
 TimerSecs::~TimerSecs() {
