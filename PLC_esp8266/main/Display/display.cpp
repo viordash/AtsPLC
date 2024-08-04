@@ -58,7 +58,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
+    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 
     // ssd1306_draw_string(&display.dev,
     //                     display.buffer,
@@ -267,4 +267,8 @@ void display_demo(int8_t x, int8_t y) {
     memset(display.buffer, 0, sizeof(display.buffer));
     draw_bitmap(display.buffer, x, y, &cmp_greate_or_equal_active);
     ssd1306_load_frame_buffer(&display.dev, display.buffer);
+}
+
+void display_demo_1() {
+    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 }
