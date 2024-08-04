@@ -9,10 +9,10 @@
 
 class button {
   private:
-    const static uint32_t pressed_time = 30 / portTICK_PERIOD_MS;
-    const static uint32_t long_pressed_time = 3000 / portTICK_PERIOD_MS;
+    const static uint32_t pressed_time_ms = 30;
+    const static uint32_t long_pressed_time_ms = 3000;
 
-    TickType_t down_time;
+    uint64_t down_time;
     EventBits_t close_bit;
     EventBits_t open_bit;
     bool down;

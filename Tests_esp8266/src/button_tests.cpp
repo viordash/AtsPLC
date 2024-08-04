@@ -18,23 +18,23 @@ TEST_GROUP(ButtonTestsGroup){ //
 };
 
 TEST(ButtonTestsGroup, handle_btDown) {
-    TickType_t ticks = 0;
+    uint64_t os_us = 0;
     mock()
-        .expectOneCall("xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
+        .expectOneCall("esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
 
-    ticks = 10;
+    os_us = 10 * 1000;
     state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btNone, state);
 }
 
 TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
-    mock().expectNoCall("xTaskGetTickCount");
+    mock().expectNoCall("esp_timer_get_time");
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
@@ -46,65 +46,65 @@ TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
 }
 
 TEST(ButtonTestsGroup, handle_normal_press) {
-    TickType_t ticks = 0 / portTICK_PERIOD_MS;
+    uint64_t os_us = 0;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
 
-    ticks = 30 / portTICK_PERIOD_MS;
+    os_us = 30 * 1000;
     state = testable.handle(BUTTON_UP_IO_OPEN);
     CHECK_EQUAL(button::state::btPressed, state);
 }
 
-TEST(ButtonTestsGroup, handle_press_when_ticks_overflowed) {
-    TickType_t ticks = UINT32_MAX - 1;
+TEST(ButtonTestsGroup, handle_press_when_os_us_overflowed) {
+    uint64_t os_us = UINT64_MAX - 1 * 1000;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
 
-    ticks = 29 / portTICK_PERIOD_MS;
+    os_us = 29 * 1000;
     state = testable.handle(BUTTON_UP_IO_OPEN);
     CHECK_EQUAL(button::state::btPressed, state);
 }
 
-TEST(ButtonTestsGroup, handle_longpress_when_ticks_overflowed) {
-    TickType_t ticks = UINT32_MAX - 10;
+TEST(ButtonTestsGroup, handle_longpress_when_os_us_overflowed) {
+    uint64_t os_us = UINT64_MAX - 100 * 1000;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", &ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
 
-    ticks = 2900 / portTICK_PERIOD_MS;
+    os_us = 2900 * 1000;
     state = testable.handle(BUTTON_UP_IO_OPEN);
     CHECK_EQUAL(button::state::btLongPressed, state);
 }
 
 TEST(ButtonTestsGroup, handle_short_press) {
-    volatile TickType_t ticks = 0;
+    volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
 
-    ticks = 2;
+    os_us = 2 * 1000;
     state = testable.handle(BUTTON_UP_IO_OPEN);
     CHECK_EQUAL(button::state::btShortPressed, state);
 }

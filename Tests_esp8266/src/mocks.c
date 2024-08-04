@@ -106,3 +106,9 @@ TickType_t xTaskGetTickCount(void) {
 
 void portYIELD_FROM_ISR(void) {
 }
+
+int64_t esp_timer_get_time(void) {
+    uint64_t os_us;
+    mock_c()->actualCall("esp_timer_get_time")->withOutputParameter("os_us", &os_us);
+    return os_us;
+}
