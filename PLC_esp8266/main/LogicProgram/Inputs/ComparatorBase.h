@@ -7,7 +7,7 @@
 class ComparatorBase : public InputBase {
   private:
     char str_reference[16];
-    bool text_f5X7 = false;
+    int str_size;
     
   protected:
     int32_t reference;
