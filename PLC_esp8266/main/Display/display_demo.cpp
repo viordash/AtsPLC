@@ -14,7 +14,7 @@ void display_demo_0(bool active) {
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
     ComparatorGE comparator2(42, MapIO::V1, comparator1);
-    ComparatorGE comparator3(123, MapIO::V1, comparator2);
+    ComparatorGE comparator3(1000, MapIO::V1, comparator2);
 
     if (active) {
         input1.DoAction();

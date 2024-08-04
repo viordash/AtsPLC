@@ -12,9 +12,8 @@ class ComparatorGE : public ComparatorBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ComparatorGE(int32_t reference, const MapIO io_adr, InputBase &prior_item);
+    ComparatorGE(uint16_t reference, const MapIO io_adr, InputBase &prior_item);
     ~ComparatorGE();
 
     bool DoAction() override final;
-
 };
