@@ -7,9 +7,12 @@
 #include <string.h>
 #include <time.h>
 
-TimerBase::TimerBase(uint64_t time_us, InputBase &prior_item)
+static const char *TAG = "TimerBase";
+
+TimerBase::TimerBase(uint64_t delay_time_us, InputBase &prior_item)
     : InputBase(MapIO::Undef, prior_item) {
-    this->raise_time_us = time_us + (uint64_t)esp_timer_get_time();
+    this->delay_time_us = delay_time_us;
+    this->raise_time_us = delay_time_us + (uint64_t)esp_timer_get_time();
 }
 
 TimerBase::~TimerBase() {
@@ -19,9 +22,24 @@ void TimerBase::Render(uint8_t *fb) {
     InputBase::Render(fb);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
-    if (text_f5X7) {
-        draw_text_f5X7(x_pos, incoming_point.y + 2, str_time);
-    } else {
-        draw_text_f4X7(x_pos, incoming_point.y + 3, str_time);
+
+    switch (str_size) {
+        case 1:
+            draw_text_f5X7(x_pos + 8, incoming_point.y + 2, str_time);
+            break;
+        case 2:
+            draw_text_f5X7(x_pos + 4, incoming_point.y + 2, str_time);
+            break;
+        case 3:
+            draw_text_f5X7(x_pos + 1, incoming_point.y + 2, str_time);
+            break;
+        case 4:
+            draw_text_f4X7(x_pos + 2, incoming_point.y + 3, str_time);
+            break;
+        default:
+            draw_text_f4X7(x_pos, incoming_point.y + 3, str_time);
+            break;
     }
+
+    ESP_LOGI(TAG, "Render, str_time:%s, str_size:%d", str_time, str_size);
 }

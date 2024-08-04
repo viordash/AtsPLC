@@ -7,12 +7,13 @@
 class TimerBase : public InputBase {
   private:
   protected:
+    uint64_t delay_time_us;
     uint64_t raise_time_us;
-    bool text_f5X7 = false;
     char str_time[16];
+    int str_size;
 
   public:
-    TimerBase(uint64_t time_us, InputBase &prior_item);
+    TimerBase(uint64_t delay_time_us, InputBase &prior_item);
     ~TimerBase();
 
     void Render(uint8_t *fb) override final;
