@@ -29,9 +29,9 @@ void display_demo_0(bool active) {
     comparator3.Render(get_display_buffer());
 
     IncomeRail incomeRail1(1);
-    TimerSecs timerSecs1(1, incomeRail1);
-    TimerSecs timerSecs2(942, timerSecs1);
-    TimerSecs timerSecs3(52349, timerSecs2);
+    TimerSecs timerSecs1(0, incomeRail1);
+    TimerSecs timerSecs2(42, timerSecs1);
+    TimerSecs timerSecs3(100000, timerSecs2);
 
     if (active) {
         timerSecs1.DoAction();

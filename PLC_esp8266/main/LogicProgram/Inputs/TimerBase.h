@@ -13,7 +13,7 @@ class TimerBase : public InputBase {
     int str_size;
 
   public:
-    TimerBase(uint64_t delay_time_us, InputBase &prior_item);
+    explicit TimerBase(InputBase &prior_item);
     ~TimerBase();
 
     void Render(uint8_t *fb) override final;

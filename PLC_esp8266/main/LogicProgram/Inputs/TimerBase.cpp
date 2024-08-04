@@ -7,12 +7,9 @@
 #include <string.h>
 #include <time.h>
 
-static const char *TAG = "TimerBase";
+static const char *TAG_TimerBase = "TimerBase";
 
-TimerBase::TimerBase(uint64_t delay_time_us, InputBase &prior_item)
-    : InputBase(MapIO::Undef, prior_item) {
-    this->delay_time_us = delay_time_us;
-    this->raise_time_us = delay_time_us + (uint64_t)esp_timer_get_time();
+TimerBase::TimerBase(InputBase &prior_item) : InputBase(MapIO::Undef, prior_item) {
 }
 
 TimerBase::~TimerBase() {
@@ -41,5 +38,5 @@ void TimerBase::Render(uint8_t *fb) {
             break;
     }
 
-    ESP_LOGI(TAG, "Render, str_time:%s, str_size:%d", str_time, str_size);
+    ESP_LOGI(TAG_TimerBase, "Render, str_time:%s, str_size:%d", str_time, str_size);
 }

@@ -42,3 +42,4 @@ IMPORT_TEST_GROUP(ButtonTestsGroup);
 IMPORT_TEST_GROUP(DisplayTestsGroup);
 IMPORT_TEST_GROUP(LogicInputNOTestsGroup);
 IMPORT_TEST_GROUP(LogicComparatorGETestsGroup);
+IMPORT_TEST_GROUP(LogicTimerSecsTestsGroup);

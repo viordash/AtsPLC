@@ -11,8 +11,15 @@
 
 static const char *TAG = "TimerSecs";
 
-TimerSecs::TimerSecs(uint16_t delay_time_s, InputBase &prior_item)
-    : TimerBase(delay_time_s * 1000000LL, prior_item) {
+TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prior_item) : TimerBase(prior_item) {
+    if (delay_time_s < 1) {
+        delay_time_s = 1;
+    }
+    if (delay_time_s > 99999) {
+        delay_time_s = 99999;
+    }
+    this->delay_time_us = delay_time_s * 1000000LL;
+    this->raise_time_us = delay_time_us + (uint64_t)esp_timer_get_time();
 
     str_size = sprintf(this->str_time, "%d", delay_time_s);
 

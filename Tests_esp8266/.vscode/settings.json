@@ -34,6 +34,9 @@
         "redundant_storage.h": "c",
         "stat.h": "c",
         "stdint.h": "c",
-        "event_groups.h": "c"
+        "event_groups.h": "c",
+        "deque": "cpp",
+        "list": "cpp",
+        "vector": "cpp"
     }
 }
