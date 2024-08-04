@@ -4,14 +4,14 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class InputRail : public InputBase {
+class IncomeRail : public InputBase {
   private:
     uint8_t network_number;
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    explicit InputRail(uint8_t network_number);
-    ~InputRail();
+    explicit IncomeRail(uint8_t network_number);
+    ~IncomeRail();
 
     bool DoAction() override final;
     void Render(uint8_t *fb) override final;
