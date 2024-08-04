@@ -1,4 +1,4 @@
-#include "LogicProgram/InputNO.h"
+#include "LogicProgram/Inputs/InputNO.h"
 #include "Display/bitmaps/input_open_active.h"
 #include "Display/bitmaps/input_open_passive.h"
 #include "esp_err.h"

@@ -1,9 +1,7 @@
 #include "Display/display.h"
 #include "Display/DisplayItemBase.h"
 #include "Display/demo.h"
-#include "LogicProgram/InputNO.h"
-#include "LogicProgram/LogicItemBase.h"
-#include "LogicProgram/MapIO.h"
+#include "LogicProgram/LogicProgram.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>

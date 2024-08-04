@@ -1,4 +1,4 @@
-#include "LogicProgram/InputNO.h"
+#include "LogicProgram/Inputs/InputNO.h"
 
 const Bitmap DisplayItemBase::bitmap = { //
     { 16,                                // width

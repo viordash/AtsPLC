@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LogicProgram/InputBase.h"
+#include "LogicProgram/Inputs/InputBase.h"
 #include <stdint.h>
 #include <unistd.h>
 

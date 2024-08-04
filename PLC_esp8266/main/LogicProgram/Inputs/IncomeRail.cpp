@@ -1,4 +1,4 @@
-#include "LogicProgram/IncomeRail.h"
+#include "LogicProgram/Inputs/IncomeRail.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -24,6 +24,7 @@ const Bitmap *IncomeRail::GetCurrentBitmap() {
 }
 
 void IncomeRail::Render(uint8_t *fb) {
+    (void)fb;
     draw_input_rail(network_number);
 }
 

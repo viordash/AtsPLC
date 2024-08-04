@@ -1,4 +1,4 @@
-#include "LogicProgram/ComparatorGE.h"
+#include "LogicProgram/Inputs/ComparatorGE.h"
 
 const Bitmap ComparatorGE::bitmap_passive = { //
     { 16,                                     // width

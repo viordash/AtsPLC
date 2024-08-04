@@ -1,4 +1,4 @@
-#include "LogicProgram/ComparatorBase.h"
+#include "LogicProgram/Inputs/ComparatorBase.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>

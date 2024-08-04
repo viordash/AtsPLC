@@ -8,18 +8,19 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/InputNO.cpp"
-#include "main/LogicProgram/InputNO.h"
+#include "main/LogicProgram/Inputs/IncomeRail.h"
+#include "main/LogicProgram/Inputs/InputNO.cpp"
+#include "main/LogicProgram/Inputs/InputNO.h"
 
 TEST_GROUP(LogicInputNOTestsGroup){ //
-                               TEST_SETUP(){}
+                                    TEST_SETUP(){}
 
-                               TEST_TEARDOWN(){}
+                                    TEST_TEARDOWN(){}
 };
 
 class TestableInputNO : public InputNO {
   public:
-    TestableInputNO(const MapIO io_adr, const Point &location) : InputNO(io_adr, location) {
+    TestableInputNO(const MapIO io_adr, InputBase &prior_item) : InputNO(io_adr, prior_item) {
     }
     virtual ~TestableInputNO() {
     }
@@ -30,16 +31,19 @@ class TestableInputNO : public InputNO {
 };
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
-    TestableInputNO testable(MapIO::DI, { 0, 0 });
+    IncomeRail incomeRail0(0);
+    TestableInputNO testable(MapIO::DI, incomeRail0);
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_AI) {
-    TestableInputNO testable(MapIO::AI, { 0, 0 });
+    IncomeRail incomeRail0(0);
+    TestableInputNO testable(MapIO::AI, incomeRail0);
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_V1) {
-    TestableInputNO testable(MapIO::V1, { 0, 0 });
+    IncomeRail incomeRail0(0);
+    TestableInputNO testable(MapIO::V1, incomeRail0);
     STRCMP_EQUAL("V1", testable.GetLabel());
 }

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/ComparatorBase.h"
+#include "LogicProgram/Inputs/InputBase.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class ComparatorGE : public ComparatorBase {
+class InputNO : public InputBase {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
@@ -12,9 +12,8 @@ class ComparatorGE : public ComparatorBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ComparatorGE(int32_t reference, const MapIO io_adr, InputBase &prior_item);
-    ~ComparatorGE();
+    InputNO(const MapIO io_adr, InputBase &prior_item);
+    ~InputNO();
 
     bool DoAction() override final;
-
 };

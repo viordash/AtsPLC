@@ -1,4 +1,4 @@
-#include "LogicProgram/InputNC.h"
+#include "LogicProgram/Inputs/InputNC.h"
 
 const Bitmap InputNC::bitmap_active = { //
     { 8,                                // width

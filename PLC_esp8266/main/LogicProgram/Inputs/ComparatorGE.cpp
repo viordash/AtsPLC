@@ -1,4 +1,4 @@
-#include "LogicProgram/ComparatorGE.h"
+#include "LogicProgram/Inputs/ComparatorGE.h"
 #include "Display/bitmaps/cmp_greate_or_equal_active.h"
 #include "Display/bitmaps/cmp_greate_or_equal_passive.h"
 #include "esp_err.h"
