@@ -41,6 +41,6 @@ TEST_C_WRAPPER(RestartCounterTestsGroup, hot_restart_counter);
 IMPORT_TEST_GROUP(ButtonTestsGroup);
 IMPORT_TEST_GROUP(DisplayTestsGroup);
 IMPORT_TEST_GROUP(LogicInputNOTestsGroup);
-IMPORT_TEST_GROUP(LogicComparatorGETestsGroup);
+IMPORT_TEST_GROUP(LogicComparatorBaseTestsGroup);
 IMPORT_TEST_GROUP(LogicTimerSecsTestsGroup);
 IMPORT_TEST_GROUP(LogicTimerMSecsTestsGroup);

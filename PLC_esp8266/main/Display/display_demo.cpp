@@ -13,7 +13,7 @@ void display_demo_0(bool active) {
     IncomeRail incomeRail0(0);
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
-    ComparatorGE comparator2(42, MapIO::V1, comparator1);
+    ComparatorEQ comparator2(42, MapIO::V1, comparator1);
     ComparatorGE comparator3(1000, MapIO::V1, comparator2);
 
     if (active) {
