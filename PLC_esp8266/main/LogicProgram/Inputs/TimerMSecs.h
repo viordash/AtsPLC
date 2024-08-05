@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class TimerSecs : public TimerBase {
+class TimerMSecs : public TimerBase {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
@@ -12,8 +12,8 @@ class TimerSecs : public TimerBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    TimerSecs(uint32_t delay_time_s, InputBase &prior_item);
-    ~TimerSecs();
+    TimerMSecs(uint32_t delay_time_ms, InputBase &prior_item);
+    ~TimerMSecs();
 
     bool DoAction() override final;
     void Render(uint8_t *fb) override final;

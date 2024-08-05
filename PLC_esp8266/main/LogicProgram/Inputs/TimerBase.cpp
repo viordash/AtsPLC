@@ -58,10 +58,6 @@ void TimerBase::Render(uint8_t *fb) {
             draw_text_f4X7(x_pos + 2, incoming_point.y + 3, str_time);
             break;
     }
-
-    x_pos = x_pos - LabeledLogicItem::width / 2;
-    uint8_t percent = GetProgress();
-    draw_progress_bar(x_pos, incoming_point.y - (PROGRESS_BAR_HEIGHT + 1), percent);
-
+    
     ESP_LOGD(TAG_TimerBase, "Render, str_time:%s, str_size:%d", str_time, str_size);
 }

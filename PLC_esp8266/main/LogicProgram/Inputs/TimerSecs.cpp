@@ -21,7 +21,7 @@ TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prior_item) : TimerBase(p
     this->delay_time_us = delay_time_s * 1000000LL;
     this->raise_time_us = (uint64_t)esp_timer_get_time() + delay_time_us;
 
-    str_size = sprintf(this->str_time, "%d", delay_time_s);
+    str_size = sprintf(this->str_time, "%u", delay_time_s);
 
     ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);
 }
@@ -43,4 +43,12 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
         default:
             return &TimerSecs::bitmap_passive;
     }
+}
+
+void TimerSecs::Render(uint8_t *fb) {
+    TimerBase::Render(fb);
+
+    uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width / 2;
+    uint8_t percent = GetProgress();
+    draw_progress_bar(x_pos, incoming_point.y - (PROGRESS_BAR_HEIGHT + 1), percent);
 }
