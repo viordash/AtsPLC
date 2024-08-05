@@ -30,27 +30,21 @@ void OutputBase::Render(uint8_t *fb) {
 
     LogicItemState prior_item_state = prior_item != NULL ? prior_item->state : state;
     if (prior_item_state == LogicItemState::lisActive) {
-        draw_active_network(incoming_point.x,
-                            incoming_point.y,
-                            LabeledLogicItem::width + LeftPadding);
+        draw_active_network(incoming_point.x, incoming_point.y, LeftPadding);
     } else {
-        draw_passive_network(incoming_point.x,
-                             incoming_point.y,
-                             LabeledLogicItem::width + LeftPadding,
-                             false);
+        draw_passive_network(incoming_point.x, incoming_point.y, LeftPadding, false);
     }
 
     uint8_t x_pos = incoming_point.x + LeftPadding;
-    draw_text_f6X12(x_pos, incoming_point.y - LabeledLogicItem::height, label);
-
-    x_pos += LabeledLogicItem::width;
     draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     x_pos += bitmap->size.width;
+    draw_text_f6X12(x_pos, incoming_point.y - LabeledLogicItem::height, label);
+
     if (state == LogicItemState::lisActive) {
-        draw_active_network(x_pos, incoming_point.y, RightPadding);
+        draw_active_network(x_pos, incoming_point.y, LabeledLogicItem::width + RightPadding);
     } else {
-        draw_passive_network(x_pos, incoming_point.y, RightPadding, true);
+        draw_passive_network(x_pos, incoming_point.y, LabeledLogicItem::width + RightPadding, true);
     }
 }
 

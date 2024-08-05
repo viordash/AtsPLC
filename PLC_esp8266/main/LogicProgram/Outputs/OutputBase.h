@@ -18,8 +18,8 @@ class OutputBase : public LogicItemBase, public NetworkedLogicItem, public Label
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t LeftPadding = 2;
-    const uint8_t RightPadding = 2;
+    const uint8_t LeftPadding = 7;
+    const uint8_t RightPadding = 0;
     OutputBase(const MapIO io_adr, InputBase &prior_item);
     ~OutputBase();
 
