@@ -5,8 +5,10 @@
 
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
-#define INPUT_RAIL_TOP 16
-#define INPUT_RAIL_HEIGHT 25
+#define INCOME_RAIL_TOP 16
+#define INCOME_RAIL_HEIGHT 25
+#define OUTCOME_RAIL_TOP 16
+#define OUTCOME_RAIL_HEIGHT 25
 #define PROGRESS_BAR_HEIGHT 10
 
 #ifdef __cplusplus
@@ -31,7 +33,8 @@ void draw_text_f5X7(uint8_t x, uint8_t y, const char *text);
 void draw_text_f6X12(uint8_t x, uint8_t y, const char *text);
 void draw_active_network(int8_t x, int8_t y, uint8_t w);
 void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash);
-void draw_input_rail(uint8_t network_number);
+void draw_income_rail(uint8_t network_number);
+void draw_outcome_rail(uint8_t network_number);
 void draw_progress_bar(int8_t x, int8_t y, uint8_t percent);
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);
 

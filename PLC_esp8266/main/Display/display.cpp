@@ -234,11 +234,28 @@ void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
     }
 }
 
-void draw_input_rail(uint8_t network_number) {
-    uint8_t height = INPUT_RAIL_HEIGHT;
-    int8_t y = INPUT_RAIL_TOP + network_number * height;
+void draw_income_rail(uint8_t network_number) {
+    uint8_t height = INCOME_RAIL_HEIGHT;
+    int8_t y = INCOME_RAIL_TOP + network_number * height;
     ssd1306_draw_vline(&display.dev, display.buffer, 0, y, height, OLED_COLOR_WHITE);
     ssd1306_draw_vline(&display.dev, display.buffer, 1, y, height, OLED_COLOR_WHITE);
+}
+
+void draw_outcome_rail(uint8_t network_number) {
+    uint8_t height = OUTCOME_RAIL_HEIGHT;
+    int8_t y = OUTCOME_RAIL_TOP + network_number * height;
+    ssd1306_draw_vline(&display.dev,
+                       display.buffer,
+                       DISPLAY_WIDTH - 1,
+                       y,
+                       height,
+                       OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev,
+                       display.buffer,
+                       DISPLAY_WIDTH - 2,
+                       y,
+                       height,
+                       OLED_COLOR_WHITE);
 }
 
 void draw_progress_bar(int8_t x, int8_t y, uint8_t percent) {

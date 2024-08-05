@@ -16,6 +16,7 @@ void display_demo_0(bool active) {
     ComparatorGE comparator1(5, MapIO::AI, input1);
     ComparatorEQ comparator2(42, MapIO::V1, comparator1);
     DirectOutput directOutput0(MapIO::O1, comparator2);
+    OutcomeRail outcomeRail0(0);
 
     if (active) {
         input1.DoAction();
@@ -28,6 +29,7 @@ void display_demo_0(bool active) {
     TimerSecs timerSecs1(2, incomeRail1);
     TimerSecs timerSecs2(10, timerSecs1);
     TimerMSecs timerMSecs3(100000, timerSecs2);
+    OutcomeRail outcomeRail1(1);
 
     if (active) {
         timerSecs1.DoAction();
@@ -41,14 +43,16 @@ void display_demo_0(bool active) {
     comparator1.Render(get_display_buffer());
     comparator2.Render(get_display_buffer());
     directOutput0.Render(get_display_buffer());
+    outcomeRail0.Render(get_display_buffer());
 
     incomeRail1.Render(get_display_buffer());
     timerSecs1.Render(get_display_buffer());
     timerSecs2.Render(get_display_buffer());
     timerMSecs3.Render(get_display_buffer());
+    outcomeRail1.Render(get_display_buffer());
     end_render();
 
-    for (size_t i = 0; i < 10; i++) {   
+    for (size_t i = 0; i < 10; i++) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         begin_render();
 
@@ -57,10 +61,13 @@ void display_demo_0(bool active) {
         comparator1.Render(get_display_buffer());
         comparator2.Render(get_display_buffer());
         directOutput0.Render(get_display_buffer());
+        outcomeRail0.Render(get_display_buffer());
+
         incomeRail1.Render(get_display_buffer());
         timerSecs1.Render(get_display_buffer());
         timerSecs2.Render(get_display_buffer());
         timerMSecs3.Render(get_display_buffer());
+        outcomeRail1.Render(get_display_buffer());
         end_render();
     }
 }

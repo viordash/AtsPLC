@@ -10,3 +10,4 @@
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
+#include "LogicProgram/Outputs/OutcomeRail.h"
