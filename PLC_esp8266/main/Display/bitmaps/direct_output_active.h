@@ -1,6 +1,6 @@
-#include "LogicProgram/Inputs/InputNO.h"
+#include "LogicProgram/Outputs/DirectOutput.h"
 
-const Bitmap DisplayItemBase::bitmap = { //
+const Bitmap DirectOutput::bitmap_active = { //
     { 16,                                // width
       16 },                              // height
     { 0xF0, 0x0C, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x0C, 0xF0, 0x80, 0x80,

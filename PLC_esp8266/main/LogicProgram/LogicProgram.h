@@ -9,3 +9,4 @@
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
+#include "LogicProgram/Outputs/DirectOutput.h"

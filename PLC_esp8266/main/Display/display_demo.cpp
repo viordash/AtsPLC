@@ -15,13 +15,13 @@ void display_demo_0(bool active) {
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
     ComparatorEQ comparator2(42, MapIO::V1, comparator1);
-    ComparatorGE comparator3(1000, MapIO::V1, comparator2);
+    DirectOutput directOutput0(MapIO::O1, comparator2);
 
     if (active) {
         input1.DoAction();
         comparator1.DoAction();
         comparator2.DoAction();
-        comparator3.DoAction();
+        directOutput0.DoAction();
     }
 
     IncomeRail incomeRail1(1);
@@ -40,7 +40,7 @@ void display_demo_0(bool active) {
     input1.Render(get_display_buffer());
     comparator1.Render(get_display_buffer());
     comparator2.Render(get_display_buffer());
-    comparator3.Render(get_display_buffer());
+    directOutput0.Render(get_display_buffer());
 
     incomeRail1.Render(get_display_buffer());
     timerSecs1.Render(get_display_buffer());
@@ -56,7 +56,7 @@ void display_demo_0(bool active) {
         input1.Render(get_display_buffer());
         comparator1.Render(get_display_buffer());
         comparator2.Render(get_display_buffer());
-        comparator3.Render(get_display_buffer());
+        directOutput0.Render(get_display_buffer());
         incomeRail1.Render(get_display_buffer());
         timerSecs1.Render(get_display_buffer());
         timerSecs2.Render(get_display_buffer());
