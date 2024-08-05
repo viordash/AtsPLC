@@ -1,3 +1,6 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "Display/Common.h"
 #include "LogicProgram/LogicProgram.h"
 #include "display.h"
@@ -8,8 +11,6 @@
 #include <string.h>
 
 void display_demo_0(bool active) {
-    begin_render();
-
     IncomeRail incomeRail0(0);
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
@@ -22,15 +23,10 @@ void display_demo_0(bool active) {
         comparator2.DoAction();
         comparator3.DoAction();
     }
-    incomeRail0.Render(get_display_buffer());
-    input1.Render(get_display_buffer());
-    comparator1.Render(get_display_buffer());
-    comparator2.Render(get_display_buffer());
-    comparator3.Render(get_display_buffer());
 
     IncomeRail incomeRail1(1);
-    TimerSecs timerSecs1(0, incomeRail1);
-    TimerSecs timerSecs2(42, timerSecs1);
+    TimerSecs timerSecs1(2, incomeRail1);
+    TimerSecs timerSecs2(10, timerSecs1);
     TimerMSecs timerMSecs3(100000, timerSecs2);
 
     if (active) {
@@ -39,9 +35,32 @@ void display_demo_0(bool active) {
         timerMSecs3.DoAction();
     }
 
+    begin_render();
+    incomeRail0.Render(get_display_buffer());
+    input1.Render(get_display_buffer());
+    comparator1.Render(get_display_buffer());
+    comparator2.Render(get_display_buffer());
+    comparator3.Render(get_display_buffer());
+
     incomeRail1.Render(get_display_buffer());
     timerSecs1.Render(get_display_buffer());
     timerSecs2.Render(get_display_buffer());
     timerMSecs3.Render(get_display_buffer());
     end_render();
+
+    for (size_t i = 0; i < 10; i++) {   
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        begin_render();
+
+        incomeRail0.Render(get_display_buffer());
+        input1.Render(get_display_buffer());
+        comparator1.Render(get_display_buffer());
+        comparator2.Render(get_display_buffer());
+        comparator3.Render(get_display_buffer());
+        incomeRail1.Render(get_display_buffer());
+        timerSecs1.Render(get_display_buffer());
+        timerSecs2.Render(get_display_buffer());
+        timerMSecs3.Render(get_display_buffer());
+        end_render();
+    }
 }
