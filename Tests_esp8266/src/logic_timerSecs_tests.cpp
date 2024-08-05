@@ -123,3 +123,48 @@ TEST(LogicTimerSecsTestsGroup, GetLeftTime_when_is_overflowed) {
     left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(0, left_time);
 }
+
+TEST(LogicTimerSecsTestsGroup, GetProgress) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(10, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    IncomeRail incomeRail0(0);
+    TestableTimerSecs testable_0(10, incomeRail0);
+    uint8_t percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(0, percent);
+
+    os_us = 1 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(1, percent);
+
+    os_us = 5 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(5, percent);
+
+    os_us = 10 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(10, percent);
+
+    os_us = 25 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(25, percent);
+
+    os_us = 50 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(50, percent);
+
+    os_us = 99 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(99, percent);
+
+    os_us = 100 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(100, percent);
+
+    os_us = 120 * 100000LL;
+    percent = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(100, percent);
+
+}

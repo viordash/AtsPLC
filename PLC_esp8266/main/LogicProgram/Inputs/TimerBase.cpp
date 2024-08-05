@@ -33,7 +33,7 @@ uint64_t TimerBase::GetLeftTime() {
 uint8_t TimerBase::GetProgress() {
     uint64_t left_time = GetLeftTime();
     uint8_t percent = (left_time * 100) / delay_time_us;
-    return (uint8_t)percent;
+    return 100 - (uint8_t)percent;
 }
 
 void TimerBase::Render(uint8_t *fb) {
