@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class ComparatorLe : public ComparatorBase {
+class ComparatorLs : public ComparatorBase {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
@@ -12,8 +12,8 @@ class ComparatorLe : public ComparatorBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ComparatorLe(uint16_t reference, const MapIO io_adr, InputBase &prior_item);
-    ~ComparatorLe();
+    ComparatorLs(uint16_t reference, const MapIO io_adr, InputBase &prior_item);
+    ~ComparatorLs();
 
     bool DoAction() override final;
 };

@@ -1,4 +1,4 @@
-#include "LogicProgram/Inputs/ComparatorLe.h"
+#include "LogicProgram/Inputs/ComparatorLs.h"
 #include "Display/bitmaps/cmp_less_active.h"
 #include "Display/bitmaps/cmp_less_passive.h"
 #include "esp_err.h"
@@ -7,25 +7,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorLe::ComparatorLe(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
+ComparatorLs::ComparatorLs(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
     : ComparatorBase(reference, io_adr, prior_item) {
 }
 
-ComparatorLe::~ComparatorLe() {
+ComparatorLs::~ComparatorLs() {
 }
 
-bool ComparatorLe::DoAction() {
+bool ComparatorLs::DoAction() {
     state =
         state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
-const Bitmap *ComparatorLe::GetCurrentBitmap() {
+const Bitmap *ComparatorLs::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
-            return &ComparatorLe::bitmap_active;
+            return &ComparatorLs::bitmap_active;
 
         default:
-            return &ComparatorLe::bitmap_passive;
+            return &ComparatorLs::bitmap_passive;
     }
 }

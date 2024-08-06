@@ -1,6 +1,6 @@
-#include "LogicProgram/Inputs/ComparatorLe.h"
+#include "LogicProgram/Inputs/ComparatorLs.h"
 
-const Bitmap ComparatorLe::bitmap_passive = { //
+const Bitmap ComparatorLs::bitmap_passive = { //
     { 16,                                     // width
       16 },                                   // height
     { 0xDB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x0A, 0x11, 0x00, 0x00,

@@ -4,7 +4,7 @@
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
 #include "LogicProgram/Inputs/ComparatorLE.h"
-#include "LogicProgram/Inputs/ComparatorLe.h"
+#include "LogicProgram/Inputs/ComparatorLs.h"
 #include "LogicProgram/Inputs/IncomeRail.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
