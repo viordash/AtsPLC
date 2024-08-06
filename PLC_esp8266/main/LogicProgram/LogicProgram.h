@@ -13,6 +13,7 @@
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
+#include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/OutcomeRail.h"
 #include "LogicProgram/Outputs/ResetOutput.h"
 #include "LogicProgram/Outputs/SetOutput.h"
