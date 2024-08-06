@@ -12,6 +12,7 @@
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/LogicItemBase.h"
 #include "LogicProgram/MapIO.h"
+#include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
 #include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/OutcomeRail.h"
