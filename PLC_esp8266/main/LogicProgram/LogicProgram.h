@@ -3,7 +3,7 @@
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
-#include "LogicProgram/Inputs/ComparatorLQ.h"
+#include "LogicProgram/Inputs/ComparatorLE.h"
 #include "LogicProgram/Inputs/ComparatorLe.h"
 #include "LogicProgram/Inputs/IncomeRail.h"
 #include "LogicProgram/Inputs/InputNC.h"
