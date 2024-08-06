@@ -1,6 +1,6 @@
-#include "LogicProgram/Inputs/ComparatorEQ.h"
+#include "LogicProgram/Inputs/ComparatorEq.h"
 
-const Bitmap ComparatorEQ::bitmap_active = { //
+const Bitmap ComparatorEq::bitmap_active = { //
     { 16,                                    // width
       16 },                                  // height
     { 0xFF, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x0A, 0x0A, 0x0A,

@@ -1,4 +1,4 @@
-#include "LogicProgram/Inputs/ComparatorEQ.h"
+#include "LogicProgram/Inputs/ComparatorEq.h"
 #include "Display/bitmaps/cmp_equal_active.h"
 #include "Display/bitmaps/cmp_equal_passive.h"
 #include "esp_err.h"
@@ -7,25 +7,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorEQ::ComparatorEQ(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
+ComparatorEq::ComparatorEq(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
     : ComparatorBase(reference, io_adr, prior_item) {
 }
 
-ComparatorEQ::~ComparatorEQ() {
+ComparatorEq::~ComparatorEq() {
 }
 
-bool ComparatorEQ::DoAction() {
+bool ComparatorEq::DoAction() {
     state =
         state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
-const Bitmap *ComparatorEQ::GetCurrentBitmap() {
+const Bitmap *ComparatorEq::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
-            return &ComparatorEQ::bitmap_active;
+            return &ComparatorEq::bitmap_active;
 
         default:
-            return &ComparatorEQ::bitmap_passive;
+            return &ComparatorEq::bitmap_passive;
     }
 }
