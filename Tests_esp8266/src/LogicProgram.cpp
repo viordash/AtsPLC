@@ -16,3 +16,4 @@
 #include "main/LogicProgram/Inputs/InputBase.cpp"
 #include "main/LogicProgram/LogicItemBase.cpp"
 #include "main/LogicProgram/MapIO.cpp"
+#include "main/Display/MapIOIndicator.cpp"

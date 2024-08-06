@@ -245,12 +245,19 @@ void draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
     ssd1306_draw_vline(&display.dev, fb, DISPLAY_WIDTH - 2, y, height, OLED_COLOR_WHITE);
 }
 
-void draw_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent) {
-    int height = (PROGRESS_BAR_HEIGHT * percent) / 100;
-    int8_t y_pos = y + (PROGRESS_BAR_HEIGHT - height);
+void draw_vert_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent) {
+    int height = (VERT_PROGRESS_BAR_HEIGHT * percent) / 100;
+    int8_t y_pos = y + (VERT_PROGRESS_BAR_HEIGHT - height);
     ssd1306_draw_vline(&display.dev, fb, x + 0, y_pos, height, OLED_COLOR_WHITE);
     ssd1306_draw_vline(&display.dev, fb, x + 1, y_pos, height, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, fb, x + 2, y, PROGRESS_BAR_HEIGHT, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, x + 2, y, VERT_PROGRESS_BAR_HEIGHT, OLED_COLOR_WHITE);
+}
+
+void draw_horz_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent) {
+    int width = (HORZ_PROGRESS_BAR_WIDTH * percent) / 100;
+    ssd1306_draw_hline(&display.dev, fb, x, y + 0, width, OLED_COLOR_WHITE);
+    ssd1306_draw_hline(&display.dev, fb, x, y + 1, width, OLED_COLOR_WHITE);
+    ssd1306_draw_hline(&display.dev, fb, x, y + 2, HORZ_PROGRESS_BAR_WIDTH, OLED_COLOR_WHITE);
 }
 
 void draw_vert_line(uint8_t *fb, int8_t x, int8_t y, uint8_t w) {

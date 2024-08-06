@@ -1,5 +1,6 @@
 #include "Display/StatusBar.h"
 #include "Display/Common.h"
+#include "Display/MapIOIndicator.h"
 #include "LogicProgram/MapIO.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -44,60 +45,37 @@ static uint8_t GetV4RelativeValue() {
 }
 
 void StatusBar::Render(uint8_t *fb) {
+    Point point = { 0, y };
+    MapIOIndicator indicator_AI(point, MapIONames[MapIO::AI], GetAIRelativeValue());
+    indicator_AI.Render(fb);
 
-    uint8_t x_pos = 0;
-    const uint8_t text_width = 6;
-    const uint8_t mapIO_name_size = 2;
-    const uint8_t text_height = 12;
-    const uint8_t component_height = text_height + 2;
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_DI(point, MapIONames[MapIO::DI], GetDIRelativeValue());
+    indicator_DI.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::AI]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetAIRelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_O1(point, MapIONames[MapIO::O1], GetO1RelativeValue());
+    indicator_O1.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::DI]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetDIRelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_O2(point, MapIONames[MapIO::O2], GetO1RelativeValue());
+    indicator_O2.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::O1]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetO1RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_V1(point, MapIONames[MapIO::V1], GetV1RelativeValue());
+    indicator_V1.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::O2]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetO2RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_V2(point, MapIONames[MapIO::V2], GetV2RelativeValue());
+    indicator_V2.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::V1]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetV1RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_V3(point, MapIONames[MapIO::V3], GetV3RelativeValue());
+    indicator_V3.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::V2]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetV2RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
+    point.x += MapIOIndicator::GetWidth();
+    MapIOIndicator indicator_V4(point, MapIONames[MapIO::V4], GetV4RelativeValue());
+    indicator_V4.Render(fb);
 
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::V3]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetV3RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
-
-    draw_text_f6X12(fb, x_pos, y - text_height, MapIONames[MapIO::V4]);
-    x_pos += text_width * mapIO_name_size;
-    draw_progress_bar(fb, x_pos, y, GetV4RelativeValue());
-    x_pos += PROGRESS_BAR_WIDTH;
-    draw_vert_line(fb, x_pos, y, component_height);
-
-    draw_horz_line(fb, 0, y + component_height, DISPLAY_WIDTH);
+    draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH);
 }

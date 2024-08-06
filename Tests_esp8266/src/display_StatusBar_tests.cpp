@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/Display/MapIOIndicator.h"
 #include "main/Display/StatusBar.cpp"
 #include "main/Display/StatusBar.h"
 

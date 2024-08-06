@@ -9,8 +9,10 @@
 #define INCOME_RAIL_HEIGHT 25
 #define OUTCOME_RAIL_TOP 16
 #define OUTCOME_RAIL_HEIGHT 25
-#define PROGRESS_BAR_HEIGHT 10
-#define PROGRESS_BAR_WIDTH 3
+#define VERT_PROGRESS_BAR_HEIGHT 10
+#define VERT_PROGRESS_BAR_WIDTH 3
+#define HORZ_PROGRESS_BAR_HEIGHT 3
+#define HORZ_PROGRESS_BAR_WIDTH 10
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +37,8 @@ void draw_active_network(uint8_t *fb, int8_t x, int8_t y, uint8_t w);
 void draw_passive_network(uint8_t *fb, int8_t x, int8_t y, uint8_t w, bool inverse_dash);
 void draw_income_rail(uint8_t *fb, uint8_t network_number);
 void draw_outcome_rail(uint8_t *fb, uint8_t network_number);
-void draw_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent);
+void draw_vert_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent);
+void draw_horz_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent);
 void draw_vert_line(uint8_t *fb, int8_t x, int8_t y, uint8_t w);
 void draw_horz_line(uint8_t *fb, int8_t x, int8_t y, uint8_t w);
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);

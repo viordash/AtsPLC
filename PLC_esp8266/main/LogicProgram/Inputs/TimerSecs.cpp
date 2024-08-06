@@ -50,5 +50,5 @@ void TimerSecs::Render(uint8_t *fb) {
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width / 2;
     uint8_t percent = GetProgress();
-    draw_progress_bar(fb, x_pos, incoming_point.y - (PROGRESS_BAR_HEIGHT + 1), percent);
+    draw_vert_progress_bar(fb, x_pos, incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1), percent);
 }
