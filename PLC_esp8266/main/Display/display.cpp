@@ -271,6 +271,15 @@ void draw_progress_bar(int8_t x, int8_t y, uint8_t percent) {
                        OLED_COLOR_WHITE);
 }
 
+void draw_vert_line(int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_vline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
+}
+
+void draw_horz_line(int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_hline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
+}
+
+
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
     for (int row = y; row < y + bitmap->size.height; row += 8) {
         if (row >= DISPLAY_HEIGHT) {

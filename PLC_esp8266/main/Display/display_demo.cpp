@@ -2,6 +2,7 @@
 #include "freertos/task.h"
 
 #include "Display/Common.h"
+#include "Display/StatusBar.h"
 #include "LogicProgram/LogicProgram.h"
 #include "display.h"
 #include "esp_err.h"
@@ -11,6 +12,8 @@
 #include <string.h>
 
 void display_demo_0(bool active) {
+    StatusBar statusBar(0);
+
     IncomeRail incomeRail0(0);
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
@@ -38,6 +41,7 @@ void display_demo_0(bool active) {
     }
 
     begin_render();
+    statusBar.Render(get_display_buffer());
     incomeRail0.Render(get_display_buffer());
     input1.Render(get_display_buffer());
     comparator1.Render(get_display_buffer());
@@ -56,6 +60,7 @@ void display_demo_0(bool active) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         begin_render();
 
+        statusBar.Render(get_display_buffer());
         incomeRail0.Render(get_display_buffer());
         input1.Render(get_display_buffer());
         comparator1.Render(get_display_buffer());
