@@ -98,4 +98,6 @@ void StatusBar::Render(uint8_t *fb) {
     draw_progress_bar(fb, x_pos, y, GetV4RelativeValue());
     x_pos += PROGRESS_BAR_WIDTH;
     draw_vert_line(fb, x_pos, y, component_height);
+
+    draw_horz_line(fb, x_pos, y + component_height, DISPLAY_WIDTH);
 }

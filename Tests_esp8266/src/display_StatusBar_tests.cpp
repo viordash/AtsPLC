@@ -14,10 +14,13 @@
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(StatusBarTestsGroup){ //
-                                 TEST_SETUP(){}
+                                 TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+}
 
-                                 TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+}
+}
+;
 
 class TestableStatusBar : public StatusBar {
   public:
@@ -30,4 +33,9 @@ class TestableStatusBar : public StatusBar {
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
     TestableStatusBar testable(0);
     testable.Render(frame_buffer);
+
+    const int component_area = DISPLAY_WIDTH * 2;
+    for (int i = component_area; i < DISPLAY_WIDTH * DISPLAY_HEIGHT / 8; i++) {
+        CHECK_EQUAL(0, frame_buffer[i]);
+    }
 }
