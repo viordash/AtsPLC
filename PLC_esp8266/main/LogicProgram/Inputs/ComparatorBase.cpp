@@ -23,13 +23,13 @@ void ComparatorBase::Render(uint8_t *fb) {
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
     switch (str_size) {
         case 1:
-            draw_text_f5X7(x_pos + 3, incoming_point.y + 2, str_reference);
+            draw_text_f5X7(fb, x_pos + 3, incoming_point.y + 2, str_reference);
             break;
         case 2:
-            draw_text_f5X7(x_pos + 0, incoming_point.y + 2, str_reference);
+            draw_text_f5X7(fb, x_pos + 0, incoming_point.y + 2, str_reference);
             break;
         default:
-            draw_text_f4X7(x_pos, incoming_point.y + 3, str_reference);
+            draw_text_f4X7(fb, x_pos, incoming_point.y + 3, str_reference);
             break;
     }
 }

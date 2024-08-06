@@ -24,8 +24,7 @@ const Bitmap *IncomeRail::GetCurrentBitmap() {
 }
 
 void IncomeRail::Render(uint8_t *fb) {
-    (void)fb;
-    draw_income_rail(network_number);
+    draw_income_rail(fb, network_number);
 }
 
 Point IncomeRail::OutcomingPoint() {

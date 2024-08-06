@@ -171,20 +171,17 @@ void ladder_diagram_acsii(int8_t x, int8_t y) {
                         OLED_COLOR_BLACK);
 }
 
-uint8_t *get_display_buffer() {
+uint8_t *begin_render() {
+    memset(display.buffer, 0, sizeof(display.buffer));
     return display.buffer;
 }
-
-void begin_render() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-}
-void end_render() {
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
+void end_render(uint8_t *fb) {
+    ssd1306_load_frame_buffer(&display.dev, fb);
 }
 
-void draw_text_f4X7(uint8_t x, uint8_t y, const char *text) {
+void draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
     ssd1306_draw_string(&display.dev,
-                        display.buffer,
+                        fb,
                         display.font_4X7,
                         x,
                         y,
@@ -193,9 +190,9 @@ void draw_text_f4X7(uint8_t x, uint8_t y, const char *text) {
                         OLED_COLOR_BLACK);
 }
 
-void draw_text_f5X7(uint8_t x, uint8_t y, const char *text) {
+void draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
     ssd1306_draw_string(&display.dev,
-                        display.buffer,
+                        fb,
                         display.font_5X7,
                         x,
                         y,
@@ -204,9 +201,9 @@ void draw_text_f5X7(uint8_t x, uint8_t y, const char *text) {
                         OLED_COLOR_BLACK);
 }
 
-void draw_text_f6X12(uint8_t x, uint8_t y, const char *text) {
+void draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
     ssd1306_draw_string(&display.dev,
-                        display.buffer,
+                        fb,
                         display.font_6X12,
                         x,
                         y,
@@ -215,17 +212,17 @@ void draw_text_f6X12(uint8_t x, uint8_t y, const char *text) {
                         OLED_COLOR_BLACK);
 }
 
-void draw_active_network(int8_t x, int8_t y, uint8_t w) {
-    ssd1306_draw_hline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
-    ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, w, OLED_COLOR_WHITE);
+void draw_active_network(uint8_t *fb, int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
+    ssd1306_draw_hline(&display.dev, fb, x, y + 1, w, OLED_COLOR_WHITE);
 }
 
-void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
+void draw_passive_network(uint8_t *fb, int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
     ssd1306_color_t color_top_line = inverse_dash ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
     ssd1306_color_t color_bottom_line = inverse_dash ? OLED_COLOR_BLACK : OLED_COLOR_WHITE;
     while (w >= 2) {
-        ssd1306_draw_hline(&display.dev, display.buffer, x, y, 2, color_top_line);
-        ssd1306_draw_hline(&display.dev, display.buffer, x, y + 1, 2, color_bottom_line);
+        ssd1306_draw_hline(&display.dev, fb, x, y, 2, color_top_line);
+        ssd1306_draw_hline(&display.dev, fb, x, y + 1, 2, color_bottom_line);
         w -= 2;
         x += 2;
         color_top_line = color_top_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
@@ -234,51 +231,35 @@ void draw_passive_network(int8_t x, int8_t y, uint8_t w, bool inverse_dash) {
     }
 }
 
-void draw_income_rail(uint8_t network_number) {
+void draw_income_rail(uint8_t *fb, uint8_t network_number) {
     uint8_t height = INCOME_RAIL_HEIGHT;
     int8_t y = INCOME_RAIL_TOP + network_number * height;
-    ssd1306_draw_vline(&display.dev, display.buffer, 0, y, height, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, display.buffer, 1, y, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, 0, y, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, 1, y, height, OLED_COLOR_WHITE);
 }
 
-void draw_outcome_rail(uint8_t network_number) {
+void draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
     uint8_t height = OUTCOME_RAIL_HEIGHT;
     int8_t y = OUTCOME_RAIL_TOP + network_number * height;
-    ssd1306_draw_vline(&display.dev,
-                       display.buffer,
-                       DISPLAY_WIDTH - 1,
-                       y,
-                       height,
-                       OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev,
-                       display.buffer,
-                       DISPLAY_WIDTH - 2,
-                       y,
-                       height,
-                       OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, DISPLAY_WIDTH - 1, y, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, DISPLAY_WIDTH - 2, y, height, OLED_COLOR_WHITE);
 }
 
-void draw_progress_bar(int8_t x, int8_t y, uint8_t percent) {
+void draw_progress_bar(uint8_t *fb, int8_t x, int8_t y, uint8_t percent) {
     int height = (PROGRESS_BAR_HEIGHT * percent) / 100;
     int8_t y_pos = y + (PROGRESS_BAR_HEIGHT - height);
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 0, y_pos, height, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 1, y_pos, height, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev,
-                       display.buffer,
-                       x + 2,
-                       y,
-                       PROGRESS_BAR_HEIGHT,
-                       OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, x + 0, y_pos, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, x + 1, y_pos, height, OLED_COLOR_WHITE);
+    ssd1306_draw_vline(&display.dev, fb, x + 2, y, PROGRESS_BAR_HEIGHT, OLED_COLOR_WHITE);
 }
 
-void draw_vert_line(int8_t x, int8_t y, uint8_t w) {
-    ssd1306_draw_vline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
+void draw_vert_line(uint8_t *fb, int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_vline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
 }
 
-void draw_horz_line(int8_t x, int8_t y, uint8_t w) {
-    ssd1306_draw_hline(&display.dev, display.buffer, x, y, w, OLED_COLOR_WHITE);
+void draw_horz_line(uint8_t *fb, int8_t x, int8_t y, uint8_t w) {
+    ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
 }
-
 
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
     for (int row = y; row < y + bitmap->size.height; row += 8) {

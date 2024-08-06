@@ -40,39 +40,39 @@ void display_demo_0(bool active) {
         timerMSecs3.DoAction();
     }
 
-    begin_render();
-    statusBar.Render(get_display_buffer());
-    incomeRail0.Render(get_display_buffer());
-    input1.Render(get_display_buffer());
-    comparator1.Render(get_display_buffer());
-    comparator2.Render(get_display_buffer());
-    directOutput0.Render(get_display_buffer());
-    outcomeRail0.Render(get_display_buffer());
+    uint8_t *fb = begin_render();
+    statusBar.Render(fb);
+    incomeRail0.Render(fb);
+    input1.Render(fb);
+    comparator1.Render(fb);
+    comparator2.Render(fb);
+    directOutput0.Render(fb);
+    outcomeRail0.Render(fb);
 
-    incomeRail1.Render(get_display_buffer());
-    timerSecs1.Render(get_display_buffer());
-    timerSecs2.Render(get_display_buffer());
-    timerMSecs3.Render(get_display_buffer());
-    outcomeRail1.Render(get_display_buffer());
-    end_render();
+    incomeRail1.Render(fb);
+    timerSecs1.Render(fb);
+    timerSecs2.Render(fb);
+    timerMSecs3.Render(fb);
+    outcomeRail1.Render(fb);
+    end_render(fb);
 
     for (size_t i = 0; i < 10; i++) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         begin_render();
 
-        statusBar.Render(get_display_buffer());
-        incomeRail0.Render(get_display_buffer());
-        input1.Render(get_display_buffer());
-        comparator1.Render(get_display_buffer());
-        comparator2.Render(get_display_buffer());
-        directOutput0.Render(get_display_buffer());
-        outcomeRail0.Render(get_display_buffer());
+        statusBar.Render(fb);
+        incomeRail0.Render(fb);
+        input1.Render(fb);
+        comparator1.Render(fb);
+        comparator2.Render(fb);
+        directOutput0.Render(fb);
+        outcomeRail0.Render(fb);
 
-        incomeRail1.Render(get_display_buffer());
-        timerSecs1.Render(get_display_buffer());
-        timerSecs2.Render(get_display_buffer());
-        timerMSecs3.Render(get_display_buffer());
-        outcomeRail1.Render(get_display_buffer());
-        end_render();
+        incomeRail1.Render(fb);
+        timerSecs1.Render(fb);
+        timerSecs2.Render(fb);
+        timerMSecs3.Render(fb);
+        outcomeRail1.Render(fb);
+        end_render(fb);
     }
 }

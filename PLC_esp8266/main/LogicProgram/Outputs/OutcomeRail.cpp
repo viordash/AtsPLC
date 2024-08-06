@@ -24,8 +24,7 @@ const Bitmap *OutcomeRail::GetCurrentBitmap() {
 }
 
 void OutcomeRail::Render(uint8_t *fb) {
-    (void)fb;
-    draw_outcome_rail(network_number);
+    draw_outcome_rail(fb, network_number);
 }
 
 Point OutcomeRail::OutcomingPoint() {
