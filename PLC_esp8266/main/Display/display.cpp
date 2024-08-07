@@ -257,7 +257,7 @@ void draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent) 
     int width = (HORZ_PROGRESS_BAR_WIDTH * percent) / 100;
     ssd1306_draw_hline(&display.dev, fb, x, y + 0, width, OLED_COLOR_WHITE);
     ssd1306_draw_hline(&display.dev, fb, x, y + 1, width, OLED_COLOR_WHITE);
-    ssd1306_draw_hline(&display.dev, fb, x, y + 2, HORZ_PROGRESS_BAR_WIDTH, OLED_COLOR_WHITE);
+    // ssd1306_draw_hline(&display.dev, fb, x, y + 2, HORZ_PROGRESS_BAR_WIDTH, OLED_COLOR_WHITE);
 }
 
 void draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {

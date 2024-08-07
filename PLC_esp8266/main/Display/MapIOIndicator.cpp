@@ -24,17 +24,11 @@ MapIOIndicator::~MapIOIndicator() {
 void MapIOIndicator::Render(uint8_t *fb) {
     draw_horz_progress_bar(fb, incoming_point.x + margin, incoming_point.y, progress);
 
-    draw_text_f6X12(fb,
+    draw_text_f5X7(fb,
                     incoming_point.x + margin,
-                    incoming_point.y + HORZ_PROGRESS_BAR_HEIGHT,
+                    incoming_point.y + margin + HORZ_PROGRESS_BAR_HEIGHT,
                     name);
 
-    for (size_t i = 0; i < separator_width; i++) {
-        draw_vert_line(fb,
-                       incoming_point.x + margin + (text_width * name_size) + margin + i,
-                       incoming_point.y,
-                       GetHeight());
-    }
 }
 
 uint8_t MapIOIndicator::GetWidth() {
