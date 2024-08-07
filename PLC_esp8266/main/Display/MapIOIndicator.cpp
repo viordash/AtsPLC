@@ -10,12 +10,12 @@
 MapIOIndicator::MapIOIndicator(const Point &incoming_point,
                                const char *name,
                                uint8_t progress,
-                               bool show_separator)
+                               uint8_t separator_width)
     : DisplayItemBase() {
     this->incoming_point = incoming_point;
     this->name = name;
     this->progress = progress;
-    this->show_separator = show_separator;
+    this->separator_width = separator_width;
 }
 
 MapIOIndicator::~MapIOIndicator() {
@@ -29,16 +29,16 @@ void MapIOIndicator::Render(uint8_t *fb) {
                     incoming_point.y + HORZ_PROGRESS_BAR_HEIGHT,
                     name);
 
-    if (show_separator) {
+    for (size_t i = 0; i < separator_width; i++) {
         draw_vert_line(fb,
-                       incoming_point.x + margin + (text_width * name_size) + margin,
+                       incoming_point.x + margin + (text_width * name_size) + margin + i,
                        incoming_point.y,
                        GetHeight());
     }
 }
 
 uint8_t MapIOIndicator::GetWidth() {
-    return margin + (text_width * name_size) + margin + separator_width + margin;
+    return margin + (text_width * name_size) + margin + margin;
 }
 
 uint8_t MapIOIndicator::GetHeight() {

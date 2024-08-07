@@ -41,36 +41,62 @@ static uint8_t GetV4RelativeValue() {
 }
 
 void StatusBar::Render(uint8_t *fb) {
+    uint8_t separator_width = 1;
     Point point = { 0, y };
-    MapIOIndicator indicator_AI(point, MapIONames[MapIO::AI], GetAIRelativeValue());
+    MapIOIndicator indicator_AI(point,
+                                MapIONames[MapIO::AI],
+                                GetAIRelativeValue(),
+                                separator_width);
     indicator_AI.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_DI(point, MapIONames[MapIO::DI], GetDIRelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_DI(point,
+                                MapIONames[MapIO::DI],
+                                GetDIRelativeValue(),
+                                separator_width);
     indicator_DI.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_O1(point, MapIONames[MapIO::O1], GetO1RelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_O1(point,
+                                MapIONames[MapIO::O1],
+                                GetO1RelativeValue(),
+                                separator_width);
     indicator_O1.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_O2(point, MapIONames[MapIO::O2], GetO2RelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_O2(point,
+                                MapIONames[MapIO::O2],
+                                GetO2RelativeValue(),
+                                separator_width);
     indicator_O2.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_V1(point, MapIONames[MapIO::V1], GetV1RelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_V1(point,
+                                MapIONames[MapIO::V1],
+                                GetV1RelativeValue(),
+                                separator_width);
     indicator_V1.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_V2(point, MapIONames[MapIO::V2], GetV2RelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_V2(point,
+                                MapIONames[MapIO::V2],
+                                GetV2RelativeValue(),
+                                separator_width);
     indicator_V2.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_V3(point, MapIONames[MapIO::V3], GetV3RelativeValue());
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_V3(point,
+                                MapIONames[MapIO::V3],
+                                GetV3RelativeValue(),
+                                separator_width);
     indicator_V3.Render(fb);
 
-    point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_V4(point, MapIONames[MapIO::V4], GetV4RelativeValue());
+    separator_width = 0;
+    point.x += MapIOIndicator::GetWidth() + separator_width;
+    MapIOIndicator indicator_V4(point,
+                                MapIONames[MapIO::V4],
+                                GetV4RelativeValue(),
+                                separator_width);
     indicator_V4.Render(fb);
 
     draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH);
