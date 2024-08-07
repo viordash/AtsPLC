@@ -7,11 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-MapIOIndicator::MapIOIndicator(const Point &incoming_point, const char *name, uint8_t progress)
+MapIOIndicator::MapIOIndicator(const Point &incoming_point,
+                               const char *name,
+                               uint8_t progress,
+                               bool show_separator)
     : DisplayItemBase() {
     this->incoming_point = incoming_point;
     this->name = name;
     this->progress = progress;
+    this->show_separator = show_separator;
 }
 
 MapIOIndicator::~MapIOIndicator() {
@@ -29,14 +33,16 @@ void MapIOIndicator::Render(uint8_t *fb) {
                     incoming_point.y + HORZ_PROGRESS_BAR_HEIGHT,
                     name);
 
-    draw_vert_line(fb,
-                   incoming_point.x + margin + (text_width * name_size) + margin,
-                   incoming_point.y,
-                   GetHeight());
+    if (show_separator) {
+        draw_vert_line(fb,
+                       incoming_point.x + margin + (text_width * name_size) + margin,
+                       incoming_point.y,
+                       GetHeight());
+    }
 }
 
 uint8_t MapIOIndicator::GetWidth() {
-    return margin + (text_width * name_size) + margin + delimeter_width + 1;
+    return margin + (text_width * name_size) + margin + separator_width + margin;
 }
 
 uint8_t MapIOIndicator::GetHeight() {

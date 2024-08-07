@@ -58,7 +58,7 @@ void StatusBar::Render(uint8_t *fb) {
     indicator_O1.Render(fb);
 
     point.x += MapIOIndicator::GetWidth();
-    MapIOIndicator indicator_O2(point, MapIONames[MapIO::O2], GetO1RelativeValue());
+    MapIOIndicator indicator_O2(point, MapIONames[MapIO::O2], GetO2RelativeValue());
     indicator_O2.Render(fb);
 
     point.x += MapIOIndicator::GetWidth();
