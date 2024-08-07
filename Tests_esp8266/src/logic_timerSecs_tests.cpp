@@ -42,7 +42,8 @@ class TestableTimerSecs : public TimerSecs {
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableTimerSecs testable_0(0, incomeRail0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 
@@ -62,7 +63,8 @@ TEST(LogicTimerSecsTestsGroup, GetLeftTime_when_no_overflowed) {
         .expectNCalls(7, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableTimerSecs testable_0(10, incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10 * 1000000LL, left_time);
@@ -94,7 +96,8 @@ TEST(LogicTimerSecsTestsGroup, GetLeftTime_when_is_overflowed) {
         .expectNCalls(8, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableTimerSecs testable_0(10, incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10 * 1000000LL, left_time);
@@ -130,7 +133,8 @@ TEST(LogicTimerSecsTestsGroup, GetProgress) {
         .expectNCalls(10, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableTimerSecs testable_0(10, incomeRail0);
     uint8_t percent = testable_0.PublicMorozov_GetProgress();
     CHECK_EQUAL(0, percent);

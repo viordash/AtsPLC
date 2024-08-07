@@ -5,14 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-OutputBase::OutputBase(const MapIO io_adr, const Point &incoming_point)
-    : LogicItemBase(), NetworkedLogicItem(incoming_point), LabeledLogicItem(MapIONames[io_adr]) {
+OutputBase::OutputBase(const Controller &controller,
+                       const MapIO io_adr,
+                       const Point &incoming_point)
+    : LogicItemBase(controller), NetworkedLogicItem(incoming_point),
+      LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }
 
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicItemBase(), NetworkedLogicItem(), LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicItemBase(prior_item.controller), NetworkedLogicItem(),
+      LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
     this->incoming_point = prior_item.OutcomingPoint();

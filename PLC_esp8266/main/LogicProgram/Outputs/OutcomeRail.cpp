@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-OutcomeRail::OutcomeRail(uint8_t network_number)
-    : OutputBase(MapIO::Outcome,
+OutcomeRail::OutcomeRail(const Controller &controller, uint8_t network_number)
+    : OutputBase(controller,
+                 MapIO::Outcome,
                  { 0, (uint8_t)(OUTCOME_RAIL_TOP + OUTCOME_RAIL_HEIGHT * network_number) }) {
     this->network_number = network_number;
     state = LogicItemState::lisActive;

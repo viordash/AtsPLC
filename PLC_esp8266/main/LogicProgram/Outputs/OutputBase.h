@@ -14,7 +14,7 @@ class OutputBase : public LogicItemBase, public NetworkedLogicItem, public Label
     MapIO io_adr;
     InputBase *prior_item;
 
-    OutputBase(const MapIO io_adr, const Point &incoming_point);
+    OutputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point);
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:

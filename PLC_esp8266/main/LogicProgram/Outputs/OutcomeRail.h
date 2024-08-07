@@ -10,7 +10,7 @@ class OutcomeRail : public OutputBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    explicit OutcomeRail(uint8_t network_number);
+    explicit OutcomeRail(const Controller &controller, uint8_t network_number);
     ~OutcomeRail();
 
     bool DoAction() override final;

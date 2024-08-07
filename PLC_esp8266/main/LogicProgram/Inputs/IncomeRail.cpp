@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-IncomeRail::IncomeRail(uint8_t network_number)
-    : InputBase(MapIO::Income,
+IncomeRail::IncomeRail(const Controller &controller, uint8_t network_number)
+    : InputBase(controller, MapIO::Income,
                 { 0, (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number) }) {
     this->network_number = network_number;
     state = LogicItemState::lisActive;

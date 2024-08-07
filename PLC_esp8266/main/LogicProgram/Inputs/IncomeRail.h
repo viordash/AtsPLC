@@ -10,7 +10,7 @@ class IncomeRail : public InputBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    explicit IncomeRail(uint8_t network_number);
+    explicit IncomeRail(const Controller &controller, uint8_t network_number);
     ~IncomeRail();
 
     bool DoAction() override final;

@@ -13,6 +13,7 @@
 #include "main/LogicProgram/Inputs/ComparatorBase.cpp"
 #include "main/LogicProgram/Inputs/TimerBase.cpp"
 #include "main/LogicProgram/Inputs/IncomeRail.cpp"
+#include "main/LogicProgram/Controller.cpp"
 #include "main/LogicProgram/Inputs/InputBase.cpp"
 #include "main/LogicProgram/LogicItemBase.cpp"
 #include "main/LogicProgram/MapIO.cpp"

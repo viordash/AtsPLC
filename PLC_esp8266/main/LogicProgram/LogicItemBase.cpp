@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicItemBase::LogicItemBase() {
+LogicItemBase::LogicItemBase(const Controller &controller) {
+    this->controller = controller;
 }
 
 LogicItemBase::~LogicItemBase() {

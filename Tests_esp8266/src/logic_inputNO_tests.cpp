@@ -31,19 +31,22 @@ class TestableInputNO : public InputNO {
 };
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableInputNO testable(MapIO::DI, incomeRail0);
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_AI) {
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableInputNO testable(MapIO::AI, incomeRail0);
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_V1) {
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableInputNO testable(MapIO::V1, incomeRail0);
     STRCMP_EQUAL("V1", testable.GetLabel());
 }

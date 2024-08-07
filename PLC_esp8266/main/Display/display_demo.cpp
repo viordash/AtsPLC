@@ -12,14 +12,15 @@
 #include <string.h>
 
 void display_demo_0(bool active) {
+    Controller controller;
     StatusBar statusBar(0);
 
-    IncomeRail incomeRail0(0);
+    IncomeRail incomeRail0(controller, 0);
     InputNO input1(MapIO::DI, incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, input1);
     ComparatorEq comparator2(42, MapIO::V1, comparator1);
     DirectOutput directOutput0(MapIO::O1, comparator2);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(controller, 0);
 
     if (active) {
         input1.DoAction();
@@ -28,11 +29,11 @@ void display_demo_0(bool active) {
         directOutput0.DoAction();
     }
 
-    IncomeRail incomeRail1(1);
+    IncomeRail incomeRail1(controller, 1);
     TimerSecs timerSecs1(2, incomeRail1);
     TimerSecs timerSecs2(10, timerSecs1);
     TimerMSecs timerMSecs3(100000, timerSecs2);
-    OutcomeRail outcomeRail1(1);
+    OutcomeRail outcomeRail1(controller, 1);
 
     if (active) {
         timerSecs1.DoAction();

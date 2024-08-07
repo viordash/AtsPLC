@@ -59,7 +59,8 @@ class TestableComparatorBase : public ComparatorBase {
 };
 
 TEST(LogicComparatorBaseTestsGroup, Reference_in_limit_0_to_999) {
-    IncomeRail incomeRail0(0);
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
     TestableComparatorBase testable_0(0, MapIO::DI, incomeRail0);
     CHECK_EQUAL(0, testable_0.GetReference());
 

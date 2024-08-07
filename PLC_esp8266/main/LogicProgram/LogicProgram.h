@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"

@@ -13,7 +13,7 @@ class InputBase : public LogicItemBase, public NetworkedLogicItem, public Labele
     MapIO io_adr;
     InputBase *prior_item;
 
-    InputBase(const MapIO io_adr, const Point &incoming_point);
+    InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point);
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
