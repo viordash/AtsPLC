@@ -22,7 +22,7 @@ bool StatusBar::DoAction() {
 
 void StatusBar::Render(uint8_t *fb) {
     uint8_t separator_width = 1;
-    Point point = { 0, y };
+    Point point = { 2, y };
     MapIOIndicator indicator_AI(point,
                                 MapIONames[MapIO::AI],
                                 controller.GetAIRelativeValue(),
