@@ -21,10 +21,6 @@ InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
 InputBase::~InputBase() {
 }
 
-void InputBase::SetOrigin() {
-    origin = { (uint8_t)(incoming_point.x - LeftPadding), incoming_point.y };
-}
-
 void InputBase::Render(uint8_t *fb) {
     auto bitmap = GetCurrentBitmap();
 

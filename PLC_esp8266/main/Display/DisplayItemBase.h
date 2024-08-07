@@ -14,5 +14,4 @@ class DisplayItemBase {
     virtual ~DisplayItemBase();
 
     virtual void Render(uint8_t *fb) = 0;
-    virtual void SetOrigin() = 0;
 };

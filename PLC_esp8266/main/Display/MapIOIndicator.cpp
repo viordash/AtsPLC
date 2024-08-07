@@ -21,10 +21,6 @@ MapIOIndicator::MapIOIndicator(const Point &incoming_point,
 MapIOIndicator::~MapIOIndicator() {
 }
 
-void MapIOIndicator::SetOrigin() {
-    origin = incoming_point;
-}
-
 void MapIOIndicator::Render(uint8_t *fb) {
     draw_horz_progress_bar(fb, incoming_point.x + margin, incoming_point.y, progress);
 

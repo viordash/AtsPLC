@@ -14,5 +14,4 @@ class StatusBar : public DisplayItemBase {
     virtual ~StatusBar();
 
     void Render(uint8_t *fb) override final;
-    void SetOrigin() override final;
 };

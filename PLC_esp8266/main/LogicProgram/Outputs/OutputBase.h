@@ -23,7 +23,6 @@ class OutputBase : public LogicItemBase, public NetworkedLogicItem, public Label
     OutputBase(const MapIO io_adr, InputBase &prior_item);
     ~OutputBase();
 
-    void SetOrigin() override final;
     void Render(uint8_t *fb) override;
     Point OutcomingPoint() override;
 };

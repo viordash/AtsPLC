@@ -26,7 +26,6 @@ class MapIOIndicator : public DisplayItemBase {
     virtual ~MapIOIndicator();
 
     void Render(uint8_t *fb) override final;
-    void SetOrigin() override final;
     static uint8_t GetWidth();
     static uint8_t GetHeight();
 };

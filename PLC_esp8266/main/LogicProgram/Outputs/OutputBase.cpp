@@ -21,10 +21,6 @@ OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
 OutputBase::~OutputBase() {
 }
 
-void OutputBase::SetOrigin() {
-    origin = { (uint8_t)(incoming_point.x - LeftPadding), incoming_point.y };
-}
-
 void OutputBase::Render(uint8_t *fb) {
     auto bitmap = GetCurrentBitmap();
 

@@ -15,10 +15,6 @@ StatusBar::StatusBar(uint8_t y) : DisplayItemBase() {
 StatusBar::~StatusBar() {
 }
 
-void StatusBar::SetOrigin() {
-    origin = { 0, y };
-}
-
 static uint8_t GetAIRelativeValue() {
     return 10;
 }

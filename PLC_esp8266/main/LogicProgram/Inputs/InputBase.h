@@ -22,7 +22,6 @@ class InputBase : public LogicItemBase, public NetworkedLogicItem, public Labele
     InputBase(const MapIO io_adr, InputBase &prior_item);
     ~InputBase();
 
-    void SetOrigin() override final;
     void Render(uint8_t *fb) override;
     Point OutcomingPoint() override;
 };
