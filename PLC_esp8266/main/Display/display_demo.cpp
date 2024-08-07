@@ -2,8 +2,8 @@
 #include "freertos/task.h"
 
 #include "Display/Common.h"
-#include "Display/StatusBar.h"
 #include "LogicProgram/LogicProgram.h"
+#include "LogicProgram/StatusBar.h"
 #include "display.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -13,7 +13,7 @@
 
 void display_demo_0(bool active) {
     Controller controller;
-    StatusBar statusBar(0);
+    StatusBar statusBar(controller, 0);
 
     IncomeRail incomeRail0(controller, 0);
     InputNO input1(MapIO::DI, incomeRail0);

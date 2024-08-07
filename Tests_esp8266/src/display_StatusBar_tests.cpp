@@ -9,8 +9,8 @@
 #include <unistd.h>
 
 #include "main/Display/MapIOIndicator.h"
-#include "main/Display/StatusBar.cpp"
-#include "main/Display/StatusBar.h"
+#include "main/LogicProgram/StatusBar.cpp"
+#include "main/LogicProgram/StatusBar.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -25,14 +25,15 @@ TEST_TEARDOWN() {
 
 class TestableStatusBar : public StatusBar {
   public:
-    explicit TestableStatusBar(uint8_t y) : StatusBar(y) {
+    explicit TestableStatusBar(const Controller &controller, uint8_t y) : StatusBar(controller, y) {
     }
     virtual ~TestableStatusBar() {
     }
 };
 
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
-    TestableStatusBar testable(0);
+    Controller controller;
+    TestableStatusBar testable(controller, 0);
     testable.Render(frame_buffer);
 
     const int component_area = DISPLAY_WIDTH * 2;
