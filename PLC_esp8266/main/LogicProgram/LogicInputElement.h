@@ -5,13 +5,13 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
+#include <functional>
 #include <stdint.h>
 #include <unistd.h>
 
-typedef uint8_t (*f_GetValue)(void);
 class LogicInputElement : public AddressableLogicElement {
   protected:
-    f_GetValue GetValue = NULL;
+    std::function<uint8_t(void)> GetValue;
 
   public:
     LogicItemState state = LogicItemState::lisPassive;
