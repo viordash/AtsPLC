@@ -5,15 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-OutputBase::OutputBase(const Controller &controller,
-                       const MapIO io_adr,
-                       const Point &incoming_point)
-    : LogicOutputElement(controller, io_adr), NetworkedLogicItem(incoming_point),
-      LabeledLogicItem(name) {
-    this->io_adr = io_adr;
-    this->prior_item = NULL;
-}
-
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
     : LogicOutputElement(prior_item.controller, io_adr), NetworkedLogicItem(),
       LabeledLogicItem(name) {

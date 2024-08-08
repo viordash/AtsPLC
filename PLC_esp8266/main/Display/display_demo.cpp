@@ -20,7 +20,7 @@ void display_demo_0(bool active) {
     ComparatorGE comparator1(5, MapIO::AI, input1);
     ComparatorEq comparator2(42, MapIO::V1, comparator1);
     DirectOutput directOutput0(MapIO::O1, comparator2);
-    OutcomeRail outcomeRail0(controller, 0);
+    OutcomeRail outcomeRail0(0);
 
     if (active) {
         input1.DoAction();
@@ -33,7 +33,7 @@ void display_demo_0(bool active) {
     TimerSecs timerSecs1(2, incomeRail1);
     TimerSecs timerSecs2(10, timerSecs1);
     TimerMSecs timerMSecs3(100000, timerSecs2);
-    OutcomeRail outcomeRail1(controller, 1);
+    OutcomeRail outcomeRail1(1);
 
     if (active) {
         timerSecs1.DoAction();
