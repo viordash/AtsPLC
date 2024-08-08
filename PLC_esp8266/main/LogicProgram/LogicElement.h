@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 class OutputBase;
-class LogicItemBase {
+class LogicElement {
   protected:
     Controller controller;
     LogicItemState state = LogicItemState::lisPassive;
@@ -16,8 +16,8 @@ class LogicItemBase {
     friend OutputBase;
 
   public:
-    LogicItemBase(const Controller &controller);
-    virtual ~LogicItemBase();
+    LogicElement(const Controller &controller);
+    virtual ~LogicElement();
 
     virtual bool DoAction() = 0;
 };

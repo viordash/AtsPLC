@@ -8,14 +8,14 @@
 OutputBase::OutputBase(const Controller &controller,
                        const MapIO io_adr,
                        const Point &incoming_point)
-    : LogicItemBase(controller), NetworkedLogicItem(incoming_point),
+    : LogicElement(controller), NetworkedLogicItem(incoming_point),
       LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }
 
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicItemBase(prior_item.controller), NetworkedLogicItem(),
+    : LogicElement(prior_item.controller), NetworkedLogicItem(),
       LabeledLogicItem(MapIONames[io_adr]) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;

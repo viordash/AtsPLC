@@ -3,12 +3,12 @@
 #include "Display/Common.h"
 #include "Display/LabeledLogicItem.h"
 #include "Display/NetworkedLogicItem.h"
-#include "LogicProgram/LogicItemBase.h"
+#include "LogicProgram/LogicElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class InputBase : public LogicItemBase, public NetworkedLogicItem, public LabeledLogicItem {
+class InputBase : public LogicElement, public NetworkedLogicItem, public LabeledLogicItem {
   protected:
     MapIO io_adr;
     InputBase *prior_item;
