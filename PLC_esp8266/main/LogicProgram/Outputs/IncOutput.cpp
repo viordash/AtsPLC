@@ -15,13 +15,11 @@ IncOutput::~IncOutput() {
 }
 
 bool IncOutput::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
 const Bitmap *IncOutput::GetCurrentBitmap() {
-    switch (state) {
+    switch (prior_item->state) {
         case LogicItemState::lisActive:
             return &IncOutput::bitmap_active;
 

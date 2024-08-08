@@ -7,15 +7,11 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class OutputBase;
 class LogicElement {
   protected:
-    Controller controller;
-    LogicItemState state = LogicItemState::lisPassive;
-
-    friend OutputBase;
 
   public:
+    Controller controller;
     LogicElement(const Controller &controller);
     virtual ~LogicElement();
 

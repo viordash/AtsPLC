@@ -17,4 +17,8 @@
 #include "main/LogicProgram/Inputs/InputBase.cpp"
 #include "main/LogicProgram/LogicElement.cpp"
 #include "main/LogicProgram/MapIO.cpp"
+#include "main/LogicProgram/LogicInputElement.cpp"
+#include "main/LogicProgram/LogicOutputElement.cpp"
+#include "main/LogicProgram/AddressableLogicElement.cpp"
+#include "main/LogicProgram/LogicElement.h"
 #include "main/Display/MapIOIndicator.cpp"

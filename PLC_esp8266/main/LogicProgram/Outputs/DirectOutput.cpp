@@ -14,13 +14,11 @@ DirectOutput::~DirectOutput() {
 }
 
 bool DirectOutput::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap() {
-    switch (state) {
+    switch (prior_item->state) {
         case LogicItemState::lisActive:
             return &DirectOutput::bitmap_active;
 

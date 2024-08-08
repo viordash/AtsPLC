@@ -15,13 +15,11 @@ ResetOutput::~ResetOutput() {
 }
 
 bool ResetOutput::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap() {
-    switch (state) {
+    switch (prior_item->state) {
         case LogicItemState::lisActive:
             return &ResetOutput::bitmap_active;
 

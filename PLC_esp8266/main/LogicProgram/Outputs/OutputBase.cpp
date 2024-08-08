@@ -8,15 +8,15 @@
 OutputBase::OutputBase(const Controller &controller,
                        const MapIO io_adr,
                        const Point &incoming_point)
-    : LogicElement(controller), NetworkedLogicItem(incoming_point),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicOutputElement(controller, io_adr), NetworkedLogicItem(incoming_point),
+      LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }
 
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicElement(prior_item.controller), NetworkedLogicItem(),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicOutputElement(prior_item.controller, io_adr), NetworkedLogicItem(),
+      LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
     this->incoming_point = prior_item.OutcomingPoint();
@@ -28,7 +28,8 @@ OutputBase::~OutputBase() {
 void OutputBase::Render(uint8_t *fb) {
     auto bitmap = GetCurrentBitmap();
 
-    LogicItemState prior_item_state = prior_item != NULL ? prior_item->state : state;
+    LogicItemState prior_item_state =
+        prior_item != NULL ? prior_item->state : LogicItemState::lisPassive;
     if (prior_item_state == LogicItemState::lisActive) {
         draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
     } else {
@@ -41,7 +42,7 @@ void OutputBase::Render(uint8_t *fb) {
     x_pos += bitmap->size.width;
     draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
-    if (state == LogicItemState::lisActive) {
+    if (prior_item_state == LogicItemState::lisActive) {
         draw_active_network(fb, x_pos, incoming_point.y, LabeledLogicItem::width + RightPadding);
     } else {
         draw_passive_network(fb,

@@ -7,21 +7,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-SetOutput::SetOutput(const MapIO io_adr, InputBase &prior_item)
-    : OutputBase(io_adr, prior_item) {
+SetOutput::SetOutput(const MapIO io_adr, InputBase &prior_item) : OutputBase(io_adr, prior_item) {
 }
 
 SetOutput::~SetOutput() {
 }
 
 bool SetOutput::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
     return true;
 }
 
 const Bitmap *SetOutput::GetCurrentBitmap() {
-    switch (state) {
+    switch (prior_item->state) {
         case LogicItemState::lisActive:
             return &SetOutput::bitmap_active;
 

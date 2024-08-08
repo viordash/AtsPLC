@@ -15,13 +15,12 @@ DecOutput::~DecOutput() {
 }
 
 bool DecOutput::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
+
     return true;
 }
 
 const Bitmap *DecOutput::GetCurrentBitmap() {
-    switch (state) {
+    switch (prior_item->state) {
         case LogicItemState::lisActive:
             return &DecOutput::bitmap_active;
 

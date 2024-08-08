@@ -10,7 +10,6 @@ OutcomeRail::OutcomeRail(const Controller &controller, uint8_t network_number)
                  MapIO::Outcome,
                  { 0, (uint8_t)(OUTCOME_RAIL_TOP + OUTCOME_RAIL_HEIGHT * network_number) }) {
     this->network_number = network_number;
-    state = LogicItemState::lisActive;
 }
 
 OutcomeRail::~OutcomeRail() {

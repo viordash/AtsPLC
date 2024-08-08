@@ -6,15 +6,15 @@
 #include <string.h>
 
 InputBase::InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point)
-    : LogicElement(controller), NetworkedLogicItem(incoming_point),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicInputElement(controller, io_adr), NetworkedLogicItem(incoming_point),
+      LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }
 
 InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicElement(prior_item.controller), NetworkedLogicItem(),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicInputElement(prior_item.controller, io_adr), NetworkedLogicItem(),
+      LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
     this->incoming_point = prior_item.OutcomingPoint();
