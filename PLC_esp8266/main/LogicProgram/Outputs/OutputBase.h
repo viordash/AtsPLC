@@ -11,8 +11,6 @@
 
 class OutputBase : public LogicOutputElement, public ChainItem, public LabeledLogicItem {
   protected:
-    const char *name;
-    MapIO io_adr;
     InputBase *prior_item;
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
