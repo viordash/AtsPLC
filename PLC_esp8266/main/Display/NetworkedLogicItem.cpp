@@ -5,10 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-NetworkedLogicItem::NetworkedLogicItem() : DisplayItemBase() {
-}
-
-NetworkedLogicItem::NetworkedLogicItem(const Point &incoming_point) : NetworkedLogicItem() {
+NetworkedLogicItem::NetworkedLogicItem(const Point &incoming_point) {
     this->incoming_point = incoming_point;
 }
 

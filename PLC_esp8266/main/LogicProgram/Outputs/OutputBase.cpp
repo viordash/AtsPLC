@@ -6,11 +6,10 @@
 #include <string.h>
 
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicOutputElement(prior_item.controller, io_adr), NetworkedLogicItem(),
+    : LogicOutputElement(prior_item.controller, io_adr), NetworkedLogicItem(prior_item.OutcomingPoint()),
       LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
-    this->incoming_point = prior_item.OutcomingPoint();
 }
 
 OutputBase::~OutputBase() {

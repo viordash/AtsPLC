@@ -10,7 +10,6 @@ class NetworkedLogicItem : public DisplayItemBase {
     Point incoming_point;
 
   public:
-    NetworkedLogicItem();
     NetworkedLogicItem(const Point &incoming_point);
     virtual ~NetworkedLogicItem();
 

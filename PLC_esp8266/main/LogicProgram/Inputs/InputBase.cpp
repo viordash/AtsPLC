@@ -13,11 +13,10 @@ InputBase::InputBase(const Controller &controller, const MapIO io_adr, const Poi
 }
 
 InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicInputElement(prior_item.controller, io_adr), NetworkedLogicItem(),
+    : LogicInputElement(prior_item.controller, io_adr), NetworkedLogicItem(prior_item.OutcomingPoint()),
       LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
-    this->incoming_point = prior_item.OutcomingPoint();
 }
 
 InputBase::~InputBase() {
