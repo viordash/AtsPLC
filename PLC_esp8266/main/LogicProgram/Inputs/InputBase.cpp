@@ -6,14 +6,14 @@
 #include <string.h>
 
 InputBase::InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point)
-    : LogicInputElement(controller, io_adr), NetworkedLogicItem(incoming_point),
+    : LogicInputElement(controller, io_adr), ChainItem(incoming_point),
       LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }
 
 InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicInputElement(prior_item.controller, io_adr), NetworkedLogicItem(prior_item.OutcomingPoint()),
+    : LogicInputElement(prior_item.controller, io_adr), ChainItem(prior_item.OutcomingPoint()),
       LabeledLogicItem(name) {
     this->io_adr = io_adr;
     this->prior_item = &prior_item;

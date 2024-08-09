@@ -9,7 +9,7 @@
 #include "Display/display.cpp"
 #include "main/Display/DisplayItemBase.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
-#include "main/Display/NetworkedLogicItem.cpp"
+#include "main/Display/ChainItem.cpp"
 #include "main/LogicProgram/Inputs/ComparatorBase.cpp"
 #include "main/LogicProgram/Inputs/TimerBase.cpp"
 #include "main/LogicProgram/Inputs/IncomeRail.cpp"

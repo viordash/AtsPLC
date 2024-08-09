@@ -2,14 +2,14 @@
 
 #include "Display/Common.h"
 #include "Display/LabeledLogicItem.h"
-#include "Display/NetworkedLogicItem.h"
+#include "Display/ChainItem.h"
 #include "LogicProgram/Inputs/InputBase.h"
 #include "LogicProgram/LogicOutputElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class OutputBase : public LogicOutputElement, public NetworkedLogicItem, public LabeledLogicItem {
+class OutputBase : public LogicOutputElement, public ChainItem, public LabeledLogicItem {
   protected:
     MapIO io_adr;
     InputBase *prior_item;

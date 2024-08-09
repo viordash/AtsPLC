@@ -5,13 +5,13 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class NetworkedLogicItem : public DisplayItemBase {
+class ChainItem : public DisplayItemBase {
   protected:
     Point incoming_point;
 
   public:
-    NetworkedLogicItem(const Point &incoming_point);
-    virtual ~NetworkedLogicItem();
+    ChainItem(const Point &incoming_point);
+    virtual ~ChainItem();
 
     virtual Point OutcomingPoint() = 0;
 };
