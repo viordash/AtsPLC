@@ -12,12 +12,12 @@ class Controller {
     Controller(/* args */);
     ~Controller();
 
-    uint8_t GetAIRelativeValue();
-    uint8_t GetDIRelativeValue();
-    uint8_t GetO1RelativeValue();
-    uint8_t GetO2RelativeValue();
-    uint8_t GetV1RelativeValue();
-    uint8_t GetV2RelativeValue();
-    uint8_t GetV3RelativeValue();
-    uint8_t GetV4RelativeValue();
+    static uint8_t GetAIRelativeValue();
+    static uint8_t GetDIRelativeValue();
+    static uint8_t GetO1RelativeValue();
+    static uint8_t GetO2RelativeValue();
+    static uint8_t GetV1RelativeValue();
+    static uint8_t GetV2RelativeValue();
+    static uint8_t GetV3RelativeValue();
+    static uint8_t GetV4RelativeValue();
 };

@@ -9,22 +9,22 @@ LogicInputElement::LogicInputElement(const Controller &controller, const MapIO i
     : AddressableLogicElement(controller, io_adr) {
     switch (io_adr) {
         case MapIO::DI:
-            GetValue = std::bind(&Controller::GetDIRelativeValue, controller);
+            GetValue = Controller::GetDIRelativeValue;
             break;
         case MapIO::AI:
-            GetValue = std::bind(&Controller::GetAIRelativeValue, controller);
+            GetValue = Controller::GetAIRelativeValue;
             break;
         case MapIO::V1:
-            GetValue = std::bind(&Controller::GetV1RelativeValue, controller);
+            GetValue = Controller::GetV1RelativeValue;
             break;
         case MapIO::V2:
-            GetValue = std::bind(&Controller::GetV2RelativeValue, controller);
+            GetValue = Controller::GetV2RelativeValue;
             break;
         case MapIO::V3:
-            GetValue = std::bind(&Controller::GetV3RelativeValue, controller);
+            GetValue = Controller::GetV3RelativeValue;
             break;
         case MapIO::V4:
-            GetValue = std::bind(&Controller::GetV4RelativeValue, controller);
+            GetValue = Controller::GetV4RelativeValue;
             break;
 
         default:
