@@ -6,8 +6,8 @@
 #include <string.h>
 
 InputBase::InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point)
-    : LogicInputElement(controller, io_adr), ChainItem(incoming_point),
-      LabeledLogicItem(name) {
+    : LogicInputElement(controller, io_adr), ChainItem(incoming_point), LabeledLogicItem(name) {
+    this->name = MapIONames[io_adr];
     this->io_adr = io_adr;
     this->prior_item = NULL;
 }

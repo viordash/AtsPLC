@@ -6,7 +6,7 @@
 #include <string.h>
 
 LogicOutputElement::LogicOutputElement(const Controller &controller, const MapIO io_adr)
-    : AddressableLogicElement(controller, io_adr) {
+    : LogicElement(controller) {
 }
 
 LogicOutputElement::~LogicOutputElement() {

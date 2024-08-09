@@ -10,6 +10,7 @@
 
 class InputBase : public LogicInputElement, public ChainItem, public LabeledLogicItem {
   protected:
+    const char *name;
     MapIO io_adr;
     InputBase *prior_item;
 

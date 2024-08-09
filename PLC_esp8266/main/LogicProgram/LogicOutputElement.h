@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "LogicProgram/AddressableLogicElement.h"
 #include "LogicProgram/Controller.h"
+#include "LogicProgram/LogicElement.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
@@ -10,7 +10,7 @@
 
 class OutputBase;
 typedef void (*f_SetValue)(uint8_t);
-class LogicOutputElement : public AddressableLogicElement {
+class LogicOutputElement : public LogicElement {
   protected:
     f_SetValue SetValue = NULL;
 

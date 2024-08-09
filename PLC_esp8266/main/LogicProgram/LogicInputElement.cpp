@@ -6,7 +6,7 @@
 #include <string.h>
 
 LogicInputElement::LogicInputElement(const Controller &controller, const MapIO io_adr)
-    : AddressableLogicElement(controller, io_adr) {
+    : LogicElement(controller) {
     switch (io_adr) {
         case MapIO::DI:
             GetValue = Controller::GetDIRelativeValue;

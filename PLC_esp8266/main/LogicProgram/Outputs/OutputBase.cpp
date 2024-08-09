@@ -8,6 +8,7 @@
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
     : LogicOutputElement(prior_item.controller, io_adr), ChainItem(prior_item.OutcomingPoint()),
       LabeledLogicItem(name) {
+    this->name = MapIONames[io_adr];
     this->io_adr = io_adr;
     this->prior_item = &prior_item;
 }
