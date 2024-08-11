@@ -6,13 +6,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonInput;
-
 class DisplayChainItem : public DisplayItemBase {
   protected:
     Point incoming_point;
-
-    friend CommonInput;
 
   public:
     DisplayChainItem(const Point &incoming_point);

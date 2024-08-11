@@ -7,15 +7,12 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonOutput;
 typedef void (*f_SetValue)(uint8_t);
 class LogicOutputElement {
   protected:
     f_SetValue SetValue = NULL;
 
-    friend CommonOutput;
-
   public:
-    LogicOutputElement(const MapIO io_adr);
+    explicit LogicOutputElement(const MapIO io_adr);
     virtual ~LogicOutputElement();
 };
