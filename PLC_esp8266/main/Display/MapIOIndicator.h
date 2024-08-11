@@ -24,7 +24,7 @@ class MapIOIndicator : public DisplayItemBase {
                             uint8_t separator_width);
     virtual ~MapIOIndicator();
 
-    void Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb) override final;
     static uint8_t GetWidth();
     static uint8_t GetHeight();
 };

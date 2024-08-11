@@ -16,5 +16,5 @@ class TimerSecs : public TimerBase {
     ~TimerSecs();
 
     bool DoAction() override final;
-    void Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb) override final;
 };

@@ -21,6 +21,6 @@ class OutputBase : public LogicOutputElement, public ChainItem, public LabeledLo
     OutputBase(const MapIO io_adr, InputBase &prior_item);
     ~OutputBase();
 
-    void Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb) override;
     Point OutcomingPoint() override;
 };

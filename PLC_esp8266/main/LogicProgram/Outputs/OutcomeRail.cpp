@@ -12,6 +12,6 @@ OutcomeRail::OutcomeRail(uint8_t network_number) : DisplayItemBase() {
 OutcomeRail::~OutcomeRail() {
 }
 
-void OutcomeRail::Render(uint8_t *fb) {
-    draw_outcome_rail(fb, network_number);
+bool OutcomeRail::Render(uint8_t *fb) {
+    return draw_outcome_rail(fb, network_number);
 }

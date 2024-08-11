@@ -16,5 +16,5 @@ class ComparatorBase : public InputBase {
     ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prior_item);
     ~ComparatorBase();
 
-    void Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb) override final;
 };

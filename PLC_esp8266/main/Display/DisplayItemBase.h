@@ -13,5 +13,5 @@ class DisplayItemBase {
     explicit DisplayItemBase();
     virtual ~DisplayItemBase();
 
-    virtual void Render(uint8_t *fb) = 0;
+    virtual bool Render(uint8_t *fb) = 0;
 };

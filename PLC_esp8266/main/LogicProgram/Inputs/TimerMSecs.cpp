@@ -45,6 +45,6 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
     }
 }
 
-void TimerMSecs::Render(uint8_t *fb) {
-    TimerBase::Render(fb);
+bool TimerMSecs::Render(uint8_t *fb) {
+    return TimerBase::Render(fb);
 }

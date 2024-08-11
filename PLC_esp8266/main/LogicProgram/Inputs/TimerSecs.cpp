@@ -45,10 +45,15 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
     }
 }
 
-void TimerSecs::Render(uint8_t *fb) {
-    TimerBase::Render(fb);
+bool TimerSecs::Render(uint8_t *fb) {
+    bool res;
+    res = TimerBase::Render(fb);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width / 2;
     uint8_t percent = GetProgress();
-    draw_vert_progress_bar(fb, x_pos, incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1), percent);
+    res &= draw_vert_progress_bar(fb,
+                                  x_pos,
+                                  incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),
+                                  percent);
+    return res;
 }

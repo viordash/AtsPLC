@@ -36,28 +36,30 @@ uint8_t TimerBase::GetProgress() {
     return 100 - (uint8_t)percent;
 }
 
-void TimerBase::Render(uint8_t *fb) {
-    InputBase::Render(fb);
+bool TimerBase::Render(uint8_t *fb) {
+    bool res;
+    res = InputBase::Render(fb);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width;
 
     switch (str_size) {
         case 1:
-            draw_text_f5X7(fb, x_pos + 10, incoming_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, x_pos + 10, incoming_point.y + 2, str_time);
             break;
         case 2:
-            draw_text_f5X7(fb, x_pos + 6, incoming_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, x_pos + 6, incoming_point.y + 2, str_time);
             break;
         case 3:
-            draw_text_f5X7(fb, x_pos + 3, incoming_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, x_pos + 3, incoming_point.y + 2, str_time);
             break;
         case 4:
-            draw_text_f4X7(fb, x_pos + 4, incoming_point.y + 3, str_time);
+            res &= draw_text_f4X7(fb, x_pos + 4, incoming_point.y + 3, str_time);
             break;
         default:
-            draw_text_f4X7(fb, x_pos + 2, incoming_point.y + 3, str_time);
+            res &= draw_text_f4X7(fb, x_pos + 2, incoming_point.y + 3, str_time);
             break;
     }
 
     ESP_LOGD(TAG_TimerBase, "Render, str_time:%s, str_size:%d", str_time, str_size);
+    return res;
 }

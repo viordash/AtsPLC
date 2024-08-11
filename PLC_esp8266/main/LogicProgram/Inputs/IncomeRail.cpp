@@ -6,7 +6,8 @@
 #include <string.h>
 
 IncomeRail::IncomeRail(const Controller &controller, uint8_t network_number)
-    : InputBase(controller, MapIO::Income,
+    : InputBase(controller,
+                MapIO::Income,
                 { 0, (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number) }) {
     this->network_number = network_number;
     state = LogicItemState::lisActive;
@@ -23,8 +24,8 @@ const Bitmap *IncomeRail::GetCurrentBitmap() {
     return NULL;
 }
 
-void IncomeRail::Render(uint8_t *fb) {
-    draw_income_rail(fb, network_number);
+bool IncomeRail::Render(uint8_t *fb) {
+    return draw_income_rail(fb, network_number);
 }
 
 Point IncomeRail::OutcomingPoint() {

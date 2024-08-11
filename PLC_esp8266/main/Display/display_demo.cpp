@@ -32,7 +32,7 @@ void display_demo_0(bool active) {
     IncomeRail incomeRail1(controller, 1);
     TimerSecs timerSecs1(2, incomeRail1);
     TimerSecs timerSecs2(10, timerSecs1);
-    TimerMSecs timerMSecs3(100000, timerSecs2);
+    TimerMSecs timerMSecs3(10000, timerSecs2);
     OutcomeRail outcomeRail1(1);
 
     if (active) {

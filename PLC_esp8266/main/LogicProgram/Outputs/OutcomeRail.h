@@ -12,5 +12,5 @@ class OutcomeRail : public DisplayItemBase {
     explicit OutcomeRail(uint8_t network_number);
     ~OutcomeRail();
 
-    void Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb) override final;
 };

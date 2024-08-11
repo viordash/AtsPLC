@@ -14,32 +14,37 @@ OutputBase::OutputBase(const MapIO io_adr, InputBase &prior_item)
 OutputBase::~OutputBase() {
 }
 
-void OutputBase::Render(uint8_t *fb) {
+bool OutputBase::Render(uint8_t *fb) {
+    bool res = true;
     auto bitmap = GetCurrentBitmap();
 
     LogicItemState prior_item_state =
         prior_item != NULL ? prior_item->state : LogicItemState::lisPassive;
     if (prior_item_state == LogicItemState::lisActive) {
-        draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
+        res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
     } else {
-        draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
+        res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
     }
 
     uint8_t x_pos = incoming_point.x + LeftPadding;
     draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     x_pos += bitmap->size.width;
-    draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
+    res &= draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
     if (prior_item_state == LogicItemState::lisActive) {
-        draw_active_network(fb, x_pos, incoming_point.y, LabeledLogicItem::width + RightPadding);
+        res &= draw_active_network(fb,
+                                   x_pos,
+                                   incoming_point.y,
+                                   LabeledLogicItem::width + RightPadding);
     } else {
-        draw_passive_network(fb,
-                             x_pos,
-                             incoming_point.y,
-                             LabeledLogicItem::width + RightPadding,
-                             true);
+        res &= draw_passive_network(fb,
+                                    x_pos,
+                                    incoming_point.y,
+                                    LabeledLogicItem::width + RightPadding,
+                                    true);
     }
+    return res;
 }
 
 Point OutputBase::OutcomingPoint() {

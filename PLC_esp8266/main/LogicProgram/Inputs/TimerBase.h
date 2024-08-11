@@ -19,5 +19,5 @@ class TimerBase : public InputBase {
     explicit TimerBase(InputBase &prior_item);
     ~TimerBase();
 
-    void Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb) override;
 };

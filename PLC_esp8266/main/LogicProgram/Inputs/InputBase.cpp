@@ -20,35 +20,37 @@ InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
 InputBase::~InputBase() {
 }
 
-void InputBase::Render(uint8_t *fb) {
+bool InputBase::Render(uint8_t *fb) {
+    bool res = true;
     auto bitmap = GetCurrentBitmap();
 
     LogicItemState prior_item_state = prior_item != NULL ? prior_item->state : state;
     if (prior_item_state == LogicItemState::lisActive) {
-        draw_active_network(fb,
-                            incoming_point.x,
-                            incoming_point.y,
-                            LabeledLogicItem::width + LeftPadding);
+        res &= draw_active_network(fb,
+                                   incoming_point.x,
+                                   incoming_point.y,
+                                   LabeledLogicItem::width + LeftPadding);
     } else {
-        draw_passive_network(fb,
-                             incoming_point.x,
-                             incoming_point.y,
-                             LabeledLogicItem::width + LeftPadding,
-                             false);
+        res &= draw_passive_network(fb,
+                                    incoming_point.x,
+                                    incoming_point.y,
+                                    LabeledLogicItem::width + LeftPadding,
+                                    false);
     }
 
     uint8_t x_pos = incoming_point.x + LeftPadding;
-    draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
+    res &= draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
     x_pos += LabeledLogicItem::width;
     draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     x_pos += bitmap->size.width;
     if (state == LogicItemState::lisActive) {
-        draw_active_network(fb, x_pos, incoming_point.y, RightPadding);
+        res &= draw_active_network(fb, x_pos, incoming_point.y, RightPadding);
     } else {
-        draw_passive_network(fb, x_pos, incoming_point.y, RightPadding, true);
+        res &= draw_passive_network(fb, x_pos, incoming_point.y, RightPadding, true);
     }
+    return res;
 }
 
 Point InputBase::OutcomingPoint() {
