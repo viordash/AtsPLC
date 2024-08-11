@@ -16,7 +16,6 @@ class DisplayChainItem : public DisplayItemBase {
 
   public:
     DisplayChainItem(const Point &incoming_point);
-    DisplayChainItem(DisplayChainItem *incoming_item);
 
     virtual ~DisplayChainItem();
     virtual Point OutcomingPoint() = 0;

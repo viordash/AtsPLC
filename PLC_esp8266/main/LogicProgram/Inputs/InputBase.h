@@ -9,9 +9,8 @@
 
 class InputBase : public LogicElement, public DisplayChainItem {
   protected:
-    InputBase(const Controller &controller, const Point &incoming_point, LogicItemState init_state);
+    InputBase(const Controller &controller, const Point &incoming_point);
 
   public:
-    explicit InputBase(InputBase *incoming_item);
     virtual ~InputBase();
 };

@@ -9,9 +9,5 @@ DisplayChainItem::DisplayChainItem(const Point &incoming_point) {
     this->incoming_point = incoming_point;
 }
 
-DisplayChainItem::DisplayChainItem(DisplayChainItem *incoming_item)
-    : DisplayChainItem(incoming_item->OutcomingPoint()) {
-}
-
 DisplayChainItem::~DisplayChainItem() {
 }

@@ -13,7 +13,7 @@ class LogicElement {
 
   public:
     Controller controller;
-    LogicElement(const Controller &controller, LogicItemState init_state);
+    LogicElement(const Controller &controller);
     virtual ~LogicElement();
 
     virtual bool DoAction() = 0;

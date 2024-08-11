@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicElement::LogicElement(const Controller &controller, LogicItemState init_state) {
+LogicElement::LogicElement(const Controller &controller) {
     this->controller = controller;
-    this->state = init_state;
+    this->state = LogicItemState::lisPassive;
 }
 
 LogicElement::~LogicElement() {

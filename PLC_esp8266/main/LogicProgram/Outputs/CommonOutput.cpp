@@ -6,9 +6,8 @@
 #include <string.h>
 
 CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
-    : LogicElement(incoming_item->controller, incoming_item->GetState()),
-      LogicOutputElement(io_adr), DisplayChainItem(incoming_item),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicElement(incoming_item->controller), LogicOutputElement(io_adr),
+      DisplayChainItem(incoming_item->OutcomingPoint()), LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
 }
 
