@@ -40,8 +40,17 @@ uint8_t CommonTimer::GetProgress() {
 
 bool CommonTimer::Render(uint8_t *fb) {
     bool res = true;
+    auto bitmap = GetCurrentBitmap();
 
-    uint8_t x_pos = incoming_point.x + LeftPadding + 12;
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
+    } else {
+        res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
+    }
+
+    uint8_t x_pos = incoming_point.x + LeftPadding;
+
+    draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     switch (str_size) {
         case 1:
@@ -61,6 +70,13 @@ bool CommonTimer::Render(uint8_t *fb) {
             break;
     }
 
+    x_pos += bitmap->size.width;
+    if (state == LogicItemState::lisActive) {
+        res &= draw_active_network(fb, x_pos, incoming_point.y, RightPadding);
+    } else {
+        res &= draw_passive_network(fb, x_pos, incoming_point.y, RightPadding, true);
+    }
+
     ESP_LOGI(TAG_CommonTimer,
              "Render, str_time:%s, str_size:%d, x:%u, y:%u",
              str_time,
@@ -72,7 +88,7 @@ bool CommonTimer::Render(uint8_t *fb) {
 
 Point CommonTimer::OutcomingPoint() {
     auto bitmap = GetCurrentBitmap();
-    uint8_t x_pos = LeftPadding + incoming_point.x + 12 + bitmap->size.width + RightPadding;
+    uint8_t x_pos = incoming_point.x + LeftPadding + bitmap->size.width + RightPadding;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
 }

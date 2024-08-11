@@ -18,9 +18,8 @@ class CommonTimer : public InputBase {
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
-    const uint8_t LeftPadding = 2;
+    const uint8_t LeftPadding = 14;
     const uint8_t RightPadding = 2;
-    LogicItemState state = LogicItemState::lisPassive;
 
   public:
     explicit CommonTimer(InputBase *incoming_item);

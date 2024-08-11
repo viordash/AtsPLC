@@ -49,7 +49,7 @@ bool TimerSecs::Render(uint8_t *fb) {
     bool res;
     res = CommonTimer::Render(fb);
 
-    uint8_t x_pos = incoming_point.x + LeftPadding + 12 / 2;
+    uint8_t x_pos = incoming_point.x + LeftPadding - (VERT_PROGRESS_BAR_WIDTH * 2);
     uint8_t percent = GetProgress();
     res &= draw_vert_progress_bar(fb,
                                   x_pos,
