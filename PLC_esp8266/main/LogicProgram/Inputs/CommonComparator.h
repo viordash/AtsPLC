@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class ComparatorBase : public CommonInput {
+class CommonComparator : public CommonInput {
   private:
     char str_reference[5];
     int str_size;
@@ -13,8 +13,8 @@ class ComparatorBase : public CommonInput {
     uint16_t reference;
 
   public:
-    ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase *incoming_item);
-    ~ComparatorBase();
+    CommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item);
+    ~CommonComparator();
 
     bool Render(uint8_t *fb) override final;
 };

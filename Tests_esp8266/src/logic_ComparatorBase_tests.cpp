@@ -8,10 +8,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/ComparatorBase.h"
+#include "main/LogicProgram/Inputs/CommonComparator.h"
 #include "main/LogicProgram/Inputs/IncomeRail.h"
 
-TEST_GROUP(LogicComparatorBaseTestsGroup){ //
+TEST_GROUP(LogicCommonComparatorTestsGroup){ //
                                            TEST_SETUP(){}
 
                                            TEST_TEARDOWN(){}
@@ -32,12 +32,12 @@ static const Bitmap bitmap_passive = { //
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB6, 0x01 }
 };
 
-class TestableComparatorBase : public ComparatorBase {
+class TestableCommonComparator : public CommonComparator {
   public:
-    TestableComparatorBase(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-        : ComparatorBase(reference, io_adr, incoming_item) {
+    TestableCommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
+        : CommonComparator(reference, io_adr, incoming_item) {
     }
-    virtual ~TestableComparatorBase() {
+    virtual ~TestableCommonComparator() {
     }
 
     const Bitmap *GetCurrentBitmap() {
@@ -58,18 +58,18 @@ class TestableComparatorBase : public ComparatorBase {
     }
 };
 
-TEST(LogicComparatorBaseTestsGroup, Reference_in_limit_0_to_999) {
+TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_999) {
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableComparatorBase testable_0(0, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_0(0, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(0, testable_0.GetReference());
 
-    TestableComparatorBase testable_998(998, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_998(998, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(998, testable_998.GetReference());
 
-    TestableComparatorBase testable_999(999, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_999(999, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(999, testable_999.GetReference());
 
-    TestableComparatorBase testable_1000(1000, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_1000(1000, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(999, testable_1000.GetReference());
 }

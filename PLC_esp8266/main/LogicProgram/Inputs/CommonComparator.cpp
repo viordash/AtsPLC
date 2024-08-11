@@ -1,11 +1,11 @@
-#include "LogicProgram/Inputs/ComparatorBase.h"
+#include "LogicProgram/Inputs/CommonComparator.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorBase::ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
+CommonComparator::CommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
     : CommonInput(io_adr, incoming_item) {
     if (reference > 999) {
         reference = 999;
@@ -14,10 +14,10 @@ ComparatorBase::ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase
     str_size = sprintf(this->str_reference, "%d", reference);
 }
 
-ComparatorBase::~ComparatorBase() {
+CommonComparator::~CommonComparator() {
 }
 
-bool ComparatorBase::Render(uint8_t *fb) {
+bool CommonComparator::Render(uint8_t *fb) {
     bool res;
     res = CommonInput::Render(fb);
 

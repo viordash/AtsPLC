@@ -8,7 +8,7 @@
 #include <string.h>
 
 ComparatorLE::ComparatorLE(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-    : ComparatorBase(reference, io_adr ,incoming_item) {
+    : CommonComparator(reference, io_adr ,incoming_item) {
 }
 
 ComparatorLE::~ComparatorLE() {

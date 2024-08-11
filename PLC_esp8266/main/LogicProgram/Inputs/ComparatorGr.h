@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/Inputs/ComparatorBase.h"
+#include "LogicProgram/Inputs/CommonComparator.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class ComparatorGr : public ComparatorBase {
+class ComparatorGr : public CommonComparator {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
