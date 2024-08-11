@@ -188,7 +188,7 @@ bool draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
                                text,
                                OLED_COLOR_WHITE,
                                OLED_COLOR_BLACK)
-        == 0;
+         > 0;
 }
 
 bool draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
@@ -200,7 +200,7 @@ bool draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
                                text,
                                OLED_COLOR_WHITE,
                                OLED_COLOR_BLACK)
-        == 0;
+         > 0;
 }
 
 bool draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
@@ -212,7 +212,7 @@ bool draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
                                text,
                                OLED_COLOR_WHITE,
                                OLED_COLOR_BLACK)
-        == 0;
+         > 0;
 }
 
 bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {

@@ -63,11 +63,20 @@ class TestableTimerBase : public TimerBase {
     }
 };
 
-TEST(LogicTimerBaseTestsGroup, Render_on_bottom_line) {
+TEST(LogicTimerBaseTestsGroup, Render_on_top_network) {
 
     Controller controller;
-    IncomeRail incomeRail0(controller, 1);
-    TestableTimerBase testable(1234, incomeRail0);
+    IncomeRail incomeRail(controller, 0);
+    TestableTimerBase testable(12345, incomeRail);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+}
+
+TEST(LogicTimerBaseTestsGroup, Render_on_bottom_network) {
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 1);
+    TestableTimerBase testable(12345, incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 }
