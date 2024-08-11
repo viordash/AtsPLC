@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicInputElement::LogicInputElement(const Controller &controller, const MapIO io_adr)
-    : LogicElement(controller) {
+LogicInputElement::LogicInputElement(const MapIO io_adr) {
     switch (io_adr) {
         case MapIO::DI:
             GetValue = Controller::GetDIRelativeValue;

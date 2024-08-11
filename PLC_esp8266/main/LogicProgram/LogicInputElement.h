@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "LogicProgram/LogicElement.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
@@ -10,13 +9,13 @@
 
 typedef uint8_t (*f_GetValue)(void);
 
-class LogicInputElement : public LogicElement {
+class LogicInputElement {
   protected:
     f_GetValue GetValue;
 
   public:
     LogicItemState state = LogicItemState::lisPassive;
 
-    LogicInputElement(const Controller &controller, const MapIO io_adr);
+    LogicInputElement(const MapIO io_adr);
     virtual ~LogicInputElement();
 };

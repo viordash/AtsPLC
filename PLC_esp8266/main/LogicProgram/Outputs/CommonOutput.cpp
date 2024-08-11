@@ -1,19 +1,19 @@
-#include "LogicProgram/Outputs/OutputBase.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-OutputBase::OutputBase(const MapIO io_adr, InputBase &prev_item)
-    : LogicOutputElement(prev_item.controller, io_adr), DisplayChainItem(prev_item),
+CommonOutput::CommonOutput(const MapIO io_adr, InputBase &prev_item)
+    : LogicElement(prev_item.controller), LogicOutputElement(io_adr), DisplayChainItem(prev_item),
       LabeledLogicItem(MapIONames[io_adr]) {
 }
 
-OutputBase::~OutputBase() {
+CommonOutput::~CommonOutput() {
 }
 
-bool OutputBase::Render(uint8_t *fb) {
+bool CommonOutput::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
@@ -44,7 +44,7 @@ bool OutputBase::Render(uint8_t *fb) {
     return res;
 }
 
-Point OutputBase::OutcomingPoint() {
+Point CommonOutput::OutcomingPoint() {
     auto bitmap = GetCurrentBitmap();
     uint8_t x_pos = LeftPadding + incoming_point.x + LabeledLogicItem::width + bitmap->size.width
                   + RightPadding;

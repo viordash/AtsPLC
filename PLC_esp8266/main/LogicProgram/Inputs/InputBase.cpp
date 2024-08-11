@@ -6,16 +6,13 @@
 #include <string.h>
 
 InputBase::InputBase(const Controller &controller,
-                     const MapIO io_adr,
                      const Point &incoming_point,
                      LogicItemState incoming_item_state)
-    : LogicInputElement(controller, io_adr), DisplayChainItem(incoming_point, incoming_item_state),
-      LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicElement(controller), DisplayChainItem(incoming_point, incoming_item_state) {
 }
 
-InputBase::InputBase(const MapIO io_adr, const InputBase &prev_item)
-    : LogicInputElement(prev_item.controller, io_adr), DisplayChainItem(prev_item),
-      LabeledLogicItem(MapIONames[io_adr]) {
+InputBase::InputBase(const InputBase &prev_item)
+    : LogicElement(prev_item.controller), DisplayChainItem(prev_item) {
 }
 
 InputBase::~InputBase() {

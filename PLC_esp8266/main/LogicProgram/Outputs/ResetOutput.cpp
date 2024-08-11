@@ -8,7 +8,7 @@
 #include <string.h>
 
 ResetOutput::ResetOutput(const MapIO io_adr, InputBase &prev_item)
-    : OutputBase(io_adr, prev_item) {
+    : CommonOutput(io_adr, prev_item) {
 }
 
 ResetOutput::~ResetOutput() {

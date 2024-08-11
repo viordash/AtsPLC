@@ -1,11 +1,11 @@
 #pragma once
 
 #include "LogicProgram/Inputs/CommonInput.h"
-#include "LogicProgram/Outputs/OutputBase.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class DirectOutput : public OutputBase {
+class DirectOutput : public CommonOutput {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;

@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicOutputElement::LogicOutputElement(const Controller &controller, const MapIO io_adr)
-    : LogicElement(controller) {
+LogicOutputElement::LogicOutputElement(const MapIO io_adr) {
     (void)io_adr;
 }
 

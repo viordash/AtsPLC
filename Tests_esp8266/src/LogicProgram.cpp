@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "Display/display.cpp"
-#include "main/Display/ChainItem.cpp"
+#include "main/Display/DisplayChainItem.cpp"
 #include "main/Display/DisplayItemBase.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"

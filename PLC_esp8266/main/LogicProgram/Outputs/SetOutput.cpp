@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-SetOutput::SetOutput(const MapIO io_adr, InputBase &prev_item) : OutputBase(io_adr, prev_item) {
+SetOutput::SetOutput(const MapIO io_adr, InputBase &prev_item) : CommonOutput(io_adr, prev_item) {
 }
 
 SetOutput::~SetOutput() {

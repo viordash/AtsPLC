@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Display/LabeledLogicItem.h"
 #include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/LogicInputElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonInput : public InputBase {
+class CommonInput : public InputBase, public LogicInputElement, public LabeledLogicItem {
   protected:
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
