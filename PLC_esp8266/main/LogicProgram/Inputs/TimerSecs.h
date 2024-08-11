@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/Inputs/TimerBase.h"
+#include "LogicProgram/Inputs/CommonTimer.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class TimerSecs : public TimerBase {
+class TimerSecs : public CommonTimer {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;

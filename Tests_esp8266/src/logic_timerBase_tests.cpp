@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Inputs/TimerBase.h"
+#include "main/LogicProgram/Inputs/CommonTimer.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -31,7 +31,7 @@ static const Bitmap bitmap_passive = { //
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB6 }
 };
 
-TEST_GROUP(LogicTimerBaseTestsGroup){ //
+TEST_GROUP(LogicCommonTimerTestsGroup){ //
                                       TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 }
 
@@ -40,12 +40,12 @@ TEST_TEARDOWN() {
 }
 ;
 
-class TestableTimerBase : public TimerBase {
+class TestableCommonTimer : public CommonTimer {
   public:
-    TestableTimerBase(uint32_t delay_time_s, InputBase &prev_item) : TimerBase(prev_item) {
+    TestableCommonTimer(uint32_t delay_time_s, InputBase &prev_item) : CommonTimer(prev_item) {
         str_size = sprintf(this->str_time, "%u", delay_time_s);
     }
-    virtual ~TestableTimerBase() {
+    virtual ~TestableCommonTimer() {
     }
 
     const Bitmap *GetCurrentBitmap() override final {
@@ -63,20 +63,20 @@ class TestableTimerBase : public TimerBase {
     }
 };
 
-TEST(LogicTimerBaseTestsGroup, Render_on_top_network) {
+TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
 
     Controller controller;
     IncomeRail incomeRail(controller, 0);
-    TestableTimerBase testable(12345, incomeRail);
+    TestableCommonTimer testable(12345, incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 }
 
-TEST(LogicTimerBaseTestsGroup, Render_on_bottom_network) {
+TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
 
     Controller controller;
     IncomeRail incomeRail(controller, 1);
-    TestableTimerBase testable(12345, incomeRail);
+    TestableCommonTimer testable(12345, incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 }

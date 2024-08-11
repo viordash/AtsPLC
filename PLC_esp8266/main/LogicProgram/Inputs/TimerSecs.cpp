@@ -11,7 +11,7 @@
 
 static const char *TAG = "TimerSecs";
 
-TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prev_item) : TimerBase(prev_item) {
+TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prev_item) : CommonTimer(prev_item) {
     if (delay_time_s < 1) {
         delay_time_s = 1;
     }
@@ -47,9 +47,9 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
 
 bool TimerSecs::Render(uint8_t *fb) {
     bool res;
-    res = TimerBase::Render(fb);
+    res = CommonTimer::Render(fb);
 
-    uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width / 2;
+    uint8_t x_pos = incoming_point.x + LeftPadding + 12 / 2;
     uint8_t percent = GetProgress();
     res &= draw_vert_progress_bar(fb,
                                   x_pos,
