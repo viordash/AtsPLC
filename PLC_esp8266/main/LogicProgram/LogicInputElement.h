@@ -16,6 +16,6 @@ class LogicInputElement {
   public:
     LogicItemState state = LogicItemState::lisPassive;
 
-    LogicInputElement(const MapIO io_adr);
+    explicit LogicInputElement(const MapIO io_adr);
     virtual ~LogicInputElement();
 };
