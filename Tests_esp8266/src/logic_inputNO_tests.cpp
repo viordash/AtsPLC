@@ -28,6 +28,9 @@ class TestableInputNO : public InputNO {
     const char *GetLabel() {
         return label;
     }
+    InputBase *PublicMorozov_incoming_item() {
+        return incoming_item;
+    }
 };
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
@@ -49,4 +52,24 @@ TEST(LogicInputNOTestsGroup, GetLabel_V1) {
     IncomeRail incomeRail0(controller, 0);
     TestableInputNO testable(MapIO::V1, &incomeRail0);
     STRCMP_EQUAL("V1", testable.GetLabel());
+}
+
+TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableInputNO testable_0(MapIO::V1, &incomeRail0);
+    TestableInputNO testable_1(MapIO::V2, &testable_0);
+    CHECK_EQUAL(LogicItemState::lisPassive, testable_0.GetState());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable_1.GetState());
+}
+
+TEST(LogicInputNOTestsGroup, chain_of_items) {
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableInputNO testable_0(MapIO::V1, &incomeRail0);
+    TestableInputNO testable_1(MapIO::V2, &testable_0);
+    TestableInputNO testable_2(MapIO::V3, &testable_1);
+    CHECK_EQUAL(&incomeRail0, testable_0.PublicMorozov_incoming_item());
+    CHECK_EQUAL(&testable_0, testable_1.PublicMorozov_incoming_item());
+    CHECK_EQUAL(&testable_1, testable_2.PublicMorozov_incoming_item());
 }

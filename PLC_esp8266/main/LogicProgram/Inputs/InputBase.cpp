@@ -7,12 +7,13 @@
 
 InputBase::InputBase(const Controller &controller,
                      const Point &incoming_point,
-                     LogicItemState incoming_item_state)
-    : LogicElement(controller), DisplayChainItem(incoming_point, incoming_item_state) {
+                     LogicItemState init_state)
+    : LogicElement(controller, init_state), DisplayChainItem(incoming_point) {
 }
 
 InputBase::InputBase(InputBase *incoming_item)
-    : LogicElement(incoming_item->controller), DisplayChainItem(incoming_item) {
+    : LogicElement(incoming_item->controller, LogicItemState::lisPassive),
+      DisplayChainItem(incoming_item) {
 }
 
 InputBase::~InputBase() {

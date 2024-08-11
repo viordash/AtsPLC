@@ -9,7 +9,7 @@
 #include <string.h>
 
 StatusBar::StatusBar(const Controller &controller, uint8_t y)
-    : LogicElement(controller), DisplayItemBase() {
+    : LogicElement(controller, LogicItemState::lisActive), DisplayItemBase() {
     this->y = y;
 }
 

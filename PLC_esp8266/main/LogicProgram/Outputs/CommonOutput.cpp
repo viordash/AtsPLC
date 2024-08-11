@@ -6,8 +6,10 @@
 #include <string.h>
 
 CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
-    : LogicElement(incoming_item->controller), LogicOutputElement(io_adr), DisplayChainItem(incoming_item),
+    : LogicElement(incoming_item->controller, incoming_item->GetState()),
+      LogicOutputElement(io_adr), DisplayChainItem(incoming_item),
       LabeledLogicItem(MapIONames[io_adr]) {
+    this->incoming_item = incoming_item;
 }
 
 CommonOutput::~CommonOutput() {
@@ -17,7 +19,7 @@ bool CommonOutput::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    if (incoming_item_state == LogicItemState::lisActive) {
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
         res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
     } else {
         res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
@@ -29,7 +31,7 @@ bool CommonOutput::Render(uint8_t *fb) {
     x_pos += bitmap->size.width;
     res &= draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
-    if (incoming_item_state == LogicItemState::lisActive) {
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    x_pos,
                                    incoming_point.y,

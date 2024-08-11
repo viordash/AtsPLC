@@ -11,6 +11,7 @@ class CommonTimer : public InputBase {
     uint64_t raise_time_us;
     char str_time[16];
     int str_size;
+    InputBase *incoming_item;
 
     uint64_t GetLeftTime();
     uint8_t GetProgress();

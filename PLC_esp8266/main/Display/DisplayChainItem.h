@@ -11,12 +11,11 @@ class CommonInput;
 class DisplayChainItem : public DisplayItemBase {
   protected:
     Point incoming_point;
-    LogicItemState incoming_item_state;
 
     friend CommonInput;
 
   public:
-    DisplayChainItem(const Point &incoming_point, LogicItemState incoming_item_state);
+    DisplayChainItem(const Point &incoming_point);
     DisplayChainItem(DisplayChainItem *incoming_item);
 
     virtual ~DisplayChainItem();

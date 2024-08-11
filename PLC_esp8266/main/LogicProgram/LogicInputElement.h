@@ -14,8 +14,8 @@ class LogicInputElement {
     f_GetValue GetValue;
 
   public:
-    LogicItemState state = LogicItemState::lisPassive;
 
     explicit LogicInputElement(const MapIO io_adr);
     virtual ~LogicInputElement();
+
 };

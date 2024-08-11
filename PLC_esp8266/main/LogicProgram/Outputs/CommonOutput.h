@@ -15,6 +15,7 @@ class CommonOutput : public LogicElement,
                      public DisplayChainItem,
                      public LabeledLogicItem {
   protected:
+    InputBase *incoming_item;
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:

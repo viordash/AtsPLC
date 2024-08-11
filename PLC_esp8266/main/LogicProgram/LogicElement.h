@@ -9,11 +9,13 @@
 
 class LogicElement {
   protected:
+    LogicItemState state;
 
   public:
     Controller controller;
-    LogicElement(const Controller &controller);
+    LogicElement(const Controller &controller, LogicItemState init_state);
     virtual ~LogicElement();
 
     virtual bool DoAction() = 0;
+    LogicItemState GetState();
 };

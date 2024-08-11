@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-SetOutput::SetOutput(const MapIO io_adr, InputBase *incoming_item) : CommonOutput(io_adr ,incoming_item) {
+SetOutput::SetOutput(const MapIO io_adr, InputBase *incoming_item)
+    : CommonOutput(io_adr, incoming_item) {
 }
 
 SetOutput::~SetOutput() {
@@ -18,7 +19,7 @@ bool SetOutput::DoAction() {
 }
 
 const Bitmap *SetOutput::GetCurrentBitmap() {
-    switch (incoming_item_state) {
+    switch (incoming_item->GetState()) {
         case LogicItemState::lisActive:
             return &SetOutput::bitmap_active;
 

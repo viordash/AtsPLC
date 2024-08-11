@@ -10,6 +10,7 @@
 static const char *TAG_CommonTimer = "CommonTimer";
 
 CommonTimer::CommonTimer(InputBase *incoming_item) : InputBase(incoming_item) {
+    this->incoming_item = incoming_item;
 }
 
 CommonTimer::~CommonTimer() {

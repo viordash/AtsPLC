@@ -7,6 +7,7 @@
 
 CommonInput::CommonInput(const MapIO io_adr, InputBase *incoming_item)
     : InputBase(incoming_item), LogicInputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
+    this->incoming_item = incoming_item;
 }
 
 CommonInput::~CommonInput() {
@@ -16,7 +17,7 @@ bool CommonInput::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    if (incoming_item_state == LogicItemState::lisActive) {
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    incoming_point.x,
                                    incoming_point.y,
