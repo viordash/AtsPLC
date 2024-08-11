@@ -7,13 +7,13 @@
 class IncomeRail : public InputBase {
   private:
     uint8_t network_number;
-    const Bitmap *GetCurrentBitmap() override final;
 
   public:
     explicit IncomeRail(const Controller &controller, uint8_t network_number);
-    ~IncomeRail();
+    virtual ~IncomeRail();
 
-    bool DoAction() override final;
     bool Render(uint8_t *fb) override final;
     Point OutcomingPoint() override final;
+
+    bool DoAction() override final;
 };

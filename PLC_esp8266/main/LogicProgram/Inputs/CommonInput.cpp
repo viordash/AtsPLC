@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonInput::CommonInput(const MapIO io_adr, InputBase &prev_item)
-    : InputBase(prev_item.controller, io_adr, prev_item.OutcomingPoint()) {
-    this->prev_item = &prev_item;
+CommonInput::CommonInput(const MapIO io_adr, const InputBase &incoming_item)
+    : InputBase(io_adr, incoming_item) {
 }
 
 CommonInput::~CommonInput() {
@@ -17,8 +16,7 @@ bool CommonInput::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    LogicItemState prev_item_state = prev_item != NULL ? prev_item->state : state;
-    if (prev_item_state == LogicItemState::lisActive) {
+    if (incoming_item_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    incoming_point.x,
                                    incoming_point.y,

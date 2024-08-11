@@ -18,7 +18,7 @@ bool DirectOutput::DoAction() {
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap() {
-    switch (prev_item->state) {
+    switch (incoming_item_state) {
         case LogicItemState::lisActive:
             return &DirectOutput::bitmap_active;
 

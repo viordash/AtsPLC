@@ -6,9 +6,8 @@
 #include <string.h>
 
 OutputBase::OutputBase(const MapIO io_adr, InputBase &prev_item)
-    : LogicOutputElement(prev_item.controller, io_adr), ChainItem(prev_item.OutcomingPoint()),
+    : LogicOutputElement(prev_item.controller, io_adr), DisplayChainItem(prev_item),
       LabeledLogicItem(MapIONames[io_adr]) {
-    this->prev_item = &prev_item;
 }
 
 OutputBase::~OutputBase() {
@@ -18,9 +17,7 @@ bool OutputBase::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    LogicItemState prev_item_state =
-        prev_item != NULL ? prev_item->state : LogicItemState::lisPassive;
-    if (prev_item_state == LogicItemState::lisActive) {
+    if (incoming_item_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
     } else {
         res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
@@ -32,7 +29,7 @@ bool OutputBase::Render(uint8_t *fb) {
     x_pos += bitmap->size.width;
     res &= draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
-    if (prev_item_state == LogicItemState::lisActive) {
+    if (incoming_item_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    x_pos,
                                    incoming_point.y,

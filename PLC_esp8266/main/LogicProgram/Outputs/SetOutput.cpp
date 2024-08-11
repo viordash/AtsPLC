@@ -18,7 +18,7 @@ bool SetOutput::DoAction() {
 }
 
 const Bitmap *SetOutput::GetCurrentBitmap() {
-    switch (prev_item->state) {
+    switch (incoming_item_state) {
         case LogicItemState::lisActive:
             return &SetOutput::bitmap_active;
 
