@@ -268,6 +268,8 @@ uint16_t font_measure_string(const font_info_t *fnt, const char *s) {
 }
 
 const font_char_desc_t *font_get_char_desc(const font_info_t *fnt, char c) {
-    return c < fnt->char_start || c > fnt->char_end ? NULL
-                                                    : fnt->char_descriptors + c - fnt->char_start;
+    return (unsigned char)c < (unsigned char)fnt->char_start
+                || (unsigned char)c > (unsigned char)fnt->char_end
+             ? NULL
+             : fnt->char_descriptors + (unsigned char)c - (unsigned char)fnt->char_start;
 }
