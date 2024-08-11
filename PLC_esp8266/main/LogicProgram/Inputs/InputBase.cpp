@@ -11,8 +11,8 @@ InputBase::InputBase(const Controller &controller,
     : LogicElement(controller), DisplayChainItem(incoming_point, incoming_item_state) {
 }
 
-InputBase::InputBase(const InputBase &prev_item)
-    : LogicElement(prev_item.controller), DisplayChainItem(prev_item) {
+InputBase::InputBase(InputBase *incoming_item)
+    : LogicElement(incoming_item->controller), DisplayChainItem(incoming_item) {
 }
 
 InputBase::~InputBase() {

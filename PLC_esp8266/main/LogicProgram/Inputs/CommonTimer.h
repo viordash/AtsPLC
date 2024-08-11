@@ -22,7 +22,7 @@ class CommonTimer : public InputBase {
     LogicItemState state = LogicItemState::lisPassive;
 
   public:
-    explicit CommonTimer(InputBase &prev_item);
+    explicit CommonTimer(InputBase *incoming_item);
     ~CommonTimer();
 
     bool Render(uint8_t *fb) override;

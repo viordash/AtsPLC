@@ -20,8 +20,8 @@ TEST_GROUP(LogicTimerSecsTestsGroup){ //
 
 class TestableTimerSecs : public TimerSecs {
   public:
-    TestableTimerSecs(uint32_t delay_time_s, InputBase &prev_item)
-        : TimerSecs(delay_time_s, prev_item) {
+    TestableTimerSecs(uint32_t delay_time_s, InputBase *incoming_item)
+        : TimerSecs(delay_time_s, incoming_item) {
     }
     virtual ~TestableTimerSecs() {
     }
@@ -44,16 +44,16 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableTimerSecs testable_0(0, incomeRail0);
+    TestableTimerSecs testable_0(0, &incomeRail0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99998(99998, incomeRail0);
+    TestableTimerSecs testable_99998(99998, &incomeRail0);
     CHECK_EQUAL(99998 * 1000000LL, testable_99998.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99999(99999, incomeRail0);
+    TestableTimerSecs testable_99999(99999, &incomeRail0);
     CHECK_EQUAL(99999 * 1000000LL, testable_99999.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_100000(100000, incomeRail0);
+    TestableTimerSecs testable_100000(100000, &incomeRail0);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
 }
 
@@ -65,7 +65,7 @@ TEST(LogicTimerSecsTestsGroup, GetLeftTime_when_no_overflowed) {
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableTimerSecs testable_0(10, incomeRail0);
+    TestableTimerSecs testable_0(10, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10 * 1000000LL, left_time);
 
@@ -98,7 +98,7 @@ TEST(LogicTimerSecsTestsGroup, GetLeftTime_when_is_overflowed) {
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableTimerSecs testable_0(10, incomeRail0);
+    TestableTimerSecs testable_0(10, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10 * 1000000LL, left_time);
 
@@ -135,7 +135,7 @@ TEST(LogicTimerSecsTestsGroup, GetProgress) {
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableTimerSecs testable_0(10, incomeRail0);
+    TestableTimerSecs testable_0(10, &incomeRail0);
     uint8_t percent = testable_0.PublicMorozov_GetProgress();
     CHECK_EQUAL(0, percent);
 
@@ -170,5 +170,4 @@ TEST(LogicTimerSecsTestsGroup, GetProgress) {
     os_us = 120 * 100000LL;
     percent = testable_0.PublicMorozov_GetProgress();
     CHECK_EQUAL(100, percent);
-
 }

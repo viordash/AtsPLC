@@ -12,7 +12,7 @@ class TimerMSecs : public CommonTimer {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    TimerMSecs(uint32_t delay_time_ms, InputBase &prev_item);
+    TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item);
     ~TimerMSecs();
 
     bool DoAction() override final;

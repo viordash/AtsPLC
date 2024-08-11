@@ -20,7 +20,7 @@ TEST_GROUP(LogicInputNOTestsGroup){ //
 
 class TestableInputNO : public InputNO {
   public:
-    TestableInputNO(const MapIO io_adr, InputBase &prev_item) : InputNO(io_adr, prev_item) {
+    TestableInputNO(const MapIO io_adr, InputBase *incoming_item) : InputNO(io_adr, incoming_item) {
     }
     virtual ~TestableInputNO() {
     }
@@ -33,20 +33,20 @@ class TestableInputNO : public InputNO {
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableInputNO testable(MapIO::DI, incomeRail0);
+    TestableInputNO testable(MapIO::DI, &incomeRail0);
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_AI) {
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableInputNO testable(MapIO::AI, incomeRail0);
+    TestableInputNO testable(MapIO::AI, &incomeRail0);
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_V1) {
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableInputNO testable(MapIO::V1, incomeRail0);
+    TestableInputNO testable(MapIO::V1, &incomeRail0);
     STRCMP_EQUAL("V1", testable.GetLabel());
 }

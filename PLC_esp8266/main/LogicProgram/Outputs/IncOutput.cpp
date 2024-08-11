@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-IncOutput::IncOutput(const MapIO io_adr, InputBase &prev_item)
-    : CommonOutput(io_adr, prev_item) {
+IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
+    : CommonOutput(io_adr ,incoming_item) {
 }
 
 IncOutput::~IncOutput() {

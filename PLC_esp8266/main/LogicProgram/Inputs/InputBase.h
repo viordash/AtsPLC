@@ -7,13 +7,13 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class InputBase : public LogicElement, public DisplayChainItem{
+class InputBase : public LogicElement, public DisplayChainItem {
   protected:
     InputBase(const Controller &controller,
               const Point &incoming_point,
               LogicItemState incoming_item_state);
 
   public:
-    InputBase(const InputBase &prev_item);
+    explicit InputBase(InputBase *incoming_item);
     virtual ~InputBase();
 };

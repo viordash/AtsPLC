@@ -9,7 +9,7 @@
 
 static const char *TAG_CommonTimer = "CommonTimer";
 
-CommonTimer::CommonTimer(InputBase &prev_item) : InputBase(prev_item) {
+CommonTimer::CommonTimer(InputBase *incoming_item) : InputBase(incoming_item) {
 }
 
 CommonTimer::~CommonTimer() {
@@ -59,7 +59,12 @@ bool CommonTimer::Render(uint8_t *fb) {
             break;
     }
 
-    ESP_LOGD(TAG_CommonTimer, "Render, str_time:%s, str_size:%d", str_time, str_size);
+    ESP_LOGI(TAG_CommonTimer,
+             "Render, str_time:%s, str_size:%d, x:%u, y:%u",
+             str_time,
+             str_size,
+             incoming_point.x,
+             incoming_point.y);
     return res;
 }
 

@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonOutput::CommonOutput(const MapIO io_adr, InputBase &prev_item)
-    : LogicElement(prev_item.controller), LogicOutputElement(io_adr), DisplayChainItem(prev_item),
+CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
+    : LogicElement(incoming_item->controller), LogicOutputElement(io_adr), DisplayChainItem(incoming_item),
       LabeledLogicItem(MapIONames[io_adr]) {
 }
 

@@ -12,7 +12,7 @@ class ComparatorLE : public ComparatorBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ComparatorLE(uint16_t reference, const MapIO io_adr, InputBase &prev_item);
+    ComparatorLE(uint16_t reference, const MapIO io_adr, InputBase *incoming_item);
     ~ComparatorLE();
 
     bool DoAction() override final;

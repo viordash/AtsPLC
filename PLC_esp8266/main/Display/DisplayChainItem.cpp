@@ -11,8 +11,8 @@ DisplayChainItem::DisplayChainItem(const Point &incoming_point,
     this->incoming_item_state = incoming_item_state;
 }
 
-DisplayChainItem::DisplayChainItem(const DisplayChainItem &incoming_item)
-    : DisplayChainItem(incoming_item.incoming_point, incoming_item.incoming_item_state) {
+DisplayChainItem::DisplayChainItem(DisplayChainItem *incoming_item)
+    : DisplayChainItem(incoming_item->OutcomingPoint(), incoming_item->incoming_item_state) {
 }
 
 DisplayChainItem::~DisplayChainItem() {

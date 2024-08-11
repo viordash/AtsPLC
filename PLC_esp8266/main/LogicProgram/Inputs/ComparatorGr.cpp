@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGr::ComparatorGr(uint16_t reference, const MapIO io_adr, InputBase &prev_item)
-    : ComparatorBase(reference, io_adr, prev_item) {
+ComparatorGr::ComparatorGr(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
+    : ComparatorBase(reference, io_adr, incoming_item) {
 }
 
 ComparatorGr::~ComparatorGr() {

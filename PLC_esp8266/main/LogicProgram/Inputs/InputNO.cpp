@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNO::InputNO(const MapIO io_adr, InputBase &prev_item) : CommonInput(io_adr, prev_item) {
+InputNO::InputNO(const MapIO io_adr, InputBase *incoming_item) : CommonInput(io_adr ,incoming_item) {
 }
 
 InputNO::~InputNO() {

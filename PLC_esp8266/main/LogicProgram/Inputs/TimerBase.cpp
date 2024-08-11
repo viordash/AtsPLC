@@ -9,7 +9,7 @@
 
 static const char *TAG_CommonTimer = "CommonTimer";
 
-CommonTimer::CommonTimer(InputBase &prev_item) : InputBase(prev_item) {
+CommonTimer::CommonTimer(InputBase *incoming_item) : InputBase(incoming_item) {
 }
 
 CommonTimer::~CommonTimer() {
