@@ -11,7 +11,6 @@ CommonComparator::CommonComparator(uint16_t reference, const MapIO io_adr, Input
         reference = 999;
     }
     this->reference = reference;
-    this->incoming_item = incoming_item;
     str_size = sprintf(this->str_reference, "%d", reference);
 }
 

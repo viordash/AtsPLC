@@ -8,7 +8,6 @@ class CommonComparator : public CommonInput {
   private:
     char str_reference[5];
     int str_size;
-    InputBase *incoming_item;
 
   protected:
     uint16_t reference;
