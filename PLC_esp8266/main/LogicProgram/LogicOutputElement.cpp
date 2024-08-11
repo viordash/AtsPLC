@@ -7,6 +7,7 @@
 
 LogicOutputElement::LogicOutputElement(const Controller &controller, const MapIO io_adr)
     : LogicElement(controller) {
+    (void)io_adr;
 }
 
 LogicOutputElement::~LogicOutputElement() {
