@@ -9,7 +9,7 @@
 
 static const char *TAG_TimerBase = "TimerBase";
 
-TimerBase::TimerBase(InputBase &prior_item) : InputBase(MapIO::Undef, prior_item) {
+TimerBase::TimerBase(InputBase &prev_item) : InputBase(MapIO::Undef, prev_item) {
 }
 
 TimerBase::~TimerBase() {

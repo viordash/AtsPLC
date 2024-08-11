@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNC::InputNC(const MapIO io_adr, InputBase &prior_item) : InputBase(io_adr, prior_item) {
+InputNC::InputNC(const MapIO io_adr, InputBase &prev_item) : InputBase(io_adr, prev_item) {
 }
 
 InputNC::~InputNC() {

@@ -10,7 +10,7 @@
 
 class InputBase : public LogicInputElement, public ChainItem, public LabeledLogicItem {
   protected:
-    InputBase *prior_item;
+    InputBase *prev_item;
 
     InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point);
     virtual const Bitmap *GetCurrentBitmap() = 0;
@@ -18,7 +18,7 @@ class InputBase : public LogicInputElement, public ChainItem, public LabeledLogi
   public:
     const uint8_t LeftPadding = 2;
     const uint8_t RightPadding = 2;
-    InputBase(const MapIO io_adr, InputBase &prior_item);
+    InputBase(const MapIO io_adr, InputBase &prev_item);
     ~InputBase();
 
     bool Render(uint8_t *fb) override;

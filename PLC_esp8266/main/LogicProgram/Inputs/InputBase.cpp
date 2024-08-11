@@ -8,13 +8,13 @@
 InputBase::InputBase(const Controller &controller, const MapIO io_adr, const Point &incoming_point)
     : LogicInputElement(controller, io_adr), ChainItem(incoming_point),
       LabeledLogicItem(MapIONames[io_adr]) {
-    this->prior_item = NULL;
+    this->prev_item = NULL;
 }
 
-InputBase::InputBase(const MapIO io_adr, InputBase &prior_item)
-    : LogicInputElement(prior_item.controller, io_adr), ChainItem(prior_item.OutcomingPoint()),
+InputBase::InputBase(const MapIO io_adr, InputBase &prev_item)
+    : LogicInputElement(prev_item.controller, io_adr), ChainItem(prev_item.OutcomingPoint()),
       LabeledLogicItem(MapIONames[io_adr]) {
-    this->prior_item = &prior_item;
+    this->prev_item = &prev_item;
 }
 
 InputBase::~InputBase() {
@@ -24,8 +24,8 @@ bool InputBase::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    LogicItemState prior_item_state = prior_item != NULL ? prior_item->state : state;
-    if (prior_item_state == LogicItemState::lisActive) {
+    LogicItemState prev_item_state = prev_item != NULL ? prev_item->state : state;
+    if (prev_item_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    incoming_point.x,
                                    incoming_point.y,

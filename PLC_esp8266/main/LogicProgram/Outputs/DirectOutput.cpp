@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-DirectOutput::DirectOutput(const MapIO io_adr, InputBase &prior_item) : OutputBase(io_adr, prior_item) {
+DirectOutput::DirectOutput(const MapIO io_adr, InputBase &prev_item) : OutputBase(io_adr, prev_item) {
 }
 
 DirectOutput::~DirectOutput() {
@@ -18,7 +18,7 @@ bool DirectOutput::DoAction() {
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap() {
-    switch (prior_item->state) {
+    switch (prev_item->state) {
         case LogicItemState::lisActive:
             return &DirectOutput::bitmap_active;
 

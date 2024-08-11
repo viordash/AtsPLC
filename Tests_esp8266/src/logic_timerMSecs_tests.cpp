@@ -20,8 +20,8 @@ TEST_GROUP(LogicTimerMSecsTestsGroup){ //
 
 class TestableTimerMSecs : public TimerMSecs {
   public:
-    TestableTimerMSecs(uint32_t delay_time_s, InputBase &prior_item)
-        : TimerMSecs(delay_time_s, prior_item) {
+    TestableTimerMSecs(uint32_t delay_time_s, InputBase &prev_item)
+        : TimerMSecs(delay_time_s, prev_item) {
     }
     virtual ~TestableTimerMSecs() {
     }

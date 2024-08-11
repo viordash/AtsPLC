@@ -12,7 +12,7 @@ class ComparatorGr : public ComparatorBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ComparatorGr(uint16_t reference, const MapIO io_adr, InputBase &prior_item);
+    ComparatorGr(uint16_t reference, const MapIO io_adr, InputBase &prev_item);
     ~ComparatorGr();
 
     bool DoAction() override final;

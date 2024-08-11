@@ -34,8 +34,8 @@ static const Bitmap bitmap_passive = { //
 
 class TestableComparatorBase : public ComparatorBase {
   public:
-    TestableComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
-        : ComparatorBase(reference, io_adr, prior_item) {
+    TestableComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prev_item)
+        : ComparatorBase(reference, io_adr, prev_item) {
     }
     virtual ~TestableComparatorBase() {
     }

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-DecOutput::DecOutput(const MapIO io_adr, InputBase &prior_item)
-    : OutputBase(io_adr, prior_item) {
+DecOutput::DecOutput(const MapIO io_adr, InputBase &prev_item)
+    : OutputBase(io_adr, prev_item) {
 }
 
 DecOutput::~DecOutput() {
@@ -20,7 +20,7 @@ bool DecOutput::DoAction() {
 }
 
 const Bitmap *DecOutput::GetCurrentBitmap() {
-    switch (prior_item->state) {
+    switch (prev_item->state) {
         case LogicItemState::lisActive:
             return &DecOutput::bitmap_active;
 

@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorBase::ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
-    : InputBase(io_adr, prior_item) {
+ComparatorBase::ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prev_item)
+    : InputBase(io_adr, prev_item) {
     if (reference > 999) {
         reference = 999;
     }

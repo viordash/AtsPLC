@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ResetOutput::ResetOutput(const MapIO io_adr, InputBase &prior_item)
-    : OutputBase(io_adr, prior_item) {
+ResetOutput::ResetOutput(const MapIO io_adr, InputBase &prev_item)
+    : OutputBase(io_adr, prev_item) {
 }
 
 ResetOutput::~ResetOutput() {
@@ -19,7 +19,7 @@ bool ResetOutput::DoAction() {
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap() {
-    switch (prior_item->state) {
+    switch (prev_item->state) {
         case LogicItemState::lisActive:
             return &ResetOutput::bitmap_active;
 

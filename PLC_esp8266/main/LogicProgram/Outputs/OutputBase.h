@@ -11,14 +11,14 @@
 
 class OutputBase : public LogicOutputElement, public ChainItem, public LabeledLogicItem {
   protected:
-    InputBase *prior_item;
+    InputBase *prev_item;
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
     const uint8_t LeftPadding = 7;
     const uint8_t RightPadding = 0;
-    OutputBase(const MapIO io_adr, InputBase &prior_item);
+    OutputBase(const MapIO io_adr, InputBase &prev_item);
     ~OutputBase();
 
     bool Render(uint8_t *fb) override;

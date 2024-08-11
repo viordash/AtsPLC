@@ -42,7 +42,7 @@ TEST_TEARDOWN() {
 
 class TestableTimerBase : public TimerBase {
   public:
-    TestableTimerBase(uint32_t delay_time_s, InputBase &prior_item) : TimerBase(prior_item) {
+    TestableTimerBase(uint32_t delay_time_s, InputBase &prev_item) : TimerBase(prev_item) {
         str_size = sprintf(this->str_time, "%u", delay_time_s);
     }
     virtual ~TestableTimerBase() {

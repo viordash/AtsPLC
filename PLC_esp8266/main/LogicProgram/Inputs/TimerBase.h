@@ -16,7 +16,7 @@ class TimerBase : public InputBase {
     uint8_t GetProgress();
 
   public:
-    explicit TimerBase(InputBase &prior_item);
+    explicit TimerBase(InputBase &prev_item);
     ~TimerBase();
 
     bool Render(uint8_t *fb) override;

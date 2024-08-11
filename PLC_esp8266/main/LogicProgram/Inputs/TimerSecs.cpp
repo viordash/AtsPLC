@@ -11,7 +11,7 @@
 
 static const char *TAG = "TimerSecs";
 
-TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prior_item) : TimerBase(prior_item) {
+TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase &prev_item) : TimerBase(prev_item) {
     if (delay_time_s < 1) {
         delay_time_s = 1;
     }

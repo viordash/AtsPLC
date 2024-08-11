@@ -13,7 +13,7 @@ class DecOutput : public OutputBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    DecOutput(const MapIO io_adr, InputBase &prior_item);
+    DecOutput(const MapIO io_adr, InputBase &prev_item);
     ~DecOutput();
 
     bool DoAction() override final;

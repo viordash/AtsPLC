@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGE::ComparatorGE(uint16_t reference, const MapIO io_adr, InputBase &prior_item)
-    : ComparatorBase(reference, io_adr, prior_item) {
+ComparatorGE::ComparatorGE(uint16_t reference, const MapIO io_adr, InputBase &prev_item)
+    : ComparatorBase(reference, io_adr, prev_item) {
 }
 
 ComparatorGE::~ComparatorGE() {

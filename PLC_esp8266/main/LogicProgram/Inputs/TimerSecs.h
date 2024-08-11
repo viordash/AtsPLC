@@ -12,7 +12,7 @@ class TimerSecs : public TimerBase {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    TimerSecs(uint32_t delay_time_s, InputBase &prior_item);
+    TimerSecs(uint32_t delay_time_s, InputBase &prev_item);
     ~TimerSecs();
 
     bool DoAction() override final;

@@ -20,7 +20,7 @@ TEST_GROUP(LogicInputNOTestsGroup){ //
 
 class TestableInputNO : public InputNO {
   public:
-    TestableInputNO(const MapIO io_adr, InputBase &prior_item) : InputNO(io_adr, prior_item) {
+    TestableInputNO(const MapIO io_adr, InputBase &prev_item) : InputNO(io_adr, prev_item) {
     }
     virtual ~TestableInputNO() {
     }
