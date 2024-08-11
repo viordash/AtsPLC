@@ -9,7 +9,7 @@
 
 static const char *TAG_TimerBase = "TimerBase";
 
-TimerBase::TimerBase(InputBase &prev_item) : InputBase(MapIO::Undef, prev_item) {
+TimerBase::TimerBase(InputBase &prev_item) : CommonInput(MapIO::Undef, prev_item) {
 }
 
 TimerBase::~TimerBase() {
@@ -38,7 +38,7 @@ uint8_t TimerBase::GetProgress() {
 
 bool TimerBase::Render(uint8_t *fb) {
     bool res;
-    res = InputBase::Render(fb);
+    res = CommonInput::Render(fb);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width;
 

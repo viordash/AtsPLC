@@ -16,11 +16,7 @@ class InputBase : public LogicInputElement, public ChainItem, public LabeledLogi
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t LeftPadding = 2;
-    const uint8_t RightPadding = 2;
     InputBase(const MapIO io_adr, InputBase &prev_item);
     ~InputBase();
 
-    bool Render(uint8_t *fb) override;
-    Point OutcomingPoint() override;
 };

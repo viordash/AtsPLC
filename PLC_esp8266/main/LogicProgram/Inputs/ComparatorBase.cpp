@@ -6,7 +6,7 @@
 #include <string.h>
 
 ComparatorBase::ComparatorBase(uint16_t reference, const MapIO io_adr, InputBase &prev_item)
-    : InputBase(io_adr, prev_item) {
+    : CommonInput(io_adr, prev_item) {
     if (reference > 999) {
         reference = 999;
     }
@@ -19,7 +19,7 @@ ComparatorBase::~ComparatorBase() {
 
 bool ComparatorBase::Render(uint8_t *fb) {
     bool res;
-    res = InputBase::Render(fb);
+    res = CommonInput::Render(fb);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
     switch (str_size) {

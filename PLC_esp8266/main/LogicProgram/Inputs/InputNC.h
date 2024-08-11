@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/Inputs/CommonInput.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class InputNC : public InputBase {
+class InputNC : public CommonInput {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;

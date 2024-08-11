@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/Inputs/CommonInput.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class TimerBase : public InputBase {
+class TimerBase : public CommonInput {
   private:
   protected:
     uint64_t delay_time_us;

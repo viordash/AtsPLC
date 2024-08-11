@@ -1,10 +1,10 @@
 #pragma once
 
-#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/Inputs/CommonInput.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class ComparatorBase : public InputBase {
+class ComparatorBase : public CommonInput {
   private:
     char str_reference[5];
     int str_size;
