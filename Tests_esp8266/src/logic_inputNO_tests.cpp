@@ -113,7 +113,8 @@ TEST(LogicInputNOTestsGroup, Render_happened_on_startup) {
         }
     }
     CHECK_FALSE(any_pixel_coloring);
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()), "require_render does not auto-reset");
+    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
+                     "require_render does not auto-reset");
 }
 
 TEST(LogicInputNOTestsGroup, re_render_on_demand) {
@@ -146,4 +147,16 @@ TEST(LogicInputNOTestsGroup, re_render_on_demand) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+}
+
+TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableInputNO testable(MapIO::V1, &incomeRail);
+
+    CHECK_TRUE(testable.DoAction());
+
+    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
+                    "must be require_render after change state");
 }
