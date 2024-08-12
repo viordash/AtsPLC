@@ -18,26 +18,28 @@ TEST_GROUP(LogicTimerSecsTestsGroup){ //
                                       TEST_TEARDOWN(){}
 };
 
-class TestableTimerSecs : public TimerSecs {
-  public:
-    TestableTimerSecs(uint32_t delay_time_s, InputBase *incoming_item)
-        : TimerSecs(delay_time_s, incoming_item) {
-    }
-    virtual ~TestableTimerSecs() {
-    }
+namespace {
+    class TestableTimerSecs : public TimerSecs {
+      public:
+        TestableTimerSecs(uint32_t delay_time_s, InputBase *incoming_item)
+            : TimerSecs(delay_time_s, incoming_item) {
+        }
+        virtual ~TestableTimerSecs() {
+        }
 
-    uint64_t PublicMorozov_GetDelayTimeUs() {
-        return delay_time_us;
-    }
+        uint64_t PublicMorozov_GetDelayTimeUs() {
+            return delay_time_us;
+        }
 
-    uint64_t PublicMorozov_GetLeftTime() {
-        return GetLeftTime();
-    }
+        uint64_t PublicMorozov_GetLeftTime() {
+            return GetLeftTime();
+        }
 
-    uint8_t PublicMorozov_GetProgress() {
-        return GetProgress();
-    }
-};
+        uint8_t PublicMorozov_GetProgress() {
+            return GetProgress();
+        }
+    };
+} // namespace
 
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();

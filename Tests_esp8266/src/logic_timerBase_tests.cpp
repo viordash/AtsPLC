@@ -40,28 +40,31 @@ TEST_TEARDOWN() {
 }
 ;
 
-class TestableCommonTimer : public CommonTimer {
-  public:
-    TestableCommonTimer(uint32_t delay_time_s, InputBase *incoming_item) : CommonTimer(incoming_item) {
-        str_size = sprintf(this->str_time, "%u", delay_time_s);
-    }
-    virtual ~TestableCommonTimer() {
-    }
-
-    const Bitmap *GetCurrentBitmap() override final {
-        switch (state) {
-            case LogicItemState::lisActive:
-                return &bitmap_active;
-
-            default:
-                return &bitmap_passive;
+namespace {
+    class TestableCommonTimer : public CommonTimer {
+      public:
+        TestableCommonTimer(uint32_t delay_time_s, InputBase *incoming_item)
+            : CommonTimer(incoming_item) {
+            str_size = sprintf(this->str_time, "%u", delay_time_s);
         }
-    }
+        virtual ~TestableCommonTimer() {
+        }
 
-    bool DoAction() override final {
-        return true;
-    }
-};
+        const Bitmap *GetCurrentBitmap() override final {
+            switch (state) {
+                case LogicItemState::lisActive:
+                    return &bitmap_active;
+
+                default:
+                    return &bitmap_passive;
+            }
+        }
+
+        bool DoAction() override final {
+            return true;
+        }
+    };
+} // namespace
 
 TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
 

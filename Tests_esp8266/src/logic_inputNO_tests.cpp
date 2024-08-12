@@ -18,20 +18,23 @@ TEST_GROUP(LogicInputNOTestsGroup){ //
                                     TEST_TEARDOWN(){}
 };
 
-class TestableInputNO : public InputNO {
-  public:
-    TestableInputNO(const MapIO io_adr, InputBase *incoming_item) : InputNO(io_adr, incoming_item) {
-    }
-    virtual ~TestableInputNO() {
-    }
+namespace {
+    class TestableInputNO : public InputNO {
+      public:
+        TestableInputNO(const MapIO io_adr, InputBase *incoming_item)
+            : InputNO(io_adr, incoming_item) {
+        }
+        virtual ~TestableInputNO() {
+        }
 
-    const char *GetLabel() {
-        return label;
-    }
-    InputBase *PublicMorozov_incoming_item() {
-        return incoming_item;
-    }
-};
+        const char *GetLabel() {
+            return label;
+        }
+        InputBase *PublicMorozov_incoming_item() {
+            return incoming_item;
+        }
+    };
+} // namespace
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
     Controller controller;

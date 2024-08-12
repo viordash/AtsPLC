@@ -22,7 +22,6 @@ TEST_TEARDOWN() {
 ;
 
 namespace {
-
     class PublicMorozov_Next {
       public:
         LogicElement *PublicMorozov_GetNext = 0;
