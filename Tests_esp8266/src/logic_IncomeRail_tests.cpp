@@ -33,7 +33,7 @@ namespace {
             : IncomeRail(controller, network_number) {
         }
         LogicElement *PublicMorozov_GetNext() {
-            return next;
+            return nextElement;
         }
     };
 
@@ -43,7 +43,7 @@ namespace {
             : InputNO(io_adr, incoming_item) {
         }
         LogicElement *PublicMorozov_GetNext() {
-            return next;
+            return nextElement;
         }
     };
 
@@ -53,7 +53,7 @@ namespace {
             : ComparatorGE(reference, io_adr, incoming_item) {
         }
         LogicElement *PublicMorozov_GetNext() {
-            return next;
+            return nextElement;
         }
     };
 
@@ -63,7 +63,7 @@ namespace {
             : TimerSecs(delay_time_s, incoming_item) {
         }
         LogicElement *PublicMorozov_GetNext() {
-            return next;
+            return nextElement;
         }
     };
 
@@ -73,7 +73,7 @@ namespace {
             : DirectOutput(io_adr, incoming_item) {
         }
         LogicElement *PublicMorozov_GetNext() {
-            return next;
+            return nextElement;
         }
     };
 
@@ -90,18 +90,18 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
     TestableDirectOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
-    LogicElement *next = testable.PublicMorozov_GetNext();
-    CHECK_EQUAL(&input1, next);
+    LogicElement *nextElement = testable.PublicMorozov_GetNext();
+    CHECK_EQUAL(&input1, nextElement);
 
-    next = input1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&comparator1, next);
+    nextElement = input1.PublicMorozov_GetNext();
+    CHECK_EQUAL(&comparator1, nextElement);
 
-    next = comparator1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&timerSecs1, next);
+    nextElement = comparator1.PublicMorozov_GetNext();
+    CHECK_EQUAL(&timerSecs1, nextElement);
 
-    next = timerSecs1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&directOutput0, next);
+    nextElement = timerSecs1.PublicMorozov_GetNext();
+    CHECK_EQUAL(&directOutput0, nextElement);
 
-    next = directOutput0.PublicMorozov_GetNext();
-    CHECK(next == NULL);
+    nextElement = directOutput0.PublicMorozov_GetNext();
+    CHECK(nextElement == NULL);
 }
