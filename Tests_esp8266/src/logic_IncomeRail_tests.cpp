@@ -22,12 +22,15 @@ TEST_TEARDOWN() {
 ;
 
 namespace {
-    class PublicMorozov_Next {
-      public:
-        LogicElement *PublicMorozov_GetNext = 0;
+    static const Bitmap bitmap = { //
+        { 16,                      // width
+          16 },                    // height
+        { 0xFF, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x0A, 0x0A, 0x0A,
+          0x0A, 0x00, 0x00, 0xFF, 0x80, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
-    class TestableIncomeRail : public IncomeRail, public PublicMorozov_Next {
+    class TestableIncomeRail : public IncomeRail {
       public:
         TestableIncomeRail(const Controller &controller, uint8_t network_number)
             : IncomeRail(controller, network_number) {
@@ -37,43 +40,82 @@ namespace {
         }
     };
 
-    class TestableInputNO : public InputNO, public PublicMorozov_Next {
+    class TestableCommonInput : public CommonInput {
       public:
-        TestableInputNO(const MapIO io_adr, InputBase *incoming_item)
-            : InputNO(io_adr, incoming_item) {
+        TestableCommonInput(const MapIO io_adr, InputBase *incoming_item)
+            : CommonInput(io_adr, incoming_item) {
+        }
+        const Bitmap *GetCurrentBitmap() {
+            return &bitmap;
         }
         LogicElement *PublicMorozov_GetNext() {
             return nextElement;
+        }
+
+        bool DoAction_called = false;
+        bool DoAction_result = true;
+        bool DoAction() override {
+            DoAction_called = true;
+            return DoAction_result;
         }
     };
 
-    class TestableComparatorGE : public ComparatorGE, public PublicMorozov_Next {
+    class TestableCommonComparator : public CommonComparator {
       public:
-        TestableComparatorGE(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-            : ComparatorGE(reference, io_adr, incoming_item) {
+        TestableCommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
+            : CommonComparator(reference, io_adr, incoming_item) {
+        }
+        const Bitmap *GetCurrentBitmap() {
+            return &bitmap;
         }
         LogicElement *PublicMorozov_GetNext() {
             return nextElement;
+        }
+
+        bool DoAction_called = false;
+        bool DoAction_result = true;
+        bool DoAction() override {
+            DoAction_called = true;
+            return DoAction_result;
         }
     };
 
-    class TestableTimerSecs : public TimerSecs, public PublicMorozov_Next {
+    class TestableCommonTimer : public CommonTimer {
       public:
-        TestableTimerSecs(uint32_t delay_time_s, InputBase *incoming_item)
-            : TimerSecs(delay_time_s, incoming_item) {
+        explicit TestableCommonTimer(InputBase *incoming_item) : CommonTimer(incoming_item) {
+        }
+        const Bitmap *GetCurrentBitmap() {
+            return &bitmap;
         }
         LogicElement *PublicMorozov_GetNext() {
             return nextElement;
+        }
+
+        bool DoAction_called = false;
+        bool DoAction_result = true;
+        bool DoAction() override {
+            DoAction_called = true;
+            return DoAction_result;
         }
     };
 
-    class TestableDirectOutput : public DirectOutput, public PublicMorozov_Next {
+    class TestableCommonOutput : public CommonOutput {
       public:
-        TestableDirectOutput(const MapIO io_adr, InputBase *incoming_item)
-            : DirectOutput(io_adr, incoming_item) {
+        TestableCommonOutput(const MapIO io_adr, InputBase *incoming_item)
+            : CommonOutput(io_adr, incoming_item) {
+        }
+        const Bitmap *GetCurrentBitmap() {
+            return &bitmap;
         }
         LogicElement *PublicMorozov_GetNext() {
             return nextElement;
+        }
+
+        bool DoAction_called = false;
+        bool DoAction_result = true;
+        bool DoAction() override {
+            DoAction_called = true;
+            return DoAction_result;
         }
     };
 
@@ -84,10 +126,10 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
     Controller controller;
     TestableIncomeRail testable(controller, 0);
 
-    TestableInputNO input1(MapIO::DI, &testable);
-    TestableComparatorGE comparator1(5, MapIO::AI, &input1);
-    TestableTimerSecs timerSecs1(2, &comparator1);
-    TestableDirectOutput directOutput0(MapIO::O1, &timerSecs1);
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
     LogicElement *nextElement = testable.PublicMorozov_GetNext();
@@ -104,4 +146,44 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
     nextElement = directOutput0.PublicMorozov_GetNext();
     CHECK(nextElement == NULL);
+}
+
+TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
+    Controller controller;
+    TestableIncomeRail testable(controller, 0);
+
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+    OutcomeRail outcomeRail0(0);
+
+    bool res = testable.DoAction();
+    CHECK_TRUE(res);
+
+    CHECK_TRUE(input1.DoAction_called);
+    CHECK_TRUE(comparator1.DoAction_called);
+    CHECK_TRUE(timerSecs1.DoAction_called);
+    CHECK_TRUE(directOutput0.DoAction_called);
+}
+
+TEST(LogicIncomeRailTestsGroup, false_in_DoAction_will_break_handling) {
+    Controller controller;
+    TestableIncomeRail testable(controller, 0);
+
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+    OutcomeRail outcomeRail0(0);
+
+    timerSecs1.DoAction_result = false;
+
+    bool res = testable.DoAction();
+    CHECK_FALSE(res);
+
+    CHECK_TRUE(input1.DoAction_called);
+    CHECK_TRUE(comparator1.DoAction_called);
+    CHECK_TRUE(timerSecs1.DoAction_called);
+    CHECK_FALSE(directOutput0.DoAction_called);
 }

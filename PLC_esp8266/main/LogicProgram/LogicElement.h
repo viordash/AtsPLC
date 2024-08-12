@@ -7,10 +7,14 @@
 #include <stdint.h>
 #include <unistd.h>
 
+class IncomeRail;
+
 class LogicElement {
   protected:
     LogicItemState state;
     LogicElement *nextElement;
+
+    friend IncomeRail;
 
   public:
     Controller controller;

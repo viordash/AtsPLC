@@ -26,5 +26,13 @@ Point IncomeRail::OutcomingPoint() {
 }
 
 bool IncomeRail::DoAction() {
+    LogicElement *next = nextElement;
+
+    while (next != NULL) {
+        if (!next->DoAction()) {
+            return false;
+        }
+        next = next->nextElement;
+    }
     return true;
 }
