@@ -6,11 +6,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "Display/display.cpp"
 #include "main/Display/DisplayChainItem.cpp"
 #include "main/Display/DisplayItemBase.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
+#include "main/Display/display.cpp"
 #include "main/LogicProgram/Controller.cpp"
 #include "main/LogicProgram/Inputs/CommonComparator.cpp"
 #include "main/LogicProgram/Inputs/CommonInput.cpp"

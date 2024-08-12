@@ -17,17 +17,9 @@
 #define INPUT_1_IO_CLOSE BIT8
 #define INPUT_1_IO_OPEN BIT9
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum { OUTPUT_0 = 0x01, OUTPUT_1 = 0x02 } gpio_output;
 
 EventGroupHandle_t gpio_init(uint32_t startup_state);
 uint16_t get_analog_value();
 bool get_digital_input_value();
 bool select_button_pressed();
-
-#ifdef __cplusplus
-}
-#endif

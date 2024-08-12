@@ -1,10 +1,14 @@
 
 
 #include "LogicProgram/Controller.h"
-#include "gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+extern "C" {
+uint16_t get_analog_value();
+bool get_digital_input_value();
+}
 
 Controller::Controller(/* args */) {
 }
