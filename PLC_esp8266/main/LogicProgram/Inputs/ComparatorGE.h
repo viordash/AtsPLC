@@ -16,4 +16,5 @@ class ComparatorGE : public CommonComparator {
     ~ComparatorGE();
 
     bool DoAction() override final;
+    bool Render(uint8_t *fb) override final;
 };

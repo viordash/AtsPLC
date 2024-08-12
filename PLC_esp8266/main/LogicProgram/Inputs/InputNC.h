@@ -16,4 +16,5 @@ class InputNC : public CommonInput {
     ~InputNC();
 
     bool DoAction() override final;
+    bool Render(uint8_t *fb) override final;
 };

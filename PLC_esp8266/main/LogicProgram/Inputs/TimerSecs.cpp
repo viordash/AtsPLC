@@ -46,6 +46,9 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
 }
 
 bool TimerSecs::Render(uint8_t *fb) {
+    if (!require_render) {
+        return true;
+    }
     bool res;
     res = CommonTimer::Render(fb);
 
@@ -55,5 +58,6 @@ bool TimerSecs::Render(uint8_t *fb) {
                                   x_pos,
                                   incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),
                                   percent);
+    require_render = false;
     return res;
 }

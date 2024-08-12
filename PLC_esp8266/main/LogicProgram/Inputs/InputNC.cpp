@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputNC::InputNC(const MapIO io_adr, InputBase *incoming_item) : CommonInput(io_adr ,incoming_item) {
+InputNC::InputNC(const MapIO io_adr, InputBase *incoming_item)
+    : CommonInput(io_adr, incoming_item) {
 }
 
 InputNC::~InputNC() {
@@ -27,4 +28,13 @@ const Bitmap *InputNC::GetCurrentBitmap() {
         default:
             return &InputNC::bitmap_passive;
     }
+}
+
+bool InputNC::Render(uint8_t *fb) {
+    if (!require_render) {
+        return true;
+    }
+    bool res = CommonInput::Render(fb);
+    require_render = false;
+    return res;
 }

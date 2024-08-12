@@ -7,6 +7,7 @@
 
 class DisplayItemBase {
   protected:
+    bool require_render;
 
   public:
     explicit DisplayItemBase();

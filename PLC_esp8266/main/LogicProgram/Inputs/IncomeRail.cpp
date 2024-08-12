@@ -15,10 +15,6 @@ IncomeRail::IncomeRail(const Controller &controller, uint8_t network_number)
 IncomeRail::~IncomeRail() {
 }
 
-bool IncomeRail::Render(uint8_t *fb) {
-    return draw_income_rail(fb, network_number);
-}
-
 Point IncomeRail::OutcomingPoint() {
     uint8_t x_pos = 2;
     uint8_t y_pos = incoming_point.y + (INCOME_RAIL_HEIGHT / 2);
@@ -35,4 +31,13 @@ bool IncomeRail::DoAction() {
         next = next->nextElement;
     }
     return true;
+}
+
+bool IncomeRail::Render(uint8_t *fb) {
+    if (!require_render) {
+        return true;
+    }
+    bool res = draw_income_rail(fb, network_number);
+    require_render = false;
+    return res;
 }

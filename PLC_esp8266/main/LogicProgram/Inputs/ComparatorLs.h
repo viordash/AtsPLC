@@ -16,4 +16,5 @@ class ComparatorLs : public CommonComparator {
     ~ComparatorLs();
 
     bool DoAction() override final;
+    bool Render(uint8_t *fb) override final;
 };

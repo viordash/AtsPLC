@@ -12,11 +12,16 @@
 #include "main/LogicProgram/Inputs/InputNO.cpp"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-TEST_GROUP(LogicInputNOTestsGroup){ //
-                                    TEST_SETUP(){}
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
-                                    TEST_TEARDOWN(){}
-};
+TEST_GROUP(LogicInputNOTestsGroup){ //
+                                    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+}
+
+TEST_TEARDOWN() {
+}
+}
+;
 
 namespace {
     class TestableInputNO : public InputNO {
@@ -32,6 +37,9 @@ namespace {
         }
         InputBase *PublicMorozov_incoming_item() {
             return incoming_item;
+        }
+        bool *PublicMorozov_Get_require_render() {
+            return &require_render;
         }
     };
 } // namespace
@@ -75,4 +83,67 @@ TEST(LogicInputNOTestsGroup, chain_of_items) {
     CHECK_EQUAL(&incomeRail0, testable_0.PublicMorozov_incoming_item());
     CHECK_EQUAL(&testable_0, testable_1.PublicMorozov_incoming_item());
     CHECK_EQUAL(&testable_1, testable_2.PublicMorozov_incoming_item());
+}
+
+TEST(LogicInputNOTestsGroup, Render_happened_on_startup) {
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableInputNO testable(MapIO::V1, &incomeRail);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+
+    memset(frame_buffer, 0, sizeof(frame_buffer));
+    any_pixel_coloring = false;
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_FALSE(any_pixel_coloring);
+    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()), "require_render does not auto-reset");
+}
+
+TEST(LogicInputNOTestsGroup, re_render_on_demand) {
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableInputNO testable(MapIO::V1, &incomeRail);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+
+    memset(frame_buffer, 0, sizeof(frame_buffer));
+    any_pixel_coloring = false;
+    *(testable.PublicMorozov_Get_require_render()) = true;
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
 }

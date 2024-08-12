@@ -11,7 +11,8 @@
 
 static const char *TAG = "TimerMSecs";
 
-TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item) : CommonTimer(incoming_item) {
+TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
+    : CommonTimer(incoming_item) {
     if (delay_time_ms < 1) {
         delay_time_ms = 1;
     }
@@ -46,5 +47,10 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
 }
 
 bool TimerMSecs::Render(uint8_t *fb) {
-    return CommonTimer::Render(fb);
+    if (!require_render) {
+        return true;
+    }
+    bool res = CommonTimer::Render(fb);
+    require_render = false;
+    return res;
 }

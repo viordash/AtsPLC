@@ -16,4 +16,5 @@ class ComparatorGr : public CommonComparator {
     ~ComparatorGr();
 
     bool DoAction() override final;
+    bool Render(uint8_t *fb) override final;
 };
