@@ -13,11 +13,14 @@
 
 #define BUTTON_UP_IO GPIO_NUM_13
 #define BUTTON_DOWN_IO GPIO_NUM_12
-#define BUTTON_LEFT_IO 
+#define BUTTON_LEFT_IO
 #define BUTTON_RIGHT_IO GPIO_NUM_0
 #define BUTTON_SELECT_IO GPIO_NUM_14
+
+#define INPUT_1_IO GPIO_NUM_0
+
 #define GPIO_INPUT_PIN_SEL                                                                         \
-    ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_RIGHT_IO)                  \
+    ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_RIGHT_IO)                 \
      | (1ULL << BUTTON_SELECT_IO))
 
 static const char *TAG = "gpio";
@@ -25,6 +28,9 @@ static const char *TAG = "gpio";
 static struct {
     EventGroupHandle_t event;
 } gpio;
+
+bool get_digital_value(gpio_output gpio);
+void set_digital_value(gpio_output gpio, bool value);
 
 static void outputs_init(uint32_t startup_state) {
     gpio_config_t io_conf;
@@ -172,6 +178,10 @@ uint16_t get_analog_value() {
         ESP_LOGE(TAG, "get_analog_value, err:0x%X\r\n", err);
     }
     return adc;
+}
+
+bool get_digital_input_value() {
+    return gpio_get_level(INPUT_1_IO) != 0;
 }
 
 bool select_button_pressed() {
