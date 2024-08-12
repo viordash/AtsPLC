@@ -17,7 +17,8 @@ InputNO::~InputNO() {
 bool InputNO::DoAction() {
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive && GetValue()) {
+    if (incoming_item->GetState() == LogicItemState::lisActive //
+        && GetValue() != 0) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;

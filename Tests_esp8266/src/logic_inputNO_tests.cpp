@@ -41,6 +41,9 @@ namespace {
         bool *PublicMorozov_Get_require_render() {
             return &require_render;
         }
+        LogicItemState *PublicMorozov_Get_state() {
+            return &state;
+        }
     };
 } // namespace
 
@@ -150,13 +153,34 @@ TEST(LogicInputNOTestsGroup, re_render_on_demand) {
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
+    mock("0").expectNoCall("gpio_get_level");
 
     Controller controller;
     IncomeRail incomeRail(controller, 0);
-    TestableInputNO testable(MapIO::V1, &incomeRail);
+    TestableInputNO prev_element(MapIO::V1, &incomeRail);
+    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
+
+    TestableInputNO testable(MapIO::DI, &prev_element);
+    testable.Render(frame_buffer);
 
     CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
+                     "no require_render because state hasn't changed");
+}
 
+TEST(LogicInputNOTestsGroup, DoAction_change_state) {
+    mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableInputNO prev_element(MapIO::V1, &incomeRail);
+    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    TestableInputNO testable(MapIO::DI, &prev_element);
+
+    CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
     CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                    "must be require_render after change state");
+                     "require_render because state has changed");
 }
