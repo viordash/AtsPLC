@@ -7,7 +7,6 @@
 
 class DisplayItemBase {
   protected:
-    Point origin;
 
   public:
     explicit DisplayItemBase();
