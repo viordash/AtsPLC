@@ -170,7 +170,7 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state) {
-    mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
+    mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
 
     Controller controller;
     IncomeRail incomeRail(controller, 0);

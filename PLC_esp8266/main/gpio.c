@@ -181,7 +181,9 @@ uint16_t get_analog_value() {
 }
 
 bool get_digital_input_value() {
-    return gpio_get_level(INPUT_1_IO) != 0;
+    const int input_normaly_close_value = 0;
+    bool input_closed = gpio_get_level(INPUT_1_IO) == input_normaly_close_value;
+    return input_closed;
 }
 
 bool select_button_pressed() {
