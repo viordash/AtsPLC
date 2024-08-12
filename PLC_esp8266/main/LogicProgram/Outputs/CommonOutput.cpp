@@ -9,6 +9,7 @@ CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
     : LogicElement(incoming_item->controller), LogicOutputElement(io_adr),
       DisplayChainItem(incoming_item->OutcomingPoint()), LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
+    this->incoming_item->Bind(this);
 }
 
 CommonOutput::~CommonOutput() {

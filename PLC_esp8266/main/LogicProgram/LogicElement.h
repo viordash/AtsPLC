@@ -10,6 +10,7 @@
 class LogicElement {
   protected:
     LogicItemState state;
+    LogicElement *next;
 
   public:
     Controller controller;
@@ -18,4 +19,6 @@ class LogicElement {
 
     virtual bool DoAction() = 0;
     LogicItemState GetState();
+
+    void Bind(LogicElement *next);
 };

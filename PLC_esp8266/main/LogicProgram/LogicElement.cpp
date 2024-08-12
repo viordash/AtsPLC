@@ -8,6 +8,7 @@
 LogicElement::LogicElement(const Controller &controller) {
     this->controller = controller;
     this->state = LogicItemState::lisPassive;
+    this->next = NULL;
 }
 
 LogicElement::~LogicElement() {
@@ -15,4 +16,8 @@ LogicElement::~LogicElement() {
 
 LogicItemState LogicElement::GetState() {
     return state;
+}
+
+void LogicElement::Bind(LogicElement *next) {
+    this->next = next;
 }

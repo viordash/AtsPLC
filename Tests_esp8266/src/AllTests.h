@@ -45,5 +45,6 @@ IMPORT_TEST_GROUP(LogicCommonComparatorTestsGroup);
 IMPORT_TEST_GROUP(LogicTimerSecsTestsGroup);
 IMPORT_TEST_GROUP(LogicTimerMSecsTestsGroup);
 IMPORT_TEST_GROUP(LogicCommonTimerTestsGroup);
+IMPORT_TEST_GROUP(LogicIncomeRailTestsGroup);
 
 IMPORT_TEST_GROUP(StatusBarTestsGroup);
