@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 
-static const char *TAG = "TimerMSecs";
+static const char *TAG_TimerMSecs = "TimerMSecs";
 
 TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
     : CommonTimer(incoming_item) {
@@ -22,7 +22,7 @@ TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
     this->delay_time_us = delay_time_ms * 1000LL;
     str_size = sprintf(this->str_time, "%u", delay_time_ms);
 
-    ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);
+    ESP_LOGD(TAG_TimerMSecs, "ctor, str_time:%s", this->str_time);
 }
 
 TimerMSecs::~TimerMSecs() {

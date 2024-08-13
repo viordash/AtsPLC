@@ -103,12 +103,13 @@ bool CommonTimer::Render(uint8_t *fb) {
         res &= draw_passive_network(fb, x_pos, incoming_point.y, RightPadding, true);
     }
 
-    ESP_LOGI(TAG_CommonTimer,
-             "Render, str_time:%s, str_size:%d, x:%u, y:%u",
+    ESP_LOGD(TAG_CommonTimer,
+             "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
              str_time,
              str_size,
              incoming_point.x,
-             incoming_point.y);
+             incoming_point.y,
+             res);
     return res;
 }
 

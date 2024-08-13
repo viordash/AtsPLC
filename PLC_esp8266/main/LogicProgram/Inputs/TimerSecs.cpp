@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 
-static const char *TAG = "TimerSecs";
+static const char *TAG_TimerSecs = "TimerSecs";
 
 TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase *incoming_item) : CommonTimer(incoming_item) {
     if (delay_time_s < 1) {
@@ -21,7 +21,7 @@ TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase *incoming_item) : CommonTi
     this->delay_time_us = delay_time_s * 1000000LL;
     str_size = sprintf(this->str_time, "%u", delay_time_s);
 
-    ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);
+    ESP_LOGD(TAG_TimerSecs, "ctor, str_time:%s", this->str_time);
 }
 
 TimerSecs::~TimerSecs() {
@@ -50,6 +50,8 @@ bool TimerSecs::Render(uint8_t *fb) {
                                   x_pos,
                                   incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),
                                   percent);
+
+    ESP_LOGD(TAG_TimerSecs, "Render, percent:%u, delay:%u", percent, (uint32_t)(delay_time_us / 1000000LL));
     require_render = false;
     return res;
 }

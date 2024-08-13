@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_Demo = "DEMO";
+
 void display_demo_0(bool active) {
     Controller controller;
     StatusBar statusBar(controller, 0);
@@ -57,8 +59,15 @@ void display_demo_0(bool active) {
     outcomeRail1.Render(fb);
     end_render(fb);
 
-    for (size_t i = 0; i < 10; i++) {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    for (size_t i = 0; i < 25; i++) {
+        ESP_LOGD(TAG_Demo, "cycle  i:%u", i);
+
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+
+        timerSecs1.DoAction();
+        timerSecs2.DoAction();
+        timerMSecs3.DoAction();
+
         begin_render();
 
         statusBar.Render(fb);
