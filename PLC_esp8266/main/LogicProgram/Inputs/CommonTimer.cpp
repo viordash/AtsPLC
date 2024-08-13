@@ -23,6 +23,9 @@ CommonTimer::~CommonTimer() {
 }
 
 uint64_t CommonTimer::GetLeftTime() {
+    if (incoming_item->GetState() != LogicItemState::lisActive) {
+        return delay_time_us;
+    }
     uint64_t curr_time = esp_timer_get_time();
     int64_t elapsed = curr_time - start_time_us;
     if (elapsed < 0) {
