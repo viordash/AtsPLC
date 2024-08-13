@@ -342,3 +342,31 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
     CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
                     "require_render because state has changed");
 }
+
+TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableCommonTimer prev_element(0, &incomeRail0);
+    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    TestableCommonTimer testable(10, &prev_element);
+
+    os_us = 10;
+
+    CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
+                    "require_render because state has changed");
+    *(testable.PublicMorozov_Get_require_render()) = false;
+
+    os_us = 5; //total counter overflow
+
+    CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
+                     "no require_render because state hasn't changed");
+}

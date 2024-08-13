@@ -49,7 +49,7 @@ bool CommonTimer::DoAction() {
     }
 
     if (incoming_item->GetState() == LogicItemState::lisActive //
-        && GetLeftTime() == 0) {
+        && (state == LogicItemState::lisActive || GetLeftTime() == 0)) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;
