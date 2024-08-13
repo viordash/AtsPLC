@@ -18,13 +18,13 @@ Controller::~Controller() {
 
 uint8_t Controller::GetAIRelativeValue() {
     uint16_t val_10bit = get_analog_value();
-    uint8_t val_half_percent = val_10bit / 5;
-    return val_half_percent;
+    uint8_t percent04 = val_10bit / 4;
+    return percent04;
 }
 
 uint8_t Controller::GetDIRelativeValue() {
     bool val_1bit = get_digital_input_value();
-    uint8_t val_half_percent = val_1bit ? 200 : 0;
+    uint8_t val_half_percent = val_1bit ? 250 : 0;
     return val_half_percent;
 }
 
