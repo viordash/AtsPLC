@@ -46,6 +46,8 @@ uint8_t CommonTimer::GetProgress() {
 }
 
 bool CommonTimer::DoAction() {
+    bool any_changes = false;
+
     LogicItemState prev_state = state;
     if (IncomingItemStateHasChanged() && incoming_item->GetState() == LogicItemState::lisActive) {
         this->start_time_us = esp_timer_get_time();
@@ -60,8 +62,9 @@ bool CommonTimer::DoAction() {
 
     if (state != prev_state) {
         require_render = true;
+        any_changes = true;
     }
-    return true;
+    return any_changes;
 }
 
 bool CommonTimer::Render(uint8_t *fb) {

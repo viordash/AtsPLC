@@ -53,7 +53,7 @@ namespace {
         }
 
         bool DoAction_called = false;
-        bool DoAction_result = true;
+        bool DoAction_result = false;
         bool DoAction() override {
             DoAction_called = true;
             return DoAction_result;
@@ -73,7 +73,7 @@ namespace {
         }
 
         bool DoAction_called = false;
-        bool DoAction_result = true;
+        bool DoAction_result = false;
         bool DoAction() override {
             DoAction_called = true;
             return DoAction_result;
@@ -92,7 +92,7 @@ namespace {
         }
 
         bool DoAction_called = false;
-        bool DoAction_result = true;
+        bool DoAction_result = false;
         bool DoAction() override {
             DoAction_called = true;
             return DoAction_result;
@@ -112,7 +112,7 @@ namespace {
         }
 
         bool DoAction_called = false;
-        bool DoAction_result = true;
+        bool DoAction_result = false;
         bool DoAction() override {
             DoAction_called = true;
             return DoAction_result;
@@ -158,8 +158,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
-    bool res = testable.DoAction();
-    CHECK_TRUE(res);
+    testable.DoAction();
 
     CHECK_TRUE(input1.DoAction_called);
     CHECK_TRUE(comparator1.DoAction_called);
@@ -167,7 +166,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     CHECK_TRUE(directOutput0.DoAction_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, false_in_DoAction_will_break_handling) {
+TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
     Controller controller;
     TestableIncomeRail testable(controller, 0);
 
@@ -177,13 +176,15 @@ TEST(LogicIncomeRailTestsGroup, false_in_DoAction_will_break_handling) {
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
-    timerSecs1.DoAction_result = false;
-
     bool res = testable.DoAction();
     CHECK_FALSE(res);
 
-    CHECK_TRUE(input1.DoAction_called);
-    CHECK_TRUE(comparator1.DoAction_called);
-    CHECK_TRUE(timerSecs1.DoAction_called);
-    CHECK_FALSE(directOutput0.DoAction_called);
+    timerSecs1.DoAction_result = true;
+    res = testable.DoAction();
+    CHECK_TRUE(res);
+
+    timerSecs1.DoAction_result = false;
+    directOutput0.DoAction_result = true;
+    res = testable.DoAction();
+    CHECK_TRUE(res);
 }

@@ -15,6 +15,7 @@ InputNO::~InputNO() {
 }
 
 bool InputNO::DoAction() {
+    bool any_changes = false;
     LogicItemState prev_state = state;
 
     if (incoming_item->GetState() == LogicItemState::lisActive //
@@ -26,8 +27,9 @@ bool InputNO::DoAction() {
 
     if (state != prev_state) {
         require_render = true;
+        any_changes = true;
     }
-    return true;
+    return any_changes;
 }
 
 const Bitmap *InputNO::GetCurrentBitmap() {

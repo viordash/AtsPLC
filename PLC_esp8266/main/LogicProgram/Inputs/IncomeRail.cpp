@@ -22,15 +22,14 @@ Point IncomeRail::OutcomingPoint() {
 }
 
 bool IncomeRail::DoAction() {
+    bool any_changes = false;
     LogicElement *next = nextElement;
 
     while (next != NULL) {
-        if (!next->DoAction()) {
-            return false;
-        }
+        any_changes |= next->DoAction();
         next = next->nextElement;
     }
-    return true;
+    return any_changes;
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
