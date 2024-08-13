@@ -8,7 +8,7 @@ class CommonTimer : public InputBase {
   private:
   protected:
     uint64_t delay_time_us;
-    uint64_t raise_time_us;
+    uint64_t start_time_us;
     char str_time[16];
     int str_size;
     InputBase *incoming_item;

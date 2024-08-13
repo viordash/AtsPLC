@@ -38,7 +38,6 @@ namespace {
             : CommonTimer(incoming_item) {
 
             this->delay_time_us = delay_time_us;
-            this->raise_time_us = (uint64_t)esp_timer_get_time() + delay_time_us;
         }
         virtual ~TestableCommonTimer() {
         }
@@ -85,7 +84,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
 }
 
 TEST(LogicCommonTimerTestsGroup, IncomingItemStateHasChanged_has_single_responsibility) {
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);

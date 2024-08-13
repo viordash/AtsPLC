@@ -20,8 +20,6 @@ TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
         delay_time_ms = 99999;
     }
     this->delay_time_us = delay_time_ms * 1000LL;
-    this->raise_time_us = (uint64_t)esp_timer_get_time() + delay_time_us;
-
     str_size = sprintf(this->str_time, "%u", delay_time_ms);
 
     ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);

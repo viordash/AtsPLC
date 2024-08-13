@@ -19,8 +19,6 @@ TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase *incoming_item) : CommonTi
         delay_time_s = 99999;
     }
     this->delay_time_us = delay_time_s * 1000000LL;
-    this->raise_time_us = (uint64_t)esp_timer_get_time() + delay_time_us;
-
     str_size = sprintf(this->str_time, "%u", delay_time_s);
 
     ESP_LOGD(TAG, "ctor, str_time:%s", this->str_time);

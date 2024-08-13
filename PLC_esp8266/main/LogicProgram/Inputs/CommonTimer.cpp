@@ -14,6 +14,9 @@ CommonTimer::CommonTimer(InputBase *incoming_item)
     this->incoming_item = incoming_item;
     this->incoming_item->Bind(this);
     incoming_item_prev_state = incoming_item->GetState();
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        this->start_time_us = esp_timer_get_time();
+    }
 }
 
 CommonTimer::~CommonTimer() {
@@ -22,6 +25,7 @@ CommonTimer::~CommonTimer() {
 uint64_t CommonTimer::GetLeftTime() {
     uint64_t curr_time = esp_timer_get_time();
     uint64_t left_time;
+    uint64_t raise_time_us = start_time_us + delay_time_us;
     if (raise_time_us >= curr_time) {
         left_time = raise_time_us - curr_time;
     } else {
