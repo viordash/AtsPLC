@@ -24,17 +24,15 @@ CommonTimer::~CommonTimer() {
 
 uint64_t CommonTimer::GetLeftTime() {
     uint64_t curr_time = esp_timer_get_time();
-    uint64_t left_time;
-    uint64_t raise_time_us = start_time_us + delay_time_us;
-    if (raise_time_us >= curr_time) {
-        left_time = raise_time_us - curr_time;
-    } else {
-        left_time = raise_time_us + 1 + (UINT64_MAX - curr_time);
+    int64_t elapsed = curr_time - start_time_us;
+    if (elapsed < 0) {
+        return 0;
     }
 
-    if (left_time > delay_time_us) {
-        left_time = 0;
+    if (elapsed > (int64_t)delay_time_us) {        
+        return 0;
     }
+    uint64_t left_time = delay_time_us - elapsed;
     return left_time;
 }
 

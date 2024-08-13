@@ -34,7 +34,7 @@ namespace {
 
     class TestableCommonTimer : public CommonTimer {
       public:
-        TestableCommonTimer(uint32_t delay_time_us, InputBase *incoming_item)
+        TestableCommonTimer(uint64_t delay_time_us, InputBase *incoming_item)
             : CommonTimer(incoming_item) {
 
             this->delay_time_us = delay_time_us;
@@ -141,7 +141,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
 TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_is_overflowed) {
     volatile uint64_t os_us = UINT64_MAX - 7;
     mock()
-        .expectNCalls(8, "esp_timer_get_time")
+        .expectNCalls(9, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller;
@@ -170,7 +170,85 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_is_overflowed) {
     left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(0, left_time);
 
+    os_us = INT64_MAX;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+
     os_us = UINT64_MAX - 8;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+}
+
+TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(8, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableCommonTimer testable_0(INT64_MAX, &incomeRail0);
+    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX, left_time);
+
+    os_us = 100;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX - 100, left_time);
+
+    os_us = INT64_MAX - 1;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(1, left_time);
+
+    os_us = INT64_MAX;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+
+    os_us = (uint64_t)INT64_MAX + 100;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+
+    os_us = UINT64_MAX - 1;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+
+    os_us = UINT64_MAX;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+}
+
+TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
+    volatile uint64_t os_us = UINT64_MAX - 7;
+    mock()
+        .expectNCalls(8, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableCommonTimer testable_0(INT64_MAX, &incomeRail0);
+    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX, left_time);
+
+    os_us = UINT64_MAX - 5;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX - 2, left_time);
+
+    os_us = UINT64_MAX;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX - 7, left_time);
+
+    os_us = 0;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(INT64_MAX - 8, left_time);
+
+    os_us = (uint64_t)INT64_MAX - 9;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(1, left_time);
+
+    os_us = (uint64_t)INT64_MAX - 8;
+    left_time = testable_0.PublicMorozov_GetLeftTime();
+    CHECK_EQUAL(0, left_time);
+
+    os_us = (uint64_t)INT64_MAX;
     left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(0, left_time);
 }
