@@ -184,39 +184,39 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
 
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
-    TestableCommonTimer testable_0(100, &incomeRail0);
-    uint8_t percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(0, percent);
+    TestableCommonTimer testable_0(1000, &incomeRail0);
+    uint8_t percent04 = testable_0.PublicMorozov_GetProgress();
+    CHECK_EQUAL(0, percent04);
 
     os_us = 1;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(1, percent);
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(0.4 / 0.4, percent04, 0.5);
 
     os_us = 5;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(5, percent);
-
-    os_us = 10;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(10, percent);
-
-    os_us = 25;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(25, percent);
-
-    os_us = 50;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(50, percent);
-
-    os_us = 99;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(99, percent);
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(0.8 / 0.4, percent04, 0.5);
 
     os_us = 100;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(100, percent);
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(10 / 0.4, percent04, 0.5);
 
-    os_us = 120;
-    percent = testable_0.PublicMorozov_GetProgress();
-    CHECK_EQUAL(100, percent);
+    os_us = 250;
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(25 / 0.4, percent04, 0.5);
+
+    os_us = 500;
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(50 / 0.4, percent04, 0.5);
+
+    os_us = 990;
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(99 / 0.4, percent04, 0.5);
+
+    os_us = 1000;
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
+
+    os_us = 1200;
+    percent04 = testable_0.PublicMorozov_GetProgress();
+    DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
 }
