@@ -13,6 +13,7 @@ CommonTimer::CommonTimer(InputBase *incoming_item)
     : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()) {
     this->incoming_item = incoming_item;
     this->incoming_item->Bind(this);
+    incoming_item_prev_state = incoming_item->GetState();
 }
 
 CommonTimer::~CommonTimer() {
@@ -92,4 +93,10 @@ Point CommonTimer::OutcomingPoint() {
     uint8_t x_pos = incoming_point.x + LeftPadding + bitmap->size.width + RightPadding;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
+}
+
+bool CommonTimer::IncomingItemStateHasChanged() {
+    bool changed = incoming_item_prev_state != incoming_item->GetState();
+    incoming_item_prev_state = incoming_item->GetState();
+    return changed;
 }
