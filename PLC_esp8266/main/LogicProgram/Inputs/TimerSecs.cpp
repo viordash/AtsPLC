@@ -38,9 +38,6 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
 }
 
 bool TimerSecs::Render(uint8_t *fb) {
-    if (!require_render) {
-        return true;
-    }
     bool res;
     res = CommonTimer::Render(fb);
 
@@ -52,6 +49,5 @@ bool TimerSecs::Render(uint8_t *fb) {
                                   percent);
 
     ESP_LOGD(TAG_TimerSecs, "Render, percent:%u, delay:%u", percent, (uint32_t)(delay_time_us / 1000000LL));
-    require_render = false;
     return res;
 }

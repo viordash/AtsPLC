@@ -57,9 +57,6 @@ namespace {
         uint8_t PublicMorozov_GetProgress() {
             return GetProgress();
         }
-        bool *PublicMorozov_Get_require_render() {
-            return &require_render;
-        }
     };
 } // namespace
 
@@ -331,12 +328,9 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableCommonTimer prev_element(0, &incomeRail0);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
     TestableCommonTimer testable(10, &prev_element);
-    *(testable.PublicMorozov_Get_require_render()) = false;
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "no require_render because state hasn't changed");
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
@@ -350,19 +344,14 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
     TestableCommonTimer prev_element(0, &incomeRail0);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
     TestableCommonTimer testable(10, &prev_element);
-    *(testable.PublicMorozov_Get_require_render()) = false;
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "no require_render because state hasn't changed");
 
     os_us = 10;
 
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                    "require_render because state has changed");
 }
 
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
@@ -381,14 +370,9 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
 
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                    "require_render because state has changed");
-    *(testable.PublicMorozov_Get_require_render()) = false;
 
     os_us = 5; //total counter overflow
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "no require_render because state hasn't changed");
 }

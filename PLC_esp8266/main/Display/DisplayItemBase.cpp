@@ -6,7 +6,6 @@
 #include <string.h>
 
 DisplayItemBase::DisplayItemBase() {
-    require_render = true;
 }
 
 DisplayItemBase::~DisplayItemBase() {

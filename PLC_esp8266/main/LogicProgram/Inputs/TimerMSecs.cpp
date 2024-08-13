@@ -39,10 +39,6 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
 }
 
 bool TimerMSecs::Render(uint8_t *fb) {
-    if (!require_render) {
-        return true;
-    }
     bool res = CommonTimer::Render(fb);
-    require_render = false;
     return res;
 }

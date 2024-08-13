@@ -38,16 +38,13 @@ namespace {
         InputBase *PublicMorozov_incoming_item() {
             return incoming_item;
         }
-        bool *PublicMorozov_Get_require_render() {
-            return &require_render;
-        }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
     };
 } // namespace
 
-TEST(LogicInputNCTestsGroup, Render_happened_on_startup) {
+TEST(LogicInputNCTestsGroup, Render) {
 
     Controller controller;
     IncomeRail incomeRail(controller, 0);
@@ -56,52 +53,6 @@ TEST(LogicInputNCTestsGroup, Render_happened_on_startup) {
     CHECK_TRUE(testable.Render(frame_buffer));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-
-    memset(frame_buffer, 0, sizeof(frame_buffer));
-    any_pixel_coloring = false;
-    CHECK_TRUE(testable.Render(frame_buffer));
-
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_FALSE(any_pixel_coloring);
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "require_render does not auto-reset");
-}
-
-TEST(LogicInputNCTestsGroup, re_render_on_demand) {
-
-    Controller controller;
-    IncomeRail incomeRail(controller, 0);
-    TestableInputNC testable(MapIO::V1, &incomeRail);
-
-    CHECK_TRUE(testable.Render(frame_buffer));
-
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-
-    memset(frame_buffer, 0, sizeof(frame_buffer));
-    any_pixel_coloring = false;
-    *(testable.PublicMorozov_Get_require_render()) = true;
-
-    CHECK_TRUE(testable.Render(frame_buffer));
-
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
         if (frame_buffer[i] != 0) {
             any_pixel_coloring = true;
@@ -124,8 +75,6 @@ TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_FALSE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "no require_render because state hasn't changed");
 }
 
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
@@ -140,8 +89,6 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
 
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "require_render because state has changed");
 }
 
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
@@ -157,6 +104,4 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
 
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_TRUE_TEXT(*(testable.PublicMorozov_Get_require_render()),
-                     "require_render because state has changed");
 }

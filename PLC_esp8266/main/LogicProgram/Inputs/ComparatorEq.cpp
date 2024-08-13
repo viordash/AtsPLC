@@ -31,10 +31,6 @@ const Bitmap *ComparatorEq::GetCurrentBitmap() {
 }
 
 bool ComparatorEq::Render(uint8_t *fb) {
-    if (!require_render) {
-        return true;
-    }
     bool res = CommonComparator::Render(fb);
-    require_render = false;
     return res;
 }

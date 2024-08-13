@@ -26,7 +26,6 @@ bool InputNO::DoAction() {
     }
 
     if (state != prev_state) {
-        require_render = true;
         any_changes = true;
     }
     return any_changes;
@@ -43,10 +42,6 @@ const Bitmap *InputNO::GetCurrentBitmap() {
 }
 
 bool InputNO::Render(uint8_t *fb) {
-    if (!require_render) {
-        return true;
-    }
     bool res = CommonInput::Render(fb);
-    require_render = false;
     return res;
 }

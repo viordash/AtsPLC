@@ -33,10 +33,6 @@ bool IncomeRail::DoAction() {
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
-    if (!require_render) {
-        return true;
-    }
     bool res = draw_income_rail(fb, network_number);
-    require_render = false;
     return res;
 }

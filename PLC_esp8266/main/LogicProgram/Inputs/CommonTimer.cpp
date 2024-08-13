@@ -61,7 +61,6 @@ bool CommonTimer::DoAction() {
     }
 
     if (state != prev_state) {
-        require_render = true;
         any_changes = true;
     }
     return any_changes;
