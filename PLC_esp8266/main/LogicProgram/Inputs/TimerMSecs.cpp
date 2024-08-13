@@ -28,12 +28,6 @@ TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
 TimerMSecs::~TimerMSecs() {
 }
 
-bool TimerMSecs::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
-    return true;
-}
-
 const Bitmap *TimerMSecs::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:

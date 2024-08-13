@@ -29,7 +29,7 @@ uint64_t CommonTimer::GetLeftTime() {
         return 0;
     }
 
-    if (elapsed > (int64_t)delay_time_us) {        
+    if (elapsed > (int64_t)delay_time_us) {
         return 0;
     }
     uint64_t left_time = delay_time_us - elapsed;
@@ -40,6 +40,25 @@ uint8_t CommonTimer::GetProgress() {
     uint64_t left_time = GetLeftTime();
     uint8_t percent04 = (left_time * 250) / delay_time_us;
     return 250 - (uint8_t)percent04;
+}
+
+bool CommonTimer::DoAction() {
+    LogicItemState prev_state = state;
+    if (IncomingItemStateHasChanged() && incoming_item->GetState() == LogicItemState::lisActive) {
+        this->start_time_us = esp_timer_get_time();
+    }
+
+    if (incoming_item->GetState() == LogicItemState::lisActive //
+        && GetLeftTime() == 0) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        require_render = true;
+    }
+    return true;
 }
 
 bool CommonTimer::Render(uint8_t *fb) {

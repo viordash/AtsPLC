@@ -27,12 +27,6 @@ TimerSecs::TimerSecs(uint32_t delay_time_s, InputBase *incoming_item) : CommonTi
 TimerSecs::~TimerSecs() {
 }
 
-bool TimerSecs::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
-    return true;
-}
-
 const Bitmap *TimerSecs::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:

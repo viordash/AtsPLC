@@ -15,6 +15,5 @@ class TimerMSecs : public CommonTimer {
     TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item);
     ~TimerMSecs();
 
-    bool DoAction() override final;
     bool Render(uint8_t *fb) override final;
 };
