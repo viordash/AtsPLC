@@ -18,19 +18,12 @@ TEST_GROUP(LogicCommonComparatorTestsGroup){ //
 };
 
 namespace {
-    static const Bitmap bitmap_active = { //
-        { 16,                             // width
-          16 },                           // height
+    static const Bitmap bitmap = { //
+        { 16,                      // width
+          16 },                    // height
         { 0xFF, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x0A, 0x0A, 0x0A,
           0x0A, 0x00, 0x00, 0xFF, 0x80, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
-    };
-    static const Bitmap bitmap_passive = { //
-        { 16,                              // width
-          16 },                            // height
-        { 0xDB, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x0A, 0x0A, 0x0A,
-          0x0A, 0x00, 0x00, 0xDB, 0x80, 0xB6, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB6, 0x01 }
     };
 
     class TestableCommonComparator : public CommonComparator {
@@ -42,13 +35,7 @@ namespace {
         }
 
         const Bitmap *GetCurrentBitmap() {
-            switch (state) {
-                case LogicItemState::lisActive:
-                    return &bitmap_active;
-
-                default:
-                    return &bitmap_passive;
-            }
+            return &bitmap;
         }
 
         bool DoAction() {
