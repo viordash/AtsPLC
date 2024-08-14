@@ -14,12 +14,6 @@ ComparatorEq::ComparatorEq(uint16_t reference, const MapIO io_adr, InputBase *in
 ComparatorEq::~ComparatorEq() {
 }
 
-bool ComparatorEq::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
-    return true;
-}
-
 const Bitmap *ComparatorEq::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
@@ -30,7 +24,6 @@ const Bitmap *ComparatorEq::GetCurrentBitmap() {
     }
 }
 
-bool ComparatorEq::Render(uint8_t *fb) {
-    bool res = CommonComparator::Render(fb);
-    return res;
+bool ComparatorEq::CompareFunction() {
+    return GetValue() >= reference;
 }

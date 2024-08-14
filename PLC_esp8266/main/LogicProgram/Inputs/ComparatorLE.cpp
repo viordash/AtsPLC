@@ -8,16 +8,10 @@
 #include <string.h>
 
 ComparatorLE::ComparatorLE(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-    : CommonComparator(reference, io_adr ,incoming_item) {
+    : CommonComparator(reference, io_adr, incoming_item) {
 }
 
 ComparatorLE::~ComparatorLE() {
-}
-
-bool ComparatorLE::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
-    return true;
 }
 
 const Bitmap *ComparatorLE::GetCurrentBitmap() {
@@ -28,4 +22,8 @@ const Bitmap *ComparatorLE::GetCurrentBitmap() {
         default:
             return &ComparatorLE::bitmap_passive;
     }
+}
+
+bool ComparatorLE::CompareFunction() {
+    return GetValue() <= reference;
 }

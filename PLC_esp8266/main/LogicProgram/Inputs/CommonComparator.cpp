@@ -17,6 +17,23 @@ CommonComparator::CommonComparator(uint16_t reference, const MapIO io_adr, Input
 CommonComparator::~CommonComparator() {
 }
 
+bool CommonComparator::DoAction() {
+    bool any_changes = false;
+    LogicItemState prev_state = state;
+
+    if (incoming_item->GetState() == LogicItemState::lisActive //
+        && this->CompareFunction()) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        any_changes = true;
+    }
+    return any_changes;
+}
+
 bool CommonComparator::Render(uint8_t *fb) {
     bool res;
     res = CommonInput::Render(fb);

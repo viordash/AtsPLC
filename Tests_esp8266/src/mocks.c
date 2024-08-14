@@ -42,7 +42,7 @@ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level) {
 esp_err_t adc_read(uint16_t *data) {
     esp_err_t err = mock_c()
                         ->actualCall("adc_read")
-                        ->withOutputParameter("data", data)
+                        ->withOutputParameter("adc", data)
                         ->returnIntValueOrDefault(ESP_OK);
     return err;
 }

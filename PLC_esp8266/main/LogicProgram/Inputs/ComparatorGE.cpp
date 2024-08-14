@@ -14,12 +14,6 @@ ComparatorGE::ComparatorGE(uint16_t reference, const MapIO io_adr, InputBase *in
 ComparatorGE::~ComparatorGE() {
 }
 
-bool ComparatorGE::DoAction() {
-    state =
-        state == LogicItemState::lisActive ? LogicItemState::lisPassive : LogicItemState::lisActive;
-    return true;
-}
-
 const Bitmap *ComparatorGE::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
@@ -30,7 +24,6 @@ const Bitmap *ComparatorGE::GetCurrentBitmap() {
     }
 }
 
-bool ComparatorGE::Render(uint8_t *fb) {
-    bool res = CommonComparator::Render(fb);
-    return res;
+bool ComparatorGE::CompareFunction() {
+    return GetValue() >= reference;
 }

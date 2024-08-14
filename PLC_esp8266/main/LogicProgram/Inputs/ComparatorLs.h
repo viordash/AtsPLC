@@ -10,11 +10,9 @@ class ComparatorLs : public CommonComparator {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap() override final;
+    bool CompareFunction() override final;
 
   public:
     ComparatorLs(uint16_t reference, const MapIO io_adr, InputBase *incoming_item);
     ~ComparatorLs();
-
-    bool DoAction() override final;
-    bool Render(uint8_t *fb) override final;
 };

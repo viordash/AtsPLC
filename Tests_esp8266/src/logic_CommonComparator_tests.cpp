@@ -11,11 +11,16 @@
 #include "main/LogicProgram/Inputs/CommonComparator.h"
 #include "main/LogicProgram/Inputs/IncomeRail.h"
 
-TEST_GROUP(LogicCommonComparatorTestsGroup){ //
-                                             TEST_SETUP(){}
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+TEST_GROUP(LogicCommonComparatorTestsGroup){
+    //
+    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+}
 
-                                             TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+}
+}
+;
 
 namespace {
     static const Bitmap bitmap = { //
@@ -38,9 +43,10 @@ namespace {
             return &bitmap;
         }
 
-        bool DoAction() {
+        bool CompareFunction() override {
             return true;
         }
+
         uint16_t GetReference() {
             return reference;
         }
@@ -61,4 +67,22 @@ TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_999) {
 
     TestableCommonComparator testable_1000(1000, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(999, testable_1000.GetReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, Render) {
+
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableCommonComparator testable(0, MapIO::DI, &incomeRail);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
 }

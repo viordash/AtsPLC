@@ -78,6 +78,9 @@ namespace {
             DoAction_called = true;
             return DoAction_result;
         }
+        bool CompareFunction() override {
+            return true;
+        }
     };
 
     class TestableCommonTimer : public CommonTimer {
