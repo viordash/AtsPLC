@@ -8,6 +8,9 @@ class TimerSecs : public CommonTimer {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
+    const static uint64_t force_render_period_us = 1000000;
+
+    uint64_t force_render_time_us;
 
     const Bitmap *GetCurrentBitmap() override final;
 
@@ -16,4 +19,5 @@ class TimerSecs : public CommonTimer {
     ~TimerSecs();
 
     bool Render(uint8_t *fb) override final;
+    bool ProgressHasChanges();
 };

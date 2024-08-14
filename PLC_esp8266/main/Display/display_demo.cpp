@@ -59,30 +59,32 @@ void display_demo_0(bool active) {
     outcomeRail1.Render(fb);
     end_render(fb);
 
-    for (size_t i = 0; i < 25; i++) {
-        ESP_LOGD(TAG_Demo, "cycle  i:%u", i);
+    for (size_t i = 0; i < 150; i++) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
 
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        bool need_render = false;
+        need_render |= timerSecs1.DoAction() | timerSecs1.ProgressHasChanges();
+        need_render |= timerSecs2.DoAction() | timerSecs2.ProgressHasChanges();
+        need_render |= timerMSecs3.DoAction();
 
-        timerSecs1.DoAction();
-        timerSecs2.DoAction();
-        timerMSecs3.DoAction();
+        if (need_render) {
+            ESP_LOGI(TAG_Demo, "cycle  i:%u, need_render:%u", i, need_render);
+            begin_render();
 
-        begin_render();
+            statusBar.Render(fb);
+            incomeRail0.Render(fb);
+            input1.Render(fb);
+            comparator1.Render(fb);
+            comparator2.Render(fb);
+            directOutput0.Render(fb);
+            outcomeRail0.Render(fb);
 
-        statusBar.Render(fb);
-        incomeRail0.Render(fb);
-        input1.Render(fb);
-        comparator1.Render(fb);
-        comparator2.Render(fb);
-        directOutput0.Render(fb);
-        outcomeRail0.Render(fb);
-
-        incomeRail1.Render(fb);
-        timerSecs1.Render(fb);
-        timerSecs2.Render(fb);
-        timerMSecs3.Render(fb);
-        outcomeRail1.Render(fb);
-        end_render(fb);
+            incomeRail1.Render(fb);
+            timerSecs1.Render(fb);
+            timerSecs2.Render(fb);
+            timerMSecs3.Render(fb);
+            outcomeRail1.Render(fb);
+            end_render(fb);
+        }
     }
 }

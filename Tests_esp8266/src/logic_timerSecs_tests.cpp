@@ -50,3 +50,41 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     TestableTimerSecs testable_100000(100000, &incomeRail0);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
 }
+
+TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(11, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller;
+    IncomeRail incomeRail0(controller, 0);
+    TestableTimerSecs testable(10, &incomeRail0);
+    testable.ProgressHasChanges();
+
+    CHECK_FALSE(testable.ProgressHasChanges());
+
+    os_us = 500000;
+    CHECK_FALSE(testable.ProgressHasChanges());
+
+    os_us = 1000000;
+    CHECK_TRUE(testable.ProgressHasChanges());
+
+    os_us = 1200000;
+    CHECK_FALSE(testable.ProgressHasChanges());
+
+    os_us = 2000000;
+    CHECK_TRUE(testable.ProgressHasChanges());
+
+    os_us = 2500000;
+    CHECK_FALSE(testable.ProgressHasChanges());
+
+    os_us = UINT64_MAX - 900000;
+    CHECK_TRUE(testable.ProgressHasChanges());
+
+    os_us = 100000 - 2;
+    CHECK_FALSE(testable.ProgressHasChanges());
+
+    os_us = 100000 - 1;
+    CHECK_TRUE(testable.ProgressHasChanges());
+}

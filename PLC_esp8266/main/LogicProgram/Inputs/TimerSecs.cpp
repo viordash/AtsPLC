@@ -48,6 +48,29 @@ bool TimerSecs::Render(uint8_t *fb) {
                                   incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),
                                   percent);
 
-    ESP_LOGD(TAG_TimerSecs, "Render, percent:%u, delay:%u", percent, (uint32_t)(delay_time_us / 1000000LL));
+    ESP_LOGD(TAG_TimerSecs,
+             "Render, percent:%u, delay:%u",
+             percent,
+             (uint32_t)(delay_time_us / 1000000LL));
     return res;
+}
+
+bool TimerSecs::ProgressHasChanges() {
+    if (incoming_item->GetState() != LogicItemState::lisActive) {
+        return false;
+    }
+    if (state == LogicItemState::lisActive) {
+        return false;
+    }
+
+    uint64_t curr_time = esp_timer_get_time();
+    int64_t elapsed = curr_time - force_render_time_us;
+    if (elapsed >= 0 && elapsed < (int64_t)force_render_period_us) {
+        return false;
+    }
+    if (elapsed < 0 && elapsed > (int64_t)-force_render_period_us) {
+        return false;
+    }
+    force_render_time_us = curr_time;
+    return true;
 }
