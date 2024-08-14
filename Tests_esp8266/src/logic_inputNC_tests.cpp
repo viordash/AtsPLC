@@ -71,7 +71,6 @@ TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
     TestableInputNC testable(MapIO::DI, &prev_element);
-    testable.Render(frame_buffer);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
