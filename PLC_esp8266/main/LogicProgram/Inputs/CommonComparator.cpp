@@ -5,13 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonComparator::CommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
+CommonComparator::CommonComparator(uint8_t ref_percent04,
+                                   const MapIO io_adr,
+                                   InputBase *incoming_item)
     : CommonInput(io_adr, incoming_item) {
-    if (reference > 999) {
-        reference = 999;
+    if (ref_percent04 > 250) {
+        ref_percent04 = 250;
     }
-    this->reference = reference;
-    str_size = sprintf(this->str_reference, "%d", reference);
+    this->ref_percent04 = ref_percent04;
+    str_size = sprintf(this->str_reference, "%d", ref_percent04);
 }
 
 CommonComparator::~CommonComparator() {

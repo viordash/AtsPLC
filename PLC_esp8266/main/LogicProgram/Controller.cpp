@@ -24,8 +24,8 @@ uint8_t Controller::GetAIRelativeValue() {
 
 uint8_t Controller::GetDIRelativeValue() {
     bool val_1bit = get_digital_input_value();
-    uint8_t val_half_percent = val_1bit ? 250 : 0;
-    return val_half_percent;
+    uint8_t percent04 = val_1bit ? 250 : 0;
+    return percent04;
 }
 
 uint8_t Controller::GetO1RelativeValue() {

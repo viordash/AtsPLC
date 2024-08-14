@@ -20,7 +20,7 @@ void display_demo_0(bool active) {
     IncomeRail incomeRail0(controller, 0);
     InputNO input1(MapIO::DI, &incomeRail0);
     ComparatorGE comparator1(5, MapIO::AI, &input1);
-    ComparatorEq comparator2(42, MapIO::V1, &comparator1);
+    ComparatorEq comparator2(250, MapIO::V1, &comparator1);
     DirectOutput directOutput0(MapIO::O1, &comparator2);
     OutcomeRail outcomeRail0(0);
 

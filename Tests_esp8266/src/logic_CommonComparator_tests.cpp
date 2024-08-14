@@ -33,8 +33,10 @@ namespace {
 
     class TestableCommonComparator : public CommonComparator {
       public:
-        TestableCommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-            : CommonComparator(reference, io_adr, incoming_item) {
+        TestableCommonComparator(uint8_t ref_percent04,
+                                 const MapIO io_adr,
+                                 InputBase *incoming_item)
+            : CommonComparator(ref_percent04, io_adr, incoming_item) {
         }
         virtual ~TestableCommonComparator() {
         }
@@ -47,26 +49,26 @@ namespace {
             return true;
         }
 
-        uint16_t GetReference() {
-            return reference;
+        uint8_t GetReference() {
+            return ref_percent04;
         }
     };
 } // namespace
 
-TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_999) {
+TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
     Controller controller;
     IncomeRail incomeRail0(controller, 0);
     TestableCommonComparator testable_0(0, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(0, testable_0.GetReference());
 
-    TestableCommonComparator testable_998(998, MapIO::DI, &incomeRail0);
-    CHECK_EQUAL(998, testable_998.GetReference());
+    TestableCommonComparator testable_100(100, MapIO::DI, &incomeRail0);
+    CHECK_EQUAL(100, testable_100.GetReference());
 
-    TestableCommonComparator testable_999(999, MapIO::DI, &incomeRail0);
-    CHECK_EQUAL(999, testable_999.GetReference());
+    TestableCommonComparator testable_250(250, MapIO::DI, &incomeRail0);
+    CHECK_EQUAL(250, testable_250.GetReference());
 
-    TestableCommonComparator testable_1000(1000, MapIO::DI, &incomeRail0);
-    CHECK_EQUAL(999, testable_1000.GetReference());
+    TestableCommonComparator testable_251(251, MapIO::DI, &incomeRail0);
+    CHECK_EQUAL(250, testable_251.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Render) {

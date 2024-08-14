@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorLE::ComparatorLE(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-    : CommonComparator(reference, io_adr, incoming_item) {
+ComparatorLE::ComparatorLE(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
+    : CommonComparator(ref_percent04, io_adr, incoming_item) {
 }
 
 ComparatorLE::~ComparatorLE() {
@@ -25,5 +25,5 @@ const Bitmap *ComparatorLE::GetCurrentBitmap() {
 }
 
 bool ComparatorLE::CompareFunction() {
-    return GetValue() <= reference;
+    return GetValue() <= ref_percent04;
 }

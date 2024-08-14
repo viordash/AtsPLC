@@ -10,12 +10,12 @@ class CommonComparator : public CommonInput {
     int str_size;
 
   protected:
-    uint16_t reference;
+    uint8_t ref_percent04;
 
     virtual bool CompareFunction() = 0;
 
   public:
-    CommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item);
+    CommonComparator(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item);
     ~CommonComparator();
 
     bool DoAction() override;

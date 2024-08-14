@@ -27,8 +27,8 @@ TEST_TEARDOWN() {
 namespace {
     class TestableComparatorLs : public ComparatorLs {
       public:
-        TestableComparatorLs(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-            : ComparatorLs(reference, io_adr, incoming_item) {
+        TestableComparatorLs(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
+            : ComparatorLs(ref_percent04, io_adr, incoming_item) {
         }
         virtual ~TestableComparatorLs() {
         }
