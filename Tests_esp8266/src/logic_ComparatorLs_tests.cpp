@@ -72,9 +72,9 @@ TEST(LogicComparatorLsTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
-    volatile uint16_t adc = 42;
+    volatile uint16_t adc = 51 / 0.1;
     mock()
-        .expectOneCall("adc_read")
+        .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
     Controller controller;
@@ -82,23 +82,32 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
     TestableComparatorLs prev_element(0, MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    TestableComparatorLs testable(42 + 1, MapIO::AI, &prev_element);
+    TestableComparatorLs testable(50 / 0.4, MapIO::AI, &prev_element);
 
+    CHECK_FALSE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+
+    adc = 49 / 0.1;
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 }
 
-// TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
-//     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
+TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
+    volatile uint16_t adc = 49 / 0.1;
+    mock()
+        .expectNCalls(2, "adc_read")
+        .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-//     Controller controller;
-//     IncomeRail incomeRail(controller, 0);
-//     TestableComparatorLs prev_element(MapIO::V1, &incomeRail);
-//     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    Controller controller;
+    IncomeRail incomeRail(controller, 0);
+    TestableComparatorLs prev_element(0, MapIO::V1, &incomeRail);
+    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-//     TestableComparatorLs testable(MapIO::DI, &prev_element);
-//     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    TestableComparatorLs testable(50 / 0.4, MapIO::AI, &prev_element);
+    CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 
-//     CHECK_TRUE(testable.DoAction());
-//     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-// }
+    adc = 51 / 0.1;
+    CHECK_TRUE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+}
