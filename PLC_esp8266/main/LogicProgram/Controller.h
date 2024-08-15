@@ -12,6 +12,11 @@ class Controller {
     Controller(/* args */);
     ~Controller();
 
+    void Start();
+    void Stop();
+
+    static void ProcessTask(void *parm);
+
     static uint8_t GetAIRelativeValue();
     static uint8_t GetDIRelativeValue();
     static uint8_t GetO1RelativeValue();
@@ -20,4 +25,5 @@ class Controller {
     static uint8_t GetV2RelativeValue();
     static uint8_t GetV3RelativeValue();
     static uint8_t GetV4RelativeValue();
+
 };

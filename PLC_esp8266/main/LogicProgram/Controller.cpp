@@ -1,6 +1,10 @@
 
 
 #include "LogicProgram/Controller.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_event.h"
+#include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +18,18 @@ Controller::Controller(/* args */) {
 }
 
 Controller::~Controller() {
+}
+
+void Controller::Start() {
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 4096, NULL, 10, NULL) != pdPASS
+                        ? ESP_FAIL
+                        : ESP_OK);
+}
+
+void Controller::Stop() {
+}
+
+void Controller::ProcessTask(void *parm) {
 }
 
 uint8_t Controller::GetAIRelativeValue() {
