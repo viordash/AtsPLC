@@ -7,7 +7,8 @@
 
 class Controller {
   private:
-    /* data */
+    bool runned;
+
   public:
     Controller(/* args */);
     ~Controller();
@@ -25,5 +26,4 @@ class Controller {
     static uint8_t GetV2RelativeValue();
     static uint8_t GetV3RelativeValue();
     static uint8_t GetV4RelativeValue();
-
 };

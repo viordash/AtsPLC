@@ -11,6 +11,7 @@
 
 #include "Display/display.h"
 #include "HttpServer/http_server.h"
+#include "LogicProgram/process_engine.h"
 #include "buttons.h"
 #include "crc32.h"
 #include "driver/uart.h"
@@ -121,37 +122,38 @@ void app_main() {
             static int8_t y = 0;
 
             if (buttons_bits & BUTTON_UP_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
+                ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
                 display_demo(x, --y);
             }
             if (buttons_bits & BUTTON_UP_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_UP_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_DOWN_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
-                display_demo(x, ++y);
+                ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
+                // display_demo(x, ++y);
             }
             if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_RIGHT_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
-                display_demo(++x, y);
+                ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
+                // display_demo(++x, y);
             }
             if (buttons_bits & BUTTON_RIGHT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_RIGHT_LONG_PRESSED");
             }
             if (buttons_bits & BUTTON_SELECT_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
-                display_demo_0(true);
+                ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
+                // display_demo_0(true);
             }
             if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
                 ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
-                display_demo_1();
+                stop_process_engine();
             }
             if (buttons_bits & BUTTON_LEFT_PRESSED) {
                 // ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
-                display_demo_0(false);
+                // display_demo_0(false);
+                start_process_engine();
             }
         }
         // vTaskDelay(5000 / portTICK_PERIOD_MS);

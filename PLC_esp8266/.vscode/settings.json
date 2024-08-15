@@ -104,6 +104,9 @@
         "cfenv": "cpp",
         "typeindex": "cpp",
         "valarray": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "logicprogram.h": "c",
+        "controller_engine.h": "c",
+        "process_engine.h": "c"
     }
 }

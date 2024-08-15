@@ -11,7 +11,7 @@ class StatusBar : public LogicElement, public DisplayItemBase {
     uint8_t y;
 
   public:
-    explicit StatusBar(const Controller &controller, uint8_t y);
+    explicit StatusBar(const Controller *controller, uint8_t y);
     virtual ~StatusBar();
 
     bool Render(uint8_t *fb) override final;

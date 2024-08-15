@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputBase::InputBase(const Controller &controller, const Point &incoming_point)
+InputBase::InputBase(const Controller *controller, const Point &incoming_point)
     : LogicElement(controller), DisplayChainItem(incoming_point) {
 }
 

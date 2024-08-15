@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-StatusBar::StatusBar(const Controller &controller, uint8_t y)
+StatusBar::StatusBar(const Controller *controller, uint8_t y)
     : LogicElement(controller), DisplayItemBase() {
     this->y = y;
 }
@@ -26,49 +26,49 @@ bool StatusBar::Render(uint8_t *fb) {
     Point point = { 2, y };
     MapIOIndicator indicator_AI(point,
                                 MapIONames[MapIO::AI],
-                                controller.GetAIRelativeValue(),
+                                Controller::GetAIRelativeValue(),
                                 separator_width);
     res &= indicator_AI.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_DI(point,
                                 MapIONames[MapIO::DI],
-                                controller.GetDIRelativeValue(),
+                                Controller::GetDIRelativeValue(),
                                 separator_width);
     res &= indicator_DI.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_O1(point,
                                 MapIONames[MapIO::O1],
-                                controller.GetO1RelativeValue(),
+                                Controller::GetO1RelativeValue(),
                                 separator_width);
     res &= indicator_O1.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_O2(point,
                                 MapIONames[MapIO::O2],
-                                controller.GetO2RelativeValue(),
+                                Controller::GetO2RelativeValue(),
                                 separator_width);
     res &= indicator_O2.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V1(point,
                                 MapIONames[MapIO::V1],
-                                controller.GetV1RelativeValue(),
+                                Controller::GetV1RelativeValue(),
                                 separator_width);
     res &= indicator_V1.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V2(point,
                                 MapIONames[MapIO::V2],
-                                controller.GetV2RelativeValue(),
+                                Controller::GetV2RelativeValue(),
                                 separator_width);
     res &= indicator_V2.Render(fb);
 
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V3(point,
                                 MapIONames[MapIO::V3],
-                                controller.GetV3RelativeValue(),
+                                Controller::GetV3RelativeValue(),
                                 separator_width);
     res &= indicator_V3.Render(fb);
 
@@ -76,7 +76,7 @@ bool StatusBar::Render(uint8_t *fb) {
     point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V4(point,
                                 MapIONames[MapIO::V4],
-                                controller.GetV4RelativeValue(),
+                                Controller::GetV4RelativeValue(),
                                 separator_width);
     res &= indicator_V4.Render(fb);
 

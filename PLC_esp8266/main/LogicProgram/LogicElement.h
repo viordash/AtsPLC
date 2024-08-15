@@ -17,8 +17,8 @@ class LogicElement {
     friend IncomeRail;
 
   public:
-    Controller controller;
-    LogicElement(const Controller &controller);
+    const Controller *controller;
+    LogicElement(const Controller *controller);
     virtual ~LogicElement();
 
     virtual bool DoAction() = 0;
