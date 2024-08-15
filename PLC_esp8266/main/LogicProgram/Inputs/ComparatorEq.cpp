@@ -25,5 +25,5 @@ const Bitmap *ComparatorEq::GetCurrentBitmap() {
 }
 
 bool ComparatorEq::CompareFunction() {
-    return GetValue() >= ref_percent04;
+    return GetValue() == ref_percent04;
 }
