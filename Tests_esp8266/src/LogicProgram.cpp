@@ -15,7 +15,6 @@
 #include "main/LogicProgram/Inputs/CommonComparator.cpp"
 #include "main/LogicProgram/Inputs/CommonInput.cpp"
 #include "main/LogicProgram/Inputs/CommonTimer.cpp"
-#include "main/LogicProgram/Inputs/ComparatorGE.cpp"
 #include "main/LogicProgram/Inputs/IncomeRail.cpp"
 #include "main/LogicProgram/Inputs/InputBase.cpp"
 #include "main/LogicProgram/LogicElement.cpp"
