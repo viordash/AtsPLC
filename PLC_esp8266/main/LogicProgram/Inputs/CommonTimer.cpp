@@ -62,6 +62,8 @@ bool CommonTimer::DoAction() {
 
     if (state != prev_state) {
         any_changes = true;
+        ESP_LOGD(TAG_CommonTimer, ".");
+        
     }
     return any_changes;
 }

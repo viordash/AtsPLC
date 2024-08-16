@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_InputNC = "InputNC";
+
 InputNC::InputNC(const MapIO io_adr, InputBase *incoming_item)
     : CommonInput(io_adr, incoming_item) {
 }
@@ -27,6 +29,7 @@ bool InputNC::DoAction() {
 
     if (state != prev_state) {
         any_changes = true;
+        ESP_LOGD(TAG_InputNC, ".");
     }
     return any_changes;
 }

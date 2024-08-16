@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_InputNO = "InputNO";
+
 InputNO::InputNO(const MapIO io_adr, InputBase *incoming_item)
     : CommonInput(io_adr, incoming_item) {
 }
@@ -27,7 +29,9 @@ bool InputNO::DoAction() {
 
     if (state != prev_state) {
         any_changes = true;
+        ESP_LOGD(TAG_InputNO, ".");
     }
+
     return any_changes;
 }
 
