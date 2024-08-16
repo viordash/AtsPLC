@@ -56,10 +56,10 @@ void Controller::ProcessTask(void *parm) {
     DirectOutput directOutput1(MapIO::O2, &timerSecs1);
     OutcomeRail outcomeRail1(1);
 
+    bool need_render = true;
     while (controller->runned) {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(200 / portTICK_PERIOD_MS);
 
-        bool need_render = false;
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
@@ -84,6 +84,7 @@ void Controller::ProcessTask(void *parm) {
             directOutput1.Render(fb);
             outcomeRail1.Render(fb);
             end_render(fb);
+            need_render = false;
         }
     }
 
@@ -99,7 +100,7 @@ uint8_t Controller::GetAIRelativeValue() {
 
 uint8_t Controller::GetDIRelativeValue() {
     bool val_1bit = get_digital_input_value();
-    uint8_t percent04 = val_1bit ? 250 : 0;
+    uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
     return percent04;
 }
 
