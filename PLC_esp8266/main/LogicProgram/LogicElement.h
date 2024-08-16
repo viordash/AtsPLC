@@ -17,6 +17,9 @@ class LogicElement {
     friend IncomeRail;
 
   public:
+    static const uint8_t MinValue = 0;
+    static const uint8_t MaxValue = 250;
+
     const Controller *controller;
     LogicElement(const Controller *controller);
     virtual ~LogicElement();

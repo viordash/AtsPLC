@@ -9,8 +9,8 @@ CommonComparator::CommonComparator(uint8_t ref_percent04,
                                    const MapIO io_adr,
                                    InputBase *incoming_item)
     : CommonInput(io_adr, incoming_item) {
-    if (ref_percent04 > 250) {
-        ref_percent04 = 250;
+    if (ref_percent04 > LogicElement::MaxValue) {
+        ref_percent04 = LogicElement::MaxValue;
     }
     this->ref_percent04 = ref_percent04;
     str_size = sprintf(this->str_reference, "%d", ref_percent04);

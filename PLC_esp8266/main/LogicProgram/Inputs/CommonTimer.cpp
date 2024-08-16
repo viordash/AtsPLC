@@ -41,8 +41,8 @@ uint64_t CommonTimer::GetLeftTime() {
 
 uint8_t CommonTimer::GetProgress() {
     uint64_t left_time = GetLeftTime();
-    uint8_t percent04 = (left_time * 250) / delay_time_us;
-    return 250 - (uint8_t)percent04;
+    uint8_t percent04 = (left_time * LogicElement::MaxValue) / delay_time_us;
+    return LogicElement::MaxValue - (uint8_t)percent04;
 }
 
 bool CommonTimer::DoAction() {
