@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #include "main/button.cpp"
-#include "main/gpio.h"
+#include "main/sys_gpio.h"
 
 TEST_GROUP(ButtonTestsGroup){ //
                               TEST_SETUP(){}

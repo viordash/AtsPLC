@@ -5,7 +5,7 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "gpio.h"
+#include "sys_gpio.h"
 
 #define GPIO_OUTPUT_IO_0 GPIO_NUM_2
 #define GPIO_OUTPUT_IO_1 GPIO_NUM_15
@@ -28,9 +28,6 @@ static const char *TAG = "gpio";
 static struct {
     EventGroupHandle_t event;
 } gpio;
-
-bool get_digital_value(gpio_output gpio);
-void set_digital_value(gpio_output gpio, bool value);
 
 static void outputs_init(uint32_t startup_state) {
     gpio_config_t io_conf;

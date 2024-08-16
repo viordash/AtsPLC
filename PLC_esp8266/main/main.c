@@ -19,7 +19,7 @@
 #include "esp_log.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
-#include "gpio.h"
+#include "sys_gpio.h"
 #include "hotreload_service.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"

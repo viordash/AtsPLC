@@ -5,7 +5,7 @@
 #include "buttons.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "gpio.h"
+#include "sys_gpio.h"
 #include <vector>
 
 static void buttons_task(void *arg);

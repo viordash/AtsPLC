@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "main/gpio.c"
+#include "main/sys_gpio.c"
 
 TEST_C(GpioTestsGroup, gpio_init__use_cleared_startup_value) {
     int event = 0;

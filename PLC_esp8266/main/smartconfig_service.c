@@ -6,7 +6,7 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "gpio.h"
+#include "sys_gpio.h"
 #include "settings.h"
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
