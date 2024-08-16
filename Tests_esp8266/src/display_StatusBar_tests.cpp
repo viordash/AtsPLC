@@ -27,7 +27,7 @@ TEST_TEARDOWN() {
 
 class TestableStatusBar : public StatusBar {
   public:
-    explicit TestableStatusBar(const Controller &controller, uint8_t y) : StatusBar(controller, y) {
+    explicit TestableStatusBar(const Controller *controller, uint8_t y) : StatusBar(controller, y) {
     }
     virtual ~TestableStatusBar() {
     }
@@ -35,7 +35,7 @@ class TestableStatusBar : public StatusBar {
 
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
     Controller controller;
-    TestableStatusBar testable(controller, 0);
+    TestableStatusBar testable(&controller, 0);
     testable.Render(frame_buffer);
 
     const int component_area = DISPLAY_WIDTH * 2;

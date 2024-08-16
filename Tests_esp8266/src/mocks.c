@@ -113,3 +113,32 @@ int64_t esp_timer_get_time(void) {
     mock_c()->actualCall("esp_timer_get_time")->withOutputParameter("os_us", &os_us);
     return os_us;
 }
+
+void vTaskDelay(const TickType_t xTicksToDelay) {
+    mock_c()->actualCall("vTaskDelay")->withUnsignedIntParameters("xTicksToDelay", xTicksToDelay);
+}
+
+BaseType_t xTaskCreate(
+    TaskFunction_t pxTaskCode,
+    const char *const
+        pcName, /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
+    const configSTACK_DEPTH_TYPE usStackDepth,
+    void *const pvParameters,
+    UBaseType_t uxPriority,
+    TaskHandle_t *const pxCreatedTask) {
+
+    (void)pxTaskCode;
+    (void)usStackDepth;
+    (void)pvParameters;
+    (void)uxPriority;
+    (void)pxCreatedTask;
+
+    return mock_c()
+        ->actualCall("xTaskCreate")
+        ->withStringParameters("pcName", pcName)
+        ->returnIntValueOrDefault(pdPASS);
+}
+
+void vTaskDelete(TaskHandle_t xTaskToDelete) {
+    mock_c()->actualCall("vTaskDelete")->withPointerParameters("xTaskToDelete", xTaskToDelete);
+}

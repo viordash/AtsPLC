@@ -57,7 +57,7 @@ namespace {
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableCommonComparator testable_0(0, MapIO::DI, &incomeRail0);
     CHECK_EQUAL(0, testable_0.GetReference());
 
@@ -74,7 +74,7 @@ TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
 TEST(LogicCommonComparatorTestsGroup, Render) {
 
     Controller controller;
-    IncomeRail incomeRail(controller, 0);
+    IncomeRail incomeRail(&controller, 0);
     TestableCommonComparator testable(0, MapIO::DI, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));

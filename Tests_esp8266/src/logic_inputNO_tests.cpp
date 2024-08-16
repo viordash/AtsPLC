@@ -46,28 +46,28 @@ namespace {
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableInputNO testable(MapIO::DI, &incomeRail0);
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_AI) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableInputNO testable(MapIO::AI, &incomeRail0);
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_V1) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableInputNO testable(MapIO::V1, &incomeRail0);
     STRCMP_EQUAL("V1", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableInputNO testable_0(MapIO::V1, &incomeRail0);
     TestableInputNO testable_1(MapIO::V2, &testable_0);
     CHECK_EQUAL(LogicItemState::lisPassive, testable_0.GetState());
@@ -76,7 +76,7 @@ TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
 
 TEST(LogicInputNOTestsGroup, chain_of_items) {
     Controller controller;
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(&controller, 0);
     TestableInputNO testable_0(MapIO::V1, &incomeRail0);
     TestableInputNO testable_1(MapIO::V2, &testable_0);
     TestableInputNO testable_2(MapIO::V3, &testable_1);
@@ -88,7 +88,7 @@ TEST(LogicInputNOTestsGroup, chain_of_items) {
 TEST(LogicInputNOTestsGroup, Render) {
 
     Controller controller;
-    IncomeRail incomeRail(controller, 0);
+    IncomeRail incomeRail(&controller, 0);
     TestableInputNO testable(MapIO::V1, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -107,7 +107,7 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 
     Controller controller;
-    IncomeRail incomeRail(controller, 0);
+    IncomeRail incomeRail(&controller, 0);
     TestableInputNO prev_element(MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
@@ -121,7 +121,7 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
 
     Controller controller;
-    IncomeRail incomeRail(controller, 0);
+    IncomeRail incomeRail(&controller, 0);
     TestableInputNO prev_element(MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
@@ -135,7 +135,7 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
 
     Controller controller;
-    IncomeRail incomeRail(controller, 0);
+    IncomeRail incomeRail(&controller, 0);
     TestableInputNO prev_element(MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 

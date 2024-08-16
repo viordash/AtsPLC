@@ -72,3 +72,7 @@ typedef uint32_t TickType_t;
 /*-----------------------------------------------------------*/
 
 void portYIELD_FROM_ISR(void);
+
+typedef void (*TaskFunction_t)( void * );
+typedef void * TaskHandle_t;
+#define configSTACK_DEPTH_TYPE uint16_t
