@@ -26,4 +26,11 @@ class Controller {
     static uint8_t GetV2RelativeValue();
     static uint8_t GetV3RelativeValue();
     static uint8_t GetV4RelativeValue();
+
+    static void SetO1RelativeValue(uint8_t value);
+    static void SetO2RelativeValue(uint8_t value);
+    static void SetV1RelativeValue(uint8_t value);
+    static void SetV2RelativeValue(uint8_t value);
+    static void SetV3RelativeValue(uint8_t value);
+    static void SetV4RelativeValue(uint8_t value);
 };

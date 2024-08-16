@@ -101,10 +101,14 @@ uint8_t Controller::GetDIRelativeValue() {
 }
 
 uint8_t Controller::GetO1RelativeValue() {
-    return 100;
+    uint8_t percent04 =
+        get_digital_value(OUTPUT_0) ? LogicElement::MaxValue : LogicElement::MinValue;
+    return percent04;
 }
 uint8_t Controller::GetO2RelativeValue() {
-    return 100;
+    uint8_t percent04 =
+        get_digital_value(OUTPUT_1) ? LogicElement::MaxValue : LogicElement::MinValue;
+    return percent04;
 }
 uint8_t Controller::GetV1RelativeValue() {
     return 25;
@@ -117,4 +121,24 @@ uint8_t Controller::GetV3RelativeValue() {
 }
 uint8_t Controller::GetV4RelativeValue() {
     return 0;
+}
+
+void Controller::SetO1RelativeValue(uint8_t value) {
+    (void)value;
+}
+
+void Controller::SetO2RelativeValue(uint8_t value) {
+    (void)value;
+}
+void Controller::SetV1RelativeValue(uint8_t value) {
+    (void)value;
+}
+void Controller::SetV2RelativeValue(uint8_t value) {
+    (void)value;
+}
+void Controller::SetV3RelativeValue(uint8_t value) {
+    (void)value;
+}
+void Controller::SetV4RelativeValue(uint8_t value) {
+    (void)value;
 }
