@@ -7,14 +7,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-DirectOutput::DirectOutput(const MapIO io_adr, InputBase *incoming_item) : CommonOutput(io_adr ,incoming_item) {
+static const char *TAG_DirectOutput = "DirectOutput";
+
+DirectOutput::DirectOutput(const MapIO io_adr, InputBase *incoming_item)
+    : CommonOutput(io_adr, incoming_item) {
 }
 
 DirectOutput::~DirectOutput() {
 }
 
 bool DirectOutput::DoAction() {
-    return true;
+    bool any_changes = false;
+    LogicItemState prev_state = state;
+
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        SetValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
+                                                    : LogicElement::MinValue);
+        any_changes = true;
+        ESP_LOGD(TAG_DirectOutput, ".");
+    }
+
+    return any_changes;
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap() {
