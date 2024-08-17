@@ -47,7 +47,7 @@ void Controller::ProcessTask(void *parm) {
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1);
-    ComparatorGE comparator1(15, MapIO::DI, &incomeRail1);
+    ComparatorGE comparator1(15, MapIO::AI, &incomeRail1);
     TimerSecs timerSecs1(4, &comparator1);
     DirectOutput directOutput1(MapIO::O2, &timerSecs1);
     OutcomeRail outcomeRail1(1);
@@ -95,6 +95,7 @@ void Controller::ProcessTask(void *parm) {
 uint8_t Controller::GetAIRelativeValue() {
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;
+    ESP_LOGD(TAG_Controller, "adc, val_10bit:%u, percent04:%u", val_10bit, percent04);
     return percent04;
 }
 
