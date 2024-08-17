@@ -7,16 +7,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_DecOutput = "DecOutput";
+
 DecOutput::DecOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr ,incoming_item) {
+    : CommonOutput(io_adr, incoming_item) {
 }
 
 DecOutput::~DecOutput() {
 }
 
 bool DecOutput::DoAction() {
+    bool any_changes = false;
+    LogicItemState prev_state = state;
 
-    return true;
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        SetValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
+                                                    : LogicElement::MinValue);
+        any_changes = true;
+        ESP_LOGD(TAG_DecOutput, ".");
+    }
+
+    return any_changes;
 }
 
 const Bitmap *DecOutput::GetCurrentBitmap() {
