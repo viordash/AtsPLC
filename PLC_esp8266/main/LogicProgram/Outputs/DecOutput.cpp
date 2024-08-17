@@ -27,8 +27,11 @@ bool DecOutput::DoAction() {
     }
 
     if (state != prev_state) {
-        SetValue(state == LogicItemState::lisActive ? StatefulElement::MaxValue
-                                                    : StatefulElement::MinValue);
+        uint8_t prev_val = GetValue();
+        if (prev_val > StatefulElement::MinValue) {
+            prev_val--;
+        }
+        SetValue(prev_val);
         any_changes = true;
         ESP_LOGD(TAG_DecOutput, ".");
     }
