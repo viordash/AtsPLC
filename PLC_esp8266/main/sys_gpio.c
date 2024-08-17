@@ -26,15 +26,23 @@
     ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_RIGHT_IO)                 \
      | (1ULL << BUTTON_SELECT_IO))
 
-static const char *TAG = "gpio";
+#define GPIO_ACTIVE 0
+#define GPIO_PASSIVE 1
+#define INPUT_NC_VALUE 0
+#define INPUT_NO_VALUE 1
+
+static const char *TAG_gpio = "gpio";
 
 static struct {
     EventGroupHandle_t event;
 } gpio;
 
+static void set_digital_value_core(gpio_output gpio, bool value);
+
 static void restore_outputs() {
-    set_digital_value(OUTPUT_0, hotreload->gpio & OUTPUT_0);
-    set_digital_value(OUTPUT_1, hotreload->gpio & OUTPUT_1);
+    ESP_LOGI(TAG_gpio, "restore_outputs hotreload->gpio:%u", hotreload->gpio);
+    set_digital_value_core(OUTPUT_0, hotreload->gpio & OUTPUT_0);
+    set_digital_value_core(OUTPUT_1, hotreload->gpio & OUTPUT_1);
 }
 
 static void outputs_init() {
@@ -52,7 +60,7 @@ static void BUTTON_UP_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
-    if (gpio_get_level(BUTTON_UP_IO) == 0) {
+    if (gpio_get_level(BUTTON_UP_IO) == INPUT_NC_VALUE) {
         xResult =
             xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
@@ -67,7 +75,7 @@ static void BUTTON_DOWN_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
-    if (gpio_get_level(BUTTON_DOWN_IO) == 0) {
+    if (gpio_get_level(BUTTON_DOWN_IO) == INPUT_NC_VALUE) {
         xResult =
             xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, &xHigherPriorityTaskWoken);
     } else {
@@ -82,7 +90,7 @@ static void BUTTON_RIGHT_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
-    if (gpio_get_level(BUTTON_RIGHT_IO) == 0) {
+    if (gpio_get_level(BUTTON_RIGHT_IO) == INPUT_NC_VALUE) {
         xResult = xEventGroupSetBitsFromISR(gpio.event,
                                             BUTTON_RIGHT_IO_CLOSE | INPUT_1_IO_CLOSE,
                                             &xHigherPriorityTaskWoken);
@@ -99,7 +107,7 @@ static void BUTTON_SELECT_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
-    if (gpio_get_level(BUTTON_SELECT_IO) == 0) {
+    if (gpio_get_level(BUTTON_SELECT_IO) == INPUT_NC_VALUE) {
         xResult = xEventGroupSetBitsFromISR(gpio.event,
                                             BUTTON_SELECT_IO_CLOSE,
                                             &xHigherPriorityTaskWoken);
@@ -151,19 +159,37 @@ EventGroupHandle_t gpio_init() {
 bool get_digital_value(gpio_output gpio) {
     switch (gpio) {
         case OUTPUT_0:
-            return gpio_get_level(GPIO_OUTPUT_IO_0);
+            return gpio_get_level(GPIO_OUTPUT_IO_0) == GPIO_ACTIVE;
         case OUTPUT_1:
-            return gpio_get_level(GPIO_OUTPUT_IO_1);
+            return gpio_get_level(GPIO_OUTPUT_IO_1) == GPIO_ACTIVE;
     }
-    ESP_LOGE(TAG, "get_digital_value, err:0x%X\r\n", ESP_ERR_NOT_FOUND);
+    ESP_LOGE(TAG_gpio, "get_digital_value, err:0x%X", ESP_ERR_NOT_FOUND);
     return false;
 }
 
-void set_digital_value(gpio_output gpio, bool value) {
+static void set_digital_value_core(gpio_output gpio, bool value) {
     esp_err_t err = ESP_ERR_NOT_FOUND;
+    int gpio_val = value ? GPIO_ACTIVE : GPIO_PASSIVE;
     switch (gpio) {
         case OUTPUT_0:
-            if (value != get_digital_value(gpio)) {
+            err = gpio_set_level(GPIO_OUTPUT_IO_0, gpio_val);
+            break;
+        case OUTPUT_1:
+            err = gpio_set_level(GPIO_OUTPUT_IO_1, gpio_val);
+            gpio_set_level(GPIO_OUTPUT_LED, gpio_val);
+            break;
+    }
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG_gpio, "set_digital_value, err:0x%X", err);
+    }
+}
+
+void set_digital_value(gpio_output gpio, bool value) {
+    int gpio_val = value ? GPIO_ACTIVE : GPIO_PASSIVE;
+    switch (gpio) {
+        case OUTPUT_0:
+            if (gpio_val != gpio_get_level(GPIO_OUTPUT_IO_0)) {
+                ESP_LOGI(TAG_gpio, "set_digital_value 1, OUTPUT_0 store:%u", value);
                 if (value) {
                     hotreload->gpio |= OUTPUT_0;
                 } else {
@@ -171,11 +197,10 @@ void set_digital_value(gpio_output gpio, bool value) {
                 }
                 store_hotreload();
             }
-
-            err = gpio_set_level(GPIO_OUTPUT_IO_0, value ? 0 : 1);
             break;
         case OUTPUT_1:
-            if (value != get_digital_value(gpio)) {
+            if (gpio_val != gpio_get_level(GPIO_OUTPUT_IO_1)) {
+                ESP_LOGI(TAG_gpio, "set_digital_value, OUTPUT_1 store:%u", value);
                 if (value) {
                     hotreload->gpio |= OUTPUT_1;
                 } else {
@@ -183,33 +208,27 @@ void set_digital_value(gpio_output gpio, bool value) {
                 }
                 store_hotreload();
             }
-
-            err = gpio_set_level(GPIO_OUTPUT_IO_1, value ? 0 : 1);
-            gpio_set_level(GPIO_OUTPUT_LED, value ? 0 : 1);
             break;
     }
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "set_digital_value, err:0x%X\r\n", err);
-    }
+    set_digital_value_core(gpio, value);
 }
 
 uint16_t get_analog_value() {
     uint16_t adc = 0xFFFF;
     esp_err_t err = adc_read(&adc);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "get_analog_value, err:0x%X\r\n", err);
+        ESP_LOGE(TAG_gpio, "get_analog_value, err:0x%X", err);
     }
     return adc;
 }
 
 bool get_digital_input_value() {
-    const int input_normaly_close_value = 0;
-    bool input_closed = gpio_get_level(INPUT_1_IO) == input_normaly_close_value;
+    bool input_closed = gpio_get_level(INPUT_1_IO) == INPUT_NC_VALUE;
     return input_closed;
 }
 
 bool select_button_pressed() {
     bool state = gpio_get_level(BUTTON_SELECT_IO) == 0;
-    ESP_LOGI(TAG, "select_button_pressed, state:%d", state);
+    ESP_LOGI(TAG_gpio, "select_button_pressed, state:%d", state);
     return state;
 }
