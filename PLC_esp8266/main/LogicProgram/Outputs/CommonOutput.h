@@ -4,13 +4,13 @@
 #include "Display/DisplayChainItem.h"
 #include "Display/LabeledLogicItem.h"
 #include "LogicProgram/Inputs/InputBase.h"
-#include "LogicProgram/LogicElement.h"
+#include "LogicProgram/StatefulElement.h"
 #include "LogicProgram/LogicOutputElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonOutput : public LogicElement,
+class CommonOutput : public StatefulElement,
                      public LogicOutputElement,
                      public DisplayChainItem,
                      public LabeledLogicItem {

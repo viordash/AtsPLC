@@ -9,10 +9,10 @@
 
 class IncomeRail;
 
-class LogicElement {
+class StatefulElement {
   protected:
     LogicItemState state;
-    LogicElement *nextElement;
+    StatefulElement *nextElement;
 
     friend IncomeRail;
 
@@ -21,11 +21,11 @@ class LogicElement {
     static const uint8_t MaxValue = 250;
 
     const Controller *controller;
-    LogicElement(const Controller *controller);
-    virtual ~LogicElement();
+    StatefulElement(const Controller *controller);
+    virtual ~StatefulElement();
 
     virtual bool DoAction() = 0;
     LogicItemState GetState();
 
-    void Bind(LogicElement *element);
+    void Bind(StatefulElement *element);
 };

@@ -6,7 +6,7 @@
 #include <string.h>
 
 InputBase::InputBase(const Controller *controller, const Point &incoming_point)
-    : LogicElement(controller), DisplayChainItem(incoming_point) {
+    : StatefulElement(controller), DisplayChainItem(incoming_point) {
 }
 
 InputBase::~InputBase() {

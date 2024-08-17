@@ -14,10 +14,10 @@
 
 static const char *TAG_Controller = "controller";
 
-uint8_t Controller::Var1 = LogicElement::MinValue;
-uint8_t Controller::Var2 = LogicElement::MinValue;
-uint8_t Controller::Var3 = LogicElement::MinValue;
-uint8_t Controller::Var4 = LogicElement::MinValue;
+uint8_t Controller::Var1 = StatefulElement::MinValue;
+uint8_t Controller::Var2 = StatefulElement::MinValue;
+uint8_t Controller::Var3 = StatefulElement::MinValue;
+uint8_t Controller::Var4 = StatefulElement::MinValue;
 
 Controller::Controller(EventGroupHandle_t gpio_events) {
     runned = false;
@@ -106,18 +106,18 @@ uint8_t Controller::GetAIRelativeValue() {
 
 uint8_t Controller::GetDIRelativeValue() {
     bool val_1bit = get_digital_input_value();
-    uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+    uint8_t percent04 = val_1bit ? StatefulElement::MaxValue : StatefulElement::MinValue;
     return percent04;
 }
 
 uint8_t Controller::GetO1RelativeValue() {
     uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_0) ? LogicElement::MaxValue : LogicElement::MinValue;
+        get_digital_value(gpio_output::OUTPUT_0) ? StatefulElement::MaxValue : StatefulElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetO2RelativeValue() {
     uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_1) ? LogicElement::MaxValue : LogicElement::MinValue;
+        get_digital_value(gpio_output::OUTPUT_1) ? StatefulElement::MaxValue : StatefulElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetV1RelativeValue() {
@@ -134,10 +134,10 @@ uint8_t Controller::GetV4RelativeValue() {
 }
 
 void Controller::SetO1RelativeValue(uint8_t value) {
-    set_digital_value(gpio_output::OUTPUT_0, value != LogicElement::MinValue);
+    set_digital_value(gpio_output::OUTPUT_0, value != StatefulElement::MinValue);
 }
 void Controller::SetO2RelativeValue(uint8_t value) {
-    set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
+    set_digital_value(gpio_output::OUTPUT_1, value != StatefulElement::MinValue);
 }
 void Controller::SetV1RelativeValue(uint8_t value) {
     Controller::Var1 = value;

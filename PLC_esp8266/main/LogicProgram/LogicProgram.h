@@ -11,7 +11,7 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/LogicElement.h"
+#include "LogicProgram/StatefulElement.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"

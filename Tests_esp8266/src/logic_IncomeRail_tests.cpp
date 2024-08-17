@@ -35,7 +35,7 @@ namespace {
         TestableIncomeRail(const Controller *controller, uint8_t network_number)
             : IncomeRail(controller, network_number) {
         }
-        LogicElement *PublicMorozov_GetNext() {
+        StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
         }
     };
@@ -48,7 +48,7 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
+        StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
@@ -68,7 +68,7 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
+        StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
@@ -90,7 +90,7 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
+        StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
@@ -110,7 +110,7 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
+        StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
@@ -135,7 +135,7 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
-    LogicElement *nextElement = testable.PublicMorozov_GetNext();
+    StatefulElement *nextElement = testable.PublicMorozov_GetNext();
     CHECK_EQUAL(&input1, nextElement);
 
     nextElement = input1.PublicMorozov_GetNext();

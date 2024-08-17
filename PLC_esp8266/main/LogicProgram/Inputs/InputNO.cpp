@@ -21,7 +21,7 @@ bool InputNO::DoAction() {
     LogicItemState prev_state = state;
 
     if (incoming_item->GetState() == LogicItemState::lisActive //
-        && GetValue() != LogicElement::MinValue) {
+        && GetValue() != StatefulElement::MinValue) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;

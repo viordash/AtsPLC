@@ -2,11 +2,11 @@
 
 #include "Display/Common.h"
 #include "Display/DisplayItemBase.h"
-#include "LogicProgram/LogicElement.h"
+#include "LogicProgram/StatefulElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class StatusBar : public LogicElement, public DisplayItemBase {
+class StatusBar : public StatefulElement, public DisplayItemBase {
   protected:
     uint8_t y;
 

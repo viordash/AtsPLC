@@ -23,7 +23,7 @@ Point IncomeRail::OutcomingPoint() {
 
 bool IncomeRail::DoAction() {
     bool any_changes = false;
-    LogicElement *next = nextElement;
+    StatefulElement *next = nextElement;
 
     while (next != NULL) {
         any_changes |= next->DoAction();
