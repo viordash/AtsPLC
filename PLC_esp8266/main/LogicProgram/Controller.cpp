@@ -47,7 +47,7 @@ void Controller::ProcessTask(void *parm) {
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1);
-    ComparatorGE comparator1(15, MapIO::AI, &incomeRail1);
+    ComparatorGE comparator1(15, MapIO::DI, &incomeRail1);
     TimerSecs timerSecs1(10, &comparator1);
     DirectOutput directOutput1(MapIO::O2, &timerSecs1);
     OutcomeRail outcomeRail1(1);
@@ -102,12 +102,12 @@ uint8_t Controller::GetDIRelativeValue() {
 
 uint8_t Controller::GetO1RelativeValue() {
     uint8_t percent04 =
-        get_digital_value(OUTPUT_0) ? LogicElement::MaxValue : LogicElement::MinValue;
+        get_digital_value(gpio_output::OUTPUT_0) ? LogicElement::MaxValue : LogicElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetO2RelativeValue() {
     uint8_t percent04 =
-        get_digital_value(OUTPUT_1) ? LogicElement::MaxValue : LogicElement::MinValue;
+        get_digital_value(gpio_output::OUTPUT_1) ? LogicElement::MaxValue : LogicElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetV1RelativeValue() {
@@ -124,11 +124,10 @@ uint8_t Controller::GetV4RelativeValue() {
 }
 
 void Controller::SetO1RelativeValue(uint8_t value) {
-    (void)value;
+    set_digital_value(gpio_output::OUTPUT_0, value != LogicElement::MinValue);
 }
-
 void Controller::SetO2RelativeValue(uint8_t value) {
-    (void)value;
+    set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
 }
 void Controller::SetV1RelativeValue(uint8_t value) {
     (void)value;
