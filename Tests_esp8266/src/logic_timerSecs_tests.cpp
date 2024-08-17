@@ -36,7 +36,7 @@ namespace {
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0);
     TestableTimerSecs testable_0(0, &incomeRail0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
@@ -57,7 +57,7 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
         .expectNCalls(11, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0);
     TestableTimerSecs testable(10, &incomeRail0);
     testable.ProgressHasChanges();

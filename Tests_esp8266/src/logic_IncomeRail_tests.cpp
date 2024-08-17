@@ -126,7 +126,7 @@ namespace {
 
 TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
-    Controller controller;
+    Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0);
 
     TestableCommonInput input1(MapIO::DI, &testable);
@@ -152,7 +152,7 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 }
 
 TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    Controller controller;
+    Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0);
 
     TestableCommonInput input1(MapIO::DI, &testable);
@@ -170,7 +170,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 }
 
 TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    Controller controller;
+    Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0);
 
     TestableCommonInput input1(MapIO::DI, &testable);

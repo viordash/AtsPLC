@@ -36,7 +36,7 @@ namespace {
 TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0);
     TestableTimerMSecs testable_0(0, &incomeRail0);
     CHECK_EQUAL(1 * 1000LL, testable_0.PublicMorozov_GetDelayTimeUs());

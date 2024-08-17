@@ -34,7 +34,7 @@ class TestableStatusBar : public StatusBar {
 };
 
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
-    Controller controller;
+    Controller controller(NULL);
     TestableStatusBar testable(&controller, 0);
     testable.Render(frame_buffer);
 

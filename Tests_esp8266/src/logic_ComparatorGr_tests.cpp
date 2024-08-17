@@ -41,7 +41,7 @@ namespace {
 
 TEST(LogicComparatorGrTestsGroup, Render) {
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0);
     TestableComparatorGr testable(42, MapIO::V1, &incomeRail);
 
@@ -60,7 +60,7 @@ TEST(LogicComparatorGrTestsGroup, Render) {
 TEST(LogicComparatorGrTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectNoCall("adc_read");
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0);
     TestableComparatorGr prev_element(0, MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
@@ -77,7 +77,7 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0);
     TestableComparatorGr prev_element(0, MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
@@ -98,7 +98,7 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller controller;
+    Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0);
     TestableComparatorGr prev_element(0, MapIO::V1, &incomeRail);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;

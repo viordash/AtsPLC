@@ -99,6 +99,22 @@ BaseType_t xEventGroupSetBitsFromISR(EventGroupHandle_t xEventGroup,
         ->returnIntValueOrDefault(pdTRUE);
 }
 
+EventBits_t xEventGroupWaitBits(EventGroupHandle_t xEventGroup,
+                                const EventBits_t uxBitsToWaitFor,
+                                const BaseType_t xClearOnExit,
+                                const BaseType_t xWaitForAllBits,
+                                TickType_t xTicksToWait) {
+
+    return mock_c()
+        ->actualCall("xEventGroupWaitBits")
+        ->withPointerParameters("xEventGroup", xEventGroup)
+        ->withUnsignedIntParameters("uxBitsToWaitFor", uxBitsToWaitFor)
+        ->withIntParameters("xClearOnExit", xClearOnExit)
+        ->withIntParameters("xWaitForAllBits", xWaitForAllBits)
+        ->withUnsignedIntParameters("xTicksToWait", xTicksToWait)
+        ->returnUnsignedIntValueOrDefault(0);
+}
+
 TickType_t xTaskGetTickCount(void) {
     TickType_t ticks;
     mock_c()->actualCall("xTaskGetTickCount")->withOutputParameter("ticks", &ticks);
