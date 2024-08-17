@@ -14,7 +14,7 @@ TEST_GROUP_C_SETUP(RestartCounterTestsGroup) {
 TEST_GROUP_C_TEARDOWN(RestartCounterTestsGroup) {
 }
 
-#define RTC_USER_BASE testable
+#define RTC_USER_BASE rtc_memory
 #include "main/restart_counter.c"
 
 TEST_C(RestartCounterTestsGroup, hot_restart_counter) {
