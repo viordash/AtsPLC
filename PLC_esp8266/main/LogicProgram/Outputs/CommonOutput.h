@@ -5,13 +5,13 @@
 #include "Display/LabeledLogicItem.h"
 #include "LogicProgram/Inputs/InputBase.h"
 #include "LogicProgram/StatefulElement.h"
-#include "LogicProgram/LogicOutputElement.h"
+#include "LogicProgram/InputOutputElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
 class CommonOutput : public StatefulElement,
-                     public LogicOutputElement,
+                     public InputOutputElement,
                      public DisplayChainItem,
                      public LabeledLogicItem {
   protected:

@@ -1,11 +1,11 @@
-#include "LogicOutputElement.h"
+#include "InputOutputElement.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-LogicOutputElement::LogicOutputElement(const MapIO io_adr) {
+InputOutputElement::InputOutputElement(const MapIO io_adr) : InputElement(io_adr) {
     switch (io_adr) {
         case MapIO::O1:
             SetValue = Controller::SetO1RelativeValue;
@@ -32,5 +32,5 @@ LogicOutputElement::LogicOutputElement(const MapIO io_adr) {
     }
 }
 
-LogicOutputElement::~LogicOutputElement() {
+InputOutputElement::~InputOutputElement() {
 }

@@ -20,7 +20,7 @@
 #include "main/LogicProgram/StatefulElement.cpp"
 #include "main/LogicProgram/StatefulElement.h"
 #include "main/LogicProgram/InputElement.cpp"
-#include "main/LogicProgram/LogicOutputElement.cpp"
+#include "main/LogicProgram/InputOutputElement.cpp"
 #include "main/LogicProgram/MapIO.cpp"
 #include "main/LogicProgram/Outputs/CommonOutput.cpp"
 #include "main/LogicProgram/Outputs/DirectOutput.cpp"
