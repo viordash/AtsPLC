@@ -159,11 +159,11 @@ void set_digital_value(gpio_output gpio, bool value) {
     esp_err_t err = ESP_ERR_NOT_FOUND;
     switch (gpio) {
         case OUTPUT_0:
-            err = gpio_set_level(GPIO_OUTPUT_IO_0, value ? 1 : 0);
+            err = gpio_set_level(GPIO_OUTPUT_IO_0, value ? 0 : 1);
             break;
         case OUTPUT_1:
-            err = gpio_set_level(GPIO_OUTPUT_IO_1, value ? 1 : 0);
-            gpio_set_level(GPIO_OUTPUT_LED, value ? 1 : 0);
+            err = gpio_set_level(GPIO_OUTPUT_IO_1, value ? 0 : 1);
+            gpio_set_level(GPIO_OUTPUT_LED, value ? 0 : 1);
             break;
     }
     if (err != ESP_OK) {

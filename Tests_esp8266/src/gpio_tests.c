@@ -18,9 +18,10 @@ TEST_C(GpioTestsGroup, gpio_init__use_cleared_startup_value) {
     mock_scope_c("12")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("13")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("14")->expectOneCall("gpio_isr_handler_add");
+    mock_scope_c("16")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
 
-    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
-    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
+    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
+    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
 
     gpio_init(0);
 }
@@ -35,9 +36,10 @@ TEST_C(GpioTestsGroup, gpio_init__use_startup_for_out0) {
     mock_scope_c("12")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("13")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("14")->expectOneCall("gpio_isr_handler_add");
+    mock_scope_c("16")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
 
-    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
-    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
+    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
+    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
 
     gpio_init(0x01);
 }
@@ -52,9 +54,10 @@ TEST_C(GpioTestsGroup, gpio_init__use_startup_for_out1) {
     mock_scope_c("12")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("13")->expectOneCall("gpio_isr_handler_add");
     mock_scope_c("14")->expectOneCall("gpio_isr_handler_add");
+    mock_scope_c("16")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
 
-    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
-    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
+    mock_scope_c("2")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 1);
+    mock_scope_c("15")->expectOneCall("gpio_set_level")->withUnsignedIntParameters("level", 0);
 
     gpio_init(0x02);
 }
@@ -76,6 +79,7 @@ static void test_BUTTON_XXX_isr_handler(const char *testable_gpio_num,
     mock_c()->expectOneCall("gpio_install_isr_service");
     mock_scope_c("2")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
     mock_scope_c("15")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
+    mock_scope_c("16")->expectOneCall("gpio_set_level")->ignoreOtherParameters();
 
     mock_scope_c(extra_gpio_num_0)->expectOneCall("gpio_isr_handler_add");
     mock_scope_c(extra_gpio_num_1)->expectOneCall("gpio_isr_handler_add");
