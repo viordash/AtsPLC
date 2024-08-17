@@ -19,8 +19,7 @@ class CommonOutput : public LogicElement,
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t LeftPadding = 7;
-    const uint8_t RightPadding = 0;
+    const uint8_t RightPadding = 2;
     CommonOutput(const MapIO io_adr, InputBase *incoming_item);
     ~CommonOutput();
 

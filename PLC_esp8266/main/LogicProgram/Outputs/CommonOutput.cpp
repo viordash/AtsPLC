@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_CommonOutput = "CommonOutput";
+
 CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
     : LogicElement(incoming_item->controller), LogicOutputElement(io_adr),
       DisplayChainItem(incoming_item->OutcomingPoint()), LabeledLogicItem(MapIONames[io_adr]) {
@@ -19,13 +21,16 @@ bool CommonOutput::Render(uint8_t *fb) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
+    uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width + RightPadding;
+    uint8_t incoming_width = (OUTCOME_RAIL_LEFT - incoming_point.x) - total_widht;
+
     if (incoming_item->GetState() == LogicItemState::lisActive) {
-        res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
+        res &= draw_active_network(fb, incoming_point.x, incoming_point.y, incoming_width);
     } else {
-        res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
+        res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, incoming_width, false);
     }
 
-    uint8_t x_pos = incoming_point.x + LeftPadding;
+    uint8_t x_pos = incoming_point.x + incoming_width;
     draw_bitmap(fb, x_pos, incoming_point.y - (bitmap->size.height / 2) + 1, bitmap);
 
     x_pos += bitmap->size.width;
@@ -47,9 +52,7 @@ bool CommonOutput::Render(uint8_t *fb) {
 }
 
 Point CommonOutput::OutcomingPoint() {
-    auto bitmap = GetCurrentBitmap();
-    uint8_t x_pos = LeftPadding + incoming_point.x + LabeledLogicItem::width + bitmap->size.width
-                  + RightPadding;
+    uint8_t x_pos = OUTCOME_RAIL_LEFT;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
 }

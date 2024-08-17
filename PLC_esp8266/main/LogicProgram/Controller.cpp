@@ -42,13 +42,13 @@ void Controller::ProcessTask(void *parm) {
     IncomeRail incomeRail0(controller, 0);
 
     InputNO input0(MapIO::DI, &incomeRail0);
-    TimerSecs timerSecs0(5, &input0);
+    TimerMSecs timerSecs0(1500, &input0);
     DirectOutput directOutput0(MapIO::O1, &timerSecs0);
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1);
     ComparatorGE comparator1(15, MapIO::DI, &incomeRail1);
-    TimerSecs timerSecs1(10, &comparator1);
+    TimerSecs timerSecs1(4, &comparator1);
     DirectOutput directOutput1(MapIO::O2, &timerSecs1);
     OutcomeRail outcomeRail1(1);
 
@@ -59,7 +59,7 @@ void Controller::ProcessTask(void *parm) {
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
-        need_render |= timerSecs0.ProgressHasChanges();
+        // need_render |= timerSecs0.ProgressHasChanges();
         need_render |= timerSecs1.ProgressHasChanges();
 
         if (need_render) {

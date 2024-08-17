@@ -259,9 +259,14 @@ bool draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
     int err;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
     uint8_t y = OUTCOME_RAIL_TOP + network_number * height;
-    err = ssd1306_draw_vline(&display.dev, fb, DISPLAY_WIDTH - 1, y, height, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_LEFT, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
-        err = ssd1306_draw_vline(&display.dev, fb, DISPLAY_WIDTH - 2, y, height, OLED_COLOR_WHITE);
+        err = ssd1306_draw_vline(&display.dev,
+                                 fb,
+                                 OUTCOME_RAIL_LEFT - 1,
+                                 y,
+                                 height,
+                                 OLED_COLOR_WHITE);
     }
     return err == 0;
 }
