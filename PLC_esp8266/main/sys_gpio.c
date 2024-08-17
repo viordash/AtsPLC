@@ -44,6 +44,8 @@ static void outputs_init() {
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
+    set_digital_value(OUTPUT_0, false);
+    set_digital_value(OUTPUT_1, false);
 }
 
 static void BUTTON_UP_IO_isr_handler(void *arg) {
