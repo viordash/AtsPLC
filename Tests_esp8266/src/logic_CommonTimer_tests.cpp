@@ -64,7 +64,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable(12345, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -74,7 +74,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 1);
+    IncomeRail incomeRail(&controller, 1, LogicItemState::lisActive);
     TestableCommonTimer testable(12345, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -84,7 +84,7 @@ TEST(LogicCommonTimerTestsGroup, IncomingItemStateHasChanged_has_single_responsi
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer prev_element(0, &incomeRail0);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
@@ -109,7 +109,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(10, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10, left_time);
@@ -142,7 +142,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_is_overflowed) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(10, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10, left_time);
@@ -183,7 +183,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(INT64_MAX, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(INT64_MAX, left_time);
@@ -220,7 +220,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(INT64_MAX, &incomeRail0);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(INT64_MAX, left_time);
@@ -257,7 +257,7 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_return_full_delay_if_incoming_item_
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer prev_element(0, &incomeRail0);
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
     TestableCommonTimer testable_0(10, &prev_element);
@@ -279,7 +279,7 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(1000, &incomeRail0);
     uint8_t percent04 = testable_0.PublicMorozov_GetProgress();
     CHECK_EQUAL(0, percent04);
@@ -324,10 +324,8 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
-    TestableCommonTimer prev_element(0, &incomeRail0);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
-    TestableCommonTimer testable(10, &prev_element);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisPassive);
+    TestableCommonTimer testable(10, &incomeRail0);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
@@ -340,10 +338,8 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
-    TestableCommonTimer prev_element(0, &incomeRail0);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    TestableCommonTimer testable(10, &prev_element);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
+    TestableCommonTimer testable(10, &incomeRail0);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
@@ -361,10 +357,8 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0);
-    TestableCommonTimer prev_element(0, &incomeRail0);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    TestableCommonTimer testable(10, &prev_element);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
+    TestableCommonTimer testable(10, &incomeRail0);
 
     os_us = 10;
 

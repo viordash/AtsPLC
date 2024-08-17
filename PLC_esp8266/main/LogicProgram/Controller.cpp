@@ -44,14 +44,14 @@ void Controller::ProcessTask(void *parm) {
     Controller *controller = (Controller *)parm;
     StatusBar statusBar(controller, 0);
 
-    IncomeRail incomeRail0(controller, 0);
+    IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
 
     InputNO input0(MapIO::DI, &incomeRail0);
     TimerMSecs timerSecs0(1500, &input0);
     DirectOutput directOutput0(MapIO::O1, &timerSecs0);
     OutcomeRail outcomeRail0(0);
 
-    IncomeRail incomeRail1(controller, 1);
+    IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
     ComparatorGE comparator1(15, MapIO::AI, &incomeRail1);
     TimerSecs timerSecs1(4, &comparator1);
     DirectOutput directOutput1(MapIO::V3, &timerSecs1);
@@ -111,13 +111,13 @@ uint8_t Controller::GetDIRelativeValue() {
 }
 
 uint8_t Controller::GetO1RelativeValue() {
-    uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_0) ? StatefulElement::MaxValue : StatefulElement::MinValue;
+    uint8_t percent04 = get_digital_value(gpio_output::OUTPUT_0) ? StatefulElement::MaxValue
+                                                                 : StatefulElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetO2RelativeValue() {
-    uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_1) ? StatefulElement::MaxValue : StatefulElement::MinValue;
+    uint8_t percent04 = get_digital_value(gpio_output::OUTPUT_1) ? StatefulElement::MaxValue
+                                                                 : StatefulElement::MinValue;
     return percent04;
 }
 uint8_t Controller::GetV1RelativeValue() {

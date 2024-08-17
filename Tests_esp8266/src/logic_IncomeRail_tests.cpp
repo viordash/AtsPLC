@@ -32,8 +32,10 @@ namespace {
 
     class TestableIncomeRail : public IncomeRail {
       public:
-        TestableIncomeRail(const Controller *controller, uint8_t network_number)
-            : IncomeRail(controller, network_number) {
+        TestableIncomeRail(const Controller *controller,
+                           uint8_t network_number,
+                           LogicItemState state)
+            : IncomeRail(controller, network_number, state) {
         }
         StatefulElement *PublicMorozov_GetNext() {
             return nextElement;
@@ -127,7 +129,7 @@ namespace {
 TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
     Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
     TestableCommonInput input1(MapIO::DI, &testable);
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
@@ -153,7 +155,7 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
 TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
     TestableCommonInput input1(MapIO::DI, &testable);
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
@@ -171,7 +173,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 
 TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
     Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
     TestableCommonInput input1(MapIO::DI, &testable);
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);

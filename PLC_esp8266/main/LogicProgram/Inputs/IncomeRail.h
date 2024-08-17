@@ -9,7 +9,7 @@ class IncomeRail : public InputBase {
     uint8_t network_number;
 
   public:
-    explicit IncomeRail(const Controller *controller, uint8_t network_number);
+    explicit IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state);
     virtual ~IncomeRail();
 
     Point OutcomingPoint() override final;

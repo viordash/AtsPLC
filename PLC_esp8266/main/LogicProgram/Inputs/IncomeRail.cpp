@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number)
+IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state)
     : InputBase(controller,
                 { 0, (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number) }) {
     this->network_number = network_number;
-    state = LogicItemState::lisActive;
+    this->state = state;
 }
 
 IncomeRail::~IncomeRail() {

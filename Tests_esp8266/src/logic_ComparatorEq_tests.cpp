@@ -42,7 +42,7 @@ namespace {
 TEST(LogicComparatorEqTestsGroup, Render) {
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableComparatorEq testable(42, MapIO::V1, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -61,11 +61,9 @@ TEST(LogicComparatorEqTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectNoCall("adc_read");
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableComparatorEq prev_element(0, MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
 
-    TestableComparatorEq testable(42, MapIO::AI, &prev_element);
+    TestableComparatorEq testable(42, MapIO::AI, &incomeRail);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
@@ -78,11 +76,9 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_active) {
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableComparatorEq prev_element(0, MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
-    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &prev_element);
+    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &incomeRail);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
@@ -103,11 +99,9 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_passive) {
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableComparatorEq prev_element(0, MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
-    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &prev_element);
+    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &incomeRail);
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 

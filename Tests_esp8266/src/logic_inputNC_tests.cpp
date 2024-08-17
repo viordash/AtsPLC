@@ -47,7 +47,7 @@ namespace {
 TEST(LogicInputNCTestsGroup, Render) {
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableInputNC testable(MapIO::V1, &incomeRail);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -66,11 +66,9 @@ TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableInputNC prev_element(MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
 
-    TestableInputNC testable(MapIO::DI, &prev_element);
+    TestableInputNC testable(MapIO::DI, &incomeRail);
 
     CHECK_FALSE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
@@ -80,11 +78,9 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableInputNC prev_element(MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
-    TestableInputNC testable(MapIO::DI, &prev_element);
+    TestableInputNC testable(MapIO::DI, &incomeRail);
 
     CHECK_TRUE(testable.DoAction());
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
@@ -94,11 +90,9 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
 
     Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0);
-    TestableInputNC prev_element(MapIO::V1, &incomeRail);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
-    TestableInputNC testable(MapIO::DI, &prev_element);
+    TestableInputNC testable(MapIO::DI, &incomeRail);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction());
