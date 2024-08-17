@@ -1,11 +1,11 @@
-#include "LogicInputElement.h"
+#include "InputElement.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-LogicInputElement::LogicInputElement(const MapIO io_adr) {
+InputElement::InputElement(const MapIO io_adr) {
     switch (io_adr) {
         case MapIO::DI:
             GetValue = Controller::GetDIRelativeValue;
@@ -32,5 +32,5 @@ LogicInputElement::LogicInputElement(const MapIO io_adr) {
     }
 }
 
-LogicInputElement::~LogicInputElement() {
+InputElement::~InputElement() {
 }

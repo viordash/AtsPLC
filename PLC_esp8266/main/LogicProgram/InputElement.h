@@ -9,13 +9,13 @@
 
 typedef uint8_t (*f_GetValue)(void);
 
-class LogicInputElement {
+class InputElement {
   protected:
     f_GetValue GetValue;
 
   public:
 
-    explicit LogicInputElement(const MapIO io_adr);
-    virtual ~LogicInputElement();
+    explicit InputElement(const MapIO io_adr);
+    virtual ~InputElement();
 
 };
