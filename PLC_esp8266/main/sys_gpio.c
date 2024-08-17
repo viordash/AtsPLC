@@ -5,7 +5,6 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "hotreload_service.h"
 #include "sys_gpio.h"
 
 #define GPIO_OUTPUT_IO_0 GPIO_NUM_2
@@ -37,14 +36,6 @@ static struct {
     EventGroupHandle_t event;
 } gpio;
 
-static void set_digital_value_core(gpio_output gpio, bool value);
-
-static void restore_outputs() {
-    ESP_LOGI(TAG_gpio, "restore_outputs hotreload->gpio:%u", hotreload->gpio);
-    set_digital_value_core(OUTPUT_0, hotreload->gpio & OUTPUT_0);
-    set_digital_value_core(OUTPUT_1, hotreload->gpio & OUTPUT_1);
-}
-
 static void outputs_init() {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -53,7 +44,6 @@ static void outputs_init() {
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
-    restore_outputs();
 }
 
 static void BUTTON_UP_IO_isr_handler(void *arg) {
@@ -167,7 +157,7 @@ bool get_digital_value(gpio_output gpio) {
     return false;
 }
 
-static void set_digital_value_core(gpio_output gpio, bool value) {
+void set_digital_value(gpio_output gpio, bool value) {
     esp_err_t err = ESP_ERR_NOT_FOUND;
     int gpio_val = value ? GPIO_ACTIVE : GPIO_PASSIVE;
     switch (gpio) {
@@ -182,35 +172,6 @@ static void set_digital_value_core(gpio_output gpio, bool value) {
     if (err != ESP_OK) {
         ESP_LOGE(TAG_gpio, "set_digital_value, err:0x%X", err);
     }
-}
-
-void set_digital_value(gpio_output gpio, bool value) {
-    int gpio_val = value ? GPIO_ACTIVE : GPIO_PASSIVE;
-    switch (gpio) {
-        case OUTPUT_0:
-            if (gpio_val != gpio_get_level(GPIO_OUTPUT_IO_0)) {
-                ESP_LOGI(TAG_gpio, "set_digital_value 1, OUTPUT_0 store:%u", value);
-                if (value) {
-                    hotreload->gpio |= OUTPUT_0;
-                } else {
-                    hotreload->gpio &= ~OUTPUT_0;
-                }
-                store_hotreload();
-            }
-            break;
-        case OUTPUT_1:
-            if (gpio_val != gpio_get_level(GPIO_OUTPUT_IO_1)) {
-                ESP_LOGI(TAG_gpio, "set_digital_value, OUTPUT_1 store:%u", value);
-                if (value) {
-                    hotreload->gpio |= OUTPUT_1;
-                } else {
-                    hotreload->gpio &= ~OUTPUT_1;
-                }
-                store_hotreload();
-            }
-            break;
-    }
-    set_digital_value_core(gpio, value);
 }
 
 uint16_t get_analog_value() {

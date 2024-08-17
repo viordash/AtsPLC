@@ -22,13 +22,13 @@ TEST_C(HotReloadTestsGroup, load_store) {
 
     load_hotreload();
 
-    hotreload->gpio = 42;
+    hotreload->is_hotstart = true;
     hotreload->restart_count = 19;
 
     store_hotreload();
 
     CHECK_EQUAL_C_UINT(0xDE4572BB, testable->magic);
-    CHECK_EQUAL_C_UINT(42, testable->data.gpio);
+    CHECK_EQUAL_C_BOOL(true, testable->data.is_hotstart);
     CHECK_EQUAL_C_UINT(19, testable->data.restart_count);
 }
 
@@ -40,6 +40,5 @@ TEST_C(HotReloadTestsGroup, load_if_memory_cleared) {
 
     CHECK_EQUAL_C_UINT(0, testable->magic);
     CHECK_EQUAL_C_BOOL(false, testable->data.is_hotstart);
-    CHECK_EQUAL_C_UINT(0, testable->data.gpio);
     CHECK_EQUAL_C_UINT(0, testable->data.restart_count);
 }

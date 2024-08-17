@@ -6,7 +6,6 @@
 
 typedef struct {
     bool is_hotstart;
-    uint32_t gpio;
     uint32_t restart_count;
 } hotreload_data;
 

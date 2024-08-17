@@ -19,17 +19,16 @@ typedef struct {
     t_crc crc;
 } rtc_hotreload_data;
 
-volatile rtc_hotreload_data *_rtc_hotreload_data = (volatile hotreload_data *)RTC_USER_BASE;
+volatile rtc_hotreload_data *_rtc_hotreload_data = (volatile rtc_hotreload_data *)RTC_USER_BASE;
 hotreload_data *hotreload = NULL;
 
 void init_hotreload() {
     hotreload->is_hotstart = false;
-    hotreload->gpio = 0x00;
     hotreload->restart_count = 0;
 }
 
 void load_hotreload() {
-    hotreload = &_rtc_hotreload_data->data;
+    hotreload = (hotreload_data *)&_rtc_hotreload_data->data;
     if (_rtc_hotreload_data->magic != MAGIC) {
         ESP_LOGW(TAG_hotreload, "try_load_hotreload, incorrect magic");
         init_hotreload();
