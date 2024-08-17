@@ -14,6 +14,11 @@
 
 static const char *TAG_Controller = "controller";
 
+uint8_t Controller::Var1 = LogicElement::MinValue;
+uint8_t Controller::Var2 = LogicElement::MinValue;
+uint8_t Controller::Var3 = LogicElement::MinValue;
+uint8_t Controller::Var4 = LogicElement::MinValue;
+
 Controller::Controller(EventGroupHandle_t gpio_events) {
     runned = false;
     this->gpio_events = gpio_events;
@@ -49,7 +54,7 @@ void Controller::ProcessTask(void *parm) {
     IncomeRail incomeRail1(controller, 1);
     ComparatorGE comparator1(15, MapIO::AI, &incomeRail1);
     TimerSecs timerSecs1(4, &comparator1);
-    DirectOutput directOutput1(MapIO::O2, &timerSecs1);
+    DirectOutput directOutput1(MapIO::V3, &timerSecs1);
     OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
@@ -116,16 +121,16 @@ uint8_t Controller::GetO2RelativeValue() {
     return percent04;
 }
 uint8_t Controller::GetV1RelativeValue() {
-    return 25;
+    return Controller::Var1;
 }
 uint8_t Controller::GetV2RelativeValue() {
-    return 50;
+    return Controller::Var2;
 }
 uint8_t Controller::GetV3RelativeValue() {
-    return 75;
+    return Controller::Var3;
 }
 uint8_t Controller::GetV4RelativeValue() {
-    return 0;
+    return Controller::Var4;
 }
 
 void Controller::SetO1RelativeValue(uint8_t value) {
@@ -135,14 +140,14 @@ void Controller::SetO2RelativeValue(uint8_t value) {
     set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
 }
 void Controller::SetV1RelativeValue(uint8_t value) {
-    (void)value;
+    Controller::Var1 = value;
 }
 void Controller::SetV2RelativeValue(uint8_t value) {
-    (void)value;
+    Controller::Var2 = value;
 }
 void Controller::SetV3RelativeValue(uint8_t value) {
-    (void)value;
+    Controller::Var3 = value;
 }
 void Controller::SetV4RelativeValue(uint8_t value) {
-    (void)value;
+    Controller::Var4 = value;
 }
