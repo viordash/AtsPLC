@@ -1,8 +1,7 @@
 
 
 #include "LogicProgram/Controller.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+
 #include "Display/Common.h"
 #include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/StatusBar.h"
@@ -15,8 +14,9 @@
 
 static const char *TAG_Controller = "controller";
 
-Controller::Controller() {
+Controller::Controller(EventGroupHandle_t gpio_events) {
     runned = false;
+    this->gpio_events = gpio_events;
 }
 
 Controller::~Controller() {
@@ -54,12 +54,16 @@ void Controller::ProcessTask(void *parm) {
 
     bool need_render = true;
     while (controller->runned) {
-        vTaskDelay(200 / portTICK_PERIOD_MS);
+        const int read_adc_max_period_ms = 100;
+        xEventGroupWaitBits(controller->gpio_events,
+                            INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
+                            true,
+                            false,
+                            read_adc_max_period_ms / portTICK_PERIOD_MS);
 
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
-        // need_render |= timerSecs0.ProgressHasChanges();
         need_render |= timerSecs1.ProgressHasChanges();
 
         if (need_render) {

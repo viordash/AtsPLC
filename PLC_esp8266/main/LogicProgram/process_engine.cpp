@@ -7,8 +7,8 @@
 
 Controller *controller;
 
-void start_process_engine() {
-    controller = new Controller();
+void start_process_engine(EventGroupHandle_t gpio_events) {
+    controller = new Controller(gpio_events);
     controller->Start();
 }
 

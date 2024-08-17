@@ -58,6 +58,9 @@ static void startup() {
     if (!hotreload->is_hotstart) {
         start_smartconfig();
     }
+
+    display_init();
+    start_process_engine(gpio_events);
 }
 
 void app_main() {
@@ -76,8 +79,6 @@ void app_main() {
     printf("%dMB %s flash\n",
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    display_init();
 
     while (smartconfig_is_runned()) {
         printf("wait smartconfig...\n");
@@ -150,7 +151,6 @@ void app_main() {
             if (buttons_bits & BUTTON_LEFT_PRESSED) {
                 // ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
                 // display_demo_0(false);
-                start_process_engine();
             }
         }
         // vTaskDelay(5000 / portTICK_PERIOD_MS);

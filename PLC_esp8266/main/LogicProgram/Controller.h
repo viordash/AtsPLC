@@ -1,4 +1,17 @@
 #pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "freertos/task.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -8,9 +21,10 @@
 class Controller {
   private:
     bool runned;
+    EventGroupHandle_t gpio_events;
 
   public:
-    Controller(/* args */);
+    explicit Controller(EventGroupHandle_t gpio_events);
     ~Controller();
 
     void Start();

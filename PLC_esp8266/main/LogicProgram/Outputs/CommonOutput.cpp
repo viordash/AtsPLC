@@ -24,6 +24,13 @@ bool CommonOutput::Render(uint8_t *fb) {
     uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width + RightPadding;
     uint8_t incoming_width = (OUTCOME_RAIL_LEFT - incoming_point.x) - total_widht;
 
+    ESP_LOGD(TAG_CommonOutput,
+             "x:%u, total_widht:%u, incoming_width:%u, OUTCOME_RAIL_LEFT:%u",
+             incoming_point.x,
+             total_widht,
+             incoming_width,
+             OUTCOME_RAIL_LEFT);
+
     if (incoming_item->GetState() == LogicItemState::lisActive) {
         res &= draw_active_network(fb, incoming_point.x, incoming_point.y, incoming_width);
     } else {
