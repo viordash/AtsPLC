@@ -48,7 +48,7 @@ static void startup() {
         ESP_LOGI(TAG, "hotreload, gpio:%u", hotreload->gpio);
     }
 
-    EventGroupHandle_t gpio_events = gpio_init(hotreload->gpio);
+    EventGroupHandle_t gpio_events = gpio_init();
     buttons_events = buttons_init(gpio_events, hotreload->is_hotstart);
 
     load_settings();

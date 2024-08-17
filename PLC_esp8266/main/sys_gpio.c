@@ -5,6 +5,7 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "hotreload_service.h"
 #include "sys_gpio.h"
 
 #define GPIO_OUTPUT_IO_0 GPIO_NUM_2
@@ -31,7 +32,12 @@ static struct {
     EventGroupHandle_t event;
 } gpio;
 
-static void outputs_init(uint32_t startup_state) {
+static void restore_outputs() {
+    set_digital_value(OUTPUT_0, hotreload->gpio & OUTPUT_0);
+    set_digital_value(OUTPUT_1, hotreload->gpio & OUTPUT_1);
+}
+
+static void outputs_init() {
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
@@ -39,9 +45,7 @@ static void outputs_init(uint32_t startup_state) {
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
-
-    set_digital_value(OUTPUT_0, startup_state & OUTPUT_0);
-    set_digital_value(OUTPUT_1, startup_state & OUTPUT_1);
+    restore_outputs();
 }
 
 static void BUTTON_UP_IO_isr_handler(void *arg) {
@@ -134,8 +138,8 @@ static void analog_init() {
     ESP_ERROR_CHECK(adc_init(&adc_config));
 }
 
-EventGroupHandle_t gpio_init(uint32_t startup_state) {
-    outputs_init(startup_state);
+EventGroupHandle_t gpio_init() {
+    outputs_init();
 
     gpio.event = xEventGroupCreate();
 
@@ -159,9 +163,27 @@ void set_digital_value(gpio_output gpio, bool value) {
     esp_err_t err = ESP_ERR_NOT_FOUND;
     switch (gpio) {
         case OUTPUT_0:
+            if (value != get_digital_value(gpio)) {
+                if (value) {
+                    hotreload->gpio |= OUTPUT_0;
+                } else {
+                    hotreload->gpio &= ~OUTPUT_0;
+                }
+                store_hotreload();
+            }
+
             err = gpio_set_level(GPIO_OUTPUT_IO_0, value ? 0 : 1);
             break;
         case OUTPUT_1:
+            if (value != get_digital_value(gpio)) {
+                if (value) {
+                    hotreload->gpio |= OUTPUT_1;
+                } else {
+                    hotreload->gpio &= ~OUTPUT_1;
+                }
+                store_hotreload();
+            }
+
             err = gpio_set_level(GPIO_OUTPUT_IO_1, value ? 0 : 1);
             gpio_set_level(GPIO_OUTPUT_LED, value ? 0 : 1);
             break;

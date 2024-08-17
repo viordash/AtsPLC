@@ -15,7 +15,10 @@ TEST_GROUP_C_WRAPPER(HotReloadTestsGroup) {
 TEST_C_WRAPPER(HotReloadTestsGroup, load_store);
 TEST_C_WRAPPER(HotReloadTestsGroup, load_if_memory_cleared);
 
-TEST_GROUP_C_WRAPPER(GpioTestsGroup){};
+TEST_GROUP_C_WRAPPER(GpioTestsGroup) {
+    TEST_GROUP_C_SETUP_WRAPPER(GpioTestsGroup);
+    TEST_GROUP_C_TEARDOWN_WRAPPER(GpioTestsGroup);
+};
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_cleared_startup_value);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out0);
 TEST_C_WRAPPER(GpioTestsGroup, gpio_init__use_startup_for_out1);
@@ -27,6 +30,10 @@ TEST_C_WRAPPER(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_open);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_close);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_open);
 TEST_C_WRAPPER(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_close);
+TEST_C_WRAPPER(GpioTestsGroup, set_OUTPUT_0_to_true__also_store_state_to_hotreload);
+TEST_C_WRAPPER(GpioTestsGroup, set_OUTPUT_0_to_false__also_store_state_to_hotreload);
+TEST_C_WRAPPER(GpioTestsGroup, set_OUTPUT_1_to_true__also_store_state_to_hotreload);
+TEST_C_WRAPPER(GpioTestsGroup, set_OUTPUT_1_to_false__also_store_state_to_hotreload);
 
 IMPORT_TEST_GROUP(RedundantStorageTestsGroup);
 

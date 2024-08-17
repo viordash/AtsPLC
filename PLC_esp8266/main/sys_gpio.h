@@ -22,7 +22,7 @@ extern "C" {
 #endif
 typedef enum { OUTPUT_0 = 0x01, OUTPUT_1 = 0x02 } gpio_output;
 
-EventGroupHandle_t gpio_init(uint32_t startup_state);
+EventGroupHandle_t gpio_init();
 
 bool get_digital_value(gpio_output gpio);
 void set_digital_value(gpio_output gpio, bool value);
