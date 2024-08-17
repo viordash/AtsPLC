@@ -6,34 +6,40 @@
 #include <string.h>
 #include <unistd.h>
 
-static uint8_t testable[256] = {};
+static uint8_t rtc_memory[256] = {};
 
 TEST_GROUP_C_SETUP(HotReloadTestsGroup) {
-    memset(testable, 0, sizeof(testable));
+    memset(rtc_memory, 0, sizeof(rtc_memory));
 }
 TEST_GROUP_C_TEARDOWN(HotReloadTestsGroup) {
 }
 
-#define RTC_USER_BASE testable
+#define RTC_USER_BASE rtc_memory
 #include "main/hotreload_service.c"
 
-TEST_C(HotReloadTestsGroup, store_load) {
-    hotreload store_data = {};
-    hotreload load_data = {};
+TEST_C(HotReloadTestsGroup, load_store) {
+    rtc_hotreload_data *testable = (rtc_hotreload_data *)rtc_memory;
 
-    store_data.gpio = 42;
-    store_data.restart_count = 19;
+    load_hotreload();
 
-    store_hotreload(&store_data);
+    hotreload->gpio = 42;
+    hotreload->restart_count = 19;
 
-    CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
+    store_hotreload();
 
-    CHECK_EQUAL_C_UINT(store_data.gpio, load_data.gpio);
-    CHECK_EQUAL_C_UINT(store_data.restart_count, load_data.restart_count);
+    CHECK_EQUAL_C_UINT(0xDE4572BB, testable->magic);
+    CHECK_EQUAL_C_UINT(42, testable->data.gpio);
+    CHECK_EQUAL_C_UINT(19, testable->data.restart_count);
 }
 
 TEST_C(HotReloadTestsGroup, load_if_memory_cleared) {
-    hotreload load_data = {};
 
-    CHECK_EQUAL_C_BOOL(false, try_load_hotreload(&load_data));
+    rtc_hotreload_data *testable = (rtc_hotreload_data *)rtc_memory;
+
+    load_hotreload();
+
+    CHECK_EQUAL_C_UINT(0, testable->magic);
+    CHECK_EQUAL_C_BOOL(false, testable->data.is_hotstart);
+    CHECK_EQUAL_C_UINT(0, testable->data.gpio);
+    CHECK_EQUAL_C_UINT(0, testable->data.restart_count);
 }

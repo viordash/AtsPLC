@@ -11,38 +11,51 @@ static const uint32_t MAGIC = 0xDE4572BB;
 typedef uint32_t t_crc;
 
 typedef struct {
-    hotreload data;
+    hotreload_data data;
     union {
         uint32_t magic;
-        uint8_t dummy[256 - sizeof(hotreload) - sizeof(t_crc)];
+        uint8_t dummy[256 - sizeof(hotreload_data) - sizeof(t_crc)];
     };
     t_crc crc;
-} hotreload_data;
+} rtc_hotreload_data;
 
-volatile hotreload_data *_hotreload_data = (volatile hotreload_data *)RTC_USER_BASE;
+volatile rtc_hotreload_data *_rtc_hotreload_data = (volatile hotreload_data *)RTC_USER_BASE;
+hotreload_data *hotreload = NULL;
 
-bool try_load_hotreload(hotreload *data) {
-    if (_hotreload_data->magic != MAGIC) {
-        ESP_LOGW(TAG_hotreload, "try_load_hotreload, incorrect magic");
-        return false;
-    }
-
-    t_crc crc =
-        calc_crc32(CRC32_INIT, (const void *)&_hotreload_data->data, sizeof(_hotreload_data->data));
-    crc = calc_crc32(crc, (const void *)&_hotreload_data->dummy, sizeof(_hotreload_data->dummy));
-
-    if (_hotreload_data->crc != crc) {
-        ESP_LOGW(TAG_hotreload, "try_load_hotreload, wrong crc");
-        return false;
-    }
-    *data = _hotreload_data->data;
-    return true;
+void init_hotreload() {
+    hotreload->is_hotstart = false;
+    hotreload->gpio = 0x00;
+    hotreload->restart_count = 0;
 }
 
-void store_hotreload(hotreload *data) {
-    _hotreload_data->magic = MAGIC;
-    t_crc crc = calc_crc32(CRC32_INIT, (const void *)data, sizeof(*data));
-    crc = calc_crc32(crc, (const void *)&_hotreload_data->dummy, sizeof(_hotreload_data->dummy));
-    _hotreload_data->crc = crc;
-    _hotreload_data->data = *data;
+void load_hotreload() {
+    hotreload = &_rtc_hotreload_data->data;
+    if (_rtc_hotreload_data->magic != MAGIC) {
+        ESP_LOGW(TAG_hotreload, "try_load_hotreload, incorrect magic");
+        init_hotreload();
+        return;
+    }
+
+    t_crc crc = calc_crc32(CRC32_INIT,
+                           (const void *)&_rtc_hotreload_data->data,
+                           sizeof(_rtc_hotreload_data->data));
+    crc = calc_crc32(crc,
+                     (const void *)&_rtc_hotreload_data->dummy,
+                     sizeof(_rtc_hotreload_data->dummy));
+
+    if (_rtc_hotreload_data->crc != crc) {
+        ESP_LOGW(TAG_hotreload, "try_load_hotreload, wrong crc");
+        init_hotreload();
+        return;
+    }
+    hotreload->is_hotstart = true;
+}
+
+void store_hotreload() {
+    _rtc_hotreload_data->magic = MAGIC;
+    t_crc crc = calc_crc32(CRC32_INIT, (const void *)hotreload, sizeof(*hotreload));
+    crc = calc_crc32(crc,
+                     (const void *)&_rtc_hotreload_data->dummy,
+                     sizeof(_rtc_hotreload_data->dummy));
+    _rtc_hotreload_data->crc = crc;
 }

@@ -5,9 +5,12 @@
 #include <unistd.h>
 
 typedef struct {
+    bool is_hotstart;
     uint32_t gpio;
     uint32_t restart_count;
-} hotreload;
+} hotreload_data;
 
-bool try_load_hotreload(hotreload *data);
-void store_hotreload(hotreload *data);
+extern hotreload_data *hotreload;
+
+void load_hotreload();
+void store_hotreload();

@@ -6,10 +6,10 @@
 #include <string.h>
 #include <unistd.h>
 
-static uint8_t testable[256] = {};
+static uint8_t rtc_memory[256] = {};
 
 TEST_GROUP_C_SETUP(RestartCounterTestsGroup) {
-    memset(testable, 0, sizeof(testable));
+    memset(rtc_memory, 0, sizeof(rtc_memory));
 }
 TEST_GROUP_C_TEARDOWN(RestartCounterTestsGroup) {
 }
@@ -18,18 +18,14 @@ TEST_GROUP_C_TEARDOWN(RestartCounterTestsGroup) {
 #include "main/restart_counter.c"
 
 TEST_C(RestartCounterTestsGroup, hot_restart_counter) {
-    hotreload load_data = {};
-
-    CHECK_EQUAL_C_BOOL(false, try_load_hotreload(&load_data));
+    load_hotreload();
 
     hot_restart_counter();
 
-    CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
-    CHECK_EQUAL_C_UINT(1, load_data.restart_count);
+    CHECK_EQUAL_C_UINT(1, hotreload->restart_count);
 
     hot_restart_counter();
     hot_restart_counter();
 
-    CHECK_EQUAL_C_BOOL(true, try_load_hotreload(&load_data));
-    CHECK_EQUAL_C_UINT(3, load_data.restart_count);
+    CHECK_EQUAL_C_UINT(3, hotreload->restart_count);
 }

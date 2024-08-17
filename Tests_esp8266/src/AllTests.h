@@ -12,7 +12,7 @@ TEST_GROUP_C_WRAPPER(HotReloadTestsGroup) {
     TEST_GROUP_C_SETUP_WRAPPER(HotReloadTestsGroup);
     TEST_GROUP_C_TEARDOWN_WRAPPER(HotReloadTestsGroup);
 };
-TEST_C_WRAPPER(HotReloadTestsGroup, store_load);
+TEST_C_WRAPPER(HotReloadTestsGroup, load_store);
 TEST_C_WRAPPER(HotReloadTestsGroup, load_if_memory_cleared);
 
 TEST_GROUP_C_WRAPPER(GpioTestsGroup){};

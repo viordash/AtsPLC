@@ -19,13 +19,13 @@
 #include "esp_log.h"
 #include "esp_spi_flash.h"
 #include "esp_system.h"
-#include "sys_gpio.h"
 #include "hotreload_service.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"
 #include "smartconfig_service.h"
 #include "storage.h"
+#include "sys_gpio.h"
 #include "wifi_sta.h"
 #include <stdio.h>
 #include <string.h>
@@ -42,23 +42,20 @@ static void system_init() {
 }
 
 static void startup() {
-    hotreload hotreload_data;
-    bool is_hotstart = try_load_hotreload(&hotreload_data);
+    load_hotreload();
 
-    if (is_hotstart) {
-        ESP_LOGI(TAG, "hotreload, gpio:%u", hotreload_data.gpio);
-    } else {
-        hotreload_data.gpio = 0x00;
+    if (hotreload->is_hotstart) {
+        ESP_LOGI(TAG, "hotreload, gpio:%u", hotreload->gpio);
     }
 
-    EventGroupHandle_t gpio_events = gpio_init(hotreload_data.gpio);
-    buttons_events = buttons_init(gpio_events, is_hotstart);
+    EventGroupHandle_t gpio_events = gpio_init(hotreload->gpio);
+    buttons_events = buttons_init(gpio_events, hotreload->is_hotstart);
 
     load_settings();
 
     system_init();
 
-    if (!is_hotstart) {
+    if (!hotreload->is_hotstart) {
         start_smartconfig();
     }
 }
