@@ -19,8 +19,8 @@ class CommonTimer : public InputBase {
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
-    const uint8_t LeftPadding = 14;
-    const uint8_t RightPadding = 2;
+    const uint8_t LeftPadding = 4;
+    const uint8_t RightPadding = 0;
 
     bool IncomingItemStateHasChanged();
 

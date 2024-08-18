@@ -13,7 +13,7 @@ class CommonInput : public InputBase, public InputElement, public LabeledLogicIt
 
   public:
     const uint8_t LeftPadding = 2;
-    const uint8_t RightPadding = 2;
+    const uint8_t RightPadding = 0;
     CommonInput(const MapIO io_adr, InputBase *incoming_item);
     virtual ~CommonInput();
 

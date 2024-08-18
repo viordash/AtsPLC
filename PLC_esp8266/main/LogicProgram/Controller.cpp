@@ -44,17 +44,18 @@ void Controller::ProcessTask(void *parm) {
     Controller *controller = (Controller *)parm;
     StatusBar statusBar(controller, 0);
 
-    IncomeRail incomeRail0(controller, 0, LogicItemState::lisPassive);
+    IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
 
     InputNO input0(MapIO::DI, &incomeRail0);
-    TimerMSecs timerSecs0(1500, &input0);
-    DirectOutput directOutput0(MapIO::O1, &timerSecs0);
+    ComparatorLs comparator0(250, MapIO::V2, &input0);
+    TimerSecs timer0(3, &comparator0);
+    IncOutput output0(MapIO::V1, &timer0);
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
-    ComparatorGE comparator1(15, MapIO::AI, &incomeRail1);
-    TimerSecs timerSecs1(4, &comparator1);
-    DirectOutput directOutput1(MapIO::V3, &timerSecs1);
+    ComparatorGE comparator1(15, MapIO::V1, &incomeRail1);
+    InputNO input1(MapIO::V4, &comparator1);
+    DecOutput output1(MapIO::V1, &input1);
     OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
@@ -71,7 +72,7 @@ void Controller::ProcessTask(void *parm) {
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
-        need_render |= timerSecs1.ProgressHasChanges();
+        need_render |= timer0.ProgressHasChanges();
 
         if (need_render) {
             ESP_LOGI(TAG_Controller, ".");
@@ -81,14 +82,15 @@ void Controller::ProcessTask(void *parm) {
             statusBar.Render(fb);
             incomeRail0.Render(fb);
             input0.Render(fb);
-            timerSecs0.Render(fb);
-            directOutput0.Render(fb);
+            comparator0.Render(fb);
+            timer0.Render(fb);
+            output0.Render(fb);
             outcomeRail0.Render(fb);
 
             incomeRail1.Render(fb);
             comparator1.Render(fb);
-            timerSecs1.Render(fb);
-            directOutput1.Render(fb);
+            input1.Render(fb);
+            output1.Render(fb);
             outcomeRail1.Render(fb);
             end_render(fb);
             need_render = false;

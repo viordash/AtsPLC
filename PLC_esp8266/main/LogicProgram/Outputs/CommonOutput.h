@@ -19,7 +19,7 @@ class CommonOutput : public StatefulElement,
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t RightPadding = 2;
+    const uint8_t RightPadding = 0;
     CommonOutput(const MapIO io_adr, InputBase *incoming_item);
     ~CommonOutput();
 
