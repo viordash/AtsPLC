@@ -60,11 +60,13 @@ void Controller::ProcessTask(void *parm) {
     bool need_render = true;
     while (controller->runned) {
         const int read_adc_max_period_ms = 100;
-        xEventGroupWaitBits(controller->gpio_events,
-                            INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
-                            true,
-                            false,
-                            read_adc_max_period_ms / portTICK_PERIOD_MS);
+        EventBits_t uxBits = xEventGroupWaitBits(controller->gpio_events,
+                                                 INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
+                                                 true,
+                                                 false,
+                                                 read_adc_max_period_ms / portTICK_PERIOD_MS);
+
+        need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
 
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
