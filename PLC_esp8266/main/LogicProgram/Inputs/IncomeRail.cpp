@@ -16,8 +16,8 @@ IncomeRail::~IncomeRail() {
 }
 
 Point IncomeRail::OutcomingPoint() {
-    uint8_t x_pos = 2;
-    uint8_t y_pos = incoming_point.y + (INCOME_RAIL_HEIGHT / 2);
+    uint8_t x_pos = INCOME_RAIL_WIDTH;
+    uint8_t y_pos = incoming_point.y + INCOME_RAIL_OUTCOME_TOP;
     return { x_pos, y_pos };
 }
 
@@ -33,6 +33,11 @@ bool IncomeRail::DoAction() {
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
-    bool res = draw_income_rail(fb, network_number);
-    return res;
+    switch (state) {
+        case LogicItemState::lisActive:
+            return draw_active_income_rail(fb, network_number);
+
+        default:
+            return draw_passive_income_rail(fb, network_number);
+    }
 }

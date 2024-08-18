@@ -44,7 +44,7 @@ void Controller::ProcessTask(void *parm) {
     Controller *controller = (Controller *)parm;
     StatusBar statusBar(controller, 0);
 
-    IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
+    IncomeRail incomeRail0(controller, 0, LogicItemState::lisPassive);
 
     InputNO input0(MapIO::DI, &incomeRail0);
     TimerMSecs timerSecs0(1500, &input0);

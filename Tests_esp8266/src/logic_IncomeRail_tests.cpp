@@ -11,8 +11,11 @@
 #include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/LogicProgram.h"
 
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+
 TEST_GROUP(LogicIncomeRailTestsGroup){ //
                                        TEST_SETUP(){ mock().disable();
+memset(frame_buffer, 0, sizeof(frame_buffer));
 }
 
 TEST_TEARDOWN() {
@@ -192,4 +195,38 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     directOutput0.DoAction_result = true;
     res = testable.DoAction();
     CHECK_TRUE(res);
+}
+
+TEST(LogicIncomeRailTestsGroup, Render_when_active) {
+
+    Controller controller(NULL);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+}
+
+TEST(LogicIncomeRailTestsGroup, Render_when_passive) {
+
+    Controller controller(NULL);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisPassive);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
 }

@@ -244,13 +244,40 @@ bool draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inv
     return err == 0;
 }
 
-bool draw_income_rail(uint8_t *fb, uint8_t network_number) {
+bool draw_active_income_rail(uint8_t *fb, uint8_t network_number) {
     int err;
-    uint8_t height = INCOME_RAIL_HEIGHT;
-    uint8_t y = INCOME_RAIL_TOP + network_number * height;
-    err = ssd1306_draw_vline(&display.dev, fb, 0, y, height, OLED_COLOR_WHITE);
-    if (err == 0) {
-        ssd1306_draw_vline(&display.dev, fb, 1, y, height, OLED_COLOR_WHITE);
+    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT;
+    err = ssd1306_draw_vline(&display.dev, fb, 0, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    if (err == 0 && INCOME_RAIL_WIDTH == 2) {
+        ssd1306_draw_vline(&display.dev, fb, 1, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    }
+    return err == 0;
+}
+
+bool draw_passive_income_rail(uint8_t *fb, uint8_t network_number) {
+    int err;
+    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT;
+    uint8_t last_y = y + INCOME_RAIL_HEIGHT;
+    err = ssd1306_draw_vline(&display.dev, fb, 0, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    if (err == 0 && INCOME_RAIL_WIDTH == 2) {
+        int dashed_line_height = INCOME_RAIL_HEIGHT / 3;
+
+        uint8_t height = INCOME_RAIL_HEIGHT / 3;
+        err = ssd1306_draw_vline(&display.dev, fb, 1, y, height, OLED_COLOR_WHITE);
+        y += height;
+
+        ssd1306_color_t color_line = OLED_COLOR_WHITE;
+        while (err == 0 && dashed_line_height >= 2) {
+            err = ssd1306_draw_vline(&display.dev, fb, 1, y, 2, color_line);
+            dashed_line_height -= 2;
+            y += 2;
+            color_line = color_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
+        }
+
+        if (err == 0) {
+            height = last_y - y;
+            ssd1306_draw_vline(&display.dev, fb, 1, y, height, OLED_COLOR_WHITE);
+        }
     }
     return err == 0;
 }
@@ -310,7 +337,6 @@ bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
 
 bool draw_horz_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
     return ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE) == 0;
-    ;
 }
 
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
