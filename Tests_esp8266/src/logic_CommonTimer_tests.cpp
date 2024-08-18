@@ -318,10 +318,7 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(1, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+    mock().expectNoCall("esp_timer_get_time");
 
     Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisPassive);
@@ -334,7 +331,7 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
     volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(4, "esp_timer_get_time")
+        .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
@@ -353,7 +350,7 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
     volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(3, "esp_timer_get_time")
+        .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     Controller controller(NULL);
