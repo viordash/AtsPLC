@@ -45,7 +45,7 @@ uint8_t CommonTimer::GetProgress() {
     return StatefulElement::MaxValue - (uint8_t)percent04;
 }
 
-bool CommonTimer::DoAction() {
+bool CommonTimer::DoAction(bool prev_changed) {
     bool any_changes = false;
 
     LogicItemState prev_state = state;

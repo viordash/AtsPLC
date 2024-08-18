@@ -15,5 +15,5 @@ class StatusBar : public StatefulElement, public DisplayItemBase {
     virtual ~StatusBar();
 
     bool Render(uint8_t *fb) override final;
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

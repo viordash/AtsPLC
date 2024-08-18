@@ -14,6 +14,6 @@ class IncomeRail : public InputBase {
 
     Point OutcomingPoint() override final;
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
     bool Render(uint8_t *fb) override final;
 };

@@ -16,7 +16,7 @@ StatusBar::StatusBar(const Controller *controller, uint8_t y)
 StatusBar::~StatusBar() {
 }
 
-bool StatusBar::DoAction() {
+bool StatusBar::DoAction(bool prev_changed) {
     return true;
 }
 

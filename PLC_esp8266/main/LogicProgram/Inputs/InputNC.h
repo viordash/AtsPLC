@@ -15,6 +15,6 @@ class InputNC : public CommonInput {
     InputNC(const MapIO io_adr, InputBase *incoming_item);
     ~InputNC();
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
     bool Render(uint8_t *fb) override final;
 };

@@ -24,7 +24,7 @@ class StatefulElement {
     StatefulElement(const Controller *controller);
     virtual ~StatefulElement();
 
-    virtual bool DoAction() = 0;
+    virtual bool DoAction(bool prev_changed) = 0;
     LogicItemState GetState();
 
     void Bind(StatefulElement *element);

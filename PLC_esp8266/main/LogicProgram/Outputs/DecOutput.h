@@ -16,5 +16,5 @@ class DecOutput : public CommonOutput {
     DecOutput(const MapIO io_adr, InputBase *incoming_item);
     ~DecOutput();
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

@@ -16,5 +16,5 @@ class IncOutput : public CommonOutput {
     IncOutput(const MapIO io_adr, InputBase *incoming_item);
     ~IncOutput();
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

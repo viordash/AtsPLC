@@ -21,12 +21,13 @@ Point IncomeRail::OutcomingPoint() {
     return { x_pos, y_pos };
 }
 
-bool IncomeRail::DoAction() {
-    bool any_changes = false;
+bool IncomeRail::DoAction(bool prev_changed) {
+        bool any_changes = false;
     StatefulElement *next = nextElement;
 
     while (next != NULL) {
-        any_changes |= next->DoAction();
+        prev_changed = next->DoAction(prev_changed);        
+        any_changes |= prev_changed;
         next = next->nextElement;
     }
     return any_changes;

@@ -16,7 +16,7 @@ DecOutput::DecOutput(const MapIO io_adr, InputBase *incoming_item)
 DecOutput::~DecOutput() {
 }
 
-bool DecOutput::DoAction() {
+bool DecOutput::DoAction(bool prev_changed) {
     bool any_changes = false;
     LogicItemState prev_state = state;
 

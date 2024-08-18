@@ -16,7 +16,7 @@ InputNO::InputNO(const MapIO io_adr, InputBase *incoming_item)
 InputNO::~InputNO() {
 }
 
-bool InputNO::DoAction() {
+bool InputNO::DoAction(bool prev_changed) {
     bool any_changes = false;
     LogicItemState prev_state = state;
 
