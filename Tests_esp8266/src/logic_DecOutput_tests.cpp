@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Outputs/DecOutput.cpp"
 #include "main/LogicProgram/Outputs/DecOutput.h"
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
@@ -35,16 +34,16 @@ namespace {
     };
 } // namespace
 
-// TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-//     mock("0").expectNoCall("gpio_get_level");
+TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
+    mock("0").expectNoCall("gpio_get_level");
 
-//     Controller controller(NULL);
-//     IncomeRail incomeRail(&controller, 0);
-//     TestableDecOutput testable(MapIO::V1, &incomeRail);
+    Controller controller(NULL);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
+    TestableDecOutput testable(MapIO::V1, &incomeRail);
 
-//     CHECK_FALSE(testable.DoAction());
-//     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-// }
+    CHECK_FALSE(testable.DoAction());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+}
 
 // TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_active) {
 //     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
