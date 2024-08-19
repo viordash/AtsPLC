@@ -46,16 +46,17 @@ void Controller::ProcessTask(void *parm) {
 
     IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
 
-    InputNO input0(MapIO::DI, &incomeRail0);
-    ComparatorLs comparator0(250, MapIO::V2, &input0);
-    TimerSecs timer0(3, &comparator0);
-    IncOutput output0(MapIO::V1, &timer0);
+    InputNO input00(MapIO::DI, &incomeRail0);
+    InputNC input01(MapIO::V1, &input00);
+    TimerMSecs timer00(500, &input01);
+    SetOutput output00(MapIO::V1, &timer00);
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
-    ComparatorGE comparator1(15, MapIO::V1, &incomeRail1);
-    InputNO input1(MapIO::V4, &comparator1);
-    DecOutput output1(MapIO::V1, &input1);
+    InputNO input10(MapIO::DI, &incomeRail1);
+    InputNO input11(MapIO::V1, &input10);
+    TimerMSecs timer10(500, &input11);
+    ResetOutput output10(MapIO::V1, &timer10);
     OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
@@ -72,7 +73,8 @@ void Controller::ProcessTask(void *parm) {
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
-        need_render |= timer0.ProgressHasChanges();
+        // need_render |= timer00.ProgressHasChanges();
+        // need_render |= timer10.ProgressHasChanges();
 
         if (need_render) {
             ESP_LOGI(TAG_Controller, ".");
@@ -86,7 +88,7 @@ void Controller::ProcessTask(void *parm) {
 
             incomeRail1.Render(fb);
             outcomeRail1.Render(fb);
-            
+
             end_render(fb);
             need_render = false;
         }

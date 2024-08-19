@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_SetOutput = "SetOutput";
+
 SetOutput::SetOutput(const MapIO io_adr, InputBase *incoming_item)
     : CommonOutput(io_adr, incoming_item) {
 }
@@ -15,7 +17,25 @@ SetOutput::~SetOutput() {
 }
 
 bool SetOutput::DoAction(bool prev_changed) {
-    return true;
+    (void)prev_changed;
+    bool any_changes = false;
+    LogicItemState prev_state = state;
+
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        if (state == LogicItemState::lisActive) {
+            SetValue(StatefulElement::MaxValue);
+        }
+        any_changes = true;
+        ESP_LOGD(TAG_SetOutput, ".");
+    }
+
+    return any_changes;
 }
 
 const Bitmap *SetOutput::GetCurrentBitmap() {
