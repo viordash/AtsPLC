@@ -85,24 +85,6 @@ TEST(LogicInputNOTestsGroup, chain_of_items) {
     CHECK_EQUAL(&testable_1, testable_2.PublicMorozov_incoming_item());
 }
 
-TEST(LogicInputNOTestsGroup, Render) {
-
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableInputNO testable(MapIO::V1, &incomeRail);
-
-    CHECK_TRUE(testable.Render(frame_buffer));
-
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-}
-
 TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 

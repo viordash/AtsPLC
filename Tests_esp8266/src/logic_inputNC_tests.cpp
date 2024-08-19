@@ -44,24 +44,6 @@ namespace {
     };
 } // namespace
 
-TEST(LogicInputNCTestsGroup, Render) {
-
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableInputNC testable(MapIO::V1, &incomeRail);
-
-    CHECK_TRUE(testable.Render(frame_buffer));
-
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-}
-
 TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 

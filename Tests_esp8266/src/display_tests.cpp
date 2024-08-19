@@ -90,3 +90,15 @@ TEST(DisplayTestsGroup, draw_bitmap_from_position_0_1) {
     CHECK_EQUAL(0b00000001, frame_buffer[14 + DISPLAY_WIDTH * 2]);
     CHECK_EQUAL(0b00000001, frame_buffer[15 + DISPLAY_WIDTH * 2]);
 }
+
+TEST(DisplayTestsGroup, draw_active_network__with_0_width) {
+    CHECK_TRUE(draw_active_network(frame_buffer, 0, 0, 0));
+}
+
+TEST(DisplayTestsGroup, draw_vert_progress_bar__with_0_progress) {
+    CHECK_TRUE(draw_vert_progress_bar(frame_buffer, 0, 0, 0));
+}
+
+TEST(DisplayTestsGroup, draw_horz_progress_bar__with_0_progress) {
+    CHECK_TRUE(draw_horz_progress_bar(frame_buffer, 0, 0, 0));
+}

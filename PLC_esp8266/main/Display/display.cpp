@@ -216,9 +216,11 @@ bool draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
 
 bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
     int err = 0;
-    err = ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
-    if (err == 0) {
-        err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, w, OLED_COLOR_WHITE);
+    if (w > 0) {
+        err = ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
+        if (err == 0) {
+            err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, w, OLED_COLOR_WHITE);
+        }
     }
     return err == 0;
 }
