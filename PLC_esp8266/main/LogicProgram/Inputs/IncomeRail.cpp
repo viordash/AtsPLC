@@ -22,22 +22,39 @@ Point IncomeRail::OutcomingPoint() {
 }
 
 bool IncomeRail::DoAction() {
+    return DoAction(false);
+}
+
+bool IncomeRail::DoAction(bool prev_changed) {
     bool any_changes = false;
-    StatefulElement *next = nextElement;
+    auto *next = nextElement;
 
     while (next != NULL) {
-        any_changes |= next->DoAction();
+        prev_changed = next->DoAction(prev_changed);
+        any_changes |= prev_changed;
         next = next->nextElement;
     }
     return any_changes;
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
+    bool res = true;
     switch (state) {
         case LogicItemState::lisActive:
-            return draw_active_income_rail(fb, network_number);
+            res = draw_active_income_rail(fb, network_number);
+            break;
 
         default:
-            return draw_passive_income_rail(fb, network_number);
+            res = draw_passive_income_rail(fb, network_number);
+            break;
     }
+
+    auto *next = nextElement;
+
+    while (res && next != NULL) {
+        res = next->Render(fb);
+        next = next->nextElement;
+    }
+
+    return res;
 }

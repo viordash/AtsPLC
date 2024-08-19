@@ -7,13 +7,14 @@
 class IncomeRail : public InputBase {
   private:
     uint8_t network_number;
+    bool DoAction(bool prev_changed) override final;
 
   public:
     explicit IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state);
     virtual ~IncomeRail();
 
     Point OutcomingPoint() override final;
+    bool DoAction();
 
-    bool DoAction() override final;
     bool Render(uint8_t *fb) override final;
 };

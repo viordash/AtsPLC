@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayItemBase.h"
 #include "LogicProgram/StatefulElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class StatusBar : public StatefulElement, public DisplayItemBase {
+class StatusBar : public StatefulElement {
   protected:
     uint8_t y;
 
@@ -15,5 +14,5 @@ class StatusBar : public StatefulElement, public DisplayItemBase {
     virtual ~StatusBar();
 
     bool Render(uint8_t *fb) override final;
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

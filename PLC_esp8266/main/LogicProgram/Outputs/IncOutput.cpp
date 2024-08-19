@@ -14,7 +14,8 @@ IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
 IncOutput::~IncOutput() {
 }
 
-bool IncOutput::DoAction() {
+bool IncOutput::DoAction(bool prev_changed) {
+    (void)prev_changed;
     return true;
 }
 

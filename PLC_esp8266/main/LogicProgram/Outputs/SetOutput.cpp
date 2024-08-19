@@ -14,7 +14,7 @@ SetOutput::SetOutput(const MapIO io_adr, InputBase *incoming_item)
 SetOutput::~SetOutput() {
 }
 
-bool SetOutput::DoAction() {
+bool SetOutput::DoAction(bool prev_changed) {
     return true;
 }
 

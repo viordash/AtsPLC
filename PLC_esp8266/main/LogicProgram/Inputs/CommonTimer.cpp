@@ -13,7 +13,6 @@ CommonTimer::CommonTimer(InputBase *incoming_item)
     : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()) {
     this->incoming_item = incoming_item;
     this->incoming_item->Bind(this);
-    incoming_item_prev_state = incoming_item->GetState();
     if (incoming_item->GetState() == LogicItemState::lisActive) {
         this->start_time_us = esp_timer_get_time();
     }
@@ -45,12 +44,12 @@ uint8_t CommonTimer::GetProgress() {
     return StatefulElement::MaxValue - (uint8_t)percent04;
 }
 
-bool CommonTimer::DoAction() {
+bool CommonTimer::DoAction(bool prev_changed) {
     bool any_changes = false;
 
     LogicItemState prev_state = state;
-    if (IncomingItemStateHasChanged() && incoming_item->GetState() == LogicItemState::lisActive) {
-        this->start_time_us = esp_timer_get_time();
+    if (prev_changed && incoming_item->GetState() == LogicItemState::lisActive) {
+        start_time_us = esp_timer_get_time();
     }
 
     if (incoming_item->GetState() == LogicItemState::lisActive //
@@ -122,10 +121,4 @@ Point CommonTimer::OutcomingPoint() {
     uint8_t x_pos = incoming_point.x + LeftPadding + bitmap->size.width + RightPadding;
     uint8_t y_pos = incoming_point.y;
     return { x_pos, y_pos };
-}
-
-bool CommonTimer::IncomingItemStateHasChanged() {
-    bool changed = incoming_item_prev_state != incoming_item->GetState();
-    incoming_item_prev_state = incoming_item->GetState();
-    return changed;
 }

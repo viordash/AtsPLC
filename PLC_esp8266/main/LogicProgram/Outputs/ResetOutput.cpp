@@ -14,7 +14,7 @@ ResetOutput::ResetOutput(const MapIO io_adr, InputBase *incoming_item)
 ResetOutput::~ResetOutput() {
 }
 
-bool ResetOutput::DoAction() {
+bool ResetOutput::DoAction(bool prev_changed) {
     return true;
 }
 

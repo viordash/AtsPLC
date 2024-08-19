@@ -16,5 +16,5 @@ class DirectOutput : public CommonOutput {
     DirectOutput(const MapIO io_adr, InputBase *incoming_item);
     ~DirectOutput();
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

@@ -19,7 +19,8 @@ CommonComparator::CommonComparator(uint8_t ref_percent04,
 CommonComparator::~CommonComparator() {
 }
 
-bool CommonComparator::DoAction() {
+bool CommonComparator::DoAction(bool prev_changed) {
+    (void)prev_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 

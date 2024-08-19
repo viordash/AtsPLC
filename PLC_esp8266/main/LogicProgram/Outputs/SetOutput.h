@@ -16,5 +16,5 @@ class SetOutput : public CommonOutput {
     SetOutput(const MapIO io_adr, InputBase *incoming_item);
     ~SetOutput();
 
-    bool DoAction() override final;
+    bool DoAction(bool prev_changed) override final;
 };

@@ -16,7 +16,7 @@ InputNC::InputNC(const MapIO io_adr, InputBase *incoming_item)
 InputNC::~InputNC() {
 }
 
-bool InputNC::DoAction() {
+bool InputNC::DoAction(bool prev_changed) {
     bool any_changes = false;
     LogicItemState prev_state = state;
 

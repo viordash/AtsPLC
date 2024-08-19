@@ -8,15 +8,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-StatusBar::StatusBar(const Controller *controller, uint8_t y)
-    : StatefulElement(controller), DisplayItemBase() {
+StatusBar::StatusBar(const Controller *controller, uint8_t y) : StatefulElement(controller) {
     this->y = y;
 }
 
 StatusBar::~StatusBar() {
 }
 
-bool StatusBar::DoAction() {
+bool StatusBar::DoAction(bool prev_changed) {
+    (void)prev_changed;
     return true;
 }
 
