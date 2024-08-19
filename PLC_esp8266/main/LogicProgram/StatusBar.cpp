@@ -16,6 +16,7 @@ StatusBar::~StatusBar() {
 }
 
 bool StatusBar::DoAction(bool prev_changed) {
+    (void)prev_changed;
     return true;
 }
 

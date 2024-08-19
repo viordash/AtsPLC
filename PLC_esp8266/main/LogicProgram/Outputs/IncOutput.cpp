@@ -15,6 +15,7 @@ IncOutput::~IncOutput() {
 }
 
 bool IncOutput::DoAction(bool prev_changed) {
+    (void)prev_changed;
     return true;
 }
 
