@@ -59,7 +59,7 @@ namespace {
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction() override {
+        bool DoAction(bool prev_changed) override {
             DoAction_called = true;
             return DoAction_result;
         }
@@ -79,7 +79,7 @@ namespace {
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction() override {
+        bool DoAction(bool prev_changed) override {
             DoAction_called = true;
             return DoAction_result;
         }
@@ -101,7 +101,7 @@ namespace {
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction() override {
+        bool DoAction(bool prev_changed) override {
             DoAction_called = true;
             return DoAction_result;
         }
@@ -121,7 +121,7 @@ namespace {
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction() override {
+        bool DoAction(bool prev_changed) override {
             DoAction_called = true;
             return DoAction_result;
         }

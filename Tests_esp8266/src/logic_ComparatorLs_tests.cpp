@@ -65,7 +65,7 @@ TEST(LogicComparatorLsTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableComparatorLs testable(42, MapIO::AI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction());
+    CHECK_FALSE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
 
@@ -80,11 +80,11 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
 
     TestableComparatorLs testable(51 / 0.4, MapIO::AI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction());
+    CHECK_FALSE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 
     adc = 49 / 0.1;
-    CHECK_TRUE(testable.DoAction());
+    CHECK_TRUE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 }
 
@@ -98,10 +98,10 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
     TestableComparatorLs testable(50 / 0.4, MapIO::AI, &incomeRail);
-    CHECK_TRUE(testable.DoAction());
+    CHECK_TRUE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 
     adc = 51 / 0.1;
-    CHECK_TRUE(testable.DoAction());
+    CHECK_TRUE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }

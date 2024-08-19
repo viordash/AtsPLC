@@ -41,7 +41,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
     TestableDecOutput testable(MapIO::V1, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction());
+    CHECK_FALSE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
 
@@ -55,7 +55,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 //     TestableDecOutput testable(MapIO::V2, &prev_element);
 
-//     CHECK_TRUE(testable.DoAction());
+//     CHECK_TRUE(testable.DoAction(false));
 //     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 // }
 
@@ -70,6 +70,6 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 //     TestableDecOutput testable(MapIO::DI, &prev_element);
 //     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-//     CHECK_TRUE(testable.DoAction());
+//     CHECK_TRUE(testable.DoAction(false));
 //     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 // }

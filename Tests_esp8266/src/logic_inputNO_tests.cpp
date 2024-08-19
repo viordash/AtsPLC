@@ -111,7 +111,7 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableInputNO testable(MapIO::DI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction());
+    CHECK_FALSE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
 
@@ -123,7 +123,7 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
 
     TestableInputNO testable(MapIO::DI, &incomeRail);
 
-    CHECK_TRUE(testable.DoAction());
+    CHECK_TRUE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 }
 
@@ -136,6 +136,6 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
     TestableInputNO testable(MapIO::DI, &incomeRail);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.DoAction());
+    CHECK_TRUE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
