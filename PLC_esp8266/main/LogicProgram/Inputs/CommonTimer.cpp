@@ -49,7 +49,7 @@ bool CommonTimer::DoAction(bool prev_changed) {
 
     LogicItemState prev_state = state;
     if (prev_changed && incoming_item->GetState() == LogicItemState::lisActive) {
-        this->start_time_us = esp_timer_get_time();
+        start_time_us = esp_timer_get_time();
     }
 
     if (incoming_item->GetState() == LogicItemState::lisActive //

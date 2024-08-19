@@ -54,6 +54,9 @@ namespace {
         uint8_t PublicMorozov_GetProgress() {
             return GetProgress();
         }
+        uint64_t PublicMorozov_start_time_us() {
+            return start_time_us;
+        }
     };
 } // namespace
 
@@ -341,4 +344,43 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
 
     CHECK_FALSE(testable.DoAction(false));
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+}
+
+TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_resets_start_time) {
+    volatile uint64_t os_us = 42;
+    mock()
+        .expectNCalls(4, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller(NULL);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
+    TestableCommonTimer testable(10, &incomeRail0);
+
+    CHECK_FALSE(testable.DoAction(false));
+
+    os_us += 19;
+    CHECK_EQUAL(42, testable.PublicMorozov_start_time_us());
+
+    CHECK_FALSE(testable.DoAction(true));
+
+    CHECK_EQUAL(42 + 19, testable.PublicMorozov_start_time_us());
+}
+
+TEST(LogicCommonTimerTestsGroup, active_previous_element_set_start_time_in_ctor) {
+    volatile uint64_t os_us = 42;
+    mock()
+        .expectOneCall("esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller(NULL);
+    IncomeRail incomeRail_passive(&controller, 0, LogicItemState::lisActive);
+    TestableCommonTimer testable(10, &incomeRail_passive);
+}
+
+TEST(LogicCommonTimerTestsGroup, passive_previous_element_dont_set_start_time_in_ctor) {
+    mock().expectNoCall("esp_timer_get_time");
+
+    Controller controller(NULL);
+    IncomeRail incomeRail_passive(&controller, 0, LogicItemState::lisPassive);
+    TestableCommonTimer testable(10, &incomeRail_passive);
 }
