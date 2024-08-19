@@ -69,8 +69,8 @@ void Controller::ProcessTask(void *parm) {
 
         need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
 
-        need_render |= incomeRail0.DoAction(false);
-        need_render |= incomeRail1.DoAction(false);
+        need_render |= incomeRail0.DoAction();
+        need_render |= incomeRail1.DoAction();
 
         need_render |= timer0.ProgressHasChanges();
 
