@@ -36,7 +36,7 @@ class TestableStatusBar : public StatusBar {
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
     Controller controller(NULL);
     TestableStatusBar testable(&controller, 0);
-    testable.Render(frame_buffer);
+    CHECK_TRUE(testable.Render(frame_buffer));
 
     const int component_area = DISPLAY_WIDTH * 2;
     for (int i = component_area; i < DISPLAY_WIDTH * DISPLAY_HEIGHT / 8; i++) {

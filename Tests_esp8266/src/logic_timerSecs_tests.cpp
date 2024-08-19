@@ -12,11 +12,16 @@
 #include "main/LogicProgram/Inputs/TimerSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerSecs.h"
 
-TEST_GROUP(LogicTimerSecsTestsGroup){ //
-                                      TEST_SETUP(){}
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
-                                      TEST_TEARDOWN(){}
-};
+TEST_GROUP(LogicTimerSecsTestsGroup){ //
+                                      TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+}
+
+TEST_TEARDOWN() {
+}
+}
+;
 
 namespace {
     class TestableTimerSecs : public TimerSecs {
@@ -29,6 +34,9 @@ namespace {
 
         uint64_t PublicMorozov_GetDelayTimeUs() {
             return delay_time_us;
+        }
+        uint8_t PublicMorozov_GetProgress() {
+            return GetProgress();
         }
     };
 } // namespace
@@ -87,4 +95,19 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
 
     os_us = 100000 - 1;
     CHECK_TRUE(testable.ProgressHasChanges());
+}
+
+TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    Controller controller(NULL);
+    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
+    TestableTimerSecs testable(10, &incomeRail0);
+
+    uint8_t percent04 = testable.PublicMorozov_GetProgress();
+    CHECK_EQUAL(0, percent04);
+    CHECK_TRUE(testable.Render(frame_buffer));
 }

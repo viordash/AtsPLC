@@ -298,12 +298,14 @@ bool draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
 }
 
 bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04) {
-    int err;
+    int err = 0;
     int height = (VERT_PROGRESS_BAR_HEIGHT * percent04) / 250;
-    uint8_t y_pos = y + (VERT_PROGRESS_BAR_HEIGHT - height);
-    err = ssd1306_draw_vline(&display.dev, fb, x + 0, y_pos, height, OLED_COLOR_WHITE);
-    if (err == 0) {
-        err = ssd1306_draw_vline(&display.dev, fb, x + 1, y_pos, height, OLED_COLOR_WHITE);
+    if (height > 0) {
+        uint8_t y_pos = y + (VERT_PROGRESS_BAR_HEIGHT - height);
+        err = ssd1306_draw_vline(&display.dev, fb, x + 0, y_pos, height, OLED_COLOR_WHITE);
+        if (err == 0) {
+            err = ssd1306_draw_vline(&display.dev, fb, x + 1, y_pos, height, OLED_COLOR_WHITE);
+        }
     }
     if (err == 0) {
         err = ssd1306_draw_vline(&display.dev,
@@ -317,11 +319,13 @@ bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04
 }
 
 bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04) {
-    int err;
+    int err = 0;
     int width = (HORZ_PROGRESS_BAR_WIDTH * percent04) / 250;
-    err = ssd1306_draw_hline(&display.dev, fb, x, y + 0, width, OLED_COLOR_WHITE);
-    if (err == 0) {
-        err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, width, OLED_COLOR_WHITE);
+    if (width > 0) {
+        err = ssd1306_draw_hline(&display.dev, fb, x, y + 0, width, OLED_COLOR_WHITE);
+        if (err == 0) {
+            err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, width, OLED_COLOR_WHITE);
+        }
     }
     if (err == 0) {
         // err = ssd1306_draw_hline(&display.dev, fb, x, y + 2, HORZ_PROGRESS_BAR_WIDTH, OLED_COLOR_WHITE);
