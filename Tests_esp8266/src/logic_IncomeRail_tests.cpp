@@ -64,6 +64,14 @@ namespace {
             DoAction_called = true;
             return DoAction_result;
         }
+
+        bool Render_called = false;
+        bool Render_result = true;
+        bool Render(uint8_t *fb) override {
+            (void)fb;
+            Render_called = true;
+            return Render_result;
+        }
     };
 
     class TestableCommonComparator : public CommonComparator {
@@ -88,6 +96,14 @@ namespace {
         bool CompareFunction() override {
             return true;
         }
+
+        bool Render_called = false;
+        bool Render_result = true;
+        bool Render(uint8_t *fb) override {
+            (void)fb;
+            Render_called = true;
+            return Render_result;
+        }
     };
 
     class TestableCommonTimer : public CommonTimer {
@@ -107,6 +123,14 @@ namespace {
             (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
+        }
+
+        bool Render_called = false;
+        bool Render_result = true;
+        bool Render(uint8_t *fb) override {
+            (void)fb;
+            Render_called = true;
+            return Render_result;
         }
     };
 
@@ -128,6 +152,14 @@ namespace {
             (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
+        }
+
+        bool Render_called = false;
+        bool Render_result = true;
+        bool Render(uint8_t *fb) override {
+            (void)fb;
+            Render_called = true;
+            return Render_result;
         }
     };
 
@@ -201,11 +233,17 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     CHECK_TRUE(res);
 }
 
-TEST(LogicIncomeRailTestsGroup, Render_when_active) {
+TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
 
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+    OutcomeRail outcomeRail0(0);
+
     CHECK_TRUE(testable.Render(frame_buffer));
 
     bool any_pixel_coloring = false;
@@ -216,13 +254,24 @@ TEST(LogicIncomeRailTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+
+    CHECK_TRUE(input1.Render_called);
+    CHECK_TRUE(comparator1.Render_called);
+    CHECK_TRUE(timerSecs1.Render_called);
+    CHECK_TRUE(directOutput0.Render_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, Render_when_passive) {
+TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
 
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisPassive);
 
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+    OutcomeRail outcomeRail0(0);
+
     CHECK_TRUE(testable.Render(frame_buffer));
 
     bool any_pixel_coloring = false;
@@ -233,4 +282,29 @@ TEST(LogicIncomeRailTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+
+    CHECK_TRUE(input1.Render_called);
+    CHECK_TRUE(comparator1.Render_called);
+    CHECK_TRUE(timerSecs1.Render_called);
+    CHECK_TRUE(directOutput0.Render_called);
+}
+
+TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
+
+    Controller controller(NULL);
+    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+
+    TestableCommonInput input1(MapIO::DI, &testable);
+    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    comparator1.Render_result = false;
+    TestableCommonTimer timerSecs1(&comparator1);
+    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+    OutcomeRail outcomeRail0(0);
+
+    CHECK_FALSE(testable.Render(frame_buffer));
+
+    CHECK_TRUE(input1.Render_called);
+    CHECK_TRUE(comparator1.Render_called);
+    CHECK_FALSE(timerSecs1.Render_called);
+    CHECK_FALSE(directOutput0.Render_called);
 }

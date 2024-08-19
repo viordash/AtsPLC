@@ -19,5 +19,5 @@ class CommonComparator : public CommonInput {
     ~CommonComparator();
 
     bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb) override;
 };

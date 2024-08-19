@@ -80,18 +80,13 @@ void Controller::ProcessTask(void *parm) {
             uint8_t *fb = begin_render();
 
             statusBar.Render(fb);
+
             incomeRail0.Render(fb);
-            input0.Render(fb);
-            comparator0.Render(fb);
-            timer0.Render(fb);
-            output0.Render(fb);
             outcomeRail0.Render(fb);
 
             incomeRail1.Render(fb);
-            comparator1.Render(fb);
-            input1.Render(fb);
-            output1.Render(fb);
             outcomeRail1.Render(fb);
+            
             end_render(fb);
             need_render = false;
         }
