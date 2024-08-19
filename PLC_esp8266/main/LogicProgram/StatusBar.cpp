@@ -8,8 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-StatusBar::StatusBar(const Controller *controller, uint8_t y)
-    : StatefulElement(controller), DisplayItemBase() {
+StatusBar::StatusBar(const Controller *controller, uint8_t y) : StatefulElement(controller) {
     this->y = y;
 }
 

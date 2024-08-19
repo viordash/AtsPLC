@@ -40,7 +40,7 @@ namespace {
                            LogicItemState state)
             : IncomeRail(controller, network_number, state) {
         }
-        StatefulElement *PublicMorozov_GetNext() {
+        LogicElement *PublicMorozov_GetNext() {
             return nextElement;
         }
     };
@@ -53,13 +53,14 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        StatefulElement *PublicMorozov_GetNext() {
+        LogicElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
         bool DoAction(bool prev_changed) override {
+            (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
         }
@@ -73,13 +74,14 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        StatefulElement *PublicMorozov_GetNext() {
+        LogicElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
         bool DoAction(bool prev_changed) override {
+            (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
         }
@@ -95,13 +97,14 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        StatefulElement *PublicMorozov_GetNext() {
+        LogicElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
         bool DoAction(bool prev_changed) override {
+            (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
         }
@@ -115,13 +118,14 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        StatefulElement *PublicMorozov_GetNext() {
+        LogicElement *PublicMorozov_GetNext() {
             return nextElement;
         }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
         bool DoAction(bool prev_changed) override {
+            (void)prev_changed;
             DoAction_called = true;
             return DoAction_result;
         }
@@ -140,7 +144,7 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
     OutcomeRail outcomeRail0(0);
 
-    StatefulElement *nextElement = testable.PublicMorozov_GetNext();
+    LogicElement *nextElement = testable.PublicMorozov_GetNext();
     CHECK_EQUAL(&input1, nextElement);
 
     nextElement = input1.PublicMorozov_GetNext();
