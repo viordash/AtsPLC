@@ -17,6 +17,7 @@ InputNO::~InputNO() {
 }
 
 bool InputNO::DoAction(bool prev_changed) {
+    (void)prev_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
