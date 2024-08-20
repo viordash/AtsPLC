@@ -174,7 +174,7 @@ TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     LogicElement *nextElement = testable.PublicMorozov_GetNext();
     CHECK_EQUAL(&input1, nextElement);
@@ -200,7 +200,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     testable.DoAction();
 
@@ -218,7 +218,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     bool res = testable.DoAction();
     CHECK_FALSE(res);
@@ -242,7 +242,7 @@ TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -270,7 +270,7 @@ TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in
     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -299,7 +299,7 @@ TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_pr
     comparator1.Render_result = false;
     TestableCommonTimer timerSecs1(&comparator1);
     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&directOutput0, 0);
 
     CHECK_FALSE(testable.Render(frame_buffer));
 
