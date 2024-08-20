@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Inputs/InputNC.cpp"
 #include "main/LogicProgram/Inputs/InputNC.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};

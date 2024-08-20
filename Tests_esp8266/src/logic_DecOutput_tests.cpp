@@ -10,6 +10,7 @@
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
                                       TEST_SETUP(){}
@@ -32,6 +33,19 @@ namespace {
             return &state;
         }
     };
+
+    class TestableInputNC : public InputNC {
+      public:
+        TestableInputNC(const MapIO io_adr, InputBase *incoming_item)
+            : InputNC(io_adr, incoming_item) {
+        }
+        virtual ~TestableInputNC() {
+        }
+
+        LogicItemState *PublicMorozov_Get_state() {
+            return &state;
+        }
+    };
 } // namespace
 
 TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
@@ -45,31 +59,34 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
 
-// TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_active) {
-//     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
+TEST(LogicDecOutputTestsGroup,
+     DoAction_change_state_to_active__and_second_call_does_not_decrement) {
+    Controller controller(NULL);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
+    TestableDecOutput testable(MapIO::V1, &incomeRail);
 
-//     Controller controller(NULL);
-//     IncomeRail incomeRail(&controller, 0);
-//     TestableDecOutput prev_element(MapIO::V1, &incomeRail);
-//     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    controller.SetV1RelativeValue(42);
 
-//     TestableDecOutput testable(MapIO::V2, &prev_element);
+    CHECK_TRUE(testable.DoAction(false));
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_EQUAL(41, controller.GetV1RelativeValue());
 
-//     CHECK_TRUE(testable.DoAction(false));
-//     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-// }
+    CHECK_FALSE(testable.DoAction(false));
+    CHECK_EQUAL(41, controller.GetV1RelativeValue());
+}
 
-// TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
-//     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
+TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
+    Controller controller(NULL);
+    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
+    TestableInputNC prev_element(MapIO::DI, &incomeRail);
 
-//     Controller controller(NULL);
-//     IncomeRail incomeRail(&controller, 0);
-//     TestableDecOutput prev_element(MapIO::V1, &incomeRail);
-//     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    controller.SetV1RelativeValue(42);
 
-//     TestableDecOutput testable(MapIO::DI, &prev_element);
-//     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    TestableDecOutput testable(MapIO::V1, &prev_element);
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-//     CHECK_TRUE(testable.DoAction(false));
-//     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-// }
+    CHECK_TRUE(testable.DoAction(false));
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_EQUAL(42, controller.GetV1RelativeValue());
+}
