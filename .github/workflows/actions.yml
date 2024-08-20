@@ -13,11 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Open test project
-      run: cd ./Tests_esp8266
-
     - name: Build
-      run: make
+      run: cd ./Tests_esp8266;make
 
     - name: Run tests
-      run: make check
+      run: cd ./Tests_esp8266;make run
