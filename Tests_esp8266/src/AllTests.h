@@ -62,3 +62,4 @@ IMPORT_TEST_GROUP(StatusBarTestsGroup);
 
 IMPORT_TEST_GROUP(LogicDecOutputTestsGroup);
 IMPORT_TEST_GROUP(LogicDirectOutputTestsGroup);
+IMPORT_TEST_GROUP(LogicSetOutputTestsGroup);
