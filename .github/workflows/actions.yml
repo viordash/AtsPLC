@@ -15,9 +15,9 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Build
-      working-directory: ./Tests_esp8266
-      run: make
+    - name: Prepare main project
+      working-directory: ./PLC_esp8266
+      run: make project_prepare
 
     - name: Run tests
       working-directory: ./Tests_esp8266
