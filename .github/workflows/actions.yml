@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build_tests:
+  Tests-esp-idf:
     runs-on: ubuntu-22.04
 
     steps:
@@ -22,3 +22,20 @@ jobs:
     - name: Run tests
       working-directory: ./Tests_esp8266
       run: make run
+
+      
+  Build-ota-bin:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Prepare
+      working-directory: ./PLC_esp8266
+      run: make project_prepare
+
+    - name: Build ota
+      working-directory: ./PLC_esp8266
+      run: make ota
