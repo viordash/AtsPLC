@@ -16,7 +16,28 @@ IncOutput::~IncOutput() {
 
 bool IncOutput::DoAction(bool prev_changed) {
     (void)prev_changed;
-    return true;
+    bool any_changes = false;
+    LogicItemState prev_state = state;
+
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        if (state == LogicItemState::lisActive) {
+            uint8_t prev_val = GetValue();
+            if (prev_val > StatefulElement::MinValue) {
+                prev_val++;
+            }
+            SetValue(prev_val);
+        }
+        any_changes = true;
+        ESP_LOGD(TAG_DecOutput, ".");
+    }
+
+    return any_changes;
 }
 
 const Bitmap *IncOutput::GetCurrentBitmap() {
