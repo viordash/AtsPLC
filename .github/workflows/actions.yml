@@ -36,6 +36,10 @@ jobs:
       working-directory: ./PLC_esp8266
       run: make project_prepare
 
+    - name: Requirements pip
+      working-directory: ./SDK/ESP8266_RTOS_SDK
+      run: python -m pip install --user -r requirements.txt
+
     - name: Build ota
       working-directory: ./PLC_esp8266
       run: make ota
