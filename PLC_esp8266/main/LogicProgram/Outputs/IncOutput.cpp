@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_IncOutput = "IncOutput";
+
 IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
     : CommonOutput(io_adr ,incoming_item) {
 }
@@ -34,7 +36,7 @@ bool IncOutput::DoAction(bool prev_changed) {
             SetValue(prev_val);
         }
         any_changes = true;
-        ESP_LOGD(TAG_DecOutput, ".");
+        ESP_LOGD(TAG_IncOutput, ".");
     }
 
     return any_changes;
