@@ -47,5 +47,6 @@ jobs:
     - name: Deploy
       uses: actions/upload-artifact@v4
       with:
+        name: AtsPLC-esp8266.ota.bin
         path: ./PLC_esp8266/build/AtsPLC-esp8266.ota.bin
         retention-days: 90 
