@@ -50,14 +50,14 @@ void Controller::ProcessTask(void *parm) {
     InputNC input01(MapIO::V1, &input00);
     TimerMSecs timer00(500, &input01);
     SetOutput output00(MapIO::V1, &timer00);
-    OutcomeRail outcomeRail0(0);
+    OutcomeRail outcomeRail0(&output00, 0);
 
     IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
     InputNO input10(MapIO::DI, &incomeRail1);
     InputNO input11(MapIO::V1, &input10);
     TimerMSecs timer10(500, &input11);
     ResetOutput output10(MapIO::V1, &timer10);
-    OutcomeRail outcomeRail1(1);
+    OutcomeRail outcomeRail1(&output10, 1);
 
     bool need_render = true;
     while (controller->runned) {

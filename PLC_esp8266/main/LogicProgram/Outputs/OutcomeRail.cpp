@@ -5,11 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-OutcomeRail::OutcomeRail(uint8_t network_number) : DisplayItemBase() {
+OutcomeRail::OutcomeRail(const CommonOutput *incoming_item, uint8_t network_number)
+    : LogicElement(incoming_item->controller) {
     this->network_number = network_number;
 }
 
 OutcomeRail::~OutcomeRail() {
+}
+
+bool OutcomeRail::DoAction(bool prev_changed) {
+    return prev_changed;
 }
 
 bool OutcomeRail::Render(uint8_t *fb) {
