@@ -1,0 +1,20 @@
+name: Ats PLC
+
+on:
+  push:
+    branches: [ "ci_cd" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build
+      run: make
+
+    - name: Run tests
+      run: make check
