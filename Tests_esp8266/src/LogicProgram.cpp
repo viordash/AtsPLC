@@ -19,6 +19,7 @@
 #include "main/LogicProgram/Inputs/CommonTimer.cpp"
 #include "main/LogicProgram/Inputs/IncomeRail.cpp"
 #include "main/LogicProgram/Inputs/InputBase.cpp"
+#include "main/LogicProgram/Inputs/InputNC.cpp"
 #include "main/LogicProgram/LogicElement.cpp"
 #include "main/LogicProgram/MapIO.cpp"
 #include "main/LogicProgram/Outputs/CommonOutput.cpp"

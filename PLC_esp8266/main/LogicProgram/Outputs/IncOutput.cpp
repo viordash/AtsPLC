@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_IncOutput = "IncOutput";
+
 IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
     : CommonOutput(io_adr ,incoming_item) {
 }
@@ -16,7 +18,28 @@ IncOutput::~IncOutput() {
 
 bool IncOutput::DoAction(bool prev_changed) {
     (void)prev_changed;
-    return true;
+    bool any_changes = false;
+    LogicItemState prev_state = state;
+
+    if (incoming_item->GetState() == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        if (state == LogicItemState::lisActive) {
+            uint8_t prev_val = GetValue();
+            if (prev_val > StatefulElement::MinValue) {
+                prev_val++;
+            }
+            SetValue(prev_val);
+        }
+        any_changes = true;
+        ESP_LOGD(TAG_IncOutput, ".");
+    }
+
+    return any_changes;
 }
 
 const Bitmap *IncOutput::GetCurrentBitmap() {
