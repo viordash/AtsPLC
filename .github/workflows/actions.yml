@@ -2,7 +2,7 @@ name: Ats PLC
 
 on:
   push:
-    branches: [ "ci_cd" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
