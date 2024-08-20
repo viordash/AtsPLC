@@ -46,6 +46,8 @@ void Controller::ProcessTask(void *parm) {
 
     IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
 
+    incomeRail0.Append(new InputNO(MapIO::DI, &incomeRail0));
+
     InputNO input00(MapIO::DI, &incomeRail0);
     InputNC input01(MapIO::V1, &input00);
     TimerMSecs timer00(500, &input01);

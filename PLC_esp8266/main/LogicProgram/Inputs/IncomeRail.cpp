@@ -13,6 +13,11 @@ IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, Log
 }
 
 IncomeRail::~IncomeRail() {
+    while (!empty()) {
+        auto first = begin();
+        delete *first;
+        erase(first);
+    }
 }
 
 Point IncomeRail::OutcomingPoint() {
@@ -27,12 +32,11 @@ bool IncomeRail::DoAction() {
 
 bool IncomeRail::DoAction(bool prev_changed) {
     bool any_changes = false;
-    auto *next = nextElement;
 
-    while (next != NULL) {
-        prev_changed = next->DoAction(prev_changed);
+    for (auto it = begin(); it != end(); ++it) {
+        auto const element = *it;
+        prev_changed = element->DoAction(prev_changed);
         any_changes |= prev_changed;
-        next = next->nextElement;
     }
     return any_changes;
 }
@@ -49,12 +53,15 @@ bool IncomeRail::Render(uint8_t *fb) {
             break;
     }
 
-    auto *next = nextElement;
-
-    while (res && next != NULL) {
-        res = next->Render(fb);
-        next = next->nextElement;
+    for (auto it = begin(); res && it != end(); ++it) {
+        auto const element = *it;
+        res = element->Render(fb);
     }
 
     return res;
+}
+
+void IncomeRail::Append(LogicElement *element) {
+    // element->Bind(this);
+    push_back(element);
 }
