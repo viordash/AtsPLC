@@ -43,3 +43,9 @@ jobs:
     - name: Build ota
       working-directory: ./PLC_esp8266
       run: make ota
+
+    - name: Deploy
+      uses: actions/upload-artifact@v4
+      with:
+        path: ./PLC_esp8266/build/AtsPLC-esp8266.ota.bin
+        retention-days: 90 
