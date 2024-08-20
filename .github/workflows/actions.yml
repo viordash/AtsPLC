@@ -14,7 +14,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build
-      run: cd ./Tests_esp8266;make
+      working-directory: ./Tests_esp8266
+      run: make
 
     - name: Run tests
-      run: cd ./Tests_esp8266;make run
+      working-directory: ./Tests_esp8266
+      run: make run
