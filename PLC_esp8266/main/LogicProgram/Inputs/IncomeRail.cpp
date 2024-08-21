@@ -13,10 +13,10 @@ IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, Log
 }
 
 IncomeRail::~IncomeRail() {
-    while (!empty()) {
-        auto first = begin();
-        delete *first;
-        erase(first);
+    LogicElement *last;
+
+    while ((last = PopLastElement()) != NULL) {
+        delete last;
     }
 }
 
@@ -32,11 +32,12 @@ bool IncomeRail::DoAction() {
 
 bool IncomeRail::DoAction(bool prev_changed) {
     bool any_changes = false;
+    auto *next = nextElement;
 
-    for (auto it = begin(); it != end(); ++it) {
-        auto const element = *it;
-        prev_changed = element->DoAction(prev_changed);
+    while (next != NULL) {
+        prev_changed = next->DoAction(prev_changed);
         any_changes |= prev_changed;
+        next = next->nextElement;
     }
     return any_changes;
 }
@@ -53,15 +54,40 @@ bool IncomeRail::Render(uint8_t *fb) {
             break;
     }
 
-    for (auto it = begin(); res && it != end(); ++it) {
-        auto const element = *it;
-        res = element->Render(fb);
+    auto *next = nextElement;
+
+    while (res && next != NULL) {
+        res = next->Render(fb);
+        next = next->nextElement;
     }
 
     return res;
 }
 
 void IncomeRail::Append(LogicElement *element) {
-    // element->Bind(this);
-    push_back(element);
+    LogicElement *last = GetLastElement();
+    last->nextElement = element;
+}
+
+LogicElement *IncomeRail::GetLastElement() {
+    LogicElement *element = this;
+
+    while (element->nextElement != NULL) {
+        element = element->nextElement;
+    }
+    return element;
+}
+
+LogicElement *IncomeRail::PopLastElement() {
+    LogicElement *prev = this;
+
+    while (prev->nextElement != NULL) {
+        auto element = prev->nextElement;
+        if (element->nextElement == NULL) {
+            prev->nextElement = NULL;
+            return element;
+        }
+        prev = element;
+    }
+    return NULL;
 }

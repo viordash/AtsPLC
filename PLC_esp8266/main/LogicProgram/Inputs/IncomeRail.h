@@ -4,9 +4,8 @@
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
-#include <vector>
 
-class IncomeRail : public InputBase, public std::vector<LogicElement *> {
+class IncomeRail : public InputBase {
   private:
     uint8_t network_number;
     bool DoAction(bool prev_changed) override final;
@@ -21,6 +20,6 @@ class IncomeRail : public InputBase, public std::vector<LogicElement *> {
     bool Render(uint8_t *fb) override final;
 
     void Append(LogicElement *element);
-
-    // std::list<LogicElement *> elements;
+    LogicElement * GetLastElement();
+    LogicElement * PopLastElement();
 };
