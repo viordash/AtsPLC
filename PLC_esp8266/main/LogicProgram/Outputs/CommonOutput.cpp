@@ -17,7 +17,7 @@ CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
 CommonOutput::~CommonOutput() {
 }
 
-bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_state) {
+bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

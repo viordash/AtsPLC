@@ -6,15 +6,15 @@
 #include <string.h>
 
 CommonInput::CommonInput(const MapIO io_adr, InputBase *incoming_item)
-    : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()),
-      InputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
+    : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()), InputElement(io_adr),
+      LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
 }
 
 CommonInput::~CommonInput() {
 }
 
-bool CommonInput::Render(uint8_t *fb, LogicItemState prev_state) {
+bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

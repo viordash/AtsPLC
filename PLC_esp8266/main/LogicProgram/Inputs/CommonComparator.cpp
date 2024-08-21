@@ -19,12 +19,12 @@ CommonComparator::CommonComparator(uint8_t ref_percent04,
 CommonComparator::~CommonComparator() {
 }
 
-bool CommonComparator::DoAction(bool prev_changed) {
-    (void)prev_changed;
+bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive //
+    if (prev_elem_state == LogicItemState::lisActive //
         && this->CompareFunction()) {
         state = LogicItemState::lisActive;
     } else {
@@ -37,7 +37,7 @@ bool CommonComparator::DoAction(bool prev_changed) {
     return any_changes;
 }
 
-bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_state) {
+bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res;
     res = CommonInput::Render(fb, state);
 

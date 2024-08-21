@@ -16,5 +16,5 @@ class ResetOutput : public CommonOutput {
     ResetOutput(const MapIO io_adr, InputBase *incoming_item);
     ~ResetOutput();
 
-    bool DoAction(bool prev_changed) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
 };

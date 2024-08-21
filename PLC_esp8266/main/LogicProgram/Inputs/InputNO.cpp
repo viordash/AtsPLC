@@ -16,12 +16,12 @@ InputNO::InputNO(const MapIO io_adr, InputBase *incoming_item)
 InputNO::~InputNO() {
 }
 
-bool InputNO::DoAction(bool prev_changed) {
-    (void)prev_changed;
+bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive //
+    if (prev_elem_state == LogicItemState::lisActive //
         && GetValue() != LogicElement::MinValue) {
         state = LogicItemState::lisActive;
     } else {

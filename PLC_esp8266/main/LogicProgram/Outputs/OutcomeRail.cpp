@@ -13,11 +13,12 @@ OutcomeRail::OutcomeRail(const CommonOutput *incoming_item, uint8_t network_numb
 OutcomeRail::~OutcomeRail() {
 }
 
-bool OutcomeRail::DoAction(bool prev_changed) {
-    return prev_changed;
+bool OutcomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_state;
+    return prev_elem_changed;
 }
 
-bool OutcomeRail::Render(uint8_t *fb, LogicItemState prev_state) {
+bool OutcomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     (void)state;
     return draw_outcome_rail(fb, network_number);
 }

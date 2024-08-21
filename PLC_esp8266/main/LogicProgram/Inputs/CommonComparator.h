@@ -19,6 +19,6 @@ class CommonComparator : public CommonInput {
     CommonComparator(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item);
     ~CommonComparator();
 
-    bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb, LogicItemState prev_state) override;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state) override;
 };

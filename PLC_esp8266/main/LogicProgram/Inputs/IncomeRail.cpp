@@ -28,16 +28,17 @@ Point IncomeRail::OutcomingPoint() {
 }
 
 bool IncomeRail::DoAction() {
-    return DoAction(false);
+    return DoAction(false, state);
 }
 
-bool IncomeRail::DoAction(bool prev_changed) {
+bool IncomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = false;
 
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
-        prev_changed = element->DoAction(prev_changed);
-        any_changes |= prev_changed;
+        prev_elem_changed = element->DoAction(prev_elem_changed, prev_elem_state);
+        prev_elem_state = element->state;
+        any_changes |= prev_elem_changed;
     }
     return any_changes;
 }
@@ -46,9 +47,9 @@ bool IncomeRail::Render(uint8_t *fb) {
     return Render(fb, state);
 }
 
-bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_state) {
+bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res = true;
-    switch (state) {
+    switch (prev_elem_state) {
         case LogicItemState::lisActive:
             res = draw_active_income_rail(fb, network_number);
             break;
@@ -60,8 +61,8 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_state) {
 
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
-        res = element->Render(fb, state);
-        state = element->GetState();
+        res = element->Render(fb, prev_elem_state);
+        prev_elem_state = element->state;
     }
 
     return res;

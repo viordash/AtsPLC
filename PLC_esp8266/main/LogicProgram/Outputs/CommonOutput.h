@@ -24,6 +24,6 @@ class CommonOutput : public LogicElement,
     CommonOutput(const MapIO io_adr, InputBase *incoming_item);
     ~CommonOutput();
 
-    bool Render(uint8_t *fb, LogicItemState prev_state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state) override;
     Point OutcomingPoint() override;
 };

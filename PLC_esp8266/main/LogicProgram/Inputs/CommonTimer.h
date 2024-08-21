@@ -26,7 +26,7 @@ class CommonTimer : public InputBase {
     explicit CommonTimer(InputBase *incoming_item);
     ~CommonTimer();
 
-    bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb, LogicItemState prev_state) override;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state) override;
     Point OutcomingPoint() override final;
 };

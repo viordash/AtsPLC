@@ -43,15 +43,15 @@ uint8_t CommonTimer::GetProgress() {
     return LogicElement::MaxValue - (uint8_t)percent04;
 }
 
-bool CommonTimer::DoAction(bool prev_changed) {
+bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = false;
 
     LogicItemState prev_state = state;
-    if (prev_changed && incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         start_time_us = esp_timer_get_time();
     }
 
-    if (incoming_item->GetState() == LogicItemState::lisActive //
+    if (prev_elem_state == LogicItemState::lisActive //
         && (state == LogicItemState::lisActive || GetLeftTime() == 0)) {
         state = LogicItemState::lisActive;
     } else {
@@ -61,15 +61,15 @@ bool CommonTimer::DoAction(bool prev_changed) {
     if (state != prev_state) {
         any_changes = true;
         ESP_LOGD(TAG_CommonTimer, ".");
-        }
+    }
     return any_changes;
 }
 
-bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_state) {
+bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb, incoming_point.x, incoming_point.y, LeftPadding);
     } else {
         res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, LeftPadding, false);
