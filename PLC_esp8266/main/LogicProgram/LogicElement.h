@@ -24,7 +24,7 @@ class LogicElement {
     virtual ~LogicElement();
 
     virtual bool DoAction(bool prev_changed) = 0;
-    virtual bool Render(uint8_t *fb, LogicItemState state) = 0;
+    virtual bool Render(uint8_t *fb, LogicItemState prev_state) = 0;
 
     LogicItemState GetState();
 };

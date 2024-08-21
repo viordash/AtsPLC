@@ -37,7 +37,7 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
     }
 }
 
-bool TimerSecs::Render(uint8_t *fb, LogicItemState state) {
+bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_state) {
     bool res;
     res = CommonTimer::Render(fb, state);
 

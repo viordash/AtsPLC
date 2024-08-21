@@ -46,7 +46,7 @@ bool IncomeRail::Render(uint8_t *fb) {
     return Render(fb, state);
 }
 
-bool IncomeRail::Render(uint8_t *fb, LogicItemState state) {
+bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_state) {
     bool res = true;
     switch (state) {
         case LogicItemState::lisActive:

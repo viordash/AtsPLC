@@ -18,6 +18,6 @@ class CommonInput : public InputBase, public InputElement, public LabeledLogicIt
     CommonInput(const MapIO io_adr, InputBase *incoming_item);
     virtual ~CommonInput();
 
-    bool Render(uint8_t *fb, LogicItemState state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_state) override;
     Point OutcomingPoint() override final;
 };

@@ -20,5 +20,5 @@ class CommonComparator : public CommonInput {
     ~CommonComparator();
 
     bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb, LogicItemState state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_state) override;
 };
