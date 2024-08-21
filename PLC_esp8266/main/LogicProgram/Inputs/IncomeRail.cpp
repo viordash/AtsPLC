@@ -14,10 +14,10 @@ IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, Log
 }
 
 IncomeRail::~IncomeRail() {
-    LogicElement *last;
-
-    while ((last = PopLastElement()) != NULL) {
-        delete last;
+    while (!empty()) {
+        auto it = begin();
+        auto first = *it;
+        delete first;
     }
 }
 
@@ -33,14 +33,17 @@ bool IncomeRail::DoAction() {
 
 bool IncomeRail::DoAction(bool prev_changed) {
     bool any_changes = false;
-    auto *next = nextElement;
 
-    while (next != NULL) {
-        prev_changed = next->DoAction(prev_changed);
+    for (auto it = begin(); it != end(); ++it) {
+        auto element = *it;
+        prev_changed = element->DoAction(prev_changed);
         any_changes |= prev_changed;
-        next = next->nextElement;
     }
     return any_changes;
+}
+
+bool IncomeRail::Render(uint8_t *fb) {
+    return Render(fb, state);
 }
 
 bool IncomeRail::Render(uint8_t *fb, LogicItemState state) {
@@ -55,40 +58,15 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState state) {
             break;
     }
 
-    LogicElement *element = nextElement;
-
-    while (res && element != NULL) {
+    for (auto it = begin(); res && it != end(); ++it) {
+        auto element = *it;
         res = element->Render(fb, state);
-        element = element->nextElement;
+        state = element->GetState();
     }
 
     return res;
 }
 
 void IncomeRail::Append(LogicElement *element) {
-    LogicElement *last = GetLastElement();
-    last->nextElement = element;
-}
-
-LogicElement *IncomeRail::GetLastElement() {
-    LogicElement *element = this;
-
-    while (element->nextElement != NULL) {
-        element = element->nextElement;
-    }
-    return element;
-}
-
-LogicElement *IncomeRail::PopLastElement() {
-    LogicElement *prev = this;
-
-    while (prev->nextElement != NULL) {
-        auto element = prev->nextElement;
-        if (element->nextElement == NULL) {
-            prev->nextElement = NULL;
-            return element;
-        }
-        prev = element;
-    }
-    return NULL;
+    push_back(element);
 }

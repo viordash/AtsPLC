@@ -86,10 +86,10 @@ void Controller::ProcessTask(void *parm) {
 
             statusBar.Render(fb);
 
-            incomeRail0.Render(fb, LogicItemState::lisActive);
+            incomeRail0.Render(fb);
             outcomeRail0.Render(fb, LogicItemState::lisActive);
 
-            incomeRail1.Render(fb, LogicItemState::lisActive);
+            incomeRail1.Render(fb);
             outcomeRail1.Render(fb, LogicItemState::lisActive);
 
             end_render(fb);

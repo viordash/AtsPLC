@@ -9,7 +9,6 @@ CommonInput::CommonInput(const MapIO io_adr, InputBase *incoming_item)
     : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()),
       InputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
-    this->incoming_item->Bind(this);
 }
 
 CommonInput::~CommonInput() {

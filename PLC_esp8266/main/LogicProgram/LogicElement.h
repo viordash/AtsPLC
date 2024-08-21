@@ -11,7 +11,6 @@ class IncomeRail;
 
 class LogicElement {
   protected:
-    LogicElement *nextElement;
     LogicItemState state;
 
     friend IncomeRail;
@@ -28,5 +27,4 @@ class LogicElement {
     virtual bool Render(uint8_t *fb, LogicItemState state) = 0;
 
     LogicItemState GetState();
-    void Bind(LogicElement *element);
 };

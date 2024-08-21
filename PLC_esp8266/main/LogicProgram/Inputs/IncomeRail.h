@@ -4,11 +4,13 @@
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
+#include <vector>
 
-class IncomeRail : public InputBase {
+class IncomeRail : public InputBase, public std::vector<LogicElement *> {
   private:
     uint8_t network_number;
     bool DoAction(bool prev_changed) override final;
+    bool Render(uint8_t *fb, LogicItemState state) override final;
 
   public:
     explicit IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state);
@@ -16,10 +18,7 @@ class IncomeRail : public InputBase {
 
     Point OutcomingPoint() override final;
     bool DoAction();
-
-    bool Render(uint8_t *fb, LogicItemState state) override final;
+    bool Render(uint8_t *fb);
 
     void Append(LogicElement *element);
-    LogicElement * GetLastElement();
-    LogicElement * PopLastElement();
 };
