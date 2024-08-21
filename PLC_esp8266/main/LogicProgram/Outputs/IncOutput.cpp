@@ -10,7 +10,7 @@
 static const char *TAG_IncOutput = "IncOutput";
 
 IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr ,incoming_item) {
+    : CommonOutput(io_adr, incoming_item) {
 }
 
 IncOutput::~IncOutput() {
@@ -30,7 +30,7 @@ bool IncOutput::DoAction(bool prev_changed) {
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
             uint8_t prev_val = GetValue();
-            if (prev_val > StatefulElement::MinValue) {
+            if (prev_val > LogicElement::MinValue) {
                 prev_val++;
             }
             SetValue(prev_val);

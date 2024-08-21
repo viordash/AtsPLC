@@ -9,7 +9,7 @@
 static const char *TAG_CommonOutput = "CommonOutput";
 
 CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
-    : StatefulElement(incoming_item->controller), InputOutputElement(io_adr),
+    : LogicElement(incoming_item->controller), InputOutputElement(io_adr),
       DisplayChainItem(incoming_item->OutcomingPoint()), LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
     this->incoming_item->Bind(this);

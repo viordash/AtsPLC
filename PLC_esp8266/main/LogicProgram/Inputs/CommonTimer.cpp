@@ -40,8 +40,8 @@ uint64_t CommonTimer::GetLeftTime() {
 
 uint8_t CommonTimer::GetProgress() {
     uint64_t left_time = GetLeftTime();
-    uint8_t percent04 = (left_time * StatefulElement::MaxValue) / delay_time_us;
-    return StatefulElement::MaxValue - (uint8_t)percent04;
+    uint8_t percent04 = (left_time * LogicElement::MaxValue) / delay_time_us;
+    return LogicElement::MaxValue - (uint8_t)percent04;
 }
 
 bool CommonTimer::DoAction(bool prev_changed) {
@@ -62,8 +62,7 @@ bool CommonTimer::DoAction(bool prev_changed) {
     if (state != prev_state) {
         any_changes = true;
         ESP_LOGD(TAG_CommonTimer, ".");
-        
-    }
+        }
     return any_changes;
 }
 

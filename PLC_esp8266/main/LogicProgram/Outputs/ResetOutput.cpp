@@ -29,7 +29,7 @@ bool ResetOutput::DoAction(bool prev_changed) {
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            SetValue(StatefulElement::MinValue);
+            SetValue(LogicElement::MinValue);
         }
         any_changes = true;
         ESP_LOGD(TAG_ResetOutput, ".");

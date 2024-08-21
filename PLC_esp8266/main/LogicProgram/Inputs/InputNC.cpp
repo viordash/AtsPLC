@@ -22,7 +22,7 @@ bool InputNC::DoAction(bool prev_changed) {
     LogicItemState prev_state = state;
 
     if (incoming_item->GetState() == LogicItemState::lisActive //
-        && GetValue() == StatefulElement::MinValue) {
+        && GetValue() == LogicElement::MinValue) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;
@@ -44,4 +44,3 @@ const Bitmap *InputNC::GetCurrentBitmap() {
             return &InputNC::bitmap_passive;
     }
 }
-

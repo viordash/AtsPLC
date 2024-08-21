@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/display.h"
 #include "Display/DisplayChainItem.h"
 #include "Display/LabeledLogicItem.h"
-#include "LogicProgram/Inputs/InputBase.h"
-#include "LogicProgram/StatefulElement.h"
+#include "Display/display.h"
 #include "LogicProgram/InputOutputElement.h"
+#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/LogicElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonOutput : public StatefulElement,
+class CommonOutput : public LogicElement,
                      public InputOutputElement,
                      public DisplayChainItem,
                      public LabeledLogicItem {

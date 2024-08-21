@@ -28,8 +28,8 @@ bool DirectOutput::DoAction(bool prev_changed) {
     }
 
     if (state != prev_state) {
-        SetValue(state == LogicItemState::lisActive ? StatefulElement::MaxValue
-                                                    : StatefulElement::MinValue);
+        SetValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
+                                                    : LogicElement::MinValue);
         any_changes = true;
         ESP_LOGD(TAG_DirectOutput, ".");
     }

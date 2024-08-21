@@ -13,6 +13,10 @@ LogicElement::LogicElement(const Controller *controller) {
 LogicElement::~LogicElement() {
 }
 
+LogicItemState LogicElement::GetState() {
+    return state;
+}
+
 void LogicElement::Bind(LogicElement *element) {
     this->nextElement = element;
 }
