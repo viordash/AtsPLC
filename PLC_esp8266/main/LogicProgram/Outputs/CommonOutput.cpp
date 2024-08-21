@@ -31,7 +31,7 @@ bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
              incoming_width,
              OUTCOME_RAIL_LEFT);
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb, incoming_point.x, incoming_point.y, incoming_width);
     } else {
         res &= draw_passive_network(fb, incoming_point.x, incoming_point.y, incoming_width, false);
@@ -43,7 +43,7 @@ bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     x_pos += bitmap->size.width;
     res &= draw_text_f6X12(fb, x_pos, incoming_point.y - LabeledLogicItem::height, label);
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    x_pos,
                                    incoming_point.y,

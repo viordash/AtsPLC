@@ -18,7 +18,7 @@ bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         res &= draw_active_network(fb,
                                    incoming_point.x,
                                    incoming_point.y,
