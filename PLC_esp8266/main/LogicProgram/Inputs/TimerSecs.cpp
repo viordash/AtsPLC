@@ -37,9 +37,9 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
     }
 }
 
-bool TimerSecs::Render(uint8_t *fb) {
+bool TimerSecs::Render(uint8_t *fb, LogicItemState state) {
     bool res;
-    res = CommonTimer::Render(fb);
+    res = CommonTimer::Render(fb, state);
 
     uint8_t x_pos = incoming_point.x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
     uint8_t percent = GetProgress();

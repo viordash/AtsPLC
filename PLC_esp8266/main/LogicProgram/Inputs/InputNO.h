@@ -16,5 +16,4 @@ class InputNO : public CommonInput {
     ~InputNO();
 
     bool DoAction(bool prev_changed) override final;
-    bool Render(uint8_t *fb) override final;
 };

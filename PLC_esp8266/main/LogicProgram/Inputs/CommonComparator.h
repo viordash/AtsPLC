@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/display.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -19,5 +20,5 @@ class CommonComparator : public CommonInput {
     ~CommonComparator();
 
     bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb, LogicItemState state) override;
 };

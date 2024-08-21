@@ -45,7 +45,3 @@ const Bitmap *InputNC::GetCurrentBitmap() {
     }
 }
 
-bool InputNC::Render(uint8_t *fb) {
-    bool res = CommonInput::Render(fb);
-    return res;
-}

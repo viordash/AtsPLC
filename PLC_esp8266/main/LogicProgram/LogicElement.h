@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayItemBase.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
@@ -10,7 +9,7 @@
 
 class IncomeRail;
 
-class LogicElement : public DisplayItemBase {
+class LogicElement {
   protected:
     LogicElement *nextElement;
 
@@ -25,6 +24,7 @@ class LogicElement : public DisplayItemBase {
     virtual ~LogicElement();
 
     virtual bool DoAction(bool prev_changed) = 0;
+    virtual bool Render(uint8_t *fb, LogicItemState state) = 0;
 
     void Bind(LogicElement *element);
 };

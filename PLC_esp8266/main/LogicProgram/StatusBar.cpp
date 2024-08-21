@@ -1,5 +1,5 @@
 #include "LogicProgram/StatusBar.h"
-#include "Display/Common.h"
+#include "Display/display.h"
 #include "Display/MapIOIndicator.h"
 #include "LogicProgram/MapIO.h"
 #include "esp_err.h"
@@ -8,16 +8,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-StatusBar::StatusBar(const Controller *controller, uint8_t y) : StatefulElement(controller) {
+StatusBar::StatusBar(const Controller *controller, uint8_t y) {
     this->y = y;
 }
 
 StatusBar::~StatusBar() {
-}
-
-bool StatusBar::DoAction(bool prev_changed) {
-    (void)prev_changed;
-    return true;
 }
 
 bool StatusBar::Render(uint8_t *fb) {

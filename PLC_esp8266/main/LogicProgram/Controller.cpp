@@ -3,6 +3,7 @@
 #include "LogicProgram/Controller.h"
 
 #include "Display/Common.h"
+#include "Display/display.h"
 #include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/StatusBar.h"
 #include "esp_event.h"
@@ -85,11 +86,11 @@ void Controller::ProcessTask(void *parm) {
 
             statusBar.Render(fb);
 
-            incomeRail0.Render(fb);
-            outcomeRail0.Render(fb);
+            incomeRail0.Render(fb, LogicItemState::lisActive);
+            outcomeRail0.Render(fb, LogicItemState::lisActive);
 
-            incomeRail1.Render(fb);
-            outcomeRail1.Render(fb);
+            incomeRail1.Render(fb, LogicItemState::lisActive);
+            outcomeRail1.Render(fb, LogicItemState::lisActive);
 
             end_render(fb);
             need_render = false;

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicElement::LogicElement(const Controller *controller) : DisplayItemBase() {
+LogicElement::LogicElement(const Controller *controller) {
     this->controller = controller;
     this->nextElement = NULL;
 }

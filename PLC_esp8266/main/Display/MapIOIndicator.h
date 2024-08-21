@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayItemBase.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class MapIOIndicator : public DisplayItemBase {
+class MapIOIndicator {
   protected:
     Point incoming_point;
     const char *name;
@@ -24,7 +23,7 @@ class MapIOIndicator : public DisplayItemBase {
                             uint8_t separator_width);
     virtual ~MapIOIndicator();
 
-    bool Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb);
     static uint8_t GetWidth();
     static uint8_t GetHeight();
 };

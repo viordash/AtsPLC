@@ -45,8 +45,3 @@ const Bitmap *InputNO::GetCurrentBitmap() {
             return &InputNO::bitmap_passive;
     }
 }
-
-bool InputNO::Render(uint8_t *fb) {
-    bool res = CommonInput::Render(fb);
-    return res;
-}

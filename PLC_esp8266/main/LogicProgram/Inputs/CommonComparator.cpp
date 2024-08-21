@@ -37,9 +37,9 @@ bool CommonComparator::DoAction(bool prev_changed) {
     return any_changes;
 }
 
-bool CommonComparator::Render(uint8_t *fb) {
+bool CommonComparator::Render(uint8_t *fb, LogicItemState state) {
     bool res;
-    res = CommonInput::Render(fb);
+    res = CommonInput::Render(fb, state);
 
     uint8_t x_pos = incoming_point.x + LeftPadding + LabeledLogicItem::width + 2;
     switch (str_size) {

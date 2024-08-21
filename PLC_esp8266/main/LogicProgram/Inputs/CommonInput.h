@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Display/LabeledLogicItem.h"
-#include "LogicProgram/Inputs/InputBase.h"
+#include "Display/display.h"
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/Inputs/InputBase.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -17,6 +18,6 @@ class CommonInput : public InputBase, public InputElement, public LabeledLogicIt
     CommonInput(const MapIO io_adr, InputBase *incoming_item);
     virtual ~CommonInput();
 
-    bool Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb, LogicItemState state) override;
     Point OutcomingPoint() override final;
 };

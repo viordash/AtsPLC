@@ -15,7 +15,7 @@ CommonInput::CommonInput(const MapIO io_adr, InputBase *incoming_item)
 CommonInput::~CommonInput() {
 }
 
-bool CommonInput::Render(uint8_t *fb) {
+bool CommonInput::Render(uint8_t *fb, LogicItemState state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "Display/display.h"
 #include "Display/DisplayChainItem.h"
 #include "Display/LabeledLogicItem.h"
 #include "LogicProgram/Inputs/InputBase.h"
@@ -23,6 +24,6 @@ class CommonOutput : public StatefulElement,
     CommonOutput(const MapIO io_adr, InputBase *incoming_item);
     ~CommonOutput();
 
-    bool Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb, LogicItemState state) override;
     Point OutcomingPoint() override;
 };

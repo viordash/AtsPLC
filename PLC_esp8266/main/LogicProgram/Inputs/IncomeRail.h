@@ -17,7 +17,7 @@ class IncomeRail : public InputBase {
     Point OutcomingPoint() override final;
     bool DoAction();
 
-    bool Render(uint8_t *fb) override final;
+    bool Render(uint8_t *fb, LogicItemState state) override final;
 
     void Append(LogicElement *element);
     LogicElement * GetLastElement();

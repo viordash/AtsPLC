@@ -1,5 +1,5 @@
 #include "Display/MapIOIndicator.h"
-#include "Display/Common.h"
+#include "Display/display.h"
 #include "LogicProgram/MapIO.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -10,8 +10,7 @@
 MapIOIndicator::MapIOIndicator(const Point &incoming_point,
                                const char *name,
                                uint8_t progress,
-                               uint8_t separator_width)
-    : DisplayItemBase() {
+                               uint8_t separator_width) {
     this->incoming_point = incoming_point;
     this->name = name;
     this->progress = progress;

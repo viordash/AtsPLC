@@ -1,4 +1,5 @@
 #include "LogicProgram/Outputs/CommonOutput.h"
+#include "Display/display.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -17,7 +18,7 @@ CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
 CommonOutput::~CommonOutput() {
 }
 
-bool CommonOutput::Render(uint8_t *fb) {
+bool CommonOutput::Render(uint8_t *fb, LogicItemState state) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

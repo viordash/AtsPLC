@@ -1,4 +1,5 @@
 #include "LogicProgram/Inputs/IncomeRail.h"
+#include "Display/display.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -42,7 +43,7 @@ bool IncomeRail::DoAction(bool prev_changed) {
     return any_changes;
 }
 
-bool IncomeRail::Render(uint8_t *fb) {
+bool IncomeRail::Render(uint8_t *fb, LogicItemState state) {
     bool res = true;
     switch (state) {
         case LogicItemState::lisActive:
@@ -54,11 +55,11 @@ bool IncomeRail::Render(uint8_t *fb) {
             break;
     }
 
-    auto *next = nextElement;
+    LogicElement *element = nextElement;
 
-    while (res && next != NULL) {
-        res = next->Render(fb);
-        next = next->nextElement;
+    while (res && element != NULL) {
+        res = element->Render(fb, state);
+        element = element->nextElement;
     }
 
     return res;

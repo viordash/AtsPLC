@@ -37,8 +37,3 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
             return &TimerMSecs::bitmap_passive;
     }
 }
-
-bool TimerMSecs::Render(uint8_t *fb) {
-    bool res = CommonTimer::Render(fb);
-    return res;
-}

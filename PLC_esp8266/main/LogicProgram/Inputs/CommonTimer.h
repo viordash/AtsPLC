@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/display.h"
 #include "LogicProgram/Inputs/InputBase.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -26,6 +27,6 @@ class CommonTimer : public InputBase {
     ~CommonTimer();
 
     bool DoAction(bool prev_changed) override;
-    bool Render(uint8_t *fb) override;
+    bool Render(uint8_t *fb, LogicItemState state) override;
     Point OutcomingPoint() override final;
 };
