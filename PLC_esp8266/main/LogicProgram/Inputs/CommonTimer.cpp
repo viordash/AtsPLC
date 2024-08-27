@@ -21,9 +21,6 @@ CommonTimer::~CommonTimer() {
 }
 
 uint64_t CommonTimer::GetLeftTime() {
-    if (incoming_item->GetState() != LogicItemState::lisActive) {
-        return delay_time_us;
-    }
     uint64_t curr_time = esp_timer_get_time();
     int64_t elapsed = curr_time - start_time_us;
     if (elapsed < 0) {
@@ -37,7 +34,10 @@ uint64_t CommonTimer::GetLeftTime() {
     return left_time;
 }
 
-uint8_t CommonTimer::GetProgress() {
+uint8_t CommonTimer::GetProgress(LogicItemState prev_elem_state) {
+    if (prev_elem_state != LogicItemState::lisActive) {
+        return LogicElement::MinValue;
+    }
     uint64_t left_time = GetLeftTime();
     uint8_t percent04 = (left_time * LogicElement::MaxValue) / delay_time_us;
     return LogicElement::MaxValue - (uint8_t)percent04;

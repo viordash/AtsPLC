@@ -51,7 +51,7 @@ bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     res = CommonTimer::Render(fb, state);
 
     uint8_t x_pos = incoming_point.x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
-    uint8_t percent = GetProgress();
+    uint8_t percent = GetProgress(prev_elem_state);
     res &= draw_vert_progress_bar(fb,
                                   x_pos,
                                   incoming_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),

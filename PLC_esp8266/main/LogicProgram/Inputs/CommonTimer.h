@@ -15,7 +15,7 @@ class CommonTimer : public InputBase {
     InputBase *incoming_item;
 
     uint64_t GetLeftTime();
-    uint8_t GetProgress();
+    uint8_t GetProgress(LogicItemState prev_elem_state);
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
