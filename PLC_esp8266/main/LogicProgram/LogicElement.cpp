@@ -11,7 +11,3 @@ LogicElement::LogicElement(const Controller *controller) {
 
 LogicElement::~LogicElement() {
 }
-
-LogicItemState LogicElement::GetState() {
-    return state;
-}

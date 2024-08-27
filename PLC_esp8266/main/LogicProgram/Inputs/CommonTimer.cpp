@@ -12,9 +12,7 @@ static const char *TAG_CommonTimer = "CommonTimer";
 CommonTimer::CommonTimer(InputBase *incoming_item)
     : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()) {
     this->incoming_item = incoming_item;
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
-        this->start_time_us = esp_timer_get_time();
-    }
+    this->start_time_us = esp_timer_get_time();
 }
 
 CommonTimer::~CommonTimer() {
