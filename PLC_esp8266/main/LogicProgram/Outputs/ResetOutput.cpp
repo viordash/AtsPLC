@@ -39,7 +39,7 @@ bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap() {
-    switch (incoming_item->GetState()) {
+    switch (state) {
         case LogicItemState::lisActive:
             return &ResetOutput::bitmap_active;
 
