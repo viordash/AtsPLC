@@ -76,9 +76,6 @@ void Controller::ProcessTask(void *parm) {
         need_render |= incomeRail0.DoAction();
         need_render |= incomeRail1.DoAction();
 
-        // need_render |= timer00.ProgressHasChanges();
-        // need_render |= timer10.ProgressHasChanges();
-
         if (need_render) {
             ESP_LOGI(TAG_Controller, ".");
 

@@ -13,11 +13,12 @@ class TimerSecs : public CommonTimer {
     uint64_t force_render_time_us;
 
     const Bitmap *GetCurrentBitmap() override final;
+    bool ProgressHasChanges(LogicItemState prev_elem_state);
 
   public:
     TimerSecs(uint32_t delay_time_s, InputBase *incoming_item);
     ~TimerSecs();
 
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state) override final;
-    bool ProgressHasChanges();
 };

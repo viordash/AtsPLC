@@ -37,6 +37,15 @@ const Bitmap *TimerSecs::GetCurrentBitmap() {
     }
 }
 
+bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    bool any_changes = CommonTimer::DoAction(prev_elem_changed, prev_elem_state);
+
+    if (!any_changes) {
+        any_changes = ProgressHasChanges(prev_elem_state);
+    }
+    return any_changes;
+}
+
 bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     bool res;
     res = CommonTimer::Render(fb, state);
@@ -55,8 +64,8 @@ bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     return res;
 }
 
-bool TimerSecs::ProgressHasChanges() {
-    if (incoming_item->GetState() != LogicItemState::lisActive) {
+bool TimerSecs::ProgressHasChanges(LogicItemState prev_elem_state) {
+    if (prev_elem_state != LogicItemState::lisActive) {
         return false;
     }
     if (state == LogicItemState::lisActive) {
