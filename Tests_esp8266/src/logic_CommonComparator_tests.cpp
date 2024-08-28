@@ -77,7 +77,7 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableCommonComparator testable(0, MapIO::DI, &incomeRail);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {

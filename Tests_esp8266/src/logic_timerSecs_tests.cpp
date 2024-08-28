@@ -35,8 +35,11 @@ namespace {
         uint64_t PublicMorozov_GetDelayTimeUs() {
             return delay_time_us;
         }
-        uint8_t PublicMorozov_GetProgress() {
-            return GetProgress();
+        uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
+            return GetProgress(prev_elem_state);
+        }
+        uint8_t PublicMorozov_ProgressHasChanges(LogicItemState prev_elem_state) {
+            return ProgressHasChanges(prev_elem_state);
         }
     };
 } // namespace
@@ -68,33 +71,33 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
     Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableTimerSecs testable(10, &incomeRail0);
-    testable.ProgressHasChanges();
+    testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
 
-    CHECK_FALSE(testable.ProgressHasChanges());
+    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 500000;
-    CHECK_FALSE(testable.ProgressHasChanges());
+    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 1000000;
-    CHECK_TRUE(testable.ProgressHasChanges());
+    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 1200000;
-    CHECK_FALSE(testable.ProgressHasChanges());
+    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 2000000;
-    CHECK_TRUE(testable.ProgressHasChanges());
+    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 2500000;
-    CHECK_FALSE(testable.ProgressHasChanges());
+    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = UINT64_MAX - 900000;
-    CHECK_TRUE(testable.ProgressHasChanges());
+    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 100000 - 2;
-    CHECK_FALSE(testable.ProgressHasChanges());
+    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 
     os_us = 100000 - 1;
-    CHECK_TRUE(testable.ProgressHasChanges());
+    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 }
 
 TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
@@ -107,7 +110,7 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableTimerSecs testable(10, &incomeRail0);
 
-    uint8_t percent04 = testable.PublicMorozov_GetProgress();
+    uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 }

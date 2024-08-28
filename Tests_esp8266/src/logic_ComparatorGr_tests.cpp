@@ -45,7 +45,7 @@ TEST(LogicComparatorGrTestsGroup, Render) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableComparatorGr testable(42, MapIO::V1, &incomeRail);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -65,8 +65,8 @@ TEST(LogicComparatorGrTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableComparatorGr testable(42, MapIO::AI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
@@ -79,12 +79,12 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableComparatorGr testable(51 / 0.4, MapIO::AI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     adc = 52 / 0.1;
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
@@ -97,10 +97,10 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
     TestableComparatorGr testable(48 / 0.4, MapIO::AI, &incomeRail);
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 47 / 0.1;
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }

@@ -13,6 +13,8 @@ class TimerSecs : public CommonTimer {
     uint64_t force_render_time_us;
 
     const Bitmap *GetCurrentBitmap() override final;
+
+  protected:
     bool ProgressHasChanges(LogicItemState prev_elem_state);
 
   public:

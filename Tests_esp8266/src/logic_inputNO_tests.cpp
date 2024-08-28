@@ -70,8 +70,8 @@ TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableInputNO testable_0(MapIO::V1, &incomeRail0);
     TestableInputNO testable_1(MapIO::V2, &testable_0);
-    CHECK_EQUAL(LogicItemState::lisPassive, testable_0.GetState());
-    CHECK_EQUAL(LogicItemState::lisPassive, testable_1.GetState());
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable_0.PublicMorozov_Get_state());
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable_1.PublicMorozov_Get_state());
 }
 
 TEST(LogicInputNOTestsGroup, chain_of_items) {
@@ -93,8 +93,8 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableInputNO testable(MapIO::DI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
@@ -105,8 +105,8 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
 
     TestableInputNO testable(MapIO::DI, &incomeRail);
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
@@ -118,6 +118,6 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
     TestableInputNO testable(MapIO::DI, &incomeRail);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }

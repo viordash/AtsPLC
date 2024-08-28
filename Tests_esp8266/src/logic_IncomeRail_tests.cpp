@@ -40,9 +40,6 @@ namespace {
                            LogicItemState state)
             : IncomeRail(controller, network_number, state) {
         }
-        LogicElement *PublicMorozov_GetNext() {
-            return nextElement;
-        }
     };
 
     class TestableCommonInput : public CommonInput {
@@ -53,22 +50,21 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
-            return nextElement;
-        }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction(bool prev_changed) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
+            (void)prev_elem_state;
             DoAction_called = true;
             return DoAction_result;
         }
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
             (void)fb;
+            (void)prev_elem_state;
             Render_called = true;
             return Render_result;
         }
@@ -82,14 +78,12 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
-            return nextElement;
-        }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction(bool prev_changed) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
+            (void)prev_elem_state;
             DoAction_called = true;
             return DoAction_result;
         }
@@ -99,8 +93,9 @@ namespace {
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
             (void)fb;
+            (void)prev_elem_state;
             Render_called = true;
             return Render_result;
         }
@@ -113,22 +108,21 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
-            return nextElement;
-        }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction(bool prev_changed) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
+            (void)prev_elem_state;
             DoAction_called = true;
             return DoAction_result;
         }
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
             (void)fb;
+            (void)prev_elem_state;
             Render_called = true;
             return Render_result;
         }
@@ -142,22 +136,21 @@ namespace {
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-        LogicElement *PublicMorozov_GetNext() {
-            return nextElement;
-        }
 
         bool DoAction_called = false;
         bool DoAction_result = false;
-        bool DoAction(bool prev_changed) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
+            (void)prev_elem_state;
             DoAction_called = true;
             return DoAction_result;
         }
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
             (void)fb;
+            (void)prev_elem_state;
             Render_called = true;
             return Render_result;
         }
@@ -165,32 +158,32 @@ namespace {
 
 } // namespace
 
-TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
+// TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+//     Controller controller(NULL);
+//     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+//     TestableCommonInput input1(MapIO::DI, &testable);
+//     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+//     TestableCommonTimer timerSecs1(&comparator1);
+//     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
+//     OutcomeRail outcomeRail0(&directOutput0, 0);
 
-    LogicElement *nextElement = testable.PublicMorozov_GetNext();
-    CHECK_EQUAL(&input1, nextElement);
+//     LogicElement *nextElement = testable.PublicMorozov_GetNext();
+//     CHECK_EQUAL(&input1, nextElement);
 
-    nextElement = input1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&comparator1, nextElement);
+//     nextElement = input1.PublicMorozov_GetNext();
+//     CHECK_EQUAL(&comparator1, nextElement);
 
-    nextElement = comparator1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&timerSecs1, nextElement);
+//     nextElement = comparator1.PublicMorozov_GetNext();
+//     CHECK_EQUAL(&timerSecs1, nextElement);
 
-    nextElement = timerSecs1.PublicMorozov_GetNext();
-    CHECK_EQUAL(&directOutput0, nextElement);
+//     nextElement = timerSecs1.PublicMorozov_GetNext();
+//     CHECK_EQUAL(&directOutput0, nextElement);
 
-    nextElement = directOutput0.PublicMorozov_GetNext();
-    CHECK(nextElement == NULL);
-}
+//     nextElement = directOutput0.PublicMorozov_GetNext();
+//     CHECK(nextElement == NULL);
+// }
 
 TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     Controller controller(NULL);

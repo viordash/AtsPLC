@@ -53,8 +53,8 @@ TEST(LogicSetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
     TestableSetOutput testable(MapIO::V1, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicSetOutputTestsGroup,
@@ -63,14 +63,14 @@ TEST(LogicSetOutputTestsGroup,
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableSetOutput testable(MapIO::V1, &incomeRail);
 
-    controller.SetV1RelativeValue(StatefulElement::MinValue);
+    controller.SetV1RelativeValue(LogicElement::MinValue);
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_EQUAL(StatefulElement::MaxValue, controller.GetV1RelativeValue());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+    CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
     
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(StatefulElement::MaxValue, controller.GetV1RelativeValue());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
 }
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
@@ -78,13 +78,13 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableInputNC prev_element(MapIO::DI, &incomeRail);
 
-    controller.SetV1RelativeValue(StatefulElement::MinValue);
+    controller.SetV1RelativeValue(LogicElement::MinValue);
 
     TestableSetOutput testable(MapIO::V1, &prev_element);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_EQUAL(StatefulElement::MinValue, controller.GetV1RelativeValue());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+    CHECK_EQUAL(LogicElement::MinValue, controller.GetV1RelativeValue());
 }

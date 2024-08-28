@@ -9,8 +9,8 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Outputs/DecOutput.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
                                       TEST_SETUP(){}
@@ -53,8 +53,8 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
     TestableDecOutput testable(MapIO::V1, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicDecOutputTestsGroup,
@@ -65,11 +65,11 @@ TEST(LogicDecOutputTestsGroup,
 
     controller.SetV1RelativeValue(42);
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(41, controller.GetV1RelativeValue());
 
-    CHECK_FALSE(testable.DoAction(false));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(41, controller.GetV1RelativeValue());
 }
 
@@ -84,7 +84,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
     *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(42, controller.GetV1RelativeValue());
 }

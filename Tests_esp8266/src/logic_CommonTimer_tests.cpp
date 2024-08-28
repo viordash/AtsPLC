@@ -51,8 +51,8 @@ namespace {
         uint64_t PublicMorozov_GetLeftTime() {
             return GetLeftTime();
         }
-        uint8_t PublicMorozov_GetProgress() {
-            return GetProgress();
+        uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
+            return GetProgress(prev_elem_state);
         }
         uint64_t PublicMorozov_start_time_us() {
             return start_time_us;
@@ -67,7 +67,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable(12345, &incomeRail);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 }
 
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
@@ -77,7 +77,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
     IncomeRail incomeRail(&controller, 1, LogicItemState::lisActive);
     TestableCommonTimer testable(12345, &incomeRail);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 }
 
 TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
@@ -259,39 +259,39 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
     Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(1000, &incomeRail0);
-    uint8_t percent04 = testable_0.PublicMorozov_GetProgress();
+    uint8_t percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
 
     os_us = 1;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(0.4 / 0.4, percent04, 0.5);
 
     os_us = 5;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(0.8 / 0.4, percent04, 0.5);
 
     os_us = 100;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(10 / 0.4, percent04, 0.5);
 
     os_us = 250;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(25 / 0.4, percent04, 0.5);
 
     os_us = 500;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(50 / 0.4, percent04, 0.5);
 
     os_us = 990;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(99 / 0.4, percent04, 0.5);
 
     os_us = 1000;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
 
     os_us = 1200;
-    percent04 = testable_0.PublicMorozov_GetProgress();
+    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
 }
 
@@ -302,8 +302,8 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisPassive);
     TestableCommonTimer testable(10, &incomeRail0);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
@@ -316,13 +316,13 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable(10, &incomeRail0);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     os_us = 10;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
@@ -337,13 +337,13 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
 
     os_us = 10;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     os_us = 5; //total counter overflow
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_resets_start_time) {
@@ -356,12 +356,12 @@ TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_r
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
     TestableCommonTimer testable(10, &incomeRail0);
 
-    CHECK_FALSE(testable.DoAction(false));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
 
     os_us += 19;
     CHECK_EQUAL(42, testable.PublicMorozov_start_time_us());
 
-    CHECK_FALSE(testable.DoAction(true));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
     CHECK_EQUAL(42 + 19, testable.PublicMorozov_start_time_us());
 }

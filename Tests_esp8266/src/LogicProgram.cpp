@@ -7,7 +7,6 @@
 #include <unistd.h>
 
 #include "main/Display/DisplayChainItem.cpp"
-#include "main/Display/DisplayItemBase.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/display.cpp"
@@ -29,5 +28,3 @@
 #include "main/LogicProgram/Outputs/OutcomeRail.cpp"
 #include "main/LogicProgram/Outputs/ResetOutput.cpp"
 #include "main/LogicProgram/Outputs/SetOutput.cpp"
-#include "main/LogicProgram/StatefulElement.cpp"
-#include "main/LogicProgram/StatefulElement.h"

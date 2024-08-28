@@ -44,7 +44,7 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        bool DoAction(bool prev_changed) {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) {
             (void)prev_changed;
             return true;
         }
@@ -58,7 +58,7 @@ TEST(LogicCommonInputTestsGroup, Render_when_active) {
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -75,7 +75,7 @@ TEST(LogicCommonInputTestsGroup, Render_when_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableCommonInput testable(MapIO::V1, &incomeRail);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
