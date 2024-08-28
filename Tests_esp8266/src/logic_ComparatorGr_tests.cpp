@@ -65,7 +65,7 @@ TEST(LogicComparatorGrTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableComparatorGr testable(42, MapIO::AI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

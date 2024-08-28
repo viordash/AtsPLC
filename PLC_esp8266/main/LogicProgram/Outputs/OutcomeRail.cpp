@@ -20,5 +20,6 @@ bool OutcomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
 bool OutcomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state) {
     (void)state;
+    (void)prev_elem_state;
     return draw_outcome_rail(fb, network_number);
 }

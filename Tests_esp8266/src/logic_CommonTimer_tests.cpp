@@ -302,7 +302,7 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisPassive);
     TestableCommonTimer testable(10, &incomeRail0);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

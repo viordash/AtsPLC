@@ -41,10 +41,6 @@ namespace {
         }
         virtual ~TestableInputNC() {
         }
-
-        LogicItemState *PublicMorozov_Get_state() {
-            return &state;
-        }
     };
 } // namespace
 
@@ -53,7 +49,7 @@ TEST(LogicResetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
     TestableResetOutput testable(MapIO::V1, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
@@ -82,9 +78,8 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
 
     TestableResetOutput testable(MapIO::V1, &prev_element);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
 }

@@ -93,7 +93,7 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 
     TestableInputNO testable(MapIO::DI, &incomeRail);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

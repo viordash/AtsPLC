@@ -7,6 +7,7 @@
 
 LogicElement::LogicElement(const Controller *controller) {
     this->controller = controller;
+    this->state = LogicItemState::lisPassive;
 }
 
 LogicElement::~LogicElement() {
