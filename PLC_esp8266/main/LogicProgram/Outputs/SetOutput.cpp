@@ -9,8 +9,7 @@
 
 static const char *TAG_SetOutput = "SetOutput";
 
-SetOutput::SetOutput(const MapIO io_adr, const Controller *controller)
-    : CommonOutput(io_adr, controller) {
+SetOutput::SetOutput(const MapIO io_adr) : CommonOutput(io_adr) {
 }
 
 SetOutput::~SetOutput() {

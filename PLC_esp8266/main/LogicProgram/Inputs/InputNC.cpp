@@ -9,8 +9,8 @@
 
 static const char *TAG_InputNC = "InputNC";
 
-InputNC::InputNC(const MapIO io_adr, const Controller *controller)
-    : CommonInput(io_adr, controller) {
+InputNC::InputNC(const MapIO io_adr)
+    : CommonInput(io_adr) {
 }
 
 InputNC::~InputNC() {

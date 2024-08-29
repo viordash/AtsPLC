@@ -6,9 +6,8 @@
 #include <string.h>
 
 CommonComparator::CommonComparator(uint8_t ref_percent04,
-                                   const MapIO io_adr,
-                                   const Controller *controller)
-    : CommonInput(io_adr, controller) {
+                                   const MapIO io_adr)
+    : CommonInput(io_adr) {
     if (ref_percent04 > LogicElement::MaxValue) {
         ref_percent04 = LogicElement::MaxValue;
     }

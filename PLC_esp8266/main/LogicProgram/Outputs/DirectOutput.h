@@ -13,7 +13,7 @@ class DirectOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    DirectOutput(const MapIO io_adr, const Controller *controller);
+    explicit DirectOutput(const MapIO io_adr);
     ~DirectOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

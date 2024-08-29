@@ -20,19 +20,16 @@ extern "C" {
 
 class Controller {
   private:
-    bool runned;
-    EventGroupHandle_t gpio_events;
+    static bool runned;
+    static EventGroupHandle_t gpio_events;
     static uint8_t Var1;
     static uint8_t Var2;
     static uint8_t Var3;
     static uint8_t Var4;
 
   public:
-    explicit Controller(EventGroupHandle_t gpio_events);
-    ~Controller();
-
-    void Start();
-    void Stop();
+    static void Start(EventGroupHandle_t gpio_events);
+    static void Stop();
 
     static void ProcessTask(void *parm);
 

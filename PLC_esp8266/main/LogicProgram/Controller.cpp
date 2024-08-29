@@ -15,57 +15,51 @@
 
 static const char *TAG_Controller = "controller";
 
+bool Controller::runned = false;
+EventGroupHandle_t Controller::gpio_events = NULL;
+
 uint8_t Controller::Var1 = LogicElement::MinValue;
 uint8_t Controller::Var2 = LogicElement::MinValue;
 uint8_t Controller::Var3 = LogicElement::MinValue;
 uint8_t Controller::Var4 = LogicElement::MinValue;
 
-Controller::Controller(EventGroupHandle_t gpio_events) {
-    runned = false;
-    this->gpio_events = gpio_events;
-}
-
-Controller::~Controller() {
-    Stop();
-}
-
-void Controller::Start() {
-    runned = true;
-    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 4096, this, 3, NULL) != pdPASS
+void Controller::Start(EventGroupHandle_t gpio_events) {
+    Controller::gpio_events = gpio_events;
+    Controller::runned = true;
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 4096, NULL, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
 
 void Controller::Stop() {
-    runned = false;
+    Controller::runned = false;
 }
 
 void Controller::ProcessTask(void *parm) {
     ESP_LOGI(TAG_Controller, "start ++++++");
-    Controller *controller = (Controller *)parm;
-    StatusBar statusBar(controller, 0);
+    StatusBar statusBar(0);
 
-    IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
+    IncomeRail incomeRail0(0, LogicItemState::lisActive);
 
-    incomeRail0.Append(new InputNO(MapIO::DI, controller));
+    incomeRail0.Append(new InputNO(MapIO::DI));
 
-    InputNO input00(MapIO::DI, controller);
-    InputNC input01(MapIO::V1, controller);
-    TimerMSecs timer00(500, controller);
-    SetOutput output00(MapIO::V1, controller);
+    InputNO input00(MapIO::DI);
+    InputNC input01(MapIO::V1);
+    TimerMSecs timer00(500);
+    SetOutput output00(MapIO::V1);
     OutcomeRail outcomeRail0(0);
 
-    IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
-    InputNO input10(MapIO::DI, controller);
-    InputNO input11(MapIO::V1, controller);
-    TimerMSecs timer10(500, controller);
-    ResetOutput output10(MapIO::V1, controller);
+    IncomeRail incomeRail1(1, LogicItemState::lisActive);
+    InputNO input10(MapIO::DI);
+    InputNO input11(MapIO::V1);
+    TimerMSecs timer10(500);
+    ResetOutput output10(MapIO::V1);
     OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
-    while (controller->runned) {
+    while (Controller::runned) {
         const int read_adc_max_period_ms = 100;
-        EventBits_t uxBits = xEventGroupWaitBits(controller->gpio_events,
+        EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
                                                  INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
                                                  true,
                                                  false,

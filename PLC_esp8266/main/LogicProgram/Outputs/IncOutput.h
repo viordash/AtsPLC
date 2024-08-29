@@ -13,7 +13,7 @@ class IncOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    IncOutput(const MapIO io_adr, const Controller *controller);
+    explicit IncOutput(const MapIO io_adr);
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

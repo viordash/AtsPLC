@@ -13,7 +13,7 @@ class IncomeRail : public LogicElement, public std::vector<LogicElement *> {
     Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override final;
 
   public:
-    explicit IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state);
+    explicit IncomeRail(uint8_t network_number, LogicItemState state);
     virtual ~IncomeRail();
 
     Point OutcomingPoint();

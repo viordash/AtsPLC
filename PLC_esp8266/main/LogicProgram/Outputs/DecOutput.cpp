@@ -9,8 +9,7 @@
 
 static const char *TAG_DecOutput = "DecOutput";
 
-DecOutput::DecOutput(const MapIO io_adr, const Controller *controller)
-    : CommonOutput(io_adr, controller) {
+DecOutput::DecOutput(const MapIO io_adr) : CommonOutput(io_adr) {
 }
 
 DecOutput::~DecOutput() {

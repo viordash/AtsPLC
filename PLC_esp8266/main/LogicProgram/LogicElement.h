@@ -19,8 +19,7 @@ class LogicElement {
     static const uint8_t MinValue = 0;
     static const uint8_t MaxValue = 250;
 
-    const Controller *controller;
-    LogicElement(const Controller *controller);
+    LogicElement();
     virtual ~LogicElement();
 
     virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;

@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicElement::LogicElement(const Controller *controller) {
-    this->controller = controller;
+LogicElement::LogicElement() {
     this->state = LogicItemState::lisPassive;
 }
 

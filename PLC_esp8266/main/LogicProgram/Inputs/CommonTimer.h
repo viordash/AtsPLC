@@ -22,7 +22,7 @@ class CommonTimer : public LogicElement {
     const uint8_t RightPadding = 0;
 
   public:
-    explicit CommonTimer(const Controller *controller);
+    explicit CommonTimer();
     ~CommonTimer();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

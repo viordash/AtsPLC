@@ -7,11 +7,10 @@
 
 class StatusBar {
   protected:
-    const Controller *controller;
     uint8_t y;
 
   public:
-    explicit StatusBar(const Controller *controller, uint8_t y);
+    explicit StatusBar(uint8_t y);
     virtual ~StatusBar();
 
     bool Render(uint8_t *fb);

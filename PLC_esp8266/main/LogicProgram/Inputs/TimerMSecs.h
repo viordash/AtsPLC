@@ -12,6 +12,6 @@ class TimerMSecs : public CommonTimer {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    TimerMSecs(uint32_t delay_time_ms, const Controller *controller);
+    explicit TimerMSecs(uint32_t delay_time_ms);
     ~TimerMSecs();
 };

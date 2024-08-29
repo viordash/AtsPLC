@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state)
-    : LogicElement(controller) {
+IncomeRail::IncomeRail(uint8_t network_number, LogicItemState state)
+    : LogicElement() {
     this->network_number = network_number;
     this->state = state;
 }

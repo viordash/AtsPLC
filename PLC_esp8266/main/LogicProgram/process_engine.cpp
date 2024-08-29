@@ -5,14 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-Controller *controller;
-
 void start_process_engine(EventGroupHandle_t gpio_events) {
-    controller = new Controller(gpio_events);
-    controller->Start();
+    Controller::Start(gpio_events);
 }
 
 void stop_process_engine() {
-    controller->Stop();
-    delete controller;
+    Controller::Stop();
 }
