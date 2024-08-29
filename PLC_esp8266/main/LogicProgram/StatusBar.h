@@ -7,6 +7,7 @@
 
 class StatusBar {
   protected:
+    const Controller *controller;
     uint8_t y;
 
   public:

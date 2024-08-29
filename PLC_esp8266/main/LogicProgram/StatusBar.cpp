@@ -1,6 +1,6 @@
 #include "LogicProgram/StatusBar.h"
-#include "Display/display.h"
 #include "Display/MapIOIndicator.h"
+#include "Display/display.h"
 #include "LogicProgram/MapIO.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -9,6 +9,7 @@
 #include <string.h>
 
 StatusBar::StatusBar(const Controller *controller, uint8_t y) {
+    this->controller = controller;
     this->y = y;
 }
 
