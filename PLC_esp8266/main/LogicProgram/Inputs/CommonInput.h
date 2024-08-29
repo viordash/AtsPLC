@@ -14,9 +14,9 @@ class CommonInput : public InputBase, public InputElement, public LabeledLogicIt
   public:
     const uint8_t LeftPadding = 2;
     const uint8_t RightPadding = 0;
-    CommonInput(const MapIO io_adr, const Controller *controller, const Point &incoming_point);
+    CommonInput(const MapIO io_adr, const Controller *controller);
     virtual ~CommonInput();
 
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override;
-    Point OutcomingPoint() override final;
+    Point OutcomingPoint();
 };

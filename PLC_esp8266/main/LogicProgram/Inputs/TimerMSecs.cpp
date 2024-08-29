@@ -11,8 +11,8 @@
 
 static const char *TAG_TimerMSecs = "TimerMSecs";
 
-TimerMSecs::TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item)
-    : CommonTimer(incoming_item) {
+TimerMSecs::TimerMSecs(uint32_t delay_time_ms, const Controller *controller)
+    : CommonTimer(controller) {
     if (delay_time_ms < 1) {
         delay_time_ms = 1;
     }

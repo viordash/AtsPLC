@@ -7,8 +7,7 @@
 #include <string.h>
 
 IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state)
-    : InputBase(controller,
-                { 0, (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number) }) {
+    : InputBase(controller) {
     this->network_number = network_number;
     this->state = state;
 }
@@ -22,9 +21,10 @@ IncomeRail::~IncomeRail() {
 }
 
 Point IncomeRail::OutcomingPoint() {
-    uint8_t x_pos = INCOME_RAIL_WIDTH;
-    uint8_t y_pos = incoming_point.y + INCOME_RAIL_OUTCOME_TOP;
-    return { x_pos, y_pos };
+    // uint8_t x_pos = INCOME_RAIL_WIDTH;
+    // uint8_t y_pos = incoming_point.y + INCOME_RAIL_OUTCOME_TOP;
+    // return { x_pos, y_pos };
+    return { 0, 0 };
 }
 
 bool IncomeRail::DoAction() {
@@ -44,7 +44,7 @@ bool IncomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
-    return Render(fb, state);
+    return Render(fb, state, { 0, 0 });
 }
 
 bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
@@ -61,7 +61,7 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point
 
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
-        res = element->Render(fb, prev_elem_state);
+        res = element->Render(fb, prev_elem_state, start_point);
         prev_elem_state = element->state;
     }
 

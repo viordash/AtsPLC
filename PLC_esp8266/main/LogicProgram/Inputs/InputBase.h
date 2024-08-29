@@ -6,9 +6,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class InputBase : public LogicElement{
+class InputBase : public LogicElement {
   protected:
-    InputBase(const Controller *controller);
+    explicit InputBase(const Controller *controller);
 
   public:
     virtual ~InputBase();

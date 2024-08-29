@@ -12,7 +12,6 @@ class CommonTimer : public InputBase {
     uint64_t start_time_us;
     char str_time[16];
     int str_size;
-    InputBase *incoming_item;
 
     uint64_t GetLeftTime();
     uint8_t GetProgress(LogicItemState prev_elem_state);
@@ -23,10 +22,10 @@ class CommonTimer : public InputBase {
     const uint8_t RightPadding = 0;
 
   public:
-    explicit CommonTimer(InputBase *incoming_item);
+    explicit CommonTimer(const Controller *controller);
     ~CommonTimer();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override;
-    Point OutcomingPoint() override final;
+    Point OutcomingPoint();
 };

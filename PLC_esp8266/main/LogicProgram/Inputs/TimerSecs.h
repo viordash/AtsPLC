@@ -18,7 +18,7 @@ class TimerSecs : public CommonTimer {
     bool ProgressHasChanges(LogicItemState prev_elem_state);
 
   public:
-    TimerSecs(uint32_t delay_time_s, InputBase *incoming_item);
+    TimerSecs(uint32_t delay_time_s, const Controller *controller);
     ~TimerSecs();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

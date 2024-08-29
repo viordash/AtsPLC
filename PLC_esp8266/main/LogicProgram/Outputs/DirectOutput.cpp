@@ -9,8 +9,8 @@
 
 static const char *TAG_DirectOutput = "DirectOutput";
 
-DirectOutput::DirectOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr, incoming_item) {
+DirectOutput::DirectOutput(const MapIO io_adr, const Controller *controller)
+    : CommonOutput(io_adr, controller) {
 }
 
 DirectOutput::~DirectOutput() {

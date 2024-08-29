@@ -13,6 +13,6 @@ class ComparatorLs : public CommonComparator {
     bool CompareFunction() override final;
 
   public:
-    ComparatorLs(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item);
+    ComparatorLs(uint8_t ref_percent04, const MapIO io_adr, const Controller *controller);
     ~ComparatorLs();
 };

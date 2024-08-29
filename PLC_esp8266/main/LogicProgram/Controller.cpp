@@ -47,20 +47,20 @@ void Controller::ProcessTask(void *parm) {
 
     IncomeRail incomeRail0(controller, 0, LogicItemState::lisActive);
 
-    incomeRail0.Append(new InputNO(MapIO::DI, &incomeRail0));
+    incomeRail0.Append(new InputNO(MapIO::DI, controller));
 
-    InputNO input00(MapIO::DI, &incomeRail0);
-    InputNC input01(MapIO::V1, &input00);
-    TimerMSecs timer00(500, &input01);
-    SetOutput output00(MapIO::V1, &timer00);
-    OutcomeRail outcomeRail0(&output00, 0);
+    InputNO input00(MapIO::DI, controller);
+    InputNC input01(MapIO::V1, controller);
+    TimerMSecs timer00(500, controller);
+    SetOutput output00(MapIO::V1, controller);
+    OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(controller, 1, LogicItemState::lisActive);
-    InputNO input10(MapIO::DI, &incomeRail1);
-    InputNO input11(MapIO::V1, &input10);
-    TimerMSecs timer10(500, &input11);
-    ResetOutput output10(MapIO::V1, &timer10);
-    OutcomeRail outcomeRail1(&output10, 1);
+    InputNO input10(MapIO::DI, controller);
+    InputNO input11(MapIO::V1, controller);
+    TimerMSecs timer10(500, controller);
+    ResetOutput output10(MapIO::V1, controller);
+    OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
     while (controller->runned) {
@@ -84,10 +84,10 @@ void Controller::ProcessTask(void *parm) {
             statusBar.Render(fb);
 
             incomeRail0.Render(fb);
-            outcomeRail0.Render(fb, LogicItemState::lisActive);
+            outcomeRail0.Render(fb);
 
             incomeRail1.Render(fb);
-            outcomeRail1.Render(fb, LogicItemState::lisActive);
+            outcomeRail1.Render(fb);
 
             end_render(fb);
             need_render = false;

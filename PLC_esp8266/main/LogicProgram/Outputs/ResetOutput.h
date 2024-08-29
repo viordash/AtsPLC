@@ -13,7 +13,7 @@ class ResetOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    ResetOutput(const MapIO io_adr, InputBase *incoming_item);
+    ResetOutput(const MapIO io_adr, const Controller *controller);
     ~ResetOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

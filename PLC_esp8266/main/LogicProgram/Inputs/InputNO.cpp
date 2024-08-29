@@ -9,8 +9,8 @@
 
 static const char *TAG_InputNO = "InputNO";
 
-InputNO::InputNO(const MapIO io_adr, InputBase *incoming_item)
-    : CommonInput(io_adr, incoming_item) {
+InputNO::InputNO(const MapIO io_adr, const Controller *controller)
+    : CommonInput(io_adr, controller) {
 }
 
 InputNO::~InputNO() {

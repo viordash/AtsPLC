@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
-    : CommonComparator(ref_percent04, io_adr, incoming_item) {
+ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr, const Controller *controller)
+    : CommonComparator(ref_percent04, io_adr, controller) {
 }
 
 ComparatorEq::~ComparatorEq() {

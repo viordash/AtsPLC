@@ -10,13 +10,14 @@ class IncomeRail : public InputBase, public std::vector<LogicElement *> {
   private:
     uint8_t network_number;
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override final;
+    bool
+    Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override final;
 
   public:
     explicit IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state);
     virtual ~IncomeRail();
 
-    Point OutcomingPoint() override final;
+    Point OutcomingPoint();
     bool DoAction();
     bool Render(uint8_t *fb);
 

@@ -9,8 +9,8 @@
 
 static const char *TAG_IncOutput = "IncOutput";
 
-IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr, incoming_item) {
+IncOutput::IncOutput(const MapIO io_adr, const Controller *controller)
+    : CommonOutput(io_adr, controller) {
 }
 
 IncOutput::~IncOutput() {

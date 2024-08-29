@@ -13,7 +13,7 @@ class SetOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    SetOutput(const MapIO io_adr, InputBase *incoming_item);
+    SetOutput(const MapIO io_adr, const Controller *controller);
     ~SetOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

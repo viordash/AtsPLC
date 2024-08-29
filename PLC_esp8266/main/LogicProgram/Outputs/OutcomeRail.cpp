@@ -5,21 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-OutcomeRail::OutcomeRail(const CommonOutput *incoming_item, uint8_t network_number)
-    : LogicElement(incoming_item->controller) {
+OutcomeRail::OutcomeRail(uint8_t network_number) {
     this->network_number = network_number;
 }
 
 OutcomeRail::~OutcomeRail() {
 }
 
-bool OutcomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    (void)prev_elem_state;
-    return prev_elem_changed;
-}
-
-bool OutcomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
-    (void)state;
-    (void)prev_elem_state;
+bool OutcomeRail::Render(uint8_t *fb) {
     return draw_outcome_rail(fb, network_number);
 }
