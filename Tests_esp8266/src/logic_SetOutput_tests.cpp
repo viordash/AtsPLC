@@ -9,8 +9,8 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Outputs/SetOutput.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicSetOutputTestsGroup){ //
                                       TEST_SETUP(){}
@@ -33,15 +33,6 @@ namespace {
             return &state;
         }
     };
-
-    class TestableInputNC : public InputNC {
-      public:
-        TestableInputNC(const MapIO io_adr, InputBase *incoming_item)
-            : InputNC(io_adr, incoming_item) {
-        }
-        virtual ~TestableInputNC() {
-        }
-    };
 } // namespace
 
 TEST(LogicSetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
@@ -53,8 +44,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
-TEST(LogicSetOutputTestsGroup,
-     DoAction_change_state_to_active__and_second_call_does_nothing) {
+TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_does_nothing) {
     Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
     TestableSetOutput testable(MapIO::V1, &incomeRail);
@@ -64,7 +54,7 @@ TEST(LogicSetOutputTestsGroup,
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
-    
+
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
 }
@@ -72,11 +62,10 @@ TEST(LogicSetOutputTestsGroup,
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
     Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableInputNC prev_element(MapIO::DI, &incomeRail);
 
     controller.SetV1RelativeValue(LogicElement::MinValue);
 
-    TestableSetOutput testable(MapIO::V1, &prev_element);
+    TestableSetOutput testable(MapIO::V1, &incomeRail);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));

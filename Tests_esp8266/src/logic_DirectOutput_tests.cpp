@@ -33,19 +33,6 @@ namespace {
             return &state;
         }
     };
-
-    class TestableInputNC : public InputNC {
-      public:
-        TestableInputNC(const MapIO io_adr, InputBase *incoming_item)
-            : InputNC(io_adr, incoming_item) {
-        }
-        virtual ~TestableInputNC() {
-        }
-
-        LogicItemState *PublicMorozov_Get_state() {
-            return &state;
-        }
-    };
 } // namespace
 
 TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
@@ -72,15 +59,13 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
     Controller controller(NULL);
     IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableInputNC prev_element(MapIO::DI, &incomeRail);
 
     controller.SetV1RelativeValue(LogicElement::MaxValue);
 
-    TestableDirectOutput testable(MapIO::V1, &prev_element);
+    TestableDirectOutput testable(MapIO::V1, &incomeRail);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MinValue, controller.GetV1RelativeValue());
 }
