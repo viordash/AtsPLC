@@ -9,7 +9,7 @@
 
 static const char *TAG_CommonTimer = "CommonTimer";
 
-CommonTimer::CommonTimer(const Controller *controller) : InputBase(controller) {
+CommonTimer::CommonTimer(const Controller *controller) : LogicElement(controller) {
     this->start_time_us = esp_timer_get_time();
 }
 

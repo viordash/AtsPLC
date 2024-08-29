@@ -6,7 +6,7 @@
 #include <string.h>
 
 CommonInput::CommonInput(const MapIO io_adr, const Controller *controller)
-    : InputBase(controller), InputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
+    : LogicElement(controller), InputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
 }
 
 CommonInput::~CommonInput() {

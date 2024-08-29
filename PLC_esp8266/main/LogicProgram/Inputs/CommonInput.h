@@ -3,11 +3,11 @@
 #include "Display/LabeledLogicItem.h"
 #include "Display/display.h"
 #include "LogicProgram/InputElement.h"
-#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonInput : public InputBase, public InputElement, public LabeledLogicItem {
+class CommonInput : public LogicElement, public InputElement, public LabeledLogicItem {
   protected:
     virtual const Bitmap *GetCurrentBitmap() = 0;
 

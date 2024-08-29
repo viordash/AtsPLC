@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Display/display.h"
-#include "LogicProgram/Inputs/InputBase.h"
+#include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonTimer : public InputBase {
+class CommonTimer : public LogicElement {
   private:
   protected:
     uint64_t delay_time_us;

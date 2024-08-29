@@ -4,7 +4,6 @@
 #include "Display/LabeledLogicItem.h"
 #include "Display/display.h"
 #include "LogicProgram/InputOutputElement.h"
-#include "LogicProgram/Inputs/InputBase.h"
 #include "LogicProgram/LogicElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>

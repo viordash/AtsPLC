@@ -7,7 +7,7 @@
 #include <string.h>
 
 IncomeRail::IncomeRail(const Controller *controller, uint8_t network_number, LogicItemState state)
-    : InputBase(controller) {
+    : LogicElement(controller) {
     this->network_number = network_number;
     this->state = state;
 }

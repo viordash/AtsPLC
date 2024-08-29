@@ -1,12 +1,11 @@
 #pragma once
 
-#include "LogicProgram/Inputs/InputBase.h"
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
 
-class IncomeRail : public InputBase, public std::vector<LogicElement *> {
+class IncomeRail : public LogicElement, public std::vector<LogicElement *> {
   private:
     uint8_t network_number;
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
