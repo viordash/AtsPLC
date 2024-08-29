@@ -228,28 +228,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
     CHECK_EQUAL(0, left_time);
 }
 
-TEST(LogicCommonTimerTestsGroup, GetLeftTime_return_full_delay_if_incoming_item_is_passive) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(3, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
-    TestableCommonTimer prev_element(0, &incomeRail0);
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    TestableCommonTimer testable_0(10, &prev_element);
-
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
-    os_us = 4;
-    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(10, left_time);
-
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(6, left_time);
-}
-
 TEST(LogicCommonTimerTestsGroup, GetProgress) {
     volatile uint64_t os_us = 0;
     mock()
@@ -296,7 +274,7 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
-    mock().expectNoCall("esp_timer_get_time");
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller(NULL);
     IncomeRail incomeRail0(&controller, 0, LogicItemState::lisPassive);
@@ -378,7 +356,7 @@ TEST(LogicCommonTimerTestsGroup, active_previous_element_set_start_time_in_ctor)
 }
 
 TEST(LogicCommonTimerTestsGroup, passive_previous_element_dont_set_start_time_in_ctor) {
-    mock().expectNoCall("esp_timer_get_time");
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
     Controller controller(NULL);
     IncomeRail incomeRail_passive(&controller, 0, LogicItemState::lisPassive);

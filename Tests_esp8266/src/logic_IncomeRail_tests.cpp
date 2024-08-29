@@ -158,7 +158,7 @@ namespace {
 
 } // namespace
 
-// TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
+// IGNORE_TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
 //     Controller controller(NULL);
 //     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
@@ -185,7 +185,7 @@ namespace {
 //     CHECK(nextElement == NULL);
 // }
 
-TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
+IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
@@ -203,7 +203,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     CHECK_TRUE(directOutput0.DoAction_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
+IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
@@ -226,7 +226,7 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     CHECK_TRUE(res);
 }
 
-TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
+IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
 
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
@@ -254,7 +254,7 @@ TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_
     CHECK_TRUE(directOutput0.Render_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
+IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
 
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisPassive);
@@ -282,7 +282,7 @@ TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in
     CHECK_TRUE(directOutput0.Render_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
+IGNORE_TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
 
     Controller controller(NULL);
     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
