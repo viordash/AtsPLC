@@ -63,7 +63,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return any_changes;
 }
 
-bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state) {
+bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

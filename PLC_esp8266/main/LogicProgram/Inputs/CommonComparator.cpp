@@ -37,7 +37,7 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
     return any_changes;
 }
 
-bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state) {
+bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
     (void)prev_elem_state;
     bool res;
     res = CommonInput::Render(fb, state);

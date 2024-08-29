@@ -6,7 +6,6 @@
 
 class MapIOIndicator {
   protected:
-    Point incoming_point;
     const char *name;
     uint8_t progress;
     uint8_t separator_width;
@@ -17,13 +16,10 @@ class MapIOIndicator {
     static const uint8_t margin = 1;
 
   public:
-    explicit MapIOIndicator(const Point &incoming_point,
-                            const char *name,
-                            uint8_t progress,
-                            uint8_t separator_width);
+    explicit MapIOIndicator(const char *name, uint8_t progress, uint8_t separator_width);
     virtual ~MapIOIndicator();
 
-    bool Render(uint8_t *fb);
+    bool Render(uint8_t *fb, const Point &start_point);
     static uint8_t GetWidth();
     static uint8_t GetHeight();
 };

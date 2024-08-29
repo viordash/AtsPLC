@@ -10,14 +10,14 @@ static const char *TAG_CommonOutput = "CommonOutput";
 
 CommonOutput::CommonOutput(const MapIO io_adr, InputBase *incoming_item)
     : LogicElement(incoming_item->controller), InputOutputElement(io_adr),
-      DisplayChainItem(incoming_item->OutcomingPoint()), LabeledLogicItem(MapIONames[io_adr]) {
+      LabeledLogicItem(MapIONames[io_adr]) {
     this->incoming_item = incoming_item;
 }
 
 CommonOutput::~CommonOutput() {
 }
 
-bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
+bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

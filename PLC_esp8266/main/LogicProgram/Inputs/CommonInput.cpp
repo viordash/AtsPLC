@@ -5,16 +5,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonInput::CommonInput(const MapIO io_adr, InputBase *incoming_item)
-    : InputBase(incoming_item->controller, incoming_item->OutcomingPoint()), InputElement(io_adr),
+CommonInput::CommonInput(const MapIO io_adr,
+                         const Controller *controller,
+                         const Point &incoming_point)
+    : InputBase(controller, incoming_point), InputElement(io_adr),
       LabeledLogicItem(MapIONames[io_adr]) {
-    this->incoming_item = incoming_item;
 }
 
 CommonInput::~CommonInput() {
 }
 
-bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state) {
+bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 

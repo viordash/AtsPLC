@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayChainItem.h"
 #include "Display/LabeledLogicItem.h"
 #include "Display/display.h"
 #include "LogicProgram/InputOutputElement.h"
@@ -11,10 +10,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonOutput : public LogicElement,
-                     public InputOutputElement,
-                     public DisplayChainItem,
-                     public LabeledLogicItem {
+class CommonOutput : public LogicElement, public InputOutputElement, public LabeledLogicItem {
   protected:
     InputBase *incoming_item;
     virtual const Bitmap *GetCurrentBitmap() = 0;
@@ -24,6 +20,6 @@ class CommonOutput : public LogicElement,
     CommonOutput(const MapIO io_adr, InputBase *incoming_item);
     ~CommonOutput();
 
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override;
     Point OutcomingPoint() override;
 };

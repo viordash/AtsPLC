@@ -14,5 +14,5 @@ class OutcomeRail : public LogicElement {
     explicit OutcomeRail(const CommonOutput *incoming_item, uint8_t network_number);
     ~OutcomeRail();
 
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state) override final;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override final;
 };

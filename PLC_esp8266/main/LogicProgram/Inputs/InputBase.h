@@ -1,15 +1,14 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "Display/DisplayChainItem.h"
 #include "LogicProgram/LogicElement.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class InputBase : public LogicElement, public DisplayChainItem {
+class InputBase : public LogicElement{
   protected:
-    InputBase(const Controller *controller, const Point &incoming_point);
+    InputBase(const Controller *controller);
 
   public:
     virtual ~InputBase();

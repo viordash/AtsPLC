@@ -46,7 +46,7 @@ bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state) {
+bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
     bool res;
     res = CommonTimer::Render(fb, state);
 
