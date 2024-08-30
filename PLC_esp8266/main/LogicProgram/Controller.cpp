@@ -43,18 +43,16 @@ void Controller::ProcessTask(void *parm) {
     IncomeRail incomeRail0(0, LogicItemState::lisActive);
 
     incomeRail0.Append(new InputNO(MapIO::DI));
-
-    InputNO input00(MapIO::DI);
-    InputNC input01(MapIO::V1);
-    TimerMSecs timer00(500);
-    SetOutput output00(MapIO::V1);
+    incomeRail0.Append(new InputNC(MapIO::V1));
+    incomeRail0.Append(new TimerMSecs(500));
+    incomeRail0.Append(new SetOutput(MapIO::V1));
     OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(1, LogicItemState::lisActive);
-    InputNO input10(MapIO::DI);
-    InputNO input11(MapIO::V1);
-    TimerMSecs timer10(500);
-    ResetOutput output10(MapIO::V1);
+    incomeRail1.Append(new InputNO(MapIO::DI));
+    incomeRail1.Append(new InputNO(MapIO::V1));
+    incomeRail1.Append(new TimerMSecs(500));
+    incomeRail1.Append(new ResetOutput(MapIO::V1));
     OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
