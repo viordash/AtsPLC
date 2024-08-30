@@ -40,36 +40,47 @@ namespace {
         }
     };
 
-    class TestableCommonInput : public CommonInput {
+    class MonitorLogicElement {
+      public:
+        bool DoAction_called = false;
+        bool DoAction_result = false;
+        bool Render_called = false;
+        bool Render_result = true;
+
+        bool DoAction() {
+            DoAction_called = true;
+            return DoAction_result;
+        }
+
+        bool Render() {
+            Render_called = true;
+            return Render_result;
+        }
+    };
+
+    class TestableCommonInput : public CommonInput, public MonitorLogicElement {
       public:
         TestableCommonInput(const MapIO io_adr) : CommonInput(io_adr) {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
-
-        bool DoAction_called = false;
-        bool DoAction_result = false;
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
-            DoAction_called = true;
-            return DoAction_result;
+            return MonitorLogicElement::DoAction();
         }
 
-        bool Render_called = false;
-        bool Render_result = true;
         bool
         Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
-            Render_called = true;
-            return Render_result;
+            return MonitorLogicElement::Render();
         }
     };
 
-    class TestableCommonComparator : public CommonComparator {
+    class TestableCommonComparator : public CommonComparator, public MonitorLogicElement {
       public:
         TestableCommonComparator(uint16_t reference, const MapIO io_adr)
             : CommonComparator(reference, io_adr) {
@@ -78,31 +89,25 @@ namespace {
             return &bitmap;
         }
 
-        bool DoAction_called = false;
-        bool DoAction_result = false;
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
-            DoAction_called = true;
-            return DoAction_result;
+            return MonitorLogicElement::DoAction();
         }
         bool CompareFunction() override {
             return true;
         }
 
-        bool Render_called = false;
-        bool Render_result = true;
         bool
         Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
-            Render_called = true;
-            return Render_result;
+            return MonitorLogicElement::Render();
         }
     };
 
-    class TestableCommonTimer : public CommonTimer {
+    class TestableCommonTimer : public CommonTimer, public MonitorLogicElement {
       public:
         explicit TestableCommonTimer() : CommonTimer() {
         }
@@ -110,119 +115,91 @@ namespace {
             return &bitmap;
         }
 
-        bool DoAction_called = false;
-        bool DoAction_result = false;
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
-            DoAction_called = true;
-            return DoAction_result;
+            return MonitorLogicElement::DoAction();
         }
 
-        bool Render_called = false;
-        bool Render_result = true;
         bool
         Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
-            Render_called = true;
-            return Render_result;
+            return MonitorLogicElement::Render();
         }
     };
 
-    class TestableCommonOutput : public CommonOutput {
+    class TestableCommonOutput : public CommonOutput, public MonitorLogicElement {
       public:
-        TestableCommonOutput(const MapIO io_adr) : CommonOutput(io_adr) {
+        explicit TestableCommonOutput(const MapIO io_adr) : CommonOutput(io_adr) {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
         }
 
-        bool DoAction_called = false;
-        bool DoAction_result = false;
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
-            DoAction_called = true;
-            return DoAction_result;
+            return MonitorLogicElement::DoAction();
         }
 
-        bool Render_called = false;
-        bool Render_result = true;
         bool
         Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
-            Render_called = true;
-            return Render_result;
+            return MonitorLogicElement::Render();
         }
     };
-
 } // namespace
 
-// IGNORE_TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
-
-//
-//     TestableIncomeRail testable(0, LogicItemState::lisActive);
-
-//     TestableCommonInput input1(MapIO::DI);
-//     TestableCommonComparator comparator1(5, MapIO::AI);
-//     TestableCommonTimer timerSecs1;
-//     TestableCommonOutput directOutput0(MapIO::O1);
-
-//     LogicElement *nextElement = testable.PublicMorozov_GetNext();
-//     CHECK_EQUAL(&input1, nextElement);
-
-//     nextElement = input1.PublicMorozov_GetNext();
-//     CHECK_EQUAL(&comparator1, nextElement);
-
-//     nextElement = comparator1.PublicMorozov_GetNext();
-//     CHECK_EQUAL(&timerSecs1, nextElement);
-
-//     nextElement = timerSecs1.PublicMorozov_GetNext();
-//     CHECK_EQUAL(&directOutput0, nextElement);
-
-//     nextElement = directOutput0.PublicMorozov_GetNext();
-//     CHECK(nextElement == NULL);
-// }
-
-IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-
+TEST(LogicIncomeRailTestsGroup, append_elements) {
     TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI);
-    TestableCommonComparator comparator1(5, MapIO::AI);
-    TestableCommonTimer timerSecs1;
-    TestableCommonOutput directOutput0(MapIO::O1);
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
+
+    CHECK_EQUAL(4, testable.size());
+}
+
+TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
+    TestableIncomeRail testable(0, LogicItemState::lisActive);
+
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
 
     testable.DoAction();
 
-    CHECK_TRUE(input1.DoAction_called);
-    CHECK_TRUE(comparator1.DoAction_called);
-    CHECK_TRUE(timerSecs1.DoAction_called);
-    CHECK_TRUE(directOutput0.DoAction_called);
+    auto elem_0 = testable[0];
+    CHECK_TRUE(((TestableCommonInput *)elem_0)->DoAction_called);
+    CHECK_TRUE(((TestableCommonComparator *)testable[1])->DoAction_called);
+    CHECK_TRUE(((TestableCommonTimer *)testable[2])->DoAction_called);
+    CHECK_TRUE(((TestableCommonOutput *)testable[3])->DoAction_called);
 }
 
-IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
+TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
 
     TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI);
-    TestableCommonComparator comparator1(5, MapIO::AI);
-    TestableCommonTimer timerSecs1;
-    TestableCommonOutput directOutput0(MapIO::O1);
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
 
     bool res = testable.DoAction();
     CHECK_FALSE(res);
 
-    timerSecs1.DoAction_result = true;
+    ((TestableCommonTimer *)testable[2])->DoAction_result = true;
     res = testable.DoAction();
     CHECK_TRUE(res);
 
-    timerSecs1.DoAction_result = false;
-    directOutput0.DoAction_result = true;
+    ((TestableCommonTimer *)testable[2])->DoAction_result = false;
+    ((TestableCommonOutput *)testable[3])->DoAction_result = true;
     res = testable.DoAction();
     CHECK_TRUE(res);
 }

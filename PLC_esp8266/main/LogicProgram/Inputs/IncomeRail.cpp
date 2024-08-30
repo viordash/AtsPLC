@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_IncomeRail = "IncomeRail";
+
 IncomeRail::IncomeRail(uint8_t network_number, LogicItemState state) : LogicElement() {
     this->network_number = network_number;
     this->state = state;
@@ -14,8 +16,10 @@ IncomeRail::IncomeRail(uint8_t network_number, LogicItemState state) : LogicElem
 IncomeRail::~IncomeRail() {
     while (!empty()) {
         auto it = begin();
-        auto first = *it;
-        delete first;
+        auto element = *it;
+        erase(it);
+        ESP_LOGD(TAG_IncomeRail, "delete elem: %p", element);
+        delete element;
     }
 }
 
@@ -72,5 +76,6 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point
 }
 
 void IncomeRail::Append(LogicElement *element) {
+    ESP_LOGI(TAG_IncomeRail, "append elem: %p", element);
     push_back(element);
 }
