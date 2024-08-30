@@ -171,7 +171,6 @@ namespace {
 //     TestableCommonComparator comparator1(5, MapIO::AI);
 //     TestableCommonTimer timerSecs1;
 //     TestableCommonOutput directOutput0(MapIO::O1);
-//     OutcomeRail outcomeRail0(0);
 
 //     LogicElement *nextElement = testable.PublicMorozov_GetNext();
 //     CHECK_EQUAL(&input1, nextElement);
@@ -197,7 +196,6 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_cha
     TestableCommonComparator comparator1(5, MapIO::AI);
     TestableCommonTimer timerSecs1;
     TestableCommonOutput directOutput0(MapIO::O1);
-    OutcomeRail outcomeRail0(0);
 
     testable.DoAction();
 
@@ -215,7 +213,6 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_
     TestableCommonComparator comparator1(5, MapIO::AI);
     TestableCommonTimer timerSecs1;
     TestableCommonOutput directOutput0(MapIO::O1);
-    OutcomeRail outcomeRail0(0);
 
     bool res = testable.DoAction();
     CHECK_FALSE(res);
@@ -238,7 +235,6 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_eleme
     TestableCommonComparator comparator1(5, MapIO::AI);
     TestableCommonTimer timerSecs1;
     TestableCommonOutput directOutput0(MapIO::O1);
-    OutcomeRail outcomeRail0(0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -265,7 +261,6 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elem
     TestableCommonComparator comparator1(5, MapIO::AI);
     TestableCommonTimer timerSecs1;
     TestableCommonOutput directOutput0(MapIO::O1);
-    OutcomeRail outcomeRail0(0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -293,7 +288,6 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_b
     comparator1.Render_result = false;
     TestableCommonTimer timerSecs1;
     TestableCommonOutput directOutput0(MapIO::O1);
-    OutcomeRail outcomeRail0(0);
 
     CHECK_FALSE(testable.Render(frame_buffer));
 

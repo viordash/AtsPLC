@@ -23,6 +23,5 @@
 #include "main/LogicProgram/Outputs/DecOutput.cpp"
 #include "main/LogicProgram/Outputs/DirectOutput.cpp"
 #include "main/LogicProgram/Outputs/IncOutput.cpp"
-#include "main/LogicProgram/Outputs/OutcomeRail.cpp"
 #include "main/LogicProgram/Outputs/ResetOutput.cpp"
 #include "main/LogicProgram/Outputs/SetOutput.cpp"

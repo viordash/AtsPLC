@@ -64,6 +64,10 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point
         prev_elem_state = element->state;
     }
 
+    if (res) {
+        res = draw_outcome_rail(fb, network_number);
+    }
+
     return res;
 }
 

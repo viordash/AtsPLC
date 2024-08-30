@@ -46,14 +46,12 @@ void Controller::ProcessTask(void *parm) {
     incomeRail0.Append(new InputNC(MapIO::V1));
     incomeRail0.Append(new TimerMSecs(500));
     incomeRail0.Append(new SetOutput(MapIO::V1));
-    OutcomeRail outcomeRail0(0);
 
     IncomeRail incomeRail1(1, LogicItemState::lisActive);
     incomeRail1.Append(new InputNO(MapIO::DI));
     incomeRail1.Append(new InputNO(MapIO::V1));
     incomeRail1.Append(new TimerMSecs(500));
     incomeRail1.Append(new ResetOutput(MapIO::V1));
-    OutcomeRail outcomeRail1(1);
 
     bool need_render = true;
     while (Controller::runned) {
@@ -77,10 +75,8 @@ void Controller::ProcessTask(void *parm) {
             statusBar.Render(fb);
 
             incomeRail0.Render(fb);
-            outcomeRail0.Render(fb);
 
             incomeRail1.Render(fb);
-            outcomeRail1.Render(fb);
 
             end_render(fb);
             need_render = false;
