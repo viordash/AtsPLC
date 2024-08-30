@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
@@ -33,7 +32,6 @@ namespace {
 
 TEST(LogicSetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
-    IncomeRail incomeRail(0, LogicItemState::lisPassive);
     TestableSetOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -42,7 +40,6 @@ TEST(LogicSetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_does_nothing) {
 
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableSetOutput testable(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
@@ -56,8 +53,6 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
 }
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
 

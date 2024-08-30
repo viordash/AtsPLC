@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonInput.h"
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -52,13 +51,11 @@ namespace {
 } // namespace
 
 TEST(LogicCommonInputTestsGroup, Render_when_active) {
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableCommonInput testable(MapIO::V1);
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -71,11 +68,9 @@ TEST(LogicCommonInputTestsGroup, Render_when_active) {
 }
 
 TEST(LogicCommonInputTestsGroup, Render_when_passive) {
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableCommonInput testable(MapIO::V1);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {

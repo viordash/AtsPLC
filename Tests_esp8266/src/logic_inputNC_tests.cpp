@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
@@ -42,8 +41,6 @@ namespace {
 TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 
-    IncomeRail incomeRail(0, LogicItemState::lisPassive);
-
     TestableInputNC testable(MapIO::DI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -53,8 +50,6 @@ TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
 
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
-
     TestableInputNC testable(MapIO::DI);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -63,8 +58,6 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
 
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     TestableInputNC testable(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;

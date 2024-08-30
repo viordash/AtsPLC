@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DirectOutput.h"
 
@@ -21,8 +20,7 @@ TEST_GROUP(LogicDirectOutputTestsGroup){ //
 namespace {
     class TestableDirectOutput : public DirectOutput {
       public:
-        TestableDirectOutput(const MapIO io_adr)
-            : DirectOutput(io_adr) {
+        TestableDirectOutput(const MapIO io_adr) : DirectOutput(io_adr) {
         }
         virtual ~TestableDirectOutput() {
         }
@@ -33,8 +31,6 @@ namespace {
 } // namespace
 
 TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisPassive);
     TestableDirectOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -42,8 +38,6 @@ TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableDirectOutput testable(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
@@ -54,8 +48,6 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     Controller::SetV1RelativeValue(LogicElement::MaxValue);
 

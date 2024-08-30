@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DecOutput.h"
 
@@ -21,8 +20,7 @@ TEST_GROUP(LogicDecOutputTestsGroup){ //
 namespace {
     class TestableDecOutput : public DecOutput {
       public:
-        TestableDecOutput(const MapIO io_adr)
-            : DecOutput(io_adr) {
+        TestableDecOutput(const MapIO io_adr) : DecOutput(io_adr) {
         }
         virtual ~TestableDecOutput() {
         }
@@ -33,8 +31,6 @@ namespace {
 } // namespace
 
 TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisPassive);
     TestableDecOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -43,8 +39,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicDecOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
+
     TestableDecOutput testable(MapIO::V1);
 
     Controller::SetV1RelativeValue(42);
@@ -58,8 +53,6 @@ TEST(LogicDecOutputTestsGroup,
 }
 
 TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
-    
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     Controller::SetV1RelativeValue(42);
 

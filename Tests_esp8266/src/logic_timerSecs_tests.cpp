@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/TimerSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerSecs.h"
 
@@ -26,8 +25,7 @@ TEST_TEARDOWN() {
 namespace {
     class TestableTimerSecs : public TimerSecs {
       public:
-        TestableTimerSecs(uint32_t delay_time_s)
-            : TimerSecs(delay_time_s) {
+        TestableTimerSecs(uint32_t delay_time_s) : TimerSecs(delay_time_s) {
         }
         virtual ~TestableTimerSecs() {
         }
@@ -47,8 +45,6 @@ namespace {
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableTimerSecs testable_0(0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 
@@ -68,8 +64,6 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
         .expectNCalls(11, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableTimerSecs testable(10);
     testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
 
@@ -106,11 +100,9 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
         .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableTimerSecs testable(10);
 
     uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, {0, 0}));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
 }

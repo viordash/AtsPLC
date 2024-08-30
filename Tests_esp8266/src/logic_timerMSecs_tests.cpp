@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/TimerMSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerMSecs.h"
 
@@ -21,8 +20,7 @@ TEST_GROUP(LogicTimerMSecsTestsGroup){ //
 namespace {
     class TestableTimerMSecs : public TimerMSecs {
       public:
-        TestableTimerMSecs(uint32_t delay_time_s)
-            : TimerMSecs(delay_time_s) {
+        TestableTimerMSecs(uint32_t delay_time_s) : TimerMSecs(delay_time_s) {
         }
         virtual ~TestableTimerMSecs() {
         }
@@ -36,8 +34,6 @@ namespace {
 TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableTimerMSecs testable_0(0);
     CHECK_EQUAL(1 * 1000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 

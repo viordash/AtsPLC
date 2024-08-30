@@ -10,7 +10,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonTimer.h"
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -62,7 +61,6 @@ namespace {
 TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableCommonTimer testable(12345);
 
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
@@ -71,7 +69,6 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
-    IncomeRail incomeRail(1, LogicItemState::lisActive);
     TestableCommonTimer testable(12345);
 
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
@@ -83,7 +80,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
         .expectNCalls(7, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(10);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10, left_time);
@@ -115,7 +111,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_is_overflowed) {
         .expectNCalls(9, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(10);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(10, left_time);
@@ -155,7 +150,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay) {
         .expectNCalls(8, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(INT64_MAX);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(INT64_MAX, left_time);
@@ -191,7 +185,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
         .expectNCalls(8, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(INT64_MAX);
     uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(INT64_MAX, left_time);
@@ -227,7 +220,6 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
         .expectNCalls(10, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable_0(1000);
     uint8_t percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
@@ -268,7 +260,6 @@ TEST(LogicCommonTimerTestsGroup, GetProgress) {
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
 
-    IncomeRail incomeRail0(0, LogicItemState::lisPassive);
     TestableCommonTimer testable(10);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -281,7 +272,6 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
         .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable(10);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
@@ -299,7 +289,6 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
         .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable(10);
 
     os_us = 10;
@@ -319,7 +308,6 @@ TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_r
         .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    IncomeRail incomeRail0(0, LogicItemState::lisActive);
     TestableCommonTimer testable(10);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));

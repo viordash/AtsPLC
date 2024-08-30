@@ -10,7 +10,6 @@
 
 #include "main/LogicProgram/Inputs/ComparatorEq.cpp"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -40,11 +39,9 @@ namespace {
 } // namespace
 
 TEST(LogicComparatorEqTestsGroup, Render) {
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
     TestableComparatorEq testable(42, MapIO::V1);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -58,9 +55,6 @@ TEST(LogicComparatorEqTestsGroup, Render) {
 
 TEST(LogicComparatorEqTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectNoCall("adc_read");
-
-    IncomeRail incomeRail(0, LogicItemState::lisPassive);
-
     TestableComparatorEq testable(42, MapIO::AI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -72,8 +66,6 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_active) {
     mock()
         .expectNCalls(3, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     TestableComparatorEq testable(50 / 0.4, MapIO::AI);
 
@@ -94,8 +86,6 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_passive) {
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-
-    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
     TestableComparatorEq testable(50 / 0.4, MapIO::AI);
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
