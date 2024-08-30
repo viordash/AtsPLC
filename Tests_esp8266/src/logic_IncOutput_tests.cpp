@@ -9,8 +9,8 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/IncomeRail.h"
-#include "main/LogicProgram/Outputs/IncOutput.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
 
 TEST_GROUP(LogicIncOutputTestsGroup){ //
                                       TEST_SETUP(){}
@@ -21,13 +21,9 @@ TEST_GROUP(LogicIncOutputTestsGroup){ //
 namespace {
     class TestableIncOutput : public IncOutput {
       public:
-        TestableIncOutput(const MapIO io_adr, InputBase *incoming_item)
-            : IncOutput(io_adr, incoming_item) {
+        TestableIncOutput(const MapIO io_adr) : IncOutput(io_adr) {
         }
         virtual ~TestableIncOutput() {
-        }
-        InputBase *PublicMorozov_incoming_item() {
-            return incoming_item;
         }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
@@ -36,9 +32,9 @@ namespace {
 } // namespace
 
 TEST(LogicIncOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
-    TestableIncOutput testable(MapIO::V1, &incomeRail);
+
+    IncomeRail incomeRail(0, LogicItemState::lisPassive);
+    TestableIncOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -46,30 +42,30 @@ TEST(LogicIncOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicIncOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableIncOutput testable(MapIO::V1, &incomeRail);
 
-    controller.SetV1RelativeValue(42);
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
+    TestableIncOutput testable(MapIO::V1);
+
+    Controller::SetV1RelativeValue(42);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(43, controller.GetV1RelativeValue());
+    CHECK_EQUAL(43, Controller::GetV1RelativeValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(43, controller.GetV1RelativeValue());
+    CHECK_EQUAL(43, Controller::GetV1RelativeValue());
 }
 
 TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
 
-    controller.SetV1RelativeValue(42);
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
-    TestableIncOutput testable(MapIO::V1, &incomeRail);
+    Controller::SetV1RelativeValue(42);
+
+    TestableIncOutput testable(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(42, controller.GetV1RelativeValue());
+    CHECK_EQUAL(42, Controller::GetV1RelativeValue());
 }

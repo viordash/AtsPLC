@@ -36,6 +36,7 @@ void Controller::Stop() {
 }
 
 void Controller::ProcessTask(void *parm) {
+    (void)parm;
     ESP_LOGI(TAG_Controller, "start ++++++");
     StatusBar statusBar(0);
 

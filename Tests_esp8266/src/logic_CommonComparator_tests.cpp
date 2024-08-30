@@ -33,10 +33,8 @@ namespace {
 
     class TestableCommonComparator : public CommonComparator {
       public:
-        TestableCommonComparator(uint8_t ref_percent04,
-                                 const MapIO io_adr,
-                                 InputBase *incoming_item)
-            : CommonComparator(ref_percent04, io_adr, incoming_item) {
+        TestableCommonComparator(uint8_t ref_percent04, const MapIO io_adr)
+            : CommonComparator(ref_percent04, io_adr) {
         }
         virtual ~TestableCommonComparator() {
         }
@@ -56,28 +54,25 @@ namespace {
 } // namespace
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
-    Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
-    TestableCommonComparator testable_0(0, MapIO::DI, &incomeRail0);
+    IncomeRail incomeRail0(0, LogicItemState::lisActive);
+    TestableCommonComparator testable_0(0, MapIO::DI);
     CHECK_EQUAL(0, testable_0.GetReference());
 
-    TestableCommonComparator testable_100(100, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_100(100, MapIO::DI);
     CHECK_EQUAL(100, testable_100.GetReference());
 
-    TestableCommonComparator testable_250(250, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_250(250, MapIO::DI);
     CHECK_EQUAL(250, testable_250.GetReference());
 
-    TestableCommonComparator testable_251(251, MapIO::DI, &incomeRail0);
+    TestableCommonComparator testable_251(251, MapIO::DI);
     CHECK_EQUAL(250, testable_251.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Render) {
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
+    TestableCommonComparator testable(0, MapIO::DI);
 
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableCommonComparator testable(0, MapIO::DI, &incomeRail);
-
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {

@@ -27,8 +27,8 @@ TEST_TEARDOWN() {
 namespace {
     class TestableComparatorEq : public ComparatorEq {
       public:
-        TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
-            : ComparatorEq(ref_percent04, io_adr, incoming_item) {
+        TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
+            : ComparatorEq(ref_percent04, io_adr) {
         }
         virtual ~TestableComparatorEq() {
         }
@@ -41,11 +41,10 @@ namespace {
 
 TEST(LogicComparatorEqTestsGroup, Render) {
 
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableComparatorEq testable(42, MapIO::V1, &incomeRail);
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
+    TestableComparatorEq testable(42, MapIO::V1);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -60,10 +59,9 @@ TEST(LogicComparatorEqTestsGroup, Render) {
 TEST(LogicComparatorEqTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectNoCall("adc_read");
 
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
+    IncomeRail incomeRail(0, LogicItemState::lisPassive);
 
-    TestableComparatorEq testable(42, MapIO::AI, &incomeRail);
+    TestableComparatorEq testable(42, MapIO::AI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -75,10 +73,9 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_active) {
         .expectNCalls(3, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
-    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &incomeRail);
+    TestableComparatorEq testable(50 / 0.4, MapIO::AI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -98,10 +95,9 @@ TEST(LogicComparatorEqTestsGroup, DoAction_change_state_to_passive) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
-    TestableComparatorEq testable(50 / 0.4, MapIO::AI, &incomeRail);
+    TestableComparatorEq testable(50 / 0.4, MapIO::AI);
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 

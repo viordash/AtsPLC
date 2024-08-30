@@ -26,8 +26,8 @@ TEST_TEARDOWN() {
 namespace {
     class TestableTimerSecs : public TimerSecs {
       public:
-        TestableTimerSecs(uint32_t delay_time_s, InputBase *incoming_item)
-            : TimerSecs(delay_time_s, incoming_item) {
+        TestableTimerSecs(uint32_t delay_time_s)
+            : TimerSecs(delay_time_s) {
         }
         virtual ~TestableTimerSecs() {
         }
@@ -47,18 +47,18 @@ namespace {
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
-    TestableTimerSecs testable_0(0, &incomeRail0);
+    
+    IncomeRail incomeRail0(0, LogicItemState::lisActive);
+    TestableTimerSecs testable_0(0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99998(99998, &incomeRail0);
+    TestableTimerSecs testable_99998(99998);
     CHECK_EQUAL(99998 * 1000000LL, testable_99998.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99999(99999, &incomeRail0);
+    TestableTimerSecs testable_99999(99999);
     CHECK_EQUAL(99999 * 1000000LL, testable_99999.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_100000(100000, &incomeRail0);
+    TestableTimerSecs testable_100000(100000);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
 }
 
@@ -68,9 +68,9 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
         .expectNCalls(11, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
-    TestableTimerSecs testable(10, &incomeRail0);
+    
+    IncomeRail incomeRail0(0, LogicItemState::lisActive);
+    TestableTimerSecs testable(10);
     testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
 
     CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
@@ -106,11 +106,11 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
         .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    Controller controller(NULL);
-    IncomeRail incomeRail0(&controller, 0, LogicItemState::lisActive);
-    TestableTimerSecs testable(10, &incomeRail0);
+    
+    IncomeRail incomeRail0(0, LogicItemState::lisActive);
+    TestableTimerSecs testable(10);
 
     uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive));
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, {0, 0}));
 }

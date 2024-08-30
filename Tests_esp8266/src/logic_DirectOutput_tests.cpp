@@ -21,13 +21,10 @@ TEST_GROUP(LogicDirectOutputTestsGroup){ //
 namespace {
     class TestableDirectOutput : public DirectOutput {
       public:
-        TestableDirectOutput(const MapIO io_adr, InputBase *incoming_item)
-            : DirectOutput(io_adr, incoming_item) {
+        TestableDirectOutput(const MapIO io_adr)
+            : DirectOutput(io_adr) {
         }
         virtual ~TestableDirectOutput() {
-        }
-        InputBase *PublicMorozov_incoming_item() {
-            return incoming_item;
         }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
@@ -36,36 +33,36 @@ namespace {
 } // namespace
 
 TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
-    TestableDirectOutput testable(MapIO::V1, &incomeRail);
+    
+    IncomeRail incomeRail(0, LogicItemState::lisPassive);
+    TestableDirectOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableDirectOutput testable(MapIO::V1, &incomeRail);
+    
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
+    TestableDirectOutput testable(MapIO::V1);
 
-    controller.SetV1RelativeValue(LogicElement::MinValue);
+    Controller::SetV1RelativeValue(LogicElement::MinValue);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(LogicElement::MaxValue, controller.GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
+    
+    IncomeRail incomeRail(0, LogicItemState::lisActive);
 
-    controller.SetV1RelativeValue(LogicElement::MaxValue);
+    Controller::SetV1RelativeValue(LogicElement::MaxValue);
 
-    TestableDirectOutput testable(MapIO::V1, &incomeRail);
+    TestableDirectOutput testable(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(LogicElement::MinValue, controller.GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());
 }

@@ -35,17 +35,14 @@ namespace {
 
     class TestableIncomeRail : public IncomeRail {
       public:
-        TestableIncomeRail(const Controller *controller,
-                           uint8_t network_number,
-                           LogicItemState state)
-            : IncomeRail(controller, network_number, state) {
+        TestableIncomeRail(uint8_t network_number, LogicItemState state)
+            : IncomeRail(network_number, state) {
         }
     };
 
     class TestableCommonInput : public CommonInput {
       public:
-        TestableCommonInput(const MapIO io_adr, InputBase *incoming_item)
-            : CommonInput(io_adr, incoming_item) {
+        TestableCommonInput(const MapIO io_adr) : CommonInput(io_adr) {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
@@ -62,9 +59,11 @@ namespace {
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
+        bool
+        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
+            (void)start_point;
             Render_called = true;
             return Render_result;
         }
@@ -72,8 +71,8 @@ namespace {
 
     class TestableCommonComparator : public CommonComparator {
       public:
-        TestableCommonComparator(uint16_t reference, const MapIO io_adr, InputBase *incoming_item)
-            : CommonComparator(reference, io_adr, incoming_item) {
+        TestableCommonComparator(uint16_t reference, const MapIO io_adr)
+            : CommonComparator(reference, io_adr) {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
@@ -93,9 +92,11 @@ namespace {
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
+        bool
+        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
+            (void)start_point;
             Render_called = true;
             return Render_result;
         }
@@ -103,7 +104,7 @@ namespace {
 
     class TestableCommonTimer : public CommonTimer {
       public:
-        explicit TestableCommonTimer(InputBase *incoming_item) : CommonTimer(incoming_item) {
+        explicit TestableCommonTimer() : CommonTimer() {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
@@ -120,9 +121,11 @@ namespace {
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
+        bool
+        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
+            (void)start_point;
             Render_called = true;
             return Render_result;
         }
@@ -130,8 +133,7 @@ namespace {
 
     class TestableCommonOutput : public CommonOutput {
       public:
-        TestableCommonOutput(const MapIO io_adr, InputBase *incoming_item)
-            : CommonOutput(io_adr, incoming_item) {
+        TestableCommonOutput(const MapIO io_adr) : CommonOutput(io_adr) {
         }
         const Bitmap *GetCurrentBitmap() {
             return &bitmap;
@@ -148,9 +150,11 @@ namespace {
 
         bool Render_called = false;
         bool Render_result = true;
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state) override {
+        bool
+        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
             (void)fb;
             (void)prev_elem_state;
+            (void)start_point;
             Render_called = true;
             return Render_result;
         }
@@ -160,14 +164,14 @@ namespace {
 
 // IGNORE_TEST(LogicIncomeRailTestsGroup, Chain_of_logic_elements) {
 
-//     Controller controller(NULL);
-//     TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+//
+//     TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-//     TestableCommonInput input1(MapIO::DI, &testable);
-//     TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-//     TestableCommonTimer timerSecs1(&comparator1);
-//     TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-//     OutcomeRail outcomeRail0(&directOutput0, 0);
+//     TestableCommonInput input1(MapIO::DI);
+//     TestableCommonComparator comparator1(5, MapIO::AI);
+//     TestableCommonTimer timerSecs1;
+//     TestableCommonOutput directOutput0(MapIO::O1);
+//     OutcomeRail outcomeRail0(0);
 
 //     LogicElement *nextElement = testable.PublicMorozov_GetNext();
 //     CHECK_EQUAL(&input1, nextElement);
@@ -186,14 +190,14 @@ namespace {
 // }
 
 IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+    TestableIncomeRail testable(0, LogicItemState::lisActive);
+
+    TestableCommonInput input1(MapIO::DI);
+    TestableCommonComparator comparator1(5, MapIO::AI);
+    TestableCommonTimer timerSecs1;
+    TestableCommonOutput directOutput0(MapIO::O1);
+    OutcomeRail outcomeRail0(0);
 
     testable.DoAction();
 
@@ -204,14 +208,14 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_cha
 }
 
 IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+    TestableIncomeRail testable(0, LogicItemState::lisActive);
+
+    TestableCommonInput input1(MapIO::DI);
+    TestableCommonComparator comparator1(5, MapIO::AI);
+    TestableCommonTimer timerSecs1;
+    TestableCommonOutput directOutput0(MapIO::O1);
+    OutcomeRail outcomeRail0(0);
 
     bool res = testable.DoAction();
     CHECK_FALSE(res);
@@ -228,14 +232,13 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_
 
 IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
 
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+    TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+    TestableCommonInput input1(MapIO::DI);
+    TestableCommonComparator comparator1(5, MapIO::AI);
+    TestableCommonTimer timerSecs1;
+    TestableCommonOutput directOutput0(MapIO::O1);
+    OutcomeRail outcomeRail0(0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -256,14 +259,13 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_eleme
 
 IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
 
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisPassive);
+    TestableIncomeRail testable(0, LogicItemState::lisPassive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+    TestableCommonInput input1(MapIO::DI);
+    TestableCommonComparator comparator1(5, MapIO::AI);
+    TestableCommonTimer timerSecs1;
+    TestableCommonOutput directOutput0(MapIO::O1);
+    OutcomeRail outcomeRail0(0);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -284,15 +286,14 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elem
 
 IGNORE_TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
 
-    Controller controller(NULL);
-    TestableIncomeRail testable(&controller, 0, LogicItemState::lisActive);
+    TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI, &testable);
-    TestableCommonComparator comparator1(5, MapIO::AI, &input1);
+    TestableCommonInput input1(MapIO::DI);
+    TestableCommonComparator comparator1(5, MapIO::AI);
     comparator1.Render_result = false;
-    TestableCommonTimer timerSecs1(&comparator1);
-    TestableCommonOutput directOutput0(MapIO::O1, &timerSecs1);
-    OutcomeRail outcomeRail0(&directOutput0, 0);
+    TestableCommonTimer timerSecs1;
+    TestableCommonOutput directOutput0(MapIO::O1);
+    OutcomeRail outcomeRail0(0);
 
     CHECK_FALSE(testable.Render(frame_buffer));
 
