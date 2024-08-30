@@ -175,11 +175,10 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 
     testable.DoAction();
 
-    auto elem_0 = testable[0];
-    CHECK_TRUE(((TestableCommonInput *)elem_0)->DoAction_called);
-    CHECK_TRUE(((TestableCommonComparator *)testable[1])->DoAction_called);
-    CHECK_TRUE(((TestableCommonTimer *)testable[2])->DoAction_called);
-    CHECK_TRUE(((TestableCommonOutput *)testable[3])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableCommonTimer *>(testable[2])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->DoAction_called);
 }
 
 TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
@@ -194,24 +193,24 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     bool res = testable.DoAction();
     CHECK_FALSE(res);
 
-    ((TestableCommonTimer *)testable[2])->DoAction_result = true;
+    static_cast<TestableCommonTimer *>(testable[2])->DoAction_result = true;
     res = testable.DoAction();
     CHECK_TRUE(res);
 
-    ((TestableCommonTimer *)testable[2])->DoAction_result = false;
-    ((TestableCommonOutput *)testable[3])->DoAction_result = true;
+    static_cast<TestableCommonTimer *>(testable[2])->DoAction_result = false;
+    static_cast<TestableCommonOutput *>(testable[3])->DoAction_result = true;
     res = testable.DoAction();
     CHECK_TRUE(res);
 }
 
-IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
+TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
 
     TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI);
-    TestableCommonComparator comparator1(5, MapIO::AI);
-    TestableCommonTimer timerSecs1;
-    TestableCommonOutput directOutput0(MapIO::O1);
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -224,20 +223,20 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_eleme
     }
     CHECK_TRUE(any_pixel_coloring);
 
-    CHECK_TRUE(input1.Render_called);
-    CHECK_TRUE(comparator1.Render_called);
-    CHECK_TRUE(timerSecs1.Render_called);
-    CHECK_TRUE(directOutput0.Render_called);
+    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonTimer *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
 }
 
-IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
+TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
 
     TestableIncomeRail testable(0, LogicItemState::lisPassive);
 
-    TestableCommonInput input1(MapIO::DI);
-    TestableCommonComparator comparator1(5, MapIO::AI);
-    TestableCommonTimer timerSecs1;
-    TestableCommonOutput directOutput0(MapIO::O1);
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -250,26 +249,26 @@ IGNORE_TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elem
     }
     CHECK_TRUE(any_pixel_coloring);
 
-    CHECK_TRUE(input1.Render_called);
-    CHECK_TRUE(comparator1.Render_called);
-    CHECK_TRUE(timerSecs1.Render_called);
-    CHECK_TRUE(directOutput0.Render_called);
+    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonTimer *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
 }
 
-IGNORE_TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
+TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
 
     TestableIncomeRail testable(0, LogicItemState::lisActive);
 
-    TestableCommonInput input1(MapIO::DI);
-    TestableCommonComparator comparator1(5, MapIO::AI);
-    comparator1.Render_result = false;
-    TestableCommonTimer timerSecs1;
-    TestableCommonOutput directOutput0(MapIO::O1);
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
+    static_cast<TestableCommonComparator *>(testable[1])->Render_result = false;
 
     CHECK_FALSE(testable.Render(frame_buffer));
 
-    CHECK_TRUE(input1.Render_called);
-    CHECK_TRUE(comparator1.Render_called);
-    CHECK_FALSE(timerSecs1.Render_called);
-    CHECK_FALSE(directOutput0.Render_called);
+    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableCommonTimer *>(testable[2])->Render_called);
+    CHECK_FALSE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
 }
