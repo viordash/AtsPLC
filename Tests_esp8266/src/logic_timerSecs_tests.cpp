@@ -104,5 +104,6 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
 
     uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
+    Point start_point = { 0, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }

@@ -69,7 +69,8 @@ TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
 TEST(LogicCommonComparatorTestsGroup, Render) {
     TestableCommonComparator testable(0, MapIO::DI);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, INCOME_RAIL_TOP }));
+    Point start_point = { 0, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -79,4 +80,5 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+    CHECK_EQUAL(30, start_point.x);
 }

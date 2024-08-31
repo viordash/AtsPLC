@@ -72,7 +72,7 @@ namespace {
         }
 
         bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
+        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -99,7 +99,7 @@ namespace {
         }
 
         bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
+        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -122,7 +122,7 @@ namespace {
         }
 
         bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
+        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -145,7 +145,7 @@ namespace {
         }
 
         bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) override {
+        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;

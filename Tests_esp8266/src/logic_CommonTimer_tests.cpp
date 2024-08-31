@@ -63,7 +63,8 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
 
     TestableCommonTimer testable(12345);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
+    Point start_point = { 0, 0 };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
@@ -71,7 +72,8 @@ TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
 
     TestableCommonTimer testable(12345);
 
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, { 0, 0 }));
+    Point start_point = { 0, 0 };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
 TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
