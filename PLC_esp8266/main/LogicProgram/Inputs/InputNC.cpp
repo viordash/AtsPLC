@@ -44,3 +44,16 @@ const Bitmap *InputNC::GetCurrentBitmap() {
             return &InputNC::bitmap_passive;
     }
 }
+
+
+size_t InputNC::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+
+    return writed;
+}
+
+size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    size_t readed = 0;
+
+    return readed;
+}

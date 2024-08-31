@@ -55,6 +55,17 @@ namespace {
         uint64_t PublicMorozov_start_time_us() {
             return start_time_us;
         }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
     };
 } // namespace
 

@@ -17,4 +17,7 @@ class IncOutput : public CommonOutput {
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 };

@@ -51,3 +51,16 @@ const Bitmap *IncOutput::GetCurrentBitmap() {
             return &IncOutput::bitmap_passive;
     }
 }
+
+
+size_t IncOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+
+    return writed;
+}
+
+size_t IncOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    size_t readed = 0;
+
+    return readed;
+}

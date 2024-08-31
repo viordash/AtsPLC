@@ -15,4 +15,7 @@ class ComparatorEq : public CommonComparator {
   public:
     ComparatorEq(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorEq();
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 };

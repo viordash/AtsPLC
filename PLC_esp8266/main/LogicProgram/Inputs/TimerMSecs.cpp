@@ -37,3 +37,15 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
             return &TimerMSecs::bitmap_passive;
     }
 }
+
+size_t TimerMSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+
+    return writed;
+}
+
+size_t TimerMSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    size_t readed = 0;
+
+    return readed;
+}

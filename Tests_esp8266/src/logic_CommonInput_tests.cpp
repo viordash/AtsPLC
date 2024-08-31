@@ -47,6 +47,17 @@ namespace {
             (void)prev_elem_state;
             return true;
         }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
     };
 } // namespace
 

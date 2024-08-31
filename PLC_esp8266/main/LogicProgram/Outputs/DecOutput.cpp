@@ -50,3 +50,16 @@ const Bitmap *DecOutput::GetCurrentBitmap() {
             return &DecOutput::bitmap_passive;
     }
 }
+
+
+size_t DecOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+
+    return writed;
+}
+
+size_t DecOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    size_t readed = 0;
+
+    return readed;
+}

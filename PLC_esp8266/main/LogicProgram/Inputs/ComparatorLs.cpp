@@ -27,3 +27,15 @@ const Bitmap *ComparatorLs::GetCurrentBitmap() {
 bool ComparatorLs::CompareFunction() {
     return GetValue() < ref_percent04;
 }
+
+size_t ComparatorLs::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+
+    return writed;
+}
+
+size_t ComparatorLs::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    size_t readed = 0;
+
+    return readed;
+}

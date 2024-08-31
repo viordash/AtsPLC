@@ -77,6 +77,17 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
     };
 
     class TestableCommonComparator : public CommonComparator, public MonitorLogicElement {
@@ -103,6 +114,17 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
     };
 
     class TestableCommonTimer : public CommonTimer, public MonitorLogicElement {
@@ -125,6 +147,17 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
     };
 
     class TestableCommonOutput : public CommonOutput, public MonitorLogicElement {
@@ -146,6 +179,17 @@ namespace {
             (void)prev_elem_state;
             (void)start_point;
             return MonitorLogicElement::Render();
+        }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
         }
     };
 } // namespace

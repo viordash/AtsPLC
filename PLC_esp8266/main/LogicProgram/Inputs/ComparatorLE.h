@@ -15,4 +15,7 @@ class ComparatorLE : public CommonComparator {
   public:
     ComparatorLE(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorLE();
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 };

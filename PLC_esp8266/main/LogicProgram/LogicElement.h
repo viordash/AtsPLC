@@ -24,4 +24,7 @@ class LogicElement {
 
     virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;
     virtual bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) = 0;
+
+    virtual size_t Serialize(uint8_t *buffer, size_t buffer_size) = 0;
+    virtual size_t Deserialize(uint8_t *buffer, size_t buffer_size) = 0;
 };
