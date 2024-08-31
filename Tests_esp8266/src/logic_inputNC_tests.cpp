@@ -65,3 +65,21 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
+
+TEST(LogicInputNCTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableInputNC testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, writed);
+
+    CHECK_EQUAL(TvElementType::et_InputNC, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
+}
+
+TEST(LogicInputNCTestsGroup, Serialize_just_for_obtain_size) {
+    TestableInputNC testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(NULL, SIZE_MAX);
+    CHECK_EQUAL(2, writed);
+}

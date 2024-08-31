@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
-enum TvElementType {
+enum TvElementType : uint8_t {
+    et_Undef = 0,
     et_InputNC,
     et_nputNO,
     et_TimerSecs,
@@ -22,5 +23,5 @@ enum TvElementType {
 
 struct __attribute__((packed)) TvElement {
     TvElementType type;
-    uint8_t *value;
+    // uint8_t value[];
 };

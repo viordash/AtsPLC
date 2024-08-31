@@ -6,6 +6,7 @@
 #include <string.h>
 
 InputElement::InputElement(const MapIO io_adr) {
+    this->io_adr = io_adr;
     switch (io_adr) {
         case MapIO::DI:
             GetValue = Controller::GetDIRelativeValue;
@@ -30,7 +31,4 @@ InputElement::InputElement(const MapIO io_adr) {
             GetValue = NULL;
             break;
     }
-}
-
-InputElement::~InputElement() {
 }

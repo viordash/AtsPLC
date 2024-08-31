@@ -4,6 +4,7 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
+#include "LogicProgram/Serializer/TypeValueElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -12,6 +13,9 @@ class Network;
 class LogicElement {
   protected:
     LogicItemState state;
+
+    static bool WriteRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *writed);
+    static bool ReadRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *readed);
 
     friend Network;
 

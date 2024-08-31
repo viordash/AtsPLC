@@ -11,11 +11,9 @@ typedef uint8_t (*f_GetValue)(void);
 
 class InputElement {
   protected:
+    MapIO io_adr;
     f_GetValue GetValue;
 
   public:
-
     explicit InputElement(const MapIO io_adr);
-    virtual ~InputElement();
-
 };

@@ -9,8 +9,7 @@
 
 static const char *TAG_InputNC = "InputNC";
 
-InputNC::InputNC(const MapIO io_adr)
-    : CommonInput(io_adr) {
+InputNC::InputNC(const MapIO io_adr) : CommonInput(io_adr) {
 }
 
 InputNC::~InputNC() {
@@ -45,15 +44,27 @@ const Bitmap *InputNC::GetCurrentBitmap() {
     }
 }
 
-
 size_t InputNC::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
+    TvElement tvElement;
+    tvElement.type = et_InputNC;
+
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!WriteRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
+        return 0;
+    }
 
     return writed;
 }
 
 size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
+
+    if (!ReadRecord((uint8_t *)&io_adr, sizeof(io_adr), buffer, buffer_size, &readed)) {
+        return 0;
+    }
 
     return readed;
 }
