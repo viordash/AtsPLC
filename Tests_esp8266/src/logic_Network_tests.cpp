@@ -8,13 +8,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/LogicProgram.h"
+#include "main/LogicProgram/Network.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
-TEST_GROUP(LogicIncomeRailTestsGroup){ //
-                                       TEST_SETUP(){ mock().disable();
+TEST_GROUP(LogicNetworkTestsGroup){ //
+                                    TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
 }
 
@@ -33,10 +33,10 @@ namespace {
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
-    class TestableIncomeRail : public IncomeRail {
+    class TestableNetwork : public Network {
       public:
-        TestableIncomeRail(uint8_t network_number, LogicItemState state)
-            : IncomeRail(network_number, state) {
+        TestableNetwork(uint8_t network_number, LogicItemState state)
+            : Network(network_number, state) {
         }
     };
 
@@ -71,8 +71,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -98,8 +97,7 @@ namespace {
             return true;
         }
 
-        bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -121,8 +119,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -144,8 +141,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool
-        Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             (void)start_point;
@@ -154,8 +150,8 @@ namespace {
     };
 } // namespace
 
-TEST(LogicIncomeRailTestsGroup, append_elements) {
-    TestableIncomeRail testable(0, LogicItemState::lisActive);
+TEST(LogicNetworkTestsGroup, append_elements) {
+    TestableNetwork testable(0, LogicItemState::lisActive);
 
     testable.Append(new TestableCommonInput(MapIO::DI));
     testable.Append(new TestableCommonComparator(5, MapIO::AI));
@@ -165,8 +161,8 @@ TEST(LogicIncomeRailTestsGroup, append_elements) {
     CHECK_EQUAL(4, testable.size());
 }
 
-TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    TestableIncomeRail testable(0, LogicItemState::lisActive);
+TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
+    TestableNetwork testable(0, LogicItemState::lisActive);
 
     testable.Append(new TestableCommonInput(MapIO::DI));
     testable.Append(new TestableCommonComparator(5, MapIO::AI));
@@ -181,9 +177,9 @@ TEST(LogicIncomeRailTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->DoAction_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
+TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
 
-    TestableIncomeRail testable(0, LogicItemState::lisActive);
+    TestableNetwork testable(0, LogicItemState::lisActive);
 
     testable.Append(new TestableCommonInput(MapIO::DI));
     testable.Append(new TestableCommonComparator(5, MapIO::AI));
@@ -203,35 +199,9 @@ TEST(LogicIncomeRailTestsGroup, DoAction_return_changes_from_any_handler_in_chai
     CHECK_TRUE(res);
 }
 
-TEST(LogicIncomeRailTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
+TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
 
-    TestableIncomeRail testable(0, LogicItemState::lisActive);
-
-    testable.Append(new TestableCommonInput(MapIO::DI));
-    testable.Append(new TestableCommonComparator(5, MapIO::AI));
-    testable.Append(new TestableCommonTimer());
-    testable.Append(new TestableCommonOutput(MapIO::O1));
-
-    CHECK_TRUE(testable.Render(frame_buffer));
-
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-
-    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->Render_called);
-    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->Render_called);
-    CHECK_TRUE(static_cast<TestableCommonTimer *>(testable[2])->Render_called);
-    CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
-}
-
-TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
-
-    TestableIncomeRail testable(0, LogicItemState::lisPassive);
+    TestableNetwork testable(0, LogicItemState::lisActive);
 
     testable.Append(new TestableCommonInput(MapIO::DI));
     testable.Append(new TestableCommonComparator(5, MapIO::AI));
@@ -255,9 +225,35 @@ TEST(LogicIncomeRailTestsGroup, Render_when_passive__also_render_all_elements_in
     CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
 }
 
-TEST(LogicIncomeRailTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
+TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
 
-    TestableIncomeRail testable(0, LogicItemState::lisActive);
+    TestableNetwork testable(0, LogicItemState::lisPassive);
+
+    testable.Append(new TestableCommonInput(MapIO::DI));
+    testable.Append(new TestableCommonComparator(5, MapIO::AI));
+    testable.Append(new TestableCommonTimer());
+    testable.Append(new TestableCommonOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+
+    CHECK_TRUE(static_cast<TestableCommonInput *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonComparator *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonTimer *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableCommonOutput *>(testable[3])->Render_called);
+}
+
+TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
+
+    TestableNetwork testable(0, LogicItemState::lisActive);
 
     testable.Append(new TestableCommonInput(MapIO::DI));
     testable.Append(new TestableCommonComparator(5, MapIO::AI));

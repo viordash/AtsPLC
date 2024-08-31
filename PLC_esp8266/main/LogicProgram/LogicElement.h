@@ -7,13 +7,13 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class IncomeRail;
+class Network;
 
 class LogicElement {
   protected:
     LogicItemState state;
 
-    friend IncomeRail;
+    friend Network;
 
   public:
     static const uint8_t MinValue = 0;

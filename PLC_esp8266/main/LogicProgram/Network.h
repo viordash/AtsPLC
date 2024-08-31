@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <vector>
 
-class IncomeRail : public LogicElement, public std::vector<LogicElement *> {
+class Network : public LogicElement, public std::vector<LogicElement *> {
   private:
     uint8_t network_number;
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
@@ -13,8 +13,8 @@ class IncomeRail : public LogicElement, public std::vector<LogicElement *> {
     Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;
 
   public:
-    explicit IncomeRail(uint8_t network_number, LogicItemState state);
-    virtual ~IncomeRail();
+    explicit Network(uint8_t network_number, LogicItemState state);
+    virtual ~Network();
 
     bool DoAction();
     bool Render(uint8_t *fb);

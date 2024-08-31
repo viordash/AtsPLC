@@ -1,4 +1,4 @@
-#include "LogicProgram/Inputs/IncomeRail.h"
+#include "LogicProgram/Network.h"
 #include "Display/display.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -6,28 +6,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_IncomeRail = "IncomeRail";
+static const char *TAG_Network = "Network";
 
-IncomeRail::IncomeRail(uint8_t network_number, LogicItemState state) : LogicElement() {
+Network::Network(uint8_t network_number, LogicItemState state) : LogicElement() {
     this->network_number = network_number;
     this->state = state;
 }
 
-IncomeRail::~IncomeRail() {
+Network::~Network() {
     while (!empty()) {
         auto it = begin();
         auto element = *it;
         erase(it);
-        ESP_LOGD(TAG_IncomeRail, "delete elem: %p", element);
+        ESP_LOGD(TAG_Network, "delete elem: %p", element);
         delete element;
     }
 }
 
-bool IncomeRail::DoAction() {
+bool Network::DoAction() {
     return DoAction(false, state);
 }
 
-bool IncomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool Network::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = false;
 
     for (auto it = begin(); it != end(); ++it) {
@@ -39,14 +39,14 @@ bool IncomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state
     return any_changes;
 }
 
-bool IncomeRail::Render(uint8_t *fb) {
+bool Network::Render(uint8_t *fb) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };
     return Render(fb, state, &start_point);
 }
 
-bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+bool Network::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     switch (prev_elem_state) {
         case LogicItemState::lisActive:
@@ -72,7 +72,7 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     return res;
 }
 
-void IncomeRail::Append(LogicElement *element) {
-    ESP_LOGI(TAG_IncomeRail, "append elem: %p", element);
+void Network::Append(LogicElement *element) {
+    ESP_LOGI(TAG_Network, "append elem: %p", element);
     push_back(element);
 }
