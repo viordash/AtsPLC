@@ -19,7 +19,6 @@ class MapIOIndicator {
     explicit MapIOIndicator(const char *name, uint8_t progress, uint8_t separator_width);
     virtual ~MapIOIndicator();
 
-    bool Render(uint8_t *fb, const Point &start_point);
-    static uint8_t GetWidth();
+    bool Render(uint8_t *fb, Point *start_point);
     static uint8_t GetHeight();
 };

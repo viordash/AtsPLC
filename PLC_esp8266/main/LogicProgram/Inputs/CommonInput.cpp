@@ -12,19 +12,19 @@ CommonInput::CommonInput(const MapIO io_adr)
 CommonInput::~CommonInput() {
 }
 
-bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
+bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
     if (prev_elem_state == LogicItemState::lisActive) {
         res = draw_active_network(fb,
-                                  start_point.x,
-                                  start_point.y,
+                                  start_point->x,
+                                  start_point->y,
                                   LabeledLogicItem::width + LeftPadding);
     } else {
         res = draw_passive_network(fb,
-                                   start_point.x,
-                                   start_point.y,
+                                   start_point->x,
+                                   start_point->y,
                                    LabeledLogicItem::width + LeftPadding,
                                    false);
     }
@@ -32,29 +32,20 @@ bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, const Poin
         return res;
     }
 
-    uint8_t x_pos = start_point.x + LeftPadding;
-    res = draw_text_f6X12(fb, x_pos, start_point.y - LabeledLogicItem::height, label);
+    start_point->x += LeftPadding;
+    res = draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
     if (!res) {
         return res;
     }
 
-    x_pos += LabeledLogicItem::width;
-    draw_bitmap(fb, x_pos, start_point.y - (bitmap->size.height / 2) + 1, bitmap);
+    start_point->x += LabeledLogicItem::width;
+    draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
-    x_pos += bitmap->size.width;
+    start_point->x += bitmap->size.width;
     if (state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, x_pos, start_point.y, RightPadding);
+        res = draw_active_network(fb, start_point->x, start_point->y, RightPadding);
     } else {
-        res = draw_passive_network(fb, x_pos, start_point.y, RightPadding, true);
+        res = draw_passive_network(fb, start_point->x, start_point->y, RightPadding, true);
     }
     return res;
-}
-
-Point CommonInput::OutcomingPoint() {
-    // auto bitmap = GetCurrentBitmap();
-    // uint8_t x_pos = LeftPadding + incoming_point.x + LabeledLogicItem::width + bitmap->size.width
-    //               + RightPadding;
-    // uint8_t y_pos = incoming_point.y;
-    // return { x_pos, y_pos };
-    return { 0, 0 };
 }

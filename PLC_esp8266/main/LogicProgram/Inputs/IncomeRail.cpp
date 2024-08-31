@@ -23,13 +23,6 @@ IncomeRail::~IncomeRail() {
     }
 }
 
-Point IncomeRail::OutcomingPoint() {
-    // uint8_t x_pos = INCOME_RAIL_WIDTH;
-    // uint8_t y_pos = incoming_point.y + INCOME_RAIL_OUTCOME_TOP;
-    // return { x_pos, y_pos };
-    return { 0, 0 };
-}
-
 bool IncomeRail::DoAction() {
     return DoAction(false, state);
 }
@@ -47,10 +40,13 @@ bool IncomeRail::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state
 }
 
 bool IncomeRail::Render(uint8_t *fb) {
-    return Render(fb, state, { 0, 0 });
+    Point start_point = { 0,
+                          (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
+                                    + INCOME_RAIL_OUTCOME_TOP) };
+    return Render(fb, state, &start_point);
 }
 
-bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
+bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     switch (prev_elem_state) {
         case LogicItemState::lisActive:
@@ -61,7 +57,7 @@ bool IncomeRail::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point
             res = draw_passive_income_rail(fb, network_number);
             break;
     }
-
+    start_point->x += INCOME_RAIL_WIDTH;
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
         res = element->Render(fb, prev_elem_state, start_point);

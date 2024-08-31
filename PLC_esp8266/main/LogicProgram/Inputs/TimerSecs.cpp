@@ -47,15 +47,15 @@ bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
+bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res;
     res = CommonTimer::Render(fb, state, start_point);
 
-    uint8_t x_pos = start_point.x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
+    uint8_t x_pos = start_point->x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
     uint8_t percent = GetProgress(prev_elem_state);
     res &= draw_vert_progress_bar(fb,
                                   x_pos,
-                                  start_point.y - (VERT_PROGRESS_BAR_HEIGHT + 1),
+                                  start_point->y - (VERT_PROGRESS_BAR_HEIGHT + 1),
                                   percent);
 
     ESP_LOGD(TAG_TimerSecs,

@@ -37,7 +37,7 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
 
 bool CommonComparator::Render(uint8_t *fb,
                               LogicItemState prev_elem_state,
-                              const Point &start_point) {
+                              Point *start_point) {
     (void)prev_elem_state;
     bool res;
     res = CommonInput::Render(fb, state, start_point);
@@ -45,16 +45,16 @@ bool CommonComparator::Render(uint8_t *fb,
     if (!res) {
         return res;
     }
-    uint8_t x_pos = start_point.x + LeftPadding + LabeledLogicItem::width + 2;
+    uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
     switch (str_size) {
         case 1:
-            res = draw_text_f5X7(fb, x_pos + 3, start_point.y + 2, str_reference);
+            res = draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
             break;
         case 2:
-            res = draw_text_f5X7(fb, x_pos + 0, start_point.y + 2, str_reference);
+            res = draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
             break;
         default:
-            res = draw_text_f4X7(fb, x_pos, start_point.y + 3, str_reference);
+            res = draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
             break;
     }
     return res;

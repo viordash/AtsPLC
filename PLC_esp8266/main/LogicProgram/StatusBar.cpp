@@ -22,50 +22,43 @@ bool StatusBar::Render(uint8_t *fb) {
     MapIOIndicator indicator_AI(MapIONames[MapIO::AI],
                                 Controller::GetAIRelativeValue(),
                                 separator_width);
-    res &= indicator_AI.Render(fb, point);
+    res &= indicator_AI.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_DI(MapIONames[MapIO::DI],
                                 Controller::GetDIRelativeValue(),
                                 separator_width);
-    res &= indicator_DI.Render(fb, point);
+    res &= indicator_DI.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_O1(MapIONames[MapIO::O1],
                                 Controller::GetO1RelativeValue(),
                                 separator_width);
-    res &= indicator_O1.Render(fb, point);
+    res &= indicator_O1.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_O2(MapIONames[MapIO::O2],
                                 Controller::GetO2RelativeValue(),
                                 separator_width);
-    res &= indicator_O2.Render(fb, point);
+    res &= indicator_O2.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V1(MapIONames[MapIO::V1],
                                 Controller::GetV1RelativeValue(),
                                 separator_width);
-    res &= indicator_V1.Render(fb, point);
+    res &= indicator_V1.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V2(MapIONames[MapIO::V2],
                                 Controller::GetV2RelativeValue(),
                                 separator_width);
-    res &= indicator_V2.Render(fb, point);
+    res &= indicator_V2.Render(fb, &point);
 
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V3(MapIONames[MapIO::V3],
                                 Controller::GetV3RelativeValue(),
                                 separator_width);
-    res &= indicator_V3.Render(fb, point);
+    res &= indicator_V3.Render(fb, &point);
 
     separator_width = 0;
-    point.x += MapIOIndicator::GetWidth() + separator_width;
     MapIOIndicator indicator_V4(MapIONames[MapIO::V4],
                                 Controller::GetV4RelativeValue(),
                                 separator_width);
-    res &= indicator_V4.Render(fb, point);
+    res &= indicator_V4.Render(fb, &point);
 
     res &= draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH);
     return res;

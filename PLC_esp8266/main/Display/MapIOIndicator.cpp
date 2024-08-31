@@ -16,19 +16,20 @@ MapIOIndicator::MapIOIndicator(const char *name, uint8_t progress, uint8_t separ
 MapIOIndicator::~MapIOIndicator() {
 }
 
-bool MapIOIndicator::Render(uint8_t *fb, const Point &start_point) {
+bool MapIOIndicator::Render(uint8_t *fb, Point *start_point) {
     bool res;
-    res = draw_horz_progress_bar(fb, start_point.x + margin, start_point.y, progress);
+
+    start_point->x += margin;
+
+    res = draw_horz_progress_bar(fb, start_point->x, start_point->y, progress);
 
     res &= draw_text_f5X7(fb,
-                          start_point.x + margin,
-                          start_point.y + margin + HORZ_PROGRESS_BAR_HEIGHT,
+                          start_point->x + margin,
+                          start_point->y + margin + HORZ_PROGRESS_BAR_HEIGHT,
                           name);
+                
+    start_point->x += (text_width * name_size) + margin + margin + separator_width;          
     return res;
-}
-
-uint8_t MapIOIndicator::GetWidth() {
-    return margin + (text_width * name_size) + margin + margin;
 }
 
 uint8_t MapIOIndicator::GetHeight() {

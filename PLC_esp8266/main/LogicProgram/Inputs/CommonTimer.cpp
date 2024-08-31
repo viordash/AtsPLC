@@ -61,59 +61,52 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return any_changes;
 }
 
-bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, const Point &start_point) {
+bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res &= draw_active_network(fb, start_point.x, start_point.y, LeftPadding);
+        res &= draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
     } else {
-        res &= draw_passive_network(fb, start_point.x, start_point.y, LeftPadding, false);
+        res &= draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
     }
 
-    uint8_t x_pos = start_point.x + LeftPadding;
+    start_point->x += LeftPadding;
 
-    draw_bitmap(fb, x_pos, start_point.y - (bitmap->size.height / 2) + 1, bitmap);
+    draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
     switch (str_size) {
         case 1:
-            res &= draw_text_f5X7(fb, x_pos + 10, start_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
             break;
         case 2:
-            res &= draw_text_f5X7(fb, x_pos + 6, start_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
             break;
         case 3:
-            res &= draw_text_f5X7(fb, x_pos + 3, start_point.y + 2, str_time);
+            res &= draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
             break;
         case 4:
-            res &= draw_text_f4X7(fb, x_pos + 4, start_point.y + 3, str_time);
+            res &= draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
             break;
         default:
-            res &= draw_text_f4X7(fb, x_pos + 2, start_point.y + 3, str_time);
+            res &= draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
             break;
     }
 
-    x_pos += bitmap->size.width;
+    start_point->x += bitmap->size.width;
     if (state == LogicItemState::lisActive) {
-        res &= draw_active_network(fb, x_pos, start_point.y, RightPadding);
+        res &= draw_active_network(fb, start_point->x, start_point->y, RightPadding);
     } else {
-        res &= draw_passive_network(fb, x_pos, start_point.y, RightPadding, true);
+        res &= draw_passive_network(fb, start_point->x, start_point->y, RightPadding, true);
     }
 
     ESP_LOGD(TAG_CommonTimer,
              "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
              str_time,
              str_size,
-             start_point.x,
-             start_point.y,
+             start_point->x,
+             start_point->y,
              res);
+    start_point->x += RightPadding;
     return res;
-}
-
-Point CommonTimer::OutcomingPoint() {
-    // auto bitmap = GetCurrentBitmap();
-    // uint8_t x_pos = incoming_point.x + LeftPadding + bitmap->size.width + RightPadding;
-    // uint8_t y_pos = incoming_point.y;
-    // return { x_pos, y_pos };
-    return { 0, 0 };
 }
