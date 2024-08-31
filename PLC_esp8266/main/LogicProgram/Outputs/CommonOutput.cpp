@@ -19,7 +19,7 @@ bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *st
     bool res = true;
     auto bitmap = GetCurrentBitmap();
 
-    uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width + RightPadding;
+    uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width;
     uint8_t incoming_width = (OUTCOME_RAIL_LEFT - start_point->x) - total_widht;
 
     ESP_LOGD(TAG_CommonOutput,
@@ -48,17 +48,11 @@ bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *st
         return res;
     }
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb,
-                                  start_point->x,
-                                  start_point->y,
-                                  LabeledLogicItem::width + RightPadding);
+    if (state == LogicItemState::lisActive) {
+        res = draw_active_network(fb, start_point->x, start_point->y, LabeledLogicItem::width);
     } else {
-        res = draw_passive_network(fb,
-                                   start_point->x,
-                                   start_point->y,
-                                   LabeledLogicItem::width + RightPadding,
-                                   true);
+        res =
+            draw_passive_network(fb, start_point->x, start_point->y, LabeledLogicItem::width, true);
     }
     return res;
 }

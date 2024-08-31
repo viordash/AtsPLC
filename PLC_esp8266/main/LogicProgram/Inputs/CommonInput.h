@@ -12,8 +12,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t LeftPadding = 2;
-    const uint8_t RightPadding = 0;
+    const uint8_t LeftPadding = 4;
     explicit CommonInput(const MapIO io_adr);
     virtual ~CommonInput();
 

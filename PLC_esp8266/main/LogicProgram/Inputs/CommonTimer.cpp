@@ -66,9 +66,12 @@ bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     auto bitmap = GetCurrentBitmap();
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res &= draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
     } else {
-        res &= draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
+        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
+    }
+    if (!res) {
+        return res;
     }
 
     start_point->x += LeftPadding;
@@ -77,28 +80,23 @@ bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
 
     switch (str_size) {
         case 1:
-            res &= draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
+            res = draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
             break;
         case 2:
-            res &= draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
+            res = draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
             break;
         case 3:
-            res &= draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
+            res = draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
             break;
         case 4:
-            res &= draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
+            res = draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
             break;
         default:
-            res &= draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
+            res = draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
             break;
     }
 
     start_point->x += bitmap->size.width;
-    if (state == LogicItemState::lisActive) {
-        res &= draw_active_network(fb, start_point->x, start_point->y, RightPadding);
-    } else {
-        res &= draw_passive_network(fb, start_point->x, start_point->y, RightPadding, true);
-    }
 
     ESP_LOGD(TAG_CommonTimer,
              "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
@@ -107,6 +105,5 @@ bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
              start_point->x,
              start_point->y,
              res);
-    start_point->x += RightPadding;
     return res;
 }

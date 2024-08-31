@@ -18,8 +18,7 @@ class CommonTimer : public LogicElement {
 
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
-    const uint8_t LeftPadding = 4;
-    const uint8_t RightPadding = 0;
+    const uint8_t LeftPadding = 8;
 
   public:
     explicit CommonTimer();

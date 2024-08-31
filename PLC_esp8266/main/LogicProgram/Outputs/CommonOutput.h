@@ -14,7 +14,6 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t RightPadding = 0;
     CommonOutput(const MapIO io_adr);
     ~CommonOutput();
 

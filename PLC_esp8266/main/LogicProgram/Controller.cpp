@@ -44,13 +44,13 @@ void Controller::ProcessTask(void *parm) {
 
     incomeRail0.Append(new InputNO(MapIO::DI));
     incomeRail0.Append(new InputNC(MapIO::V1));
-    incomeRail0.Append(new TimerMSecs(500));
+    incomeRail0.Append(new TimerSecs(2));
     incomeRail0.Append(new SetOutput(MapIO::V1));
 
     Network incomeRail1(1, LogicItemState::lisActive);
     incomeRail1.Append(new InputNO(MapIO::DI));
     incomeRail1.Append(new InputNO(MapIO::V1));
-    incomeRail1.Append(new TimerMSecs(500));
+    incomeRail1.Append(new TimerSecs(2));
     incomeRail1.Append(new ResetOutput(MapIO::V1));
 
     bool need_render = true;

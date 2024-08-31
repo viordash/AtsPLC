@@ -42,10 +42,5 @@ bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
     start_point->x += bitmap->size.width;
-    if (state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, RightPadding);
-    } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, RightPadding, true);
-    }
     return res;
 }
