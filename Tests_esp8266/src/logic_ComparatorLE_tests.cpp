@@ -53,7 +53,7 @@ TEST(LogicComparatorLETestsGroup, Render) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(30, start_point.x);
+    CHECK_EQUAL(32, start_point.x);
 }
 
 TEST(LogicComparatorLETestsGroup, DoAction_skip_when_incoming_passive) {
