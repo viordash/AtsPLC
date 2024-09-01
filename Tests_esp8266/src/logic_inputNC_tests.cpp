@@ -87,6 +87,14 @@ TEST(LogicInputNCTestsGroup, Serialize_just_for_obtain_size) {
     CHECK_EQUAL(2, writed);
 }
 
+TEST(LogicInputNCTestsGroup, Serialize_to_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    TestableInputNC testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, writed);
+}
+
 TEST(LogicInputNCTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_InputNC;
@@ -98,4 +106,25 @@ TEST(LogicInputNCTestsGroup, Deserialize) {
     CHECK_EQUAL(2, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
+}
+
+TEST(LogicInputNCTestsGroup, Deserialize_with_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNC;
+
+    TestableInputNC testable(MapIO::V2);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicInputNCTestsGroup, Deserialize_when_wrong_element_type_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_Undef;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    
+    TestableInputNC testable(MapIO::V2);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
 }
