@@ -59,8 +59,13 @@ size_t InputNC::Serialize(uint8_t *buffer, size_t buffer_size) {
 
 size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-    if (!ReadRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &readed)) {
+    MapIO _io_adr;
+    if (!ReadRecord(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
         return 0;
     }
+    if (!ValidateMapIO(_io_adr)) {
+        return 0;
+    }
+    io_adr = _io_adr;
     return readed;
 }

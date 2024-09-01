@@ -140,3 +140,22 @@ TEST(LogicInputNOTestsGroup, Deserialize_with_small_buffer_return_zero) {
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
 }
+
+TEST(LogicInputNOTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
+
+    TestableInputNO testable(MapIO::V1);
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::V4 + 1);
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(1, readed);
+}
