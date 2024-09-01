@@ -107,3 +107,57 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }
+
+TEST(LogicTimerSecsTestsGroup, Serialize) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[256] = {};
+    TestableTimerSecs testable(12345);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(9, writed);
+
+    CHECK_EQUAL(TvElementType::et_TimerSecs, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(12345000000, *((uint64_t *)&buffer[1]));
+}
+
+TEST(LogicTimerSecsTestsGroup, Serialize_just_for_obtain_size) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    TestableTimerSecs testable(12345);
+
+    size_t writed = testable.Serialize(NULL, SIZE_MAX);
+    CHECK_EQUAL(9, writed);
+}
+
+TEST(LogicTimerSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[1] = {};
+    TestableTimerSecs testable(12345);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, writed);
+}
+
+TEST(LogicTimerSecsTestsGroup, Deserialize) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
+    *((uint64_t *)&buffer[1]) = 123456789;
+
+    TestableTimerSecs testable(0);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(8, readed);
+
+    CHECK_EQUAL(123456789, testable.PublicMorozov_GetDelayTimeUs());
+}
+
+TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[0] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
+
+    TestableTimerSecs testable(0);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
+}

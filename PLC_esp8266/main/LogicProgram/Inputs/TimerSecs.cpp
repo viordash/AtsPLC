@@ -89,12 +89,22 @@ bool TimerSecs::ProgressHasChanges(LogicItemState prev_elem_state) {
 
 size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
+    TvElement tvElement;
+    tvElement.type = et_TimerSecs;
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!WriteRecord(&delay_time_us, sizeof(delay_time_us), buffer, buffer_size, &writed)) {
+        return 0;
+    }
 
     return writed;
 }
 
 size_t TimerSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-
+    if (!ReadRecord(&delay_time_us, sizeof(delay_time_us), buffer, buffer_size, &readed)) {
+        return 0;
+    }
     return readed;
 }
