@@ -11,13 +11,12 @@
 
 static const char *TAG_TimerMSecs = "TimerMSecs";
 
-TimerMSecs::TimerMSecs(uint32_t delay_time_ms)
-    : CommonTimer() {
-    if (delay_time_ms < 1) {
-        delay_time_ms = 1;
+TimerMSecs::TimerMSecs(uint32_t delay_time_ms) : CommonTimer() {
+    if (delay_time_ms < TimerMSecs::min_delay_time_ms) {
+        delay_time_ms = TimerMSecs::min_delay_time_ms;
     }
-    if (delay_time_ms > 99999) {
-        delay_time_ms = 99999;
+    if (delay_time_ms > TimerMSecs::max_delay_time_ms) {
+        delay_time_ms = TimerMSecs::max_delay_time_ms;
     }
     this->delay_time_us = delay_time_ms * 1000LL;
     str_size = sprintf(this->str_time, "%u", delay_time_ms);
@@ -40,12 +39,29 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
 
 size_t TimerMSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
-
+    TvElement tvElement;
+    tvElement.type = et_TimerMSecs;
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!WriteRecord(&delay_time_us, sizeof(delay_time_us), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
 size_t TimerMSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-
+    uint64_t _delay_time_us;
+    if (!ReadRecord(&_delay_time_us, sizeof(_delay_time_us), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (_delay_time_us < TimerMSecs::min_delay_time_ms * 1000000LL) {
+        return 0;
+    }
+    if (_delay_time_us > TimerMSecs::max_delay_time_ms * 1000000LL) {
+        return 0;
+    }
+    delay_time_us = _delay_time_us;
     return readed;
 }
