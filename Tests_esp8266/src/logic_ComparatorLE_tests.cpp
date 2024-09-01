@@ -35,6 +35,9 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        TvElementType PublicMorozov_GetElementType() {
+            return GetElementType();
+        }
     };
 } // namespace
 
@@ -98,4 +101,31 @@ TEST(LogicComparatorLETestsGroup, DoAction_change_state_to_passive) {
     adc = 51 / 0.1;
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+}
+
+TEST(LogicComparatorLETestsGroup, GetElementType_returns_et_ComparatorLE) {
+    TestableComparatorLE testable(0, MapIO::AI);
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.PublicMorozov_GetElementType());
+}
+
+TEST(LogicComparatorLETestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableComparatorLE testable(42, MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(3, writed);
+
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, *((TvElementType *)&buffer[0]));
+}
+
+TEST(LogicComparatorLETestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_ComparatorLE;
+    *((uint8_t *)&buffer[1]) = 42;
+    *((MapIO *)&buffer[2]) = MapIO::V3;
+
+    TestableComparatorLE testable(19, MapIO::DI);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(2, readed);
 }

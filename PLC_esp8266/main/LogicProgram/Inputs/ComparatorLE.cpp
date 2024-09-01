@@ -28,14 +28,6 @@ bool ComparatorLE::CompareFunction() {
     return GetValue() <= ref_percent04;
 }
 
-size_t ComparatorLE::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = 0;
-
-    return writed;
-}
-
-size_t ComparatorLE::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = 0;
-
-    return readed;
+TvElementType ComparatorLE::GetElementType() {
+    return TvElementType::et_ComparatorLE;
 }

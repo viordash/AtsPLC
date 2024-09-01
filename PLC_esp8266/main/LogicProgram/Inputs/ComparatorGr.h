@@ -12,10 +12,10 @@ class ComparatorGr : public CommonComparator {
     const Bitmap *GetCurrentBitmap() override final;
     bool CompareFunction() override final;
 
+  protected:
+    TvElementType GetElementType() override final;
+
   public:
     ComparatorGr(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorGr();
-
-    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
-    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 };
