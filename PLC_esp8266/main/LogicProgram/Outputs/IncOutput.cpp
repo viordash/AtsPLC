@@ -9,8 +9,7 @@
 
 static const char *TAG_IncOutput = "IncOutput";
 
-IncOutput::IncOutput(const MapIO io_adr)
-    : CommonOutput(io_adr) {
+IncOutput::IncOutput(const MapIO io_adr) : CommonOutput(io_adr) {
 }
 
 IncOutput::~IncOutput() {
@@ -52,15 +51,6 @@ const Bitmap *IncOutput::GetCurrentBitmap() {
     }
 }
 
-
-size_t IncOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = 0;
-
-    return writed;
-}
-
-size_t IncOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = 0;
-
-    return readed;
+TvElementType IncOutput::GetElementType() {
+    return TvElementType::et_IncOutput;
 }

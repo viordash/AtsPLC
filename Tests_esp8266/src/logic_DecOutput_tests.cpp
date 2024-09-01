@@ -27,6 +27,9 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        TvElementType PublicMorozov_GetElementType() {
+            return GetElementType();
+        }
     };
 } // namespace
 
@@ -62,4 +65,30 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(42, Controller::GetV1RelativeValue());
+}
+
+
+TEST(LogicDecOutputTestsGroup, GetElementType_returns_et_DecOutput) {
+    TestableDecOutput testable(MapIO::O1);
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable.PublicMorozov_GetElementType());
+}
+
+TEST(LogicDecOutputTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableDecOutput testable(MapIO::O1);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(1, writed);
+
+    CHECK_EQUAL(TvElementType::et_DecOutput, *((TvElementType *)&buffer[0]));
+}
+
+TEST(LogicDecOutputTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DecOutput;
+
+    TestableDecOutput testable(MapIO::O1);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
 }

@@ -56,3 +56,21 @@ bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *st
     }
     return res;
 }
+
+size_t CommonOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
+    size_t writed = 0;
+    TvElement tvElement;
+    tvElement.type = GetElementType();
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    return writed;
+}
+
+size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
+    (void)buffer;
+    (void)buffer_size;
+    size_t readed = 0;
+
+    return readed;
+}

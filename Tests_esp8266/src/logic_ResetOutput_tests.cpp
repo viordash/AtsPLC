@@ -20,19 +20,21 @@ TEST_GROUP(LogicResetOutputTestsGroup){ //
 namespace {
     class TestableResetOutput : public ResetOutput {
       public:
-        TestableResetOutput(const MapIO io_adr)
-            : ResetOutput(io_adr) {
+        TestableResetOutput(const MapIO io_adr) : ResetOutput(io_adr) {
         }
         virtual ~TestableResetOutput() {
         }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        TvElementType PublicMorozov_GetElementType() {
+            return GetElementType();
+        }
     };
 } // namespace
 
 TEST(LogicResetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    
+
     TestableResetOutput testable(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -40,7 +42,7 @@ TEST(LogicResetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_does_nothing) {
-    
+
     TestableResetOutput testable(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MaxValue);
@@ -63,4 +65,29 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
+}
+
+TEST(LogicResetOutputTestsGroup, GetElementType_returns_et_ResetOutput) {
+    TestableResetOutput testable(MapIO::O1);
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable.PublicMorozov_GetElementType());
+}
+
+TEST(LogicResetOutputTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableResetOutput testable(MapIO::O1);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(1, writed);
+
+    CHECK_EQUAL(TvElementType::et_ResetOutput, *((TvElementType *)&buffer[0]));
+}
+
+TEST(LogicResetOutputTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_ResetOutput;
+
+    TestableResetOutput testable(MapIO::O1);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
 }

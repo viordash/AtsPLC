@@ -172,16 +172,8 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
-
-        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
-            (void)buffer;
-            (void)buffer_size;
-            return 0;
-        }
-        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
-            (void)buffer;
-            (void)buffer_size;
-            return 0;
+        TvElementType GetElementType() override final {
+            return TvElementType::et_DirectOutput;
         }
     };
 } // namespace

@@ -46,15 +46,6 @@ const Bitmap *DirectOutput::GetCurrentBitmap() {
     }
 }
 
-
-size_t DirectOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = 0;
-
-    return writed;
-}
-
-size_t DirectOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = 0;
-
-    return readed;
+TvElementType DirectOutput::GetElementType() {
+    return TvElementType::et_DirectOutput;
 }

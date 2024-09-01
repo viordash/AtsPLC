@@ -47,14 +47,6 @@ const Bitmap *SetOutput::GetCurrentBitmap() {
     }
 }
 
-size_t SetOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = 0;
-
-    return writed;
-}
-
-size_t SetOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = 0;
-
-    return readed;
+TvElementType SetOutput::GetElementType() {
+    return TvElementType::et_SetOutput;
 }
