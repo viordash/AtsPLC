@@ -40,14 +40,18 @@ void Controller::ProcessTask(void *parm) {
     ESP_LOGI(TAG_Controller, "start ++++++");
     StatusBar statusBar(0);
 
-    Network incomeRail0(0, LogicItemState::lisActive);
+    Network incomeRail0;
+    incomeRail0.ChangeState(LogicItemState::lisActive);
+    incomeRail0.SetNumber(0);
 
     incomeRail0.Append(new InputNO(MapIO::DI));
     incomeRail0.Append(new InputNC(MapIO::V1));
     incomeRail0.Append(new TimerSecs(2));
     incomeRail0.Append(new SetOutput(MapIO::V1));
 
-    Network incomeRail1(1, LogicItemState::lisActive);
+    Network incomeRail1;
+    incomeRail1.ChangeState(LogicItemState::lisActive);
+    incomeRail1.SetNumber(0);
     incomeRail1.Append(new InputNO(MapIO::DI));
     incomeRail1.Append(new InputNO(MapIO::V1));
     incomeRail1.Append(new TimerSecs(2));

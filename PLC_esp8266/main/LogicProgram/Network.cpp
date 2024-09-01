@@ -8,8 +8,8 @@
 
 static const char *TAG_Network = "Network";
 
-Network::Network(uint8_t network_number, LogicItemState state) : LogicElement() {
-    this->network_number = network_number;
+Network::Network() : LogicElement() {
+    this->network_number = 0;
     this->state = state;
 }
 
@@ -21,6 +21,14 @@ Network::~Network() {
         ESP_LOGD(TAG_Network, "delete elem: %p", element);
         delete element;
     }
+}
+
+void Network::SetNumber(uint8_t network_number) {
+    this->network_number = network_number;
+}
+
+void Network::ChangeState(LogicItemState state) {
+    this->state = state;
 }
 
 bool Network::DoAction() {
