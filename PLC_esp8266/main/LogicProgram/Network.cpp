@@ -79,10 +79,41 @@ void Network::Append(LogicElement *element) {
 
 size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
+    TvElement tvElement;
+    tvElement.type = et_Network;
+
+    uint16_t elements_count = size();
+    if (elements_count < Network::MinElementsCount) {
+        return 0;
+    }
+    if (elements_count > Network::MaxElementsCount) {
+        return 0;
+    }
+
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+
+    if (!WriteRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &writed)) {
+        return 0;
+    }
 
     for (auto it = begin(); it != end(); ++it) {
         auto *element = *it;
-        writed += element->Serialize(buffer, buffer_size - writed);
+        uint8_t *p;
+        bool just_obtain_size = buffer == NULL;
+        if (!just_obtain_size) {
+            p = &buffer[writed];
+        } else {
+            p = NULL;
+        }
+
+        size_t element_writed = element->Serialize(p, buffer_size - writed);
+        bool element_serialize_error = element_writed == 0;
+        if (element_serialize_error) {
+            return 0;
+        }
+        writed += element_writed;
     }
 
     return writed;
@@ -91,10 +122,22 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
 size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
-    for (auto it = begin(); it != end(); ++it) {
-        auto *element = *it;
-        readed += element->Deserialize(buffer, buffer_size - readed);
+    uint16_t elements_count;
+    if (!ReadRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &readed)) {
+        return 0;
     }
+    if (elements_count < Network::MinElementsCount) {
+        return 0;
+    }
+    if (elements_count > Network::MaxElementsCount) {
+        return 0;
+    }
+    reserve(elements_count);
+
+    // for (auto it = begin(); it != end(); ++it) {
+    //     auto *element = *it;
+    //     readed += element->Deserialize(buffer, buffer_size - readed);
+    // }
 
     return readed;
 }

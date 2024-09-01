@@ -12,6 +12,8 @@ class Network : public LogicElement, public std::vector<LogicElement *> {
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;
 
   public:
+    const static size_t MinElementsCount = 2;
+    const static size_t MaxElementsCount = 5;
     explicit Network(uint8_t network_number, LogicItemState state);
     virtual ~Network();
 
