@@ -67,7 +67,6 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
     CHECK_EQUAL(42, Controller::GetV1RelativeValue());
 }
 
-
 TEST(LogicDecOutputTestsGroup, GetElementType_returns_et_DecOutput) {
     TestableDecOutput testable(MapIO::O1);
     CHECK_EQUAL(TvElementType::et_DecOutput, testable.PublicMorozov_GetElementType());
@@ -78,9 +77,10 @@ TEST(LogicDecOutputTestsGroup, Serialize) {
     TestableDecOutput testable(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(1, writed);
+    CHECK_EQUAL(2, writed);
 
     CHECK_EQUAL(TvElementType::et_DecOutput, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[1]));
 }
 
 TEST(LogicDecOutputTestsGroup, Deserialize) {
@@ -90,5 +90,5 @@ TEST(LogicDecOutputTestsGroup, Deserialize) {
     TestableDecOutput testable(MapIO::O1);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
+    CHECK_EQUAL(1, readed);
 }

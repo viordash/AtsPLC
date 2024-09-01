@@ -78,9 +78,10 @@ TEST(LogicSetOutputTestsGroup, Serialize) {
     TestableSetOutput testable(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(1, writed);
+    CHECK_EQUAL(2, writed);
 
     CHECK_EQUAL(TvElementType::et_SetOutput, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[1]));
 }
 
 TEST(LogicSetOutputTestsGroup, Deserialize) {
@@ -90,5 +91,5 @@ TEST(LogicSetOutputTestsGroup, Deserialize) {
     TestableSetOutput testable(MapIO::O1);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
+    CHECK_EQUAL(1, readed);
 }
