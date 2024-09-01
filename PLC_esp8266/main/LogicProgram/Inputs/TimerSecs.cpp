@@ -12,11 +12,11 @@
 static const char *TAG_TimerSecs = "TimerSecs";
 
 TimerSecs::TimerSecs(uint32_t delay_time_s) : CommonTimer() {
-    if (delay_time_s < 1) {
-        delay_time_s = 1;
+    if (delay_time_s < TimerSecs::min_delay_time_s) {
+        delay_time_s = TimerSecs::min_delay_time_s;
     }
-    if (delay_time_s > 99999) {
-        delay_time_s = 99999;
+    if (delay_time_s > TimerSecs::max_delay_time_s) {
+        delay_time_s = TimerSecs::max_delay_time_s;
     }
     this->delay_time_us = delay_time_s * 1000000LL;
     str_size = sprintf(this->str_time, "%u", delay_time_s);
@@ -103,8 +103,17 @@ size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
 
 size_t TimerSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-    if (!ReadRecord(&delay_time_us, sizeof(delay_time_us), buffer, buffer_size, &readed)) {
+
+    uint64_t _delay_time_us;
+    if (!ReadRecord(&_delay_time_us, sizeof(_delay_time_us), buffer, buffer_size, &readed)) {
         return 0;
     }
+    if (_delay_time_us < TimerSecs::min_delay_time_s * 1000000LL) {
+        return 0;
+    }
+    if (_delay_time_us > TimerSecs::max_delay_time_s * 1000000LL) {
+        return 0;
+    }
+    delay_time_us = _delay_time_us;
     return readed;
 }

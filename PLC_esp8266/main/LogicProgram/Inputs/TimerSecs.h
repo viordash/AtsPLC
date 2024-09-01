@@ -10,6 +10,9 @@ class TimerSecs : public CommonTimer {
     const static Bitmap bitmap_passive;
     const static uint64_t force_render_period_us = 1000000;
 
+    static const uint32_t min_delay_time_s = 1;
+    static const uint32_t max_delay_time_s = 99999;
+
     uint64_t force_render_time_us;
 
     const Bitmap *GetCurrentBitmap() override final;

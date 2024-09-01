@@ -161,3 +161,27 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
 }
+
+TEST(LogicTimerSecsTestsGroup, Deserialize_with_less_value_return_zero) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
+    *((uint64_t *)&buffer[1]) = 0;
+
+    TestableTimerSecs testable(0);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicTimerSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
+    *((uint64_t *)&buffer[1]) = 99999 * 1000000LL + 1;
+
+    TestableTimerSecs testable(0);
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+}
