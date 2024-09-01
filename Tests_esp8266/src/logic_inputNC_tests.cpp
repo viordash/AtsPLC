@@ -35,6 +35,9 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        MapIO PublicMorozov_Get_io_adr() {
+            return io_adr;
+        }
     };
 } // namespace
 
@@ -82,4 +85,17 @@ TEST(LogicInputNCTestsGroup, Serialize_just_for_obtain_size) {
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(2, writed);
+}
+
+TEST(LogicInputNCTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNC;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+
+    TestableInputNC testable(MapIO::DI);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, readed);
+
+    CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
 }

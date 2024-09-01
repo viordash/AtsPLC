@@ -61,8 +61,16 @@ size_t InputNC::Serialize(uint8_t *buffer, size_t buffer_size) {
 
 size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
+    TvElement tvElement;
 
-    if (!ReadRecord((uint8_t *)&io_adr, sizeof(io_adr), buffer, buffer_size, &readed)) {
+    if (!ReadRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (tvElement.type != et_InputNC) {
+        return 0;
+    }
+
+    if (!ReadRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &readed)) {
         return 0;
     }
 
