@@ -94,6 +94,10 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
+    if (!WriteRecord(&state, sizeof(state), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+
     if (!WriteRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &writed)) {
         return 0;
     }
@@ -122,6 +126,14 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
 size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
+    LogicItemState _state;
+    if (!ReadRecord(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateLogicItemState(_state)) {
+        return 0;
+    }
+
     uint16_t elements_count;
     if (!ReadRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &readed)) {
         return 0;
@@ -132,6 +144,8 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (elements_count > Network::MaxElementsCount) {
         return 0;
     }
+
+    state = _state;
     reserve(elements_count);
 
     // for (auto it = begin(); it != end(); ++it) {
