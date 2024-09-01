@@ -62,14 +62,6 @@ size_t InputNO::Serialize(uint8_t *buffer, size_t buffer_size) {
 
 size_t InputNO::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-    TvElement tvElement;
-
-    if (!ReadRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
-        return 0;
-    }
-    if (tvElement.type != et_InputNO) {
-        return 0;
-    }
 
     if (!ReadRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &readed)) {
         return 0;
