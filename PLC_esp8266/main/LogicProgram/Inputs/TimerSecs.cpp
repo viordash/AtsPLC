@@ -97,13 +97,11 @@ size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!WriteRecord(&delay_time_us, sizeof(delay_time_us), buffer, buffer_size, &writed)) {
         return 0;
     }
-
     return writed;
 }
 
 size_t TimerSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-
     uint64_t _delay_time_us;
     if (!ReadRecord(&_delay_time_us, sizeof(_delay_time_us), buffer, buffer_size, &readed)) {
         return 0;
