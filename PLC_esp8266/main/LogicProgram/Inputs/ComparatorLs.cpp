@@ -30,12 +30,38 @@ bool ComparatorLs::CompareFunction() {
 
 size_t ComparatorLs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
-
+    TvElement tvElement;
+    tvElement.type = et_ComparatorLs;
+    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!WriteRecord(&ref_percent04, sizeof(ref_percent04), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!WriteRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
 size_t ComparatorLs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
+    uint8_t _ref_percent04;
+    if (!ReadRecord(&_ref_percent04, sizeof(_ref_percent04), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (_ref_percent04 > LogicElement::MaxValue) {
+        return 0;
+    }
 
+    MapIO _io_adr;
+    if (!ReadRecord(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateMapIO(_io_adr)) {
+        return 0;
+    }
+    ref_percent04 = _ref_percent04;
+    io_adr = _io_adr;
     return readed;
 }
