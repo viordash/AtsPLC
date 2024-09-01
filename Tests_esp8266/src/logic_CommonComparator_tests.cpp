@@ -110,6 +110,9 @@ TEST(LogicCommonComparatorTestsGroup, Serialize_just_for_obtain_size) {
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(3, writed);
+
+    writed = testable.Serialize(NULL, 0);
+    CHECK_EQUAL(3, writed);
 }
 
 TEST(LogicCommonComparatorTestsGroup, Serialize_to_small_buffer_return_zero) {

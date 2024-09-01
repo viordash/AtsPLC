@@ -17,11 +17,12 @@ bool LogicElement::WriteRecord(void *data,
                                uint8_t *buffer,
                                size_t buffer_size,
                                size_t *writed) {
-    if (buffer_size - *writed < data_size) {
-        return false;
-    }
+
     bool just_obtain_size = buffer == NULL;
     if (!just_obtain_size) {
+        if (buffer_size - *writed < data_size) {
+            return false;
+        }
         memcpy(&buffer[*writed], data, data_size);
     }
     *writed += data_size;

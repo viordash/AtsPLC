@@ -108,6 +108,9 @@ TEST(LogicInputNOTestsGroup, Serialize_just_for_obtain_size) {
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(2, writed);
+
+    writed = testable.Serialize(NULL, 0);
+    CHECK_EQUAL(2, writed);
 }
 
 TEST(LogicInputNOTestsGroup, Serialize_to_small_buffer_return_zero) {
