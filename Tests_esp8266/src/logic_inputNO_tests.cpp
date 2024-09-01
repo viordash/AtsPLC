@@ -36,6 +36,9 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        MapIO PublicMorozov_Get_io_adr() {
+            return io_adr;
+        }
     };
 } // namespace
 
@@ -87,4 +90,64 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+}
+
+TEST(LogicInputNOTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableInputNO testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, writed);
+
+    CHECK_EQUAL(TvElementType::et_InputNO, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
+}
+
+TEST(LogicInputNOTestsGroup, Serialize_just_for_obtain_size) {
+    TestableInputNO testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(NULL, SIZE_MAX);
+    CHECK_EQUAL(2, writed);
+}
+
+TEST(LogicInputNOTestsGroup, Serialize_to_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    TestableInputNO testable(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, writed);
+}
+
+TEST(LogicInputNOTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+
+    TestableInputNO testable(MapIO::DI);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, readed);
+
+    CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
+}
+
+TEST(LogicInputNOTestsGroup, Deserialize_with_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
+
+    TestableInputNO testable(MapIO::V2);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicInputNOTestsGroup, Deserialize_when_wrong_element_type_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_Undef;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+
+    TestableInputNO testable(MapIO::V2);
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
 }

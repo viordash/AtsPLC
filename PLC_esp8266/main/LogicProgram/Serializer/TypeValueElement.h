@@ -6,7 +6,7 @@
 enum TvElementType : uint8_t {
     et_Undef = 0,
     et_InputNC,
-    et_nputNO,
+    et_InputNO,
     et_TimerSecs,
     et_TimerMSecs,
     et_ComparatorEq,
