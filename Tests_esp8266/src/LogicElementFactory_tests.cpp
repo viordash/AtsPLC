@@ -17,20 +17,14 @@ TEST_GROUP(LogicElementFactoryTestsGroup){ //
 };
 
 TEST(LogicElementFactoryTestsGroup, Create_Undef_return_null) {
-    uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_Undef;
-
-    LogicElement *element = LogicElementFactory::Create(buffer, sizeof(buffer));
+    LogicElement *element = LogicElementFactory::Create(TvElementType::et_Undef);
 
     CHECK(element == NULL);
     delete element;
 }
 
 TEST(LogicElementFactoryTestsGroup, Create_Network) {
-    uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_Network;
-
-    LogicElement *element = LogicElementFactory::Create(buffer, sizeof(buffer));
+    LogicElement *element = LogicElementFactory::Create(TvElementType::et_Network);
 
     CHECK(element != NULL);
     delete element;

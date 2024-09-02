@@ -8,17 +8,12 @@
 
 static const char *TAG_LogicElementFactory = "LogicElementFactory";
 
-LogicElement *LogicElementFactory::Create(uint8_t *buffer, size_t buffer_size) {
-    ESP_LOGI(TAG_LogicElementFactory, "Create: buffer:%p, size:%zu", buffer, buffer_size);
+LogicElement *LogicElementFactory::Create(TvElementType element_type) {
+    ESP_LOGI(TAG_LogicElementFactory, "Create: element type:%u", element_type);
 
-    size_t readed = 0;
     LogicElement *element = NULL;
-    TvElement tvElement;
-    if (!LogicElement::ReadRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
-        return element;
-    }
 
-    switch (tvElement.type) {
+    switch (element_type) {
         case et_Network:
             element = new Network();
             break;
