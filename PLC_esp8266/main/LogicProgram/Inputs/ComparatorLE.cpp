@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorLE::ComparatorLE(uint8_t ref_percent04, const MapIO io_adr)
-    : CommonComparator(ref_percent04, io_adr) {
+ComparatorLE::ComparatorLE(uint8_t ref_percent04) : CommonComparator(ref_percent04) {
 }
 
 ComparatorLE::~ComparatorLE() {

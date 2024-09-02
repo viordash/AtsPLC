@@ -15,7 +15,7 @@ class SetOutput : public CommonOutput {
     TvElementType GetElementType() override final;
 
   public:
-    explicit SetOutput(const MapIO io_adr);
+    explicit SetOutput();
     ~SetOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

@@ -17,7 +17,7 @@ class CommonComparator : public CommonInput {
     virtual TvElementType GetElementType() = 0;
 
   public:
-    CommonComparator(uint8_t ref_percent04, const MapIO io_adr);
+    CommonComparator(uint8_t ref_percent04);
     ~CommonComparator();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

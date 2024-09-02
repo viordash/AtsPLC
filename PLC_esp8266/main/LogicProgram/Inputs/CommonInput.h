@@ -13,7 +13,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
 
   public:
     const uint8_t LeftPadding = 4;
-    explicit CommonInput(const MapIO io_adr);
+    explicit CommonInput();
     virtual ~CommonInput();
 
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;

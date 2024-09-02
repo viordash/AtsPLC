@@ -16,7 +16,7 @@ class DirectOutput : public CommonOutput {
     TvElementType GetElementType() override final;
 
   public:
-    explicit DirectOutput(const MapIO io_adr);
+    explicit DirectOutput();
     ~DirectOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

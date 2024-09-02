@@ -16,7 +16,7 @@ class IncOutput : public CommonOutput {
     TvElementType GetElementType() override final;
 
   public:
-    explicit IncOutput(const MapIO io_adr);
+    explicit IncOutput();
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

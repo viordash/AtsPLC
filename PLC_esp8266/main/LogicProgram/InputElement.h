@@ -15,5 +15,6 @@ class InputElement {
     f_GetValue GetValue;
 
   public:
-    explicit InputElement(const MapIO io_adr);
+    InputElement();
+    virtual void SetIoAdr(const MapIO io_adr);
 };

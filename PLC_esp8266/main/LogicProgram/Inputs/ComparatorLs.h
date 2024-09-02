@@ -16,6 +16,6 @@ class ComparatorLs : public CommonComparator {
     TvElementType GetElementType() override final;
 
   public:
-    ComparatorLs(uint8_t ref_percent04, const MapIO io_adr);
+    ComparatorLs(uint8_t ref_percent04);
     ~ComparatorLs();
 };

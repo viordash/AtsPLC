@@ -44,18 +44,18 @@ void Controller::ProcessTask(void *parm) {
     incomeRail0.ChangeState(LogicItemState::lisActive);
     incomeRail0.SetNumber(0);
 
-    incomeRail0.Append(new InputNO(MapIO::DI));
-    incomeRail0.Append(new InputNC(MapIO::V1));
+    incomeRail0.Append(new InputNO());
+    incomeRail0.Append(new InputNC());
     incomeRail0.Append(new TimerSecs(2));
-    incomeRail0.Append(new SetOutput(MapIO::V1));
+    incomeRail0.Append(new SetOutput());
 
     Network incomeRail1;
     incomeRail1.ChangeState(LogicItemState::lisActive);
     incomeRail1.SetNumber(0);
-    incomeRail1.Append(new InputNO(MapIO::DI));
-    incomeRail1.Append(new InputNO(MapIO::V1));
+    incomeRail1.Append(new InputNO());
+    incomeRail1.Append(new InputNO());
     incomeRail1.Append(new TimerSecs(2));
-    incomeRail1.Append(new ResetOutput(MapIO::V1));
+    incomeRail1.Append(new ResetOutput());
 
     bool need_render = true;
     while (Controller::runned) {

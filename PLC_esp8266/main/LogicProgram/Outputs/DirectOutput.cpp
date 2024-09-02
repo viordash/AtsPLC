@@ -9,7 +9,7 @@
 
 static const char *TAG_DirectOutput = "DirectOutput";
 
-DirectOutput::DirectOutput(const MapIO io_adr) : CommonOutput(io_adr) {
+DirectOutput::DirectOutput() : CommonOutput() {
 }
 
 DirectOutput::~DirectOutput() {

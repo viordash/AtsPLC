@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonInput::CommonInput(const MapIO io_adr)
-    : LogicElement(), InputElement(io_adr), LabeledLogicItem(MapIONames[io_adr]) {
+CommonInput::CommonInput() : LogicElement(), InputElement(), LabeledLogicItem(MapIONames[io_adr]) {
 }
 
 CommonInput::~CommonInput() {

@@ -9,7 +9,7 @@
 
 static const char *TAG_ResetOutput = "ResetOutput";
 
-ResetOutput::ResetOutput(const MapIO io_adr) : CommonOutput(io_adr) {
+ResetOutput::ResetOutput() : CommonOutput() {
 }
 
 ResetOutput::~ResetOutput() {
