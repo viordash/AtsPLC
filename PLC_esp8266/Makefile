@@ -12,6 +12,7 @@ SHELL := env PATH=$(PATH) /bin/bash
 
 project_prepare:
 	@tar -xzf $(PWD)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(PWD)/../SDK/
+	@mkdir $(PWD)/main/MigrateAnyData
 	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.cpp $(PWD)/main/MigrateAnyData/MigrateAnyData.cpp
 	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.h $(PWD)/main/MigrateAnyData/MigrateAnyData.h
 
