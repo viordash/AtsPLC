@@ -76,7 +76,7 @@ namespace {
 
     class TestableComparatorEq : public ComparatorEq, public MonitorLogicElement {
       public:
-        TestableComparatorEq(uint16_t reference) : ComparatorEq(reference) {
+        TestableComparatorEq() : ComparatorEq() {
         }
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
@@ -135,7 +135,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
 
@@ -147,7 +147,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
 
@@ -164,7 +164,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
 
@@ -186,7 +186,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
 
@@ -212,7 +212,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
 
@@ -238,7 +238,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(1000));
     testable.Append(new TestableDirectOutput);
     static_cast<TestableComparatorEq *>(testable[1])->Render_result = false;
@@ -258,7 +258,8 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     auto input = new TestableInputNC;
     input->SetIoAdr(MapIO::DI);
     testable.Append(input);
-    auto comparator = new TestableComparatorEq(5);
+    auto comparator = new TestableComparatorEq();
+    comparator->SetReference(5);
     comparator->SetIoAdr(MapIO::AI);
     testable.Append(comparator);
     testable.Append(new TestableTimerMSecs(12345));
@@ -291,7 +292,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(12345));
     testable.Append(new TestableDirectOutput);
 
@@ -331,7 +332,7 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs(12345));
     testable.Append(new TestableDirectOutput);
 

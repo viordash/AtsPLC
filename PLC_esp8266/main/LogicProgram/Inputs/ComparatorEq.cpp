@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorEq::ComparatorEq(uint8_t ref_percent04) : CommonComparator(ref_percent04) {
+ComparatorEq::ComparatorEq() : CommonComparator() {
 }
 
 ComparatorEq::~ComparatorEq() {

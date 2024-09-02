@@ -16,6 +16,6 @@ class ComparatorGr : public CommonComparator {
     TvElementType GetElementType() override final;
 
   public:
-    ComparatorGr(uint8_t ref_percent04);
+    ComparatorGr();
     ~ComparatorGr();
 };

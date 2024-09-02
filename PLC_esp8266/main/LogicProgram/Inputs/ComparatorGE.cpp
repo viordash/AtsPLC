@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGE::ComparatorGE(uint8_t ref_percent04) : CommonComparator(ref_percent04) {
+ComparatorGE::ComparatorGE() : CommonComparator() {
 }
 
 ComparatorGE::~ComparatorGE() {

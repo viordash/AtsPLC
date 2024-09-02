@@ -16,6 +16,6 @@ class ComparatorLE : public CommonComparator {
     TvElementType GetElementType() override final;
 
   public:
-    ComparatorLE(uint8_t ref_percent04);
+    ComparatorLE();
     ~ComparatorLE();
 };

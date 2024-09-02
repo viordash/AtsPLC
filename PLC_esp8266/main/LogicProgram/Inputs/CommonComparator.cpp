@@ -5,15 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonComparator::CommonComparator(uint8_t ref_percent04) : CommonInput() {
+CommonComparator::CommonComparator() : CommonInput() {
+    this->ref_percent04 = 0;
+}
+
+CommonComparator::~CommonComparator() {
+}
+
+void CommonComparator::SetReference(uint8_t ref_percent04) {
     if (ref_percent04 > LogicElement::MaxValue) {
         ref_percent04 = LogicElement::MaxValue;
     }
     this->ref_percent04 = ref_percent04;
     str_size = sprintf(this->str_reference, "%d", ref_percent04);
-}
-
-CommonComparator::~CommonComparator() {
 }
 
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {

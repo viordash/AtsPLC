@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorLs::ComparatorLs(uint8_t ref_percent04) : CommonComparator(ref_percent04) {
+ComparatorLs::ComparatorLs() : CommonComparator() {
 }
 
 ComparatorLs::~ComparatorLs() {

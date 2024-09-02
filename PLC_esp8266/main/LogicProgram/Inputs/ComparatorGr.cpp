@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGr::ComparatorGr(uint8_t ref_percent04) : CommonComparator(ref_percent04) {
+ComparatorGr::ComparatorGr() : CommonComparator() {
 }
 
 ComparatorGr::~ComparatorGr() {

@@ -17,8 +17,10 @@ class CommonComparator : public CommonInput {
     virtual TvElementType GetElementType() = 0;
 
   public:
-    CommonComparator(uint8_t ref_percent04);
+    CommonComparator();
     ~CommonComparator();
+
+    void SetReference(uint8_t ref_percent04);
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
