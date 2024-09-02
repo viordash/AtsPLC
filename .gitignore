@@ -37,5 +37,5 @@
 
 **/output/*
 
-**/main/MigrateAnyData.cpp
-**/main/MigrateAnyData.h
+**/main/MigrateAnyData/MigrateAnyData.cpp
+**/main/MigrateAnyData/MigrateAnyData.h
