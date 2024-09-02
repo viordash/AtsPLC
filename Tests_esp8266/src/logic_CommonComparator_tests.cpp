@@ -77,6 +77,7 @@ TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
 
 TEST(LogicCommonComparatorTestsGroup, Render) {
     TestableCommonComparator testable(0);
+    testable.SetIoAdr(MapIO::AI);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
@@ -95,6 +96,7 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
 TEST(LogicCommonComparatorTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableCommonComparator testable(42);
+    testable.SetIoAdr(MapIO::V2);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(3, writed);
@@ -106,6 +108,7 @@ TEST(LogicCommonComparatorTestsGroup, Serialize) {
 
 TEST(LogicCommonComparatorTestsGroup, Serialize_just_for_obtain_size) {
     TestableCommonComparator testable(50 / 0.4);
+    testable.SetIoAdr(MapIO::AI);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(3, writed);
@@ -117,6 +120,7 @@ TEST(LogicCommonComparatorTestsGroup, Serialize_just_for_obtain_size) {
 TEST(LogicCommonComparatorTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[1] = {};
     TestableCommonComparator testable(50 / 0.4);
+    testable.SetIoAdr(MapIO::AI);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);

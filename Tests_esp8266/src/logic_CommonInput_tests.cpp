@@ -63,6 +63,7 @@ namespace {
 
 TEST(LogicCommonInputTestsGroup, Render_when_active) {
     TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
@@ -82,6 +83,7 @@ TEST(LogicCommonInputTestsGroup, Render_when_active) {
 
 TEST(LogicCommonInputTestsGroup, Render_when_passive) {
     TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));

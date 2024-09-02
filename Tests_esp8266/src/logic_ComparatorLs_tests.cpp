@@ -42,6 +42,7 @@ namespace {
 TEST(LogicComparatorLsTestsGroup, Render) {
 
     TestableComparatorLs testable(42);
+    testable.SetIoAdr(MapIO::AI);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));

@@ -255,10 +255,16 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
-    testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq(5));
+    auto input = new TestableInputNC;
+    input->SetIoAdr(MapIO::DI);
+    testable.Append(input);
+    auto comparator = new TestableComparatorEq(5);
+    comparator->SetIoAdr(MapIO::AI);
+    testable.Append(comparator);
     testable.Append(new TestableTimerMSecs(12345));
-    testable.Append(new TestableDirectOutput);
+    auto output = new TestableDirectOutput;
+    output->SetIoAdr(MapIO::O1);
+    testable.Append(output);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(20, writed);
