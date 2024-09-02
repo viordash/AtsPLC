@@ -25,7 +25,7 @@ TEST_TEARDOWN() {
 namespace {
     class TestableTimerSecs : public TimerSecs {
       public:
-        TestableTimerSecs(uint32_t delay_time_s) : TimerSecs(delay_time_s) {
+        TestableTimerSecs() : TimerSecs() {
         }
         virtual ~TestableTimerSecs() {
         }
@@ -45,16 +45,20 @@ namespace {
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    TestableTimerSecs testable_0(0);
+    TestableTimerSecs testable_0;
+    testable_0.SetTime(0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99998(99998);
+    TestableTimerSecs testable_99998;
+    testable_99998.SetTime(99998);
     CHECK_EQUAL(99998 * 1000000LL, testable_99998.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_99999(99999);
+    TestableTimerSecs testable_99999;
+    testable_99999.SetTime(99999);
     CHECK_EQUAL(99999 * 1000000LL, testable_99999.PublicMorozov_GetDelayTimeUs());
 
-    TestableTimerSecs testable_100000(100000);
+    TestableTimerSecs testable_100000;
+    testable_100000.SetTime(100000);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
 }
 
@@ -64,7 +68,8 @@ TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
         .expectNCalls(11, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    TestableTimerSecs testable(10);
+    TestableTimerSecs testable;
+    testable.SetTime(10);
     testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
 
     CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
@@ -100,7 +105,8 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
         .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    TestableTimerSecs testable(10);
+    TestableTimerSecs testable;
+    testable.SetTime(10);
 
     uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
     CHECK_EQUAL(0, percent04);
@@ -111,7 +117,8 @@ TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
 TEST(LogicTimerSecsTestsGroup, Serialize) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
-    TestableTimerSecs testable(12345);
+    TestableTimerSecs testable;
+    testable.SetTime(12345);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(9, writed);
@@ -122,7 +129,8 @@ TEST(LogicTimerSecsTestsGroup, Serialize) {
 
 TEST(LogicTimerSecsTestsGroup, Serialize_just_for_obtain_size) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-    TestableTimerSecs testable(12345);
+    TestableTimerSecs testable;
+    testable.SetTime(12345);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(9, writed);
@@ -134,7 +142,8 @@ TEST(LogicTimerSecsTestsGroup, Serialize_just_for_obtain_size) {
 TEST(LogicTimerSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[1] = {};
-    TestableTimerSecs testable(12345);
+    TestableTimerSecs testable;
+    testable.SetTime(12345);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -146,7 +155,7 @@ TEST(LogicTimerSecsTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 123456789;
 
-    TestableTimerSecs testable(0);
+    TestableTimerSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(8, readed);
@@ -159,7 +168,7 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
 
-    TestableTimerSecs testable(0);
+    TestableTimerSecs testable;
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
@@ -171,7 +180,7 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_less_value_return_zero) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 0;
 
-    TestableTimerSecs testable(0);
+    TestableTimerSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
@@ -183,7 +192,7 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 99999 * 1000000LL + 1;
 
-    TestableTimerSecs testable(0);
+    TestableTimerSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);

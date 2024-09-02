@@ -21,8 +21,10 @@ class TimerSecs : public CommonTimer {
     bool ProgressHasChanges(LogicItemState prev_elem_state);
 
   public:
-    explicit TimerSecs(uint32_t delay_time_s);
+    explicit TimerSecs();
     ~TimerSecs();
+
+    void SetTime(uint32_t delay_time_s);
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;

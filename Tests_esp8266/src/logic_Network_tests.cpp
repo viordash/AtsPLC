@@ -94,7 +94,7 @@ namespace {
 
     class TestableTimerMSecs : public TimerMSecs, public MonitorLogicElement {
       public:
-        explicit TestableTimerMSecs(uint32_t delay_time_ms) : TimerMSecs(delay_time_ms) {
+        explicit TestableTimerMSecs() : TimerMSecs() {
         }
 
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
@@ -136,7 +136,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     CHECK_EQUAL(4, testable.size());
@@ -148,7 +148,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     testable.DoAction();
@@ -165,7 +165,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     bool res = testable.DoAction();
@@ -187,7 +187,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -213,7 +213,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -239,7 +239,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(1000));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
     static_cast<TestableComparatorEq *>(testable[1])->Render_result = false;
 
@@ -262,7 +262,9 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     comparator->SetReference(5);
     comparator->SetIoAdr(MapIO::AI);
     testable.Append(comparator);
-    testable.Append(new TestableTimerMSecs(12345));
+    auto timer = new TestableTimerMSecs;
+    timer->SetTime(12345);
+    testable.Append(timer);
     auto output = new TestableDirectOutput;
     output->SetIoAdr(MapIO::O1);
     testable.Append(output);
@@ -293,7 +295,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(12345));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
@@ -333,7 +335,7 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
-    testable.Append(new TestableTimerMSecs(12345));
+    testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(buffer, 20);

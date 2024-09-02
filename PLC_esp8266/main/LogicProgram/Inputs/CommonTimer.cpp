@@ -11,6 +11,7 @@ static const char *TAG_CommonTimer = "CommonTimer";
 
 CommonTimer::CommonTimer() : LogicElement() {
     this->start_time_us = esp_timer_get_time();
+    this->delay_time_us = 0;
 }
 
 CommonTimer::~CommonTimer() {

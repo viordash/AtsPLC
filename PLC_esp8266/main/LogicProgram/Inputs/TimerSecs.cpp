@@ -11,7 +11,13 @@
 
 static const char *TAG_TimerSecs = "TimerSecs";
 
-TimerSecs::TimerSecs(uint32_t delay_time_s) : CommonTimer() {
+TimerSecs::TimerSecs() : CommonTimer() {
+}
+
+TimerSecs::~TimerSecs() {
+}
+
+void TimerSecs::SetTime(uint32_t delay_time_s) {
     if (delay_time_s < TimerSecs::min_delay_time_s) {
         delay_time_s = TimerSecs::min_delay_time_s;
     }
@@ -22,9 +28,6 @@ TimerSecs::TimerSecs(uint32_t delay_time_s) : CommonTimer() {
     str_size = sprintf(this->str_time, "%u", delay_time_s);
 
     ESP_LOGD(TAG_TimerSecs, "ctor, str_time:%s", this->str_time);
-}
-
-TimerSecs::~TimerSecs() {
 }
 
 const Bitmap *TimerSecs::GetCurrentBitmap() {

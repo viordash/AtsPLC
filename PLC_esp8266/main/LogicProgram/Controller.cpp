@@ -46,7 +46,7 @@ void Controller::ProcessTask(void *parm) {
 
     incomeRail0.Append(new InputNO());
     incomeRail0.Append(new InputNC());
-    incomeRail0.Append(new TimerSecs(2));
+    incomeRail0.Append(new TimerSecs());
     incomeRail0.Append(new SetOutput());
 
     Network incomeRail1;
@@ -54,7 +54,7 @@ void Controller::ProcessTask(void *parm) {
     incomeRail1.SetNumber(0);
     incomeRail1.Append(new InputNO());
     incomeRail1.Append(new InputNO());
-    incomeRail1.Append(new TimerSecs(2));
+    incomeRail1.Append(new TimerSecs());
     incomeRail1.Append(new ResetOutput());
 
     bool need_render = true;
