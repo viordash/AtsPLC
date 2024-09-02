@@ -16,5 +16,6 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
     explicit CommonInput();
     virtual ~CommonInput();
 
+    void SetIoAdr(const MapIO io_adr) override final;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 };

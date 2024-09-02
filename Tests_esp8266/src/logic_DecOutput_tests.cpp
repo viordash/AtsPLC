@@ -20,7 +20,7 @@ TEST_GROUP(LogicDecOutputTestsGroup){ //
 namespace {
     class TestableDecOutput : public DecOutput {
       public:
-        TestableDecOutput(const MapIO io_adr) : DecOutput(io_adr) {
+        TestableDecOutput() : DecOutput() {
         }
         virtual ~TestableDecOutput() {
         }
@@ -34,7 +34,8 @@ namespace {
 } // namespace
 
 TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    TestableDecOutput testable(MapIO::V1);
+    TestableDecOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -42,8 +43,8 @@ TEST(LogicDecOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicDecOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
-
-    TestableDecOutput testable(MapIO::V1);
+    TestableDecOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(42);
 
@@ -56,10 +57,10 @@ TEST(LogicDecOutputTestsGroup,
 }
 
 TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
-
     Controller::SetV1RelativeValue(42);
 
-    TestableDecOutput testable(MapIO::V1);
+    TestableDecOutput testable;
+    testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -68,13 +69,14 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
 }
 
 TEST(LogicDecOutputTestsGroup, GetElementType_returns_et_DecOutput) {
-    TestableDecOutput testable(MapIO::O1);
+    TestableDecOutput testable;
     CHECK_EQUAL(TvElementType::et_DecOutput, testable.PublicMorozov_GetElementType());
 }
 
 TEST(LogicDecOutputTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableDecOutput testable(MapIO::O1);
+    TestableDecOutput testable;
+    testable.SetIoAdr(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(2, writed);
@@ -87,7 +89,7 @@ TEST(LogicDecOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_DecOutput;
 
-    TestableDecOutput testable(MapIO::O1);
+    TestableDecOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);

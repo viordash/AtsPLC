@@ -17,5 +17,5 @@ class InputOutputElement : public InputElement {
     explicit InputOutputElement();
     virtual ~InputOutputElement();
 
-    void SetIoAdr(const MapIO io_adr) override final;
+    virtual void SetIoAdr(const MapIO io_adr) override;
 };

@@ -32,7 +32,7 @@ namespace {
 
     class TestableCommonInput : public CommonInput {
       public:
-        TestableCommonInput(const MapIO io_adr) : CommonInput(io_adr) {
+        TestableCommonInput() : CommonInput() {
         }
         virtual ~TestableCommonInput() {
         }
@@ -62,7 +62,7 @@ namespace {
 } // namespace
 
 TEST(LogicCommonInputTestsGroup, Render_when_active) {
-    TestableCommonInput testable(MapIO::V1);
+    TestableCommonInput testable;
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
@@ -81,7 +81,7 @@ TEST(LogicCommonInputTestsGroup, Render_when_active) {
 }
 
 TEST(LogicCommonInputTestsGroup, Render_when_passive) {
-    TestableCommonInput testable(MapIO::V1);
+    TestableCommonInput testable;
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));

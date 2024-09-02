@@ -20,7 +20,7 @@ TEST_GROUP(LogicResetOutputTestsGroup){ //
 namespace {
     class TestableResetOutput : public ResetOutput {
       public:
-        TestableResetOutput(const MapIO io_adr) : ResetOutput(io_adr) {
+        TestableResetOutput() : ResetOutput() {
         }
         virtual ~TestableResetOutput() {
         }
@@ -34,16 +34,16 @@ namespace {
 } // namespace
 
 TEST(LogicResetOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-
-    TestableResetOutput testable(MapIO::V1);
+    TestableResetOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_does_nothing) {
-
-    TestableResetOutput testable(MapIO::V1);
+    TestableResetOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MaxValue);
 
@@ -56,10 +56,10 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_cal
 }
 
 TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
-
     Controller::SetV1RelativeValue(LogicElement::MaxValue);
 
-    TestableResetOutput testable(MapIO::V1);
+    TestableResetOutput testable;
+    testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -68,13 +68,14 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
 }
 
 TEST(LogicResetOutputTestsGroup, GetElementType_returns_et_ResetOutput) {
-    TestableResetOutput testable(MapIO::O1);
+    TestableResetOutput testable;
     CHECK_EQUAL(TvElementType::et_ResetOutput, testable.PublicMorozov_GetElementType());
 }
 
 TEST(LogicResetOutputTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableResetOutput testable(MapIO::O1);
+    TestableResetOutput testable;
+    testable.SetIoAdr(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(2, writed);
@@ -87,7 +88,7 @@ TEST(LogicResetOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_ResetOutput;
 
-    TestableResetOutput testable(MapIO::O1);
+    TestableResetOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);

@@ -20,7 +20,7 @@ TEST_GROUP(LogicIncOutputTestsGroup){ //
 namespace {
     class TestableIncOutput : public IncOutput {
       public:
-        TestableIncOutput(const MapIO io_adr) : IncOutput(io_adr) {
+        TestableIncOutput() : IncOutput() {
         }
         virtual ~TestableIncOutput() {
         }
@@ -34,7 +34,8 @@ namespace {
 } // namespace
 
 TEST(LogicIncOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    TestableIncOutput testable(MapIO::V1);
+    TestableIncOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -42,7 +43,8 @@ TEST(LogicIncOutputTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicIncOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
-    TestableIncOutput testable(MapIO::V1);
+    TestableIncOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(42);
 
@@ -55,10 +57,10 @@ TEST(LogicIncOutputTestsGroup,
 }
 
 TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive) {
-
     Controller::SetV1RelativeValue(42);
 
-    TestableIncOutput testable(MapIO::V1);
+    TestableIncOutput testable;
+    testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -67,13 +69,14 @@ TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive) {
 }
 
 TEST(LogicIncOutputTestsGroup, GetElementType_returns_et_IncOutput) {
-    TestableIncOutput testable(MapIO::O1);
+    TestableIncOutput testable;
     CHECK_EQUAL(TvElementType::et_IncOutput, testable.PublicMorozov_GetElementType());
 }
 
 TEST(LogicIncOutputTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableIncOutput testable(MapIO::O1);
+    TestableIncOutput testable;
+    testable.SetIoAdr(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(2, writed);
@@ -86,7 +89,7 @@ TEST(LogicIncOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_IncOutput;
 
-    TestableIncOutput testable(MapIO::O1);
+    TestableIncOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);

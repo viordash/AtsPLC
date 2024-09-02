@@ -57,7 +57,7 @@ namespace {
 
     class TestableInputNC : public InputNC, public MonitorLogicElement {
       public:
-        TestableInputNC(const MapIO io_adr) : InputNC(io_adr) {
+        TestableInputNC() : InputNC() {
         }
 
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
@@ -76,8 +76,7 @@ namespace {
 
     class TestableComparatorEq : public ComparatorEq, public MonitorLogicElement {
       public:
-        TestableComparatorEq(uint16_t reference, const MapIO io_adr)
-            : ComparatorEq(reference, io_adr) {
+        TestableComparatorEq(uint16_t reference) : ComparatorEq(reference) {
         }
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
@@ -114,7 +113,7 @@ namespace {
 
     class TestableDirectOutput : public DirectOutput, public MonitorLogicElement {
       public:
-        explicit TestableDirectOutput(const MapIO io_adr) : DirectOutput(io_adr) {
+        explicit TestableDirectOutput() : DirectOutput() {
         }
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
@@ -135,10 +134,10 @@ TEST(LogicNetworkTestsGroup, append_elements) {
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     CHECK_EQUAL(4, testable.size());
 }
@@ -147,10 +146,10 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     testable.DoAction();
 
@@ -164,10 +163,10 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     bool res = testable.DoAction();
     CHECK_FALSE(res);
@@ -186,10 +185,10 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -212,10 +211,10 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     CHECK_TRUE(testable.Render(frame_buffer));
 
@@ -238,10 +237,10 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(1000));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
     static_cast<TestableComparatorEq *>(testable[1])->Render_result = false;
 
     CHECK_FALSE(testable.Render(frame_buffer));
@@ -256,10 +255,10 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(12345));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(20, writed);
@@ -285,10 +284,10 @@ TEST(LogicNetworkTestsGroup, Serialize) {
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(12345));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(20, writed);
@@ -303,7 +302,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
     testable.ChangeState(LogicItemState::lisActive);
 
     for (size_t i = 0; i < 6; i++) {
-        testable.Append(new TestableInputNC(MapIO::DI));
+        testable.Append(new TestableInputNC);
     }
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
@@ -314,8 +313,8 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_
     uint8_t buffer[256] = {};
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
-    
-    testable.Append(new TestableInputNC(MapIO::DI));
+
+    testable.Append(new TestableInputNC);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -325,10 +324,10 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[256] = {};
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
-    testable.Append(new TestableInputNC(MapIO::DI));
-    testable.Append(new TestableComparatorEq(5, MapIO::AI));
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq(5));
     testable.Append(new TestableTimerMSecs(12345));
-    testable.Append(new TestableDirectOutput(MapIO::O1));
+    testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(buffer, 20);
     CHECK_EQUAL(20, writed);

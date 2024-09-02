@@ -17,6 +17,7 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
   public:
     CommonOutput();
     ~CommonOutput();
+    void SetIoAdr(const MapIO io_adr) override final;
 
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 

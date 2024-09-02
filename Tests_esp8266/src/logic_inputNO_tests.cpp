@@ -25,7 +25,7 @@ TEST_TEARDOWN() {
 namespace {
     class TestableInputNO : public InputNO {
       public:
-        TestableInputNO(const MapIO io_adr) : InputNO(io_adr) {
+        TestableInputNO() : InputNO() {
         }
         virtual ~TestableInputNO() {
         }
@@ -43,23 +43,26 @@ namespace {
 } // namespace
 
 TEST(LogicInputNOTestsGroup, GetLabel_DI) {
-    TestableInputNO testable(MapIO::DI);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
     STRCMP_EQUAL("DI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_AI) {
-    TestableInputNO testable(MapIO::AI);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::AI);
     STRCMP_EQUAL("AI", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, GetLabel_V1) {
-    TestableInputNO testable(MapIO::V1);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::V1);
     STRCMP_EQUAL("V1", testable.GetLabel());
 }
 
 TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
-    TestableInputNO testable_0(MapIO::V1);
-    TestableInputNO testable_1(MapIO::V2);
+    TestableInputNO testable_0;
+    TestableInputNO testable_1;
     CHECK_EQUAL(LogicItemState::lisPassive, *testable_0.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicItemState::lisPassive, *testable_1.PublicMorozov_Get_state());
 }
@@ -67,7 +70,8 @@ TEST(LogicInputNOTestsGroup, Passive_is_init_state) {
 TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
     mock("0").expectNoCall("gpio_get_level");
 
-    TestableInputNO testable(MapIO::DI);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -76,7 +80,8 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
 
-    TestableInputNO testable(MapIO::DI);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
@@ -85,7 +90,8 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
 
-    TestableInputNO testable(MapIO::DI);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -94,7 +100,8 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
 
 TEST(LogicInputNOTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableInputNO testable(MapIO::V2);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::V2);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(2, writed);
@@ -104,7 +111,8 @@ TEST(LogicInputNOTestsGroup, Serialize) {
 }
 
 TEST(LogicInputNOTestsGroup, Serialize_just_for_obtain_size) {
-    TestableInputNO testable(MapIO::V2);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(2, writed);
@@ -115,7 +123,8 @@ TEST(LogicInputNOTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicInputNOTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[1] = {};
-    TestableInputNO testable(MapIO::V2);
+    TestableInputNO testable;
+    testable.SetIoAdr(MapIO::DI);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -126,7 +135,7 @@ TEST(LogicInputNOTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
     *((MapIO *)&buffer[1]) = MapIO::V3;
 
-    TestableInputNO testable(MapIO::DI);
+    TestableInputNO testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
@@ -138,7 +147,7 @@ TEST(LogicInputNOTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
 
-    TestableInputNO testable(MapIO::V2);
+    TestableInputNO testable;
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
@@ -148,7 +157,7 @@ TEST(LogicInputNOTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
 
-    TestableInputNO testable(MapIO::V1);
+    TestableInputNO testable;
 
     *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);

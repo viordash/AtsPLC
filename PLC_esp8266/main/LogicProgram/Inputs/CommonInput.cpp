@@ -5,10 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-CommonInput::CommonInput() : LogicElement(), InputElement(), LabeledLogicItem(MapIONames[io_adr]) {
+CommonInput::CommonInput() : LogicElement(), InputElement() {
 }
 
 CommonInput::~CommonInput() {
+}
+
+void CommonInput::SetIoAdr(const MapIO io_adr) {
+    InputElement::SetIoAdr(io_adr);
+    SetLabel(MapIONames[io_adr]);
 }
 
 bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {

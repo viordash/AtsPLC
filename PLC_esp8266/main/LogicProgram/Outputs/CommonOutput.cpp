@@ -8,11 +8,15 @@
 
 static const char *TAG_CommonOutput = "CommonOutput";
 
-CommonOutput::CommonOutput()
-    : LogicElement(), InputOutputElement(), LabeledLogicItem(MapIONames[io_adr]) {
+CommonOutput::CommonOutput() : LogicElement(), InputOutputElement() {
 }
 
 CommonOutput::~CommonOutput() {
+}
+
+void CommonOutput::SetIoAdr(const MapIO io_adr) {
+    InputOutputElement::SetIoAdr(io_adr);
+    SetLabel(MapIONames[io_adr]);
 }
 
 bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {

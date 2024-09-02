@@ -35,9 +35,8 @@ namespace {
         TvElementType elementType;
 
         TestableCommonComparator(uint8_t ref_percent04,
-                                 const MapIO io_adr,
                                  TvElementType elementType = TvElementType::et_ComparatorLs)
-            : CommonComparator(ref_percent04, io_adr) {
+            : CommonComparator(ref_percent04) {
             this->elementType = elementType;
         }
         virtual ~TestableCommonComparator() {
@@ -63,21 +62,21 @@ namespace {
 } // namespace
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
-    TestableCommonComparator testable_0(0, MapIO::DI);
+    TestableCommonComparator testable_0(0);
     CHECK_EQUAL(0, testable_0.PublicMorozov_GetReference());
 
-    TestableCommonComparator testable_100(100, MapIO::DI);
+    TestableCommonComparator testable_100(100);
     CHECK_EQUAL(100, testable_100.PublicMorozov_GetReference());
 
-    TestableCommonComparator testable_250(250, MapIO::DI);
+    TestableCommonComparator testable_250(250);
     CHECK_EQUAL(250, testable_250.PublicMorozov_GetReference());
 
-    TestableCommonComparator testable_251(251, MapIO::DI);
+    TestableCommonComparator testable_251(251);
     CHECK_EQUAL(250, testable_251.PublicMorozov_GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Render) {
-    TestableCommonComparator testable(0, MapIO::DI);
+    TestableCommonComparator testable(0);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
@@ -95,7 +94,7 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
 
 TEST(LogicCommonComparatorTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableCommonComparator testable(42, MapIO::V2);
+    TestableCommonComparator testable(42);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(3, writed);
@@ -106,7 +105,7 @@ TEST(LogicCommonComparatorTestsGroup, Serialize) {
 }
 
 TEST(LogicCommonComparatorTestsGroup, Serialize_just_for_obtain_size) {
-    TestableCommonComparator testable(50 / 0.4, MapIO::V2);
+    TestableCommonComparator testable(50 / 0.4);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(3, writed);
@@ -117,7 +116,7 @@ TEST(LogicCommonComparatorTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicCommonComparatorTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[1] = {};
-    TestableCommonComparator testable(50 / 0.4, MapIO::V2);
+    TestableCommonComparator testable(50 / 0.4);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -129,7 +128,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize) {
     *((uint8_t *)&buffer[1]) = 42;
     *((MapIO *)&buffer[2]) = MapIO::V3;
 
-    TestableCommonComparator testable(19, MapIO::DI);
+    TestableCommonComparator testable(19);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
@@ -142,7 +141,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize_with_small_buffer_return_zero)
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_ComparatorLs;
 
-    TestableCommonComparator testable(50 / 0.4, MapIO::V2);
+    TestableCommonComparator testable(50 / 0.4);
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
@@ -153,7 +152,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize_with_wrong_io_adr_return_zero)
     *((TvElementType *)&buffer[0]) = TvElementType::et_ComparatorLs;
     *((uint8_t *)&buffer[1]) = 42;
 
-    TestableCommonComparator testable(50 / 0.4, MapIO::V1);
+    TestableCommonComparator testable(50 / 0.4);
 
     *((MapIO *)&buffer[2]) = (MapIO)(MapIO::DI - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
@@ -173,7 +172,8 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize_with_large_reference_return_ze
     *((TvElementType *)&buffer[0]) = TvElementType::et_ComparatorLs;
     *((MapIO *)&buffer[2]) = MapIO::V3;
 
-    TestableCommonComparator testable(0, MapIO::V1);
+    TestableCommonComparator testable(0);
+    testable.SetIoAdr(MapIO::V2);
 
     *((uint8_t *)&buffer[1]) = LogicElement::MaxValue + 1;
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);

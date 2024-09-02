@@ -20,7 +20,7 @@ TEST_GROUP(LogicDirectOutputTestsGroup){ //
 namespace {
     class TestableDirectOutput : public DirectOutput {
       public:
-        TestableDirectOutput(const MapIO io_adr) : DirectOutput(io_adr) {
+        TestableDirectOutput() : DirectOutput() {
         }
         virtual ~TestableDirectOutput() {
         }
@@ -34,14 +34,16 @@ namespace {
 } // namespace
 
 TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    TestableDirectOutput testable(MapIO::V1);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
-    TestableDirectOutput testable(MapIO::V1);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
 
@@ -51,10 +53,10 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
-
     Controller::SetV1RelativeValue(LogicElement::MaxValue);
 
-    TestableDirectOutput testable(MapIO::V1);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -63,13 +65,14 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
 }
 
 TEST(LogicDirectOutputTestsGroup, GetElementType_returns_et_DirectOutput) {
-    TestableDirectOutput testable(MapIO::O1);
+    TestableDirectOutput testable;
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.PublicMorozov_GetElementType());
 }
 
 TEST(LogicDirectOutputTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableDirectOutput testable(MapIO::O1);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::O1);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(2, writed);
@@ -82,7 +85,7 @@ TEST(LogicDirectOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_DirectOutput;
 
-    TestableDirectOutput testable(MapIO::O1);
+    TestableDirectOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);

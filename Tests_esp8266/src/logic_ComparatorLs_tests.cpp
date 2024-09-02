@@ -26,8 +26,7 @@ TEST_TEARDOWN() {
 namespace {
     class TestableComparatorLs : public ComparatorLs {
       public:
-        TestableComparatorLs(uint8_t ref_percent04, const MapIO io_adr)
-            : ComparatorLs(ref_percent04, io_adr) {
+        TestableComparatorLs(uint8_t ref_percent04) : ComparatorLs(ref_percent04) {
         }
         virtual ~TestableComparatorLs() {
         }
@@ -42,7 +41,7 @@ namespace {
 
 TEST(LogicComparatorLsTestsGroup, Render) {
 
-    TestableComparatorLs testable(42, MapIO::V1);
+    TestableComparatorLs testable(42);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
@@ -61,7 +60,8 @@ TEST(LogicComparatorLsTestsGroup, Render) {
 TEST(LogicComparatorLsTestsGroup, DoAction_skip_when_incoming_passive) {
     mock().expectNoCall("adc_read");
 
-    TestableComparatorLs testable(42, MapIO::AI);
+    TestableComparatorLs testable(42);
+    testable.SetIoAdr(MapIO::AI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -73,7 +73,8 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    TestableComparatorLs testable(51 / 0.4, MapIO::AI);
+    TestableComparatorLs testable(51 / 0.4);
+    testable.SetIoAdr(MapIO::AI);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -89,7 +90,8 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    TestableComparatorLs testable(50 / 0.4, MapIO::AI);
+    TestableComparatorLs testable(50 / 0.4);
+    testable.SetIoAdr(MapIO::AI);
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
@@ -99,13 +101,15 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
 }
 
 TEST(LogicComparatorLsTestsGroup, GetElementType_returns_et_ComparatorLs) {
-    TestableComparatorLs testable(0, MapIO::AI);
+    TestableComparatorLs testable(0);
+    testable.SetIoAdr(MapIO::AI);
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.PublicMorozov_GetElementType());
 }
 
 TEST(LogicComparatorLsTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableComparatorLs testable(42, MapIO::V2);
+    TestableComparatorLs testable(42);
+    testable.SetIoAdr(MapIO::AI);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(3, writed);
@@ -119,7 +123,8 @@ TEST(LogicComparatorLsTestsGroup, Deserialize) {
     *((uint8_t *)&buffer[1]) = 42;
     *((MapIO *)&buffer[2]) = MapIO::V3;
 
-    TestableComparatorLs testable(19, MapIO::DI);
+    TestableComparatorLs testable(19);
+    testable.SetIoAdr(MapIO::AI);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
