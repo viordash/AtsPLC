@@ -12,12 +12,10 @@ class IncOutput : public CommonOutput {
 
     const Bitmap *GetCurrentBitmap() override final;
 
-  protected:
-    TvElementType GetElementType() override final;
-
   public:
     explicit IncOutput();
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    TvElementType GetElementType() override final;
 };

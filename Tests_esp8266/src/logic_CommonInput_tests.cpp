@@ -58,6 +58,9 @@ namespace {
             (void)buffer_size;
             return 0;
         }
+        TvElementType GetElementType() override {
+            return TvElementType::et_Undef;
+        }
     };
 } // namespace
 

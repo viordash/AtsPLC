@@ -13,11 +13,11 @@ class DirectOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   protected:
-    TvElementType GetElementType() override final;
 
   public:
     explicit DirectOutput();
     ~DirectOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    TvElementType GetElementType() override final;
 };

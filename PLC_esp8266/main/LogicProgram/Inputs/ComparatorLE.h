@@ -12,10 +12,8 @@ class ComparatorLE : public CommonComparator {
     const Bitmap *GetCurrentBitmap() override final;
     bool CompareFunction() override final;
 
-  protected:
-    TvElementType GetElementType() override final;
-
   public:
     ComparatorLE();
     ~ComparatorLE();
+    TvElementType GetElementType() override final;
 };

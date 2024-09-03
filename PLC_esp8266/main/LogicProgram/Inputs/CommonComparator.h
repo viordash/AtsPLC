@@ -14,7 +14,6 @@ class CommonComparator : public CommonInput {
     uint8_t ref_percent04;
 
     virtual bool CompareFunction() = 0;
-    virtual TvElementType GetElementType() = 0;
 
   public:
     CommonComparator();

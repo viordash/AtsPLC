@@ -89,7 +89,7 @@ void Network::Append(LogicElement *element) {
 size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
-    tvElement.type = et_Network;
+    tvElement.type = GetElementType();
 
     uint16_t elements_count = size();
     if (elements_count < Network::MinElementsCount) {
@@ -176,4 +176,8 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
         Append(element);
     }
     return readed;
+}
+
+TvElementType Network::GetElementType() {
+    return TvElementType::et_Network;
 }

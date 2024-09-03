@@ -33,4 +33,6 @@ class LogicElement {
     WriteRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *writed);
     static bool
     ReadRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *readed);
+
+    virtual TvElementType GetElementType() = 0;
 };

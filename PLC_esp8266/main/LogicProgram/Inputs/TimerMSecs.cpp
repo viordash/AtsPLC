@@ -43,7 +43,7 @@ const Bitmap *TimerMSecs::GetCurrentBitmap() {
 size_t TimerMSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
-    tvElement.type = et_TimerMSecs;
+    tvElement.type = GetElementType();
     if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
@@ -67,4 +67,8 @@ size_t TimerMSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
     delay_time_us = _delay_time_us;
     return readed;
+}
+
+TvElementType TimerMSecs::GetElementType() {
+    return TvElementType::et_TimerMSecs;
 }

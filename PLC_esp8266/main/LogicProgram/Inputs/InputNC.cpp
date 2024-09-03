@@ -47,7 +47,7 @@ const Bitmap *InputNC::GetCurrentBitmap() {
 size_t InputNC::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
-    tvElement.type = et_InputNC;
+    tvElement.type = GetElementType();
     if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
@@ -68,4 +68,8 @@ size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
     io_adr = _io_adr;
     return readed;
+}
+
+TvElementType InputNC::GetElementType() {
+    return TvElementType::et_InputNC;
 }
