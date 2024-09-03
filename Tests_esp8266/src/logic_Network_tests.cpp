@@ -350,10 +350,26 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
 TEST(LogicNetworkTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Network;
+    *((LogicItemState *)&buffer[1]) = LogicItemState::lisActive;
+    *((uint16_t *)&buffer[2]) = 4;
+
+    *((TvElementType *)&buffer[4]) = TvElementType::et_InputNC;
+    *((MapIO *)&buffer[5]) = MapIO::DI;
+
+    *((TvElementType *)&buffer[6]) = TvElementType::et_ComparatorEq;
+    *((uint8_t *)&buffer[7]) = 5;
+    *((MapIO *)&buffer[8]) = MapIO::AI;
+
+    *((TvElementType *)&buffer[9]) = TvElementType::et_TimerMSecs;
+    *((uint64_t *)&buffer[10]) = 12345000;
+
+    *((TvElementType *)&buffer[18]) = TvElementType::et_DirectOutput;
+    *((MapIO *)&buffer[19]) = MapIO::O1;
 
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
+    CHECK_EQUAL(20 - 1, readed);
+    CHECK_EQUAL(4, testable.size());
 }

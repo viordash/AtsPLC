@@ -1,5 +1,6 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
+#include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -155,11 +156,24 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
 
     state = _state;
     reserve(elements_count);
+    for (size_t i = 0; i < elements_count; i++) {
+        TvElement tvElement;
+        if (!ReadRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
+            return 0;
+        }
 
-    // for (auto it = begin(); it != end(); ++it) {
-    //     auto *element = *it;
-    //     readed += element->Deserialize(buffer, buffer_size - readed);
-    // }
+        auto element = LogicElementFactory::Create(tvElement.type);
+        if (element == NULL) {
+            return 0;
+        }
 
+        size_t element_readed = element->Deserialize(&buffer[readed], buffer_size - readed);
+        if (element_readed == 0) {
+            delete element;
+            return 0;
+        }
+        readed += element_readed;
+        Append(element);
+    }
     return readed;
 }
