@@ -373,3 +373,8 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     CHECK_EQUAL(20 - 1, readed);
     CHECK_EQUAL(4, testable.size());
 }
+
+TEST(LogicNetworkTestsGroup, GetElementType) {
+    TestableNetwork testable;
+    CHECK_EQUAL(TvElementType::et_Network, testable.GetElementType());
+}

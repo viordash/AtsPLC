@@ -145,3 +145,8 @@ TEST(LogicInputNCTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
 }
+
+TEST(LogicInputNCTestsGroup, GetElementType) {
+    TestableInputNC testable;
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+}

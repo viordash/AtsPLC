@@ -134,3 +134,9 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 }
+
+TEST(LogicTimerMSecsTestsGroup, GetElementType) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+    TestableTimerMSecs testable;
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+}

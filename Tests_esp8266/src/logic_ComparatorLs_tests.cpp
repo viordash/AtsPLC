@@ -136,3 +136,8 @@ TEST(LogicComparatorLsTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
 }
+
+TEST(LogicComparatorLsTestsGroup, GetElementType) {
+    TestableComparatorLs testable;
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+}

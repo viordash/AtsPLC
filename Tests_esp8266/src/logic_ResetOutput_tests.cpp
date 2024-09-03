@@ -93,3 +93,8 @@ TEST(LogicResetOutputTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
 }
+
+TEST(LogicResetOutputTestsGroup, GetElementType) {
+    TestableResetOutput testable;
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable.GetElementType());
+}

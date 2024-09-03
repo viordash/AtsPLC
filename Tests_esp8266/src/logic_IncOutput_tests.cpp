@@ -94,3 +94,8 @@ TEST(LogicIncOutputTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
 }
+
+TEST(LogicIncOutputTestsGroup, GetElementType) {
+    TestableIncOutput testable;
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable.GetElementType());
+}
