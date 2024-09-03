@@ -372,6 +372,11 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(20 - 1, readed);
     CHECK_EQUAL(4, testable.size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[3]->GetElementType());
+
 }
 
 TEST(LogicNetworkTestsGroup, GetElementType) {
