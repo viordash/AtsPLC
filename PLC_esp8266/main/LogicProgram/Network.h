@@ -5,11 +5,12 @@
 #include <unistd.h>
 #include <vector>
 
-class Network : public LogicElement, public std::vector<LogicElement *> {
+class Network : public std::vector<LogicElement *> {
   private:
+    LogicItemState state;
     uint8_t network_number;
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state);
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point);
 
   public:
     const static size_t MinElementsCount = 2;
@@ -25,7 +26,6 @@ class Network : public LogicElement, public std::vector<LogicElement *> {
 
     void Append(LogicElement *element);
 
-    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
-    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
-    TvElementType GetElementType() override final;
+    size_t Serialize(uint8_t *buffer, size_t buffer_size);
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size);
 };

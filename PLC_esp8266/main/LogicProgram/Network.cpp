@@ -9,7 +9,7 @@
 
 static const char *TAG_Network = "Network";
 
-Network::Network() : LogicElement() {
+Network::Network() {
     this->network_number = 0;
 }
 
@@ -87,8 +87,6 @@ void Network::Append(LogicElement *element) {
 
 size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
-    TvElement tvElement;
-    tvElement.type = GetElementType();
 
     uint16_t elements_count = size();
     if (elements_count < Network::MinElementsCount) {
@@ -98,15 +96,15 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+    if (!LogicElement::WriteRecord(&state, sizeof(state), buffer, buffer_size, &writed)) {
         return 0;
     }
 
-    if (!WriteRecord(&state, sizeof(state), buffer, buffer_size, &writed)) {
-        return 0;
-    }
-
-    if (!WriteRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &writed)) {
+    if (!LogicElement::WriteRecord(&elements_count,
+                                   sizeof(elements_count),
+                                   buffer,
+                                   buffer_size,
+                                   &writed)) {
         return 0;
     }
 
@@ -135,7 +133,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
     LogicItemState _state;
-    if (!ReadRecord(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
+    if (!LogicElement::ReadRecord(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (!ValidateLogicItemState(_state)) {
@@ -143,7 +141,11 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
 
     uint16_t elements_count;
-    if (!ReadRecord(&elements_count, sizeof(elements_count), buffer, buffer_size, &readed)) {
+    if (!LogicElement::ReadRecord(&elements_count,
+                                  sizeof(elements_count),
+                                  buffer,
+                                  buffer_size,
+                                  &readed)) {
         return 0;
     }
     if (elements_count < Network::MinElementsCount) {
@@ -157,7 +159,11 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     reserve(elements_count);
     for (size_t i = 0; i < elements_count; i++) {
         TvElement tvElement;
-        if (!ReadRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
+        if (!LogicElement::ReadRecord(&tvElement,
+                                      sizeof(tvElement),
+                                      buffer,
+                                      buffer_size,
+                                      &readed)) {
             return 0;
         }
 
@@ -175,8 +181,4 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
         Append(element);
     }
     return readed;
-}
-
-TvElementType Network::GetElementType() {
-    return TvElementType::et_Network;
 }

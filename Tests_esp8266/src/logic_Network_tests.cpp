@@ -270,24 +270,23 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     testable.Append(output);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(20, writed);
+    CHECK_EQUAL(19, writed);
 
-    CHECK_EQUAL(TvElementType::et_Network, *((TvElementType *)&buffer[0]));
-    CHECK_EQUAL(LogicItemState::lisActive, *((LogicItemState *)&buffer[1]));
-    CHECK_EQUAL(4, *((uint16_t *)&buffer[2]));
+    CHECK_EQUAL(LogicItemState::lisActive, *((LogicItemState *)&buffer[0]));
+    CHECK_EQUAL(4, *((uint16_t *)&buffer[1]));
 
-    CHECK_EQUAL(TvElementType::et_InputNC, *((TvElementType *)&buffer[4]));
-    CHECK_EQUAL(MapIO::DI, *((MapIO *)&buffer[5]));
+    CHECK_EQUAL(TvElementType::et_InputNC, *((TvElementType *)&buffer[3]));
+    CHECK_EQUAL(MapIO::DI, *((MapIO *)&buffer[4]));
 
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, *((TvElementType *)&buffer[6]));
-    CHECK_EQUAL(5, *((uint8_t *)&buffer[7]));
-    CHECK_EQUAL(MapIO::AI, *((MapIO *)&buffer[8]));
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, *((TvElementType *)&buffer[5]));
+    CHECK_EQUAL(5, *((uint8_t *)&buffer[6]));
+    CHECK_EQUAL(MapIO::AI, *((MapIO *)&buffer[7]));
 
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, *((TvElementType *)&buffer[9]));
-    CHECK_EQUAL(12345000, *((uint64_t *)&buffer[10]));
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, *((TvElementType *)&buffer[8]));
+    CHECK_EQUAL(12345000, *((uint64_t *)&buffer[9]));
 
-    CHECK_EQUAL(TvElementType::et_DirectOutput, *((TvElementType *)&buffer[18]));
-    CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[19]));
+    CHECK_EQUAL(TvElementType::et_DirectOutput, *((TvElementType *)&buffer[17]));
+    CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[18]));
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
@@ -299,10 +298,10 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
     testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
-    CHECK_EQUAL(20, writed);
+    CHECK_EQUAL(19, writed);
 
     writed = testable.Serialize(NULL, 0);
-    CHECK_EQUAL(20, writed);
+    CHECK_EQUAL(19, writed);
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zero) {
@@ -339,9 +338,9 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     testable.Append(new TestableDirectOutput);
 
     size_t writed = testable.Serialize(buffer, 20);
-    CHECK_EQUAL(20, writed);
+    CHECK_EQUAL(19, writed);
 
-    for (size_t i = 0; i < 20; i++) {
+    for (size_t i = 0; i < 19; i++) {
         writed = testable.Serialize(buffer, i);
         CHECK_EQUAL(0, writed);
     }
@@ -349,37 +348,30 @@ TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
 
 TEST(LogicNetworkTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_Network;
-    *((LogicItemState *)&buffer[1]) = LogicItemState::lisActive;
-    *((uint16_t *)&buffer[2]) = 4;
+    *((LogicItemState *)&buffer[0]) = LogicItemState::lisActive;
+    *((uint16_t *)&buffer[1]) = 4;
 
-    *((TvElementType *)&buffer[4]) = TvElementType::et_InputNC;
-    *((MapIO *)&buffer[5]) = MapIO::DI;
+    *((TvElementType *)&buffer[3]) = TvElementType::et_InputNC;
+    *((MapIO *)&buffer[4]) = MapIO::DI;
 
-    *((TvElementType *)&buffer[6]) = TvElementType::et_ComparatorEq;
-    *((uint8_t *)&buffer[7]) = 5;
-    *((MapIO *)&buffer[8]) = MapIO::AI;
+    *((TvElementType *)&buffer[5]) = TvElementType::et_ComparatorEq;
+    *((uint8_t *)&buffer[6]) = 5;
+    *((MapIO *)&buffer[7]) = MapIO::AI;
 
-    *((TvElementType *)&buffer[9]) = TvElementType::et_TimerMSecs;
-    *((uint64_t *)&buffer[10]) = 12345000;
+    *((TvElementType *)&buffer[8]) = TvElementType::et_TimerMSecs;
+    *((uint64_t *)&buffer[9]) = 12345000;
 
-    *((TvElementType *)&buffer[18]) = TvElementType::et_DirectOutput;
-    *((MapIO *)&buffer[19]) = MapIO::O1;
+    *((TvElementType *)&buffer[17]) = TvElementType::et_DirectOutput;
+    *((MapIO *)&buffer[18]) = MapIO::O1;
 
     TestableNetwork testable;
     testable.ChangeState(LogicItemState::lisActive);
 
-    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(20 - 1, readed);
+    size_t readed = testable.Deserialize(&buffer[0], sizeof(buffer) - 1);
+    CHECK_EQUAL(19, readed);
     CHECK_EQUAL(4, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[3]->GetElementType());
-
-}
-
-TEST(LogicNetworkTestsGroup, GetElementType) {
-    TestableNetwork testable;
-    CHECK_EQUAL(TvElementType::et_Network, testable.GetElementType());
 }

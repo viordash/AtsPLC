@@ -22,12 +22,6 @@ TEST(LogicElementFactoryTestsGroup, Create_Undef_return_null) {
     delete element;
 }
 
-TEST(LogicElementFactoryTestsGroup, Create_Network) {
-    auto element = LogicElementFactory::Create(TvElementType::et_Network);
-    CHECK(element != NULL);
-    delete element;
-}
-
 TEST(LogicElementFactoryTestsGroup, Create_InputNC) {
     auto element = LogicElementFactory::Create(TvElementType::et_InputNC);
     CHECK(element != NULL);

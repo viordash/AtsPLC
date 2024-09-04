@@ -8,7 +8,6 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Network.h"
 #include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
 #include "LogicProgram/Outputs/IncOutput.h"
@@ -28,9 +27,6 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
     LogicElement *element = NULL;
 
     switch (element_type) {
-        case et_Network:
-            element = new Network();
-            break;
         case et_InputNC:
             element = new InputNC();
             break;
