@@ -11,7 +11,6 @@ static const char *TAG_Network = "Network";
 
 Network::Network() : LogicElement() {
     this->network_number = 0;
-    this->state = state;
 }
 
 Network::~Network() {
