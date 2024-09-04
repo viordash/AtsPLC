@@ -1,6 +1,7 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -96,11 +97,11 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    if (!LogicElement::WriteRecord(&state, sizeof(state), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&state, sizeof(state), buffer, buffer_size, &writed)) {
         return 0;
     }
 
-    if (!LogicElement::WriteRecord(&elements_count,
+    if (!Record::Write(&elements_count,
                                    sizeof(elements_count),
                                    buffer,
                                    buffer_size,
@@ -133,7 +134,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
     LogicItemState _state;
-    if (!LogicElement::ReadRecord(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
+    if (!Record::Read(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (!ValidateLogicItemState(_state)) {
@@ -141,7 +142,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
 
     uint16_t elements_count;
-    if (!LogicElement::ReadRecord(&elements_count,
+    if (!Record::Read(&elements_count,
                                   sizeof(elements_count),
                                   buffer,
                                   buffer_size,
@@ -159,7 +160,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     reserve(elements_count);
     for (size_t i = 0; i < elements_count; i++) {
         TvElement tvElement;
-        if (!LogicElement::ReadRecord(&tvElement,
+        if (!Record::Read(&tvElement,
                                       sizeof(tvElement),
                                       buffer,
                                       buffer_size,

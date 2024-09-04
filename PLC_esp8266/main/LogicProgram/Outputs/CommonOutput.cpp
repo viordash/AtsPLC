@@ -1,4 +1,5 @@
 #include "LogicProgram/Outputs/CommonOutput.h"
+#include "LogicProgram/Serializer/Record.h"
 #include "Display/display.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -65,10 +66,10 @@ size_t CommonOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
     tvElement.type = GetElementType();
-    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
-    if (!WriteRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }
     return writed;
@@ -77,7 +78,7 @@ size_t CommonOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
 size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
     MapIO _io_adr;
-    if (!ReadRecord(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
+    if (!Record::Read(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (!ValidateMapIO(_io_adr)) {

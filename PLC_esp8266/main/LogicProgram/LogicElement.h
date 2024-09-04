@@ -29,10 +29,5 @@ class LogicElement {
     virtual size_t Serialize(uint8_t *buffer, size_t buffer_size) = 0;
     virtual size_t Deserialize(uint8_t *buffer, size_t buffer_size) = 0;
 
-    static bool
-    WriteRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *writed);
-    static bool
-    ReadRecord(void *data, size_t data_size, uint8_t *buffer, size_t buffer_size, size_t *readed);
-
     virtual TvElementType GetElementType() = 0;
 };

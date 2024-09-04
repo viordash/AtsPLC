@@ -1,4 +1,5 @@
 #include "LogicProgram/Inputs/CommonComparator.h"
+#include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -65,13 +66,13 @@ size_t CommonComparator::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
     tvElement.type = GetElementType();
-    if (!WriteRecord(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
-    if (!WriteRecord(&ref_percent04, sizeof(ref_percent04), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&ref_percent04, sizeof(ref_percent04), buffer, buffer_size, &writed)) {
         return 0;
     }
-    if (!WriteRecord(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
+    if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }
     return writed;
@@ -80,7 +81,7 @@ size_t CommonComparator::Serialize(uint8_t *buffer, size_t buffer_size) {
 size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
     uint8_t _ref_percent04;
-    if (!ReadRecord(&_ref_percent04, sizeof(_ref_percent04), buffer, buffer_size, &readed)) {
+    if (!Record::Read(&_ref_percent04, sizeof(_ref_percent04), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (_ref_percent04 > LogicElement::MaxValue) {
@@ -88,7 +89,7 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
 
     MapIO _io_adr;
-    if (!ReadRecord(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
+    if (!Record::Read(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (!ValidateMapIO(_io_adr)) {
