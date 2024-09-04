@@ -5,10 +5,10 @@
 #include <unistd.h>
 #include <vector>
 
-class NetworksList : std::vector<Network *> {
+class Ladder : std::vector<Network *> {
   protected:
 
   public:
-    NetworksList();
-    ~NetworksList();
+    Ladder();
+    ~Ladder();
 };
