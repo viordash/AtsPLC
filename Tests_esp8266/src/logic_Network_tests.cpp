@@ -33,10 +33,6 @@ namespace {
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
-    class TestableNetwork : public Network {
-      public:
-    };
-
     class MonitorLogicElement {
       public:
         bool DoAction_called = false;
@@ -131,7 +127,7 @@ namespace {
 } // namespace
 
 TEST(LogicNetworkTestsGroup, append_elements) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -143,7 +139,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -160,7 +156,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -182,7 +178,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -208,7 +204,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -234,7 +230,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
 }
 
 TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -253,7 +249,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
 
 TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
     auto input = new TestableInputNC;
     input->SetIoAdr(MapIO::DI);
@@ -290,7 +286,7 @@ TEST(LogicNetworkTestsGroup, Serialize) {
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -306,7 +302,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zero) {
     uint8_t buffer[256] = {};
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     for (size_t i = 0; i < 6; i++) {
@@ -319,7 +315,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_zero) {
     uint8_t buffer[256] = {};
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -330,7 +326,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_
 
 TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[256] = {};
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -364,7 +360,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[17]) = TvElementType::et_DirectOutput;
     *((MapIO *)&buffer[18]) = MapIO::O1;
 
-    TestableNetwork testable;
+    Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
     size_t readed = testable.Deserialize(&buffer[0], sizeof(buffer) - 1);

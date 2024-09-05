@@ -20,7 +20,7 @@ extern "C" {
 #define SCL_PIN GPIO_NUM_4
 #define SDA_PIN GPIO_NUM_5
 
-static const char *TAG = "display";
+static const char *TAG_display = "display";
 
 static struct {
     ssd1306_t dev = { .i2c_port = I2C_NUM_0,
@@ -75,7 +75,7 @@ void display_init() {
 
     // ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, display.buffer) != 0 ? ESP_FAIL
     //                                                                              : ESP_OK);
-    ESP_LOGI(TAG, "init succesfully");
+    ESP_LOGI(TAG_display, "init succesfully");
 }
 
 void ladder_diagram(int8_t x, int8_t y) {

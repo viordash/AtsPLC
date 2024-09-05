@@ -6,6 +6,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/redundant_storage.cpp"
+#include "main/storage.cpp"
+
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/display.cpp"
