@@ -12,6 +12,10 @@ Ladder::Ladder() {
 }
 
 Ladder::~Ladder() {
+    RemoveAll();
+}
+
+void Ladder::RemoveAll() {
     while (!empty()) {
         auto it = begin();
         auto network = *it;
@@ -27,7 +31,7 @@ void Ladder::Append(Network *network) {
 }
 
 void Ladder::Load() {
-    clear();
+    RemoveAll();
     redundant_storage storage = redundant_storage_load(storage_0_partition,
                                                        storage_0_path,
                                                        storage_1_partition,
@@ -94,11 +98,6 @@ size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
 
     reserve(networks_count);
     for (size_t i = 0; i < networks_count; i++) {
-        TvElement tvElement;
-        if (!Record::Read(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
-            return 0;
-        }
-
         auto network = new Network();
         size_t network_readed = network->Deserialize(&buffer[readed], buffer_size - readed);
         if (network_readed == 0) {
