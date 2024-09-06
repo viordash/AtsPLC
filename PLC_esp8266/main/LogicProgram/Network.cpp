@@ -101,11 +101,7 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    if (!Record::Write(&elements_count,
-                                   sizeof(elements_count),
-                                   buffer,
-                                   buffer_size,
-                                   &writed)) {
+    if (!Record::Write(&elements_count, sizeof(elements_count), buffer, buffer_size, &writed)) {
         return 0;
     }
 
@@ -142,11 +138,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
 
     uint16_t elements_count;
-    if (!Record::Read(&elements_count,
-                                  sizeof(elements_count),
-                                  buffer,
-                                  buffer_size,
-                                  &readed)) {
+    if (!Record::Read(&elements_count, sizeof(elements_count), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (elements_count < Network::MinElementsCount) {
@@ -160,11 +152,7 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     reserve(elements_count);
     for (size_t i = 0; i < elements_count; i++) {
         TvElement tvElement;
-        if (!Record::Read(&tvElement,
-                                      sizeof(tvElement),
-                                      buffer,
-                                      buffer_size,
-                                      &readed)) {
+        if (!Record::Read(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
             return 0;
         }
 
