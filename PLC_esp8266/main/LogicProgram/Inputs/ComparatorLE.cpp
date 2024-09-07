@@ -10,6 +10,11 @@
 ComparatorLE::ComparatorLE() : CommonComparator() {
 }
 
+ComparatorLE::ComparatorLE(uint8_t ref_percent04, const MapIO io_adr) : ComparatorLE() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
+}
+
 ComparatorLE::~ComparatorLE() {
 }
 

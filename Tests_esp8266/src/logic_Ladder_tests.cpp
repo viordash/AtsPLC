@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Ladder.cpp"
+#include "main/LogicProgram/LadderInitial.cpp"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
 
@@ -60,8 +61,7 @@ namespace {
 
     class TestableInputNC : public InputNC, public MonitorLogicElement {
       public:
-        TestableInputNC(const MapIO io_adr) : InputNC() {
-            SetIoAdr(io_adr);
+        TestableInputNC(const MapIO io_adr) : InputNC(io_adr) {
         }
 
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
@@ -83,9 +83,8 @@ namespace {
 
     class TestableComparatorEq : public ComparatorEq, public MonitorLogicElement {
       public:
-        TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr) : ComparatorEq() {
-            SetReference(ref_percent04);
-            SetIoAdr(io_adr);
+        TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
+            : ComparatorEq(ref_percent04, io_adr) {
         }
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
@@ -109,8 +108,7 @@ namespace {
 
     class TestableTimerMSecs : public TimerMSecs, public MonitorLogicElement {
       public:
-        explicit TestableTimerMSecs(uint32_t delay_time_ms) : TimerMSecs() {
-            SetTime(delay_time_ms);
+        explicit TestableTimerMSecs(uint32_t delay_time_ms) : TimerMSecs(delay_time_ms) {
         }
 
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
@@ -132,8 +130,7 @@ namespace {
 
     class TestableDirectOutput : public DirectOutput, public MonitorLogicElement {
       public:
-        explicit TestableDirectOutput(const MapIO io_adr) : DirectOutput() {
-            SetIoAdr(io_adr);
+        explicit TestableDirectOutput(const MapIO io_adr) : DirectOutput(io_adr) {
         }
         bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
@@ -156,10 +153,9 @@ namespace {
 TEST(LogicLadderTestsGroup, Store_Load) {
     Ladder ladder_store;
 
-    auto network_store = new Network();
+    auto network_store = new Network(0, LogicItemState::lisActive);
     ladder_store.Append(network_store);
 
-    network_store->ChangeState(LogicItemState::lisActive);
     network_store->Append(new TestableInputNC(MapIO::DI));
     network_store->Append(new TestableComparatorEq(5, MapIO::AI));
     network_store->Append(new TestableTimerMSecs(12345));
@@ -192,19 +188,16 @@ TEST(LogicLadderTestsGroup, Store_Load) {
 TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
     Ladder ladder_store;
 
-    auto network0 = new Network();
-    network0->ChangeState(LogicItemState::lisActive);
+    auto network0 = new Network(0, LogicItemState::lisActive);
     network0->Append(new TestableInputNC(MapIO::DI));
     network0->Append(new TestableDirectOutput(MapIO::O1));
 
-    auto network1 = new Network();
-    network1->ChangeState(LogicItemState::lisActive);
+    auto network1 = new Network(1, LogicItemState::lisActive);
     network1->Append(new TestableInputNC(MapIO::V1));
     network1->Append(new TestableInputNC(MapIO::V2));
     network1->Append(new TestableDirectOutput(MapIO::O2));
 
-    auto network2 = new Network();
-    network2->ChangeState(LogicItemState::lisActive);
+    auto network2 = new Network(2, LogicItemState::lisActive);
     network2->Append(new TestableInputNC(MapIO::V1));
     network2->Append(new TestableInputNC(MapIO::V2));
     network2->Append(new TestableInputNC(MapIO::V3));

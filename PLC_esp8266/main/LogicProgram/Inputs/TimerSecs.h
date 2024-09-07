@@ -22,6 +22,7 @@ class TimerSecs : public CommonTimer {
 
   public:
     explicit TimerSecs();
+    TimerSecs(uint32_t delay_time_s);
     ~TimerSecs();
 
     void SetTime(uint32_t delay_time_s);

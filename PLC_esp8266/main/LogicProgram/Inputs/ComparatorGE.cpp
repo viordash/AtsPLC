@@ -10,6 +10,11 @@
 ComparatorGE::ComparatorGE() : CommonComparator() {
 }
 
+ComparatorGE::ComparatorGE(uint8_t ref_percent04, const MapIO io_adr) : ComparatorGE() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
+}
+
 ComparatorGE::~ComparatorGE() {
 }
 

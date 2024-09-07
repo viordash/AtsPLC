@@ -12,6 +12,10 @@ static const char *TAG_IncOutput = "IncOutput";
 IncOutput::IncOutput() : CommonOutput() {
 }
 
+IncOutput::IncOutput(const MapIO io_adr) : IncOutput() {
+    SetIoAdr(io_adr);
+}
+
 IncOutput::~IncOutput() {
 }
 

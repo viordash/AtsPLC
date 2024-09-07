@@ -15,7 +15,8 @@ class Network : public std::vector<LogicElement *> {
   public:
     const static size_t MinElementsCount = 2;
     const static size_t MaxElementsCount = 5;
-    Network();
+    explicit Network();
+    Network(uint8_t network_number, LogicItemState state);
     virtual ~Network();
 
     void SetNumber(uint8_t network_number);

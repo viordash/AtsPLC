@@ -12,6 +12,10 @@ static const char *TAG_ResetOutput = "ResetOutput";
 ResetOutput::ResetOutput() : CommonOutput() {
 }
 
+ResetOutput::ResetOutput(const MapIO io_adr) : ResetOutput() {
+    SetIoAdr(io_adr);
+}
+
 ResetOutput::~ResetOutput() {
 }
 

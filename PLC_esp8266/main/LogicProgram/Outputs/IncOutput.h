@@ -14,6 +14,7 @@ class IncOutput : public CommonOutput {
 
   public:
     explicit IncOutput();
+    IncOutput(const MapIO io_adr);
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

@@ -10,6 +10,11 @@
 ComparatorGr::ComparatorGr() : CommonComparator() {
 }
 
+ComparatorGr::ComparatorGr(uint8_t ref_percent04, const MapIO io_adr) : ComparatorGr() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
+}
+
 ComparatorGr::~ComparatorGr() {
 }
 

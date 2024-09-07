@@ -13,6 +13,10 @@ static const char *TAG_InputNO = "InputNO";
 InputNO::InputNO() : CommonInput() {
 }
 
+InputNO::InputNO(const MapIO io_adr) : InputNO() {
+    SetIoAdr(io_adr);
+}
+
 InputNO::~InputNO() {
 }
 

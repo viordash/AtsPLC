@@ -16,6 +16,7 @@ class DirectOutput : public CommonOutput {
 
   public:
     explicit DirectOutput();
+    DirectOutput(const MapIO io_adr);
     ~DirectOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

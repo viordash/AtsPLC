@@ -12,6 +12,10 @@ static const char *TAG_DirectOutput = "DirectOutput";
 DirectOutput::DirectOutput() : CommonOutput() {
 }
 
+DirectOutput::DirectOutput(const MapIO io_adr) : DirectOutput() {
+    SetIoAdr(io_adr);
+}
+
 DirectOutput::~DirectOutput() {
 }
 

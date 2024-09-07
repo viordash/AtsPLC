@@ -13,6 +13,7 @@ class InputNC : public CommonInput {
 
   public:
     explicit InputNC();
+    InputNC(const MapIO io_adr);
     ~InputNC();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

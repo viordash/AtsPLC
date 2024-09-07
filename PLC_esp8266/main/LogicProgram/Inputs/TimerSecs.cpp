@@ -15,6 +15,10 @@ static const char *TAG_TimerSecs = "TimerSecs";
 TimerSecs::TimerSecs() : CommonTimer() {
 }
 
+TimerSecs::TimerSecs(uint32_t delay_time_s) : TimerSecs() {
+    SetTime(delay_time_s);
+}
+
 TimerSecs::~TimerSecs() {
 }
 

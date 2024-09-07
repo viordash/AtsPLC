@@ -10,6 +10,11 @@
 ComparatorEq::ComparatorEq() : CommonComparator() {
 }
 
+ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr) : ComparatorEq() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
+}
+
 ComparatorEq::~ComparatorEq() {
 }
 
