@@ -1,5 +1,5 @@
 #include "LogicProgram/Ladder.h"
-#include "LogicProgram/Serializer/Record.h"
+#include "LogicProgram/LogicProgram.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -7,23 +7,18 @@
 #include <string.h>
 
 void Ladder::InitialLoad() {
-    // Network incomeRail0;
-    // incomeRail0.ChangeState(LogicItemState::lisActive);
-    // incomeRail0.SetNumber(0);
+    auto incomeRail0 = new Network(0, LogicItemState::lisActive);
+    Append(incomeRail0);
+    auto incomeRail1 = new Network(1, LogicItemState::lisActive);
+    Append(incomeRail1);
 
-    // incomeRail0.Append(new InputNO());
-    // incomeRail0.Append(new InputNC());
-    // incomeRail0.Append(new TimerSecs());
-    // incomeRail0.Append(new SetOutput());
+    incomeRail0->Append(new InputNO(MapIO::DI));
+    incomeRail0->Append(new InputNC(MapIO::V1));
+    incomeRail0->Append(new TimerSecs(1));
+    incomeRail0->Append(new SetOutput(MapIO::V1));
 
-    // Network incomeRail1;
-    // incomeRail1.ChangeState(LogicItemState::lisActive);
-    // incomeRail1.SetNumber(0);
-    // incomeRail1.Append(new InputNO());
-    // incomeRail1.Append(new InputNO());
-    // incomeRail1.Append(new TimerSecs());
-    // incomeRail1.Append(new ResetOutput());
-
-    // Append(&incomeRail0);
-    // Append(&incomeRail1);
+    incomeRail1->Append(new InputNO(MapIO::DI));
+    incomeRail1->Append(new InputNO(MapIO::V1));
+    incomeRail1->Append(new TimerSecs(1));
+    incomeRail1->Append(new ResetOutput(MapIO::V1));
 }
