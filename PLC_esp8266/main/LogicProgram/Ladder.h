@@ -12,7 +12,7 @@
 
 class Ladder : public std::vector<Network *> {
   protected:
-    void SafeLoad(redundant_storage *storage);
+    void InitialLoad();
 
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
     size_t Serialize(uint8_t *buffer, size_t buffer_size);

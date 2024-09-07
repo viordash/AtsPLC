@@ -38,7 +38,13 @@ void Ladder::Load() {
                                                        storage_1_path,
                                                        ladder_storage_name);
 
-    SafeLoad(&storage);
+    ESP_LOGI(TAG_Ladder, "Load ver: 0x%X, size:%u", storage.version, storage.size);
+
+    if (storage.version != LADDER_VERSION //
+        || Deserialize(storage.data, storage.size) == 0) {
+        InitialLoad();
+    }
+
     delete[] storage.data;
 }
 
@@ -67,32 +73,20 @@ void Ladder::Store() {
     delete[] storage.data;
 }
 
-void Ladder::SafeLoad(redundant_storage *storage) {
-    if (storage->version != LADDER_VERSION) {
-        ESP_LOGE(TAG_Ladder, "wrong storage version: 0x%X", storage->version);
-        return;
-    }
-
-    if (storage->size == 0) {
-        ESP_LOGW(TAG_Ladder, "empty storage");
-    }
-
-    if (Deserialize(storage->data, storage->size) == 0) {
-        ESP_LOGE(TAG_Ladder, "deserialize error");
-    }
-}
-
 size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
     uint16_t networks_count;
     if (!Record::Read(&networks_count, sizeof(networks_count), buffer, buffer_size, &readed)) {
+        ESP_LOGE(TAG_Ladder, "Deserialize, count read error");
         return 0;
     }
     if (networks_count < Ladder::MinNetworksCount) {
+        ESP_LOGE(TAG_Ladder, "Deserialize, count min limit");
         return 0;
     }
     if (networks_count > Ladder::MaxNetworksCount) {
+        ESP_LOGE(TAG_Ladder, "Deserialize, count max limit");
         return 0;
     }
 
@@ -102,6 +96,7 @@ size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
         size_t network_readed = network->Deserialize(&buffer[readed], buffer_size - readed);
         if (network_readed == 0) {
             delete network;
+            ESP_LOGE(TAG_Ladder, "Deserialize, network read error");
             return 0;
         }
         readed += network_readed;
