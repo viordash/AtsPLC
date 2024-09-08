@@ -58,6 +58,9 @@ namespace {
         TvElementType GetElementType() override final {
             return elementType;
         }
+        LogicItemState *PublicMorozov_Get_state() {
+            return &state;
+        }
     };
 } // namespace
 
@@ -195,4 +198,23 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize_with_large_reference_return_ze
     *((uint8_t *)&buffer[1]) = LogicElement::MaxValue;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
+}
+
+TEST(LogicCommonComparatorTestsGroup,
+     DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
+
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::V2);
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
 }

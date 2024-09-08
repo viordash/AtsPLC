@@ -41,13 +41,17 @@ uint8_t CommonTimer::GetProgress(LogicItemState prev_elem_state) {
 }
 
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        return false;
+    }
 
-    LogicItemState prev_state = state;
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         start_time_us = esp_timer_get_time();
     }
+
+    bool any_changes = false;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    LogicItemState prev_state = state;
 
     if (prev_elem_state == LogicItemState::lisActive //
         && (state == LogicItemState::lisActive || GetLeftTime() == 0)) {
@@ -66,7 +70,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    
+
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
