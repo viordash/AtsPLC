@@ -32,6 +32,7 @@ class Controller {
     static void Stop();
 
     static void ProcessTask(void *parm);
+    static void RenderTask(void *parm);
 
     static uint8_t GetAIRelativeValue();
     static uint8_t GetDIRelativeValue();

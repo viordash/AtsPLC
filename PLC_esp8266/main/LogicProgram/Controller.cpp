@@ -27,7 +27,7 @@ uint8_t Controller::Var4 = LogicElement::MinValue;
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
     Controller::runned = true;
-    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 2048, NULL, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "ctrl_actions_task", 2048, NULL, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
@@ -38,11 +38,16 @@ void Controller::Stop() {
 
 void Controller::ProcessTask(void *parm) {
     (void)parm;
-    ESP_LOGI(TAG_Controller, "start ++++++");
+    ESP_LOGI(TAG_Controller, "start process task");
 
     StatusBar statusBar(0);
     Ladder ladder;
     ladder.Load();
+
+    ESP_ERROR_CHECK(xTaskCreate(RenderTask, "ctrl_render_task", 2048, NULL, tskIDLE_PRIORITY, NULL)
+                            != pdPASS
+                        ? ESP_FAIL
+                        : ESP_OK);
 
     bool need_render = true;
     while (Controller::runned) {
@@ -70,7 +75,20 @@ void Controller::ProcessTask(void *parm) {
         }
     }
 
-    ESP_LOGI(TAG_Controller, "stop -------");
+    ESP_LOGI(TAG_Controller, "stop process task");
+    vTaskDelete(NULL);
+}
+
+void Controller::RenderTask(void *parm) {
+    (void)parm;
+    ESP_LOGI(TAG_Controller, "start render task");
+
+    while (Controller::runned) {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG_Controller, "-");
+    }
+
+    ESP_LOGI(TAG_Controller, "stop render task");
     vTaskDelete(NULL);
 }
 
