@@ -42,6 +42,7 @@ void Ladder::Load() {
 
     if (storage.version != LADDER_VERSION //
         || Deserialize(storage.data, storage.size) == 0) {
+        ESP_LOGI(TAG_Ladder, "load initial networks");
         InitialLoad();
     }
 
