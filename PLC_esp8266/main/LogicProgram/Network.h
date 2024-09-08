@@ -9,8 +9,6 @@ class Network : public std::vector<LogicElement *> {
   protected:
     LogicItemState state;
     uint8_t network_number;
-    virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state);
-    virtual bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point);
 
   public:
     const static size_t MinElementsCount = 2;
@@ -22,8 +20,8 @@ class Network : public std::vector<LogicElement *> {
     void SetNumber(uint8_t network_number);
     void ChangeState(LogicItemState state);
 
-    bool DoAction();
-    bool Render(uint8_t *fb);
+    virtual bool DoAction();
+    virtual bool Render(uint8_t *fb);
 
     void Append(LogicElement *element);
 

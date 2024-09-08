@@ -65,16 +65,12 @@ namespace {
             : Network(network_number, state) {
         }
 
-        bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override {
-            (void)prev_elem_changed;
-            (void)prev_elem_state;
+        bool DoAction() override {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(uint8_t *fb) override {
             (void)fb;
-            (void)prev_elem_state;
-            (void)start_point;
             return MonitorLogicElement::Render();
         }
     };
