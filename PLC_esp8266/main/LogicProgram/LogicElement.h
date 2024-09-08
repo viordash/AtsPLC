@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Display/Common.h"
-#include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Serializer/TypeValueElement.h"

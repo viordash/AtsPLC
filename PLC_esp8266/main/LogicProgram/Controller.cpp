@@ -4,6 +4,7 @@
 
 #include "Display/Common.h"
 #include "Display/display.h"
+#include "LogicProgram/Ladder.h"
 #include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/StatusBar.h"
 #include "esp_event.h"
@@ -38,24 +39,10 @@ void Controller::Stop() {
 void Controller::ProcessTask(void *parm) {
     (void)parm;
     ESP_LOGI(TAG_Controller, "start ++++++");
+
     StatusBar statusBar(0);
-
-    Network incomeRail0;
-    incomeRail0.ChangeState(LogicItemState::lisActive);
-    incomeRail0.SetNumber(0);
-
-    incomeRail0.Append(new InputNO());
-    incomeRail0.Append(new InputNC());
-    incomeRail0.Append(new TimerSecs());
-    incomeRail0.Append(new SetOutput());
-
-    Network incomeRail1;
-    incomeRail1.ChangeState(LogicItemState::lisActive);
-    incomeRail1.SetNumber(0);
-    incomeRail1.Append(new InputNO());
-    incomeRail1.Append(new InputNO());
-    incomeRail1.Append(new TimerSecs());
-    incomeRail1.Append(new ResetOutput());
+    Ladder ladder;
+    ladder.Load();
 
     bool need_render = true;
     while (Controller::runned) {
@@ -68,8 +55,9 @@ void Controller::ProcessTask(void *parm) {
 
         need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
 
-        need_render |= incomeRail0.DoAction();
-        need_render |= incomeRail1.DoAction();
+        for (auto network : ladder) {
+            need_render |= network->DoAction();
+        }
 
         if (need_render) {
             ESP_LOGI(TAG_Controller, ".");
@@ -78,9 +66,9 @@ void Controller::ProcessTask(void *parm) {
 
             statusBar.Render(fb);
 
-            incomeRail0.Render(fb);
-
-            incomeRail1.Render(fb);
+            for (auto network : ladder) {
+                need_render |= network->Render(fb);
+            }
 
             end_render(fb);
             need_render = false;
