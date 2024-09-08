@@ -27,7 +27,7 @@ uint8_t Controller::Var4 = LogicElement::MinValue;
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
     Controller::runned = true;
-    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 4096, NULL, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 2048, NULL, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }

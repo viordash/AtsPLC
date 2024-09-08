@@ -198,12 +198,13 @@ static void task(void *parm) {
     }
 
     xEventGroupClearBits(service.event, RUNNED_BIT);
+    ESP_LOGW(TAG, "Finish task");
     vTaskDelete(NULL);
 }
 
 void start_smartconfig() {
     service.event = xEventGroupCreate();
-    ESP_ERROR_CHECK(xTaskCreate(task, "smartconfig_task", 4096, NULL, 3, NULL) != pdPASS ? ESP_FAIL
+    ESP_ERROR_CHECK(xTaskCreate(task, "smartconfig_task", 2048, NULL, 3, NULL) != pdPASS ? ESP_FAIL
                                                                                          : ESP_OK);
 }
 

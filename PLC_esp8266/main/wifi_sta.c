@@ -161,7 +161,7 @@ void start_wifi_sta() {
     ESP_ERROR_CHECK(
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
-    ESP_ERROR_CHECK(xTaskCreate(task, "wifi_sta_task", 4096, NULL, 3, NULL) != pdPASS ? ESP_FAIL
+    ESP_ERROR_CHECK(xTaskCreate(task, "wifi_sta_task", 2048, NULL, 3, NULL) != pdPASS ? ESP_FAIL
                                                                                       : ESP_OK);
 }
 
