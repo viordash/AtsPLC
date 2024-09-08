@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DirectOutput.h"
 
@@ -21,66 +20,78 @@ TEST_GROUP(LogicDirectOutputTestsGroup){ //
 namespace {
     class TestableDirectOutput : public DirectOutput {
       public:
-        TestableDirectOutput(const MapIO io_adr, InputBase *incoming_item)
-            : DirectOutput(io_adr, incoming_item) {
+        TestableDirectOutput() : DirectOutput() {
         }
         virtual ~TestableDirectOutput() {
         }
-        InputBase *PublicMorozov_incoming_item() {
-            return incoming_item;
-        }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-    };
-
-    class TestableInputNC : public InputNC {
-      public:
-        TestableInputNC(const MapIO io_adr, InputBase *incoming_item)
-            : InputNC(io_adr, incoming_item) {
-        }
-        virtual ~TestableInputNC() {
-        }
-
-        LogicItemState *PublicMorozov_Get_state() {
-            return &state;
+        TvElementType PublicMorozov_GetElementType() {
+            return GetElementType();
         }
     };
 } // namespace
 
 TEST(LogicDirectOutputTestsGroup, DoAction_skip_when_incoming_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisPassive);
-    TestableDirectOutput testable(MapIO::V1, &incomeRail);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
-    CHECK_FALSE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableDirectOutput testable(MapIO::V1, &incomeRail);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
 
-    controller.SetV1RelativeValue(StatefulElement::MinValue);
+    Controller::SetV1RelativeValue(LogicElement::MinValue);
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
-    CHECK_EQUAL(StatefulElement::MaxValue, controller.GetV1RelativeValue());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableInputNC prev_element(MapIO::DI, &incomeRail);
+    Controller::SetV1RelativeValue(LogicElement::MaxValue);
 
-    controller.SetV1RelativeValue(StatefulElement::MaxValue);
-
-    TestableDirectOutput testable(MapIO::V1, &prev_element);
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    *(prev_element.PublicMorozov_Get_state()) = LogicItemState::lisPassive;
 
-    CHECK_TRUE(testable.DoAction(false));
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
-    CHECK_EQUAL(StatefulElement::MinValue, controller.GetV1RelativeValue());
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());
+}
+
+TEST(LogicDirectOutputTestsGroup, GetElementType_returns_et_DirectOutput) {
+    TestableDirectOutput testable;
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable.PublicMorozov_GetElementType());
+}
+
+TEST(LogicDirectOutputTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableDirectOutput testable;
+    testable.SetIoAdr(MapIO::O1);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, writed);
+
+    CHECK_EQUAL(TvElementType::et_DirectOutput, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[1]));
+}
+
+TEST(LogicDirectOutputTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DirectOutput;
+
+    TestableDirectOutput testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(1, readed);
+}
+
+TEST(LogicDirectOutputTestsGroup, GetElementType) {
+    TestableDirectOutput testable;
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
 }

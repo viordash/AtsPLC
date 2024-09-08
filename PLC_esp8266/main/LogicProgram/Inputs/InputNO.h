@@ -12,9 +12,13 @@ class InputNO : public CommonInput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    InputNO(const MapIO io_adr, InputBase *incoming_item);
+    explicit InputNO();
+    InputNO(const MapIO io_adr);
     ~InputNO();
 
-    bool DoAction(bool prev_changed) override final;
-    bool Render(uint8_t *fb) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
+    TvElementType GetElementType() override final;
 };

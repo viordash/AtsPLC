@@ -9,19 +9,22 @@
 
 static const char *TAG_ResetOutput = "ResetOutput";
 
-ResetOutput::ResetOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr, incoming_item) {
+ResetOutput::ResetOutput() : CommonOutput() {
+}
+
+ResetOutput::ResetOutput(const MapIO io_adr) : ResetOutput() {
+    SetIoAdr(io_adr);
 }
 
 ResetOutput::~ResetOutput() {
 }
 
-bool ResetOutput::DoAction(bool prev_changed) {
-    (void)prev_changed;
+bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;
@@ -29,7 +32,7 @@ bool ResetOutput::DoAction(bool prev_changed) {
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            SetValue(StatefulElement::MinValue);
+            SetValue(LogicElement::MinValue);
         }
         any_changes = true;
         ESP_LOGD(TAG_ResetOutput, ".");
@@ -39,11 +42,15 @@ bool ResetOutput::DoAction(bool prev_changed) {
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap() {
-    switch (incoming_item->GetState()) {
+    switch (state) {
         case LogicItemState::lisActive:
             return &ResetOutput::bitmap_active;
 
         default:
             return &ResetOutput::bitmap_passive;
     }
+}
+
+TvElementType ResetOutput::GetElementType() {
+    return TvElementType::et_ResetOutput;
 }

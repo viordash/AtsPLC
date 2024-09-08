@@ -6,8 +6,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/Display/DisplayChainItem.cpp"
-#include "main/Display/DisplayItemBase.cpp"
+#include "main/redundant_storage.cpp"
+#include "main/storage.cpp"
+
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/display.cpp"
@@ -17,17 +18,14 @@
 #include "main/LogicProgram/Inputs/CommonComparator.cpp"
 #include "main/LogicProgram/Inputs/CommonInput.cpp"
 #include "main/LogicProgram/Inputs/CommonTimer.cpp"
-#include "main/LogicProgram/Inputs/IncomeRail.cpp"
-#include "main/LogicProgram/Inputs/InputBase.cpp"
 #include "main/LogicProgram/Inputs/InputNC.cpp"
 #include "main/LogicProgram/LogicElement.cpp"
 #include "main/LogicProgram/MapIO.cpp"
+#include "main/LogicProgram/Network.cpp"
 #include "main/LogicProgram/Outputs/CommonOutput.cpp"
 #include "main/LogicProgram/Outputs/DecOutput.cpp"
 #include "main/LogicProgram/Outputs/DirectOutput.cpp"
 #include "main/LogicProgram/Outputs/IncOutput.cpp"
-#include "main/LogicProgram/Outputs/OutcomeRail.cpp"
 #include "main/LogicProgram/Outputs/ResetOutput.cpp"
 #include "main/LogicProgram/Outputs/SetOutput.cpp"
-#include "main/LogicProgram/StatefulElement.cpp"
-#include "main/LogicProgram/StatefulElement.h"
+#include "main/LogicProgram/Serializer/Record.cpp"

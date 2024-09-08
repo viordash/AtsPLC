@@ -5,8 +5,8 @@ extern "C" {
 #include "freertos/task.h"
 }
 
-#include "MigrateAnyData/MigrateAnyData.h"
 #include "DataMigrations/MigrateSettings.h"
+#include "MigrateAnyData/MigrateAnyData.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "partitions.h"
@@ -15,7 +15,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG = "settings";
+static const char *TAG_settings = "settings";
 
 device_settings settings = {};
 
@@ -51,17 +51,23 @@ void load_settings() {
                                                     });
 
     if (migrateResult == MigrateRes_Migrate) {
-        ESP_LOGI(TAG, "Settings. migrated");
+        ESP_LOGI(TAG_settings, "migrated");
     } else if (migrateResult == MigrateRes_Skipped && storedData != NULL) {
         memcpy(&settings, storedData, sizeof(settings));
-        ESP_LOGI(TAG, "Settings. loaded");
+        ESP_LOGI(TAG_settings, "loaded");
     } else {
-        ESP_LOGE(TAG, "Settings. migrate error");
+        ESP_LOGE(TAG_settings, "migrate error");
     }
 
-    ESP_LOGI(TAG, "smartconfig.counter:%u", settings.smartconfig.counter);
-    ESP_LOGI(TAG, "wifi.ssid:%.*s", (int)sizeof(settings.wifi.ssid) - 1, settings.wifi.ssid);
-    ESP_LOGI(TAG, "wifi.password:%.*s", (int)sizeof(settings.wifi.password) - 1, settings.wifi.password);
+    ESP_LOGI(TAG_settings, "smartconfig.counter:%u", settings.smartconfig.counter);
+    ESP_LOGI(TAG_settings,
+             "wifi.ssid:%.*s",
+             (int)sizeof(settings.wifi.ssid) - 1,
+             settings.wifi.ssid);
+    ESP_LOGI(TAG_settings,
+             "wifi.password:%.*s",
+             (int)sizeof(settings.wifi.password) - 1,
+             settings.wifi.password);
 
     delete[] storage.data;
 }

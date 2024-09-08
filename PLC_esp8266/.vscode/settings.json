@@ -107,6 +107,11 @@
         "variant": "cpp",
         "logicprogram.h": "c",
         "controller_engine.h": "c",
-        "process_engine.h": "c"
+        "process_engine.h": "c",
+        "portable.h": "c",
+        "portmacro.h": "c",
+        "xtensa_rtos.h": "c",
+        "xtensa_timer.h": "c",
+        "freertosconfig.h": "c"
     }
 }

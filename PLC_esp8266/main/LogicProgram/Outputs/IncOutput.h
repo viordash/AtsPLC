@@ -13,8 +13,10 @@ class IncOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    IncOutput(const MapIO io_adr, InputBase *incoming_item);
+    explicit IncOutput();
+    IncOutput(const MapIO io_adr);
     ~IncOutput();
 
-    bool DoAction(bool prev_changed) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    TvElementType GetElementType() override final;
 };

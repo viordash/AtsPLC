@@ -9,19 +9,22 @@
 
 static const char *TAG_IncOutput = "IncOutput";
 
-IncOutput::IncOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr ,incoming_item) {
+IncOutput::IncOutput() : CommonOutput() {
+}
+
+IncOutput::IncOutput(const MapIO io_adr) : IncOutput() {
+    SetIoAdr(io_adr);
 }
 
 IncOutput::~IncOutput() {
 }
 
-bool IncOutput::DoAction(bool prev_changed) {
-    (void)prev_changed;
+bool IncOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;
@@ -30,7 +33,7 @@ bool IncOutput::DoAction(bool prev_changed) {
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
             uint8_t prev_val = GetValue();
-            if (prev_val > StatefulElement::MinValue) {
+            if (prev_val > LogicElement::MinValue) {
                 prev_val++;
             }
             SetValue(prev_val);
@@ -43,11 +46,15 @@ bool IncOutput::DoAction(bool prev_changed) {
 }
 
 const Bitmap *IncOutput::GetCurrentBitmap() {
-    switch (incoming_item->GetState()) {
+    switch (state) {
         case LogicItemState::lisActive:
             return &IncOutput::bitmap_active;
 
         default:
             return &IncOutput::bitmap_passive;
     }
+}
+
+TvElementType IncOutput::GetElementType() {
+    return TvElementType::et_IncOutput;
 }

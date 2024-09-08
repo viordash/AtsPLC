@@ -5,7 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-InputOutputElement::InputOutputElement(const MapIO io_adr) : InputElement(io_adr) {
+InputOutputElement::InputOutputElement() : InputElement() {
+    SetValue = NULL;
+}
+
+InputOutputElement::~InputOutputElement() {
+}
+
+void InputOutputElement::SetIoAdr(const MapIO io_adr) {
+    InputElement::SetIoAdr(io_adr);
     switch (io_adr) {
         case MapIO::O1:
             SetValue = Controller::SetO1RelativeValue;
@@ -30,7 +38,4 @@ InputOutputElement::InputOutputElement(const MapIO io_adr) : InputElement(io_adr
             SetValue = NULL;
             break;
     }
-}
-
-InputOutputElement::~InputOutputElement() {
 }

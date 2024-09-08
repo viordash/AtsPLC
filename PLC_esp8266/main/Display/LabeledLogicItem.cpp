@@ -5,11 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-LabeledLogicItem::LabeledLogicItem(const char *label) {
+void LabeledLogicItem::SetLabel(const char *label) {
     this->label = label;
     this->width = 6 * strlen(label);
     this->height = 12;
-}
-
-LabeledLogicItem::~LabeledLogicItem() {
 }

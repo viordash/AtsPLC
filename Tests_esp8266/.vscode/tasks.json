@@ -29,7 +29,7 @@
                     "make"
                 ]
             }
-        },     
+        },
         {
             "label": "rebuild",
             "type": "shell",
@@ -53,7 +53,8 @@
                     "-c",
                     "'make clean;make'"
                 ]
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }

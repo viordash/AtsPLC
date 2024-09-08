@@ -12,9 +12,13 @@ class DirectOutput : public CommonOutput {
 
     const Bitmap *GetCurrentBitmap() override final;
 
+  protected:
+
   public:
-    DirectOutput(const MapIO io_adr, InputBase *incoming_item);
+    explicit DirectOutput();
+    DirectOutput(const MapIO io_adr);
     ~DirectOutput();
 
-    bool DoAction(bool prev_changed) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    TvElementType GetElementType() override final;
 };

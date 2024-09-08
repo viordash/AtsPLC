@@ -13,8 +13,10 @@ class DecOutput : public CommonOutput {
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    DecOutput(const MapIO io_adr, InputBase *incoming_item);
+    explicit DecOutput();
+    DecOutput(const MapIO io_adr);
     ~DecOutput();
 
-    bool DoAction(bool prev_changed) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    TvElementType GetElementType() override final;
 };

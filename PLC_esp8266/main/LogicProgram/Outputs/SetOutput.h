@@ -1,6 +1,5 @@
 #pragma once
 
-#include "LogicProgram/Inputs/InputBase.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -12,9 +11,13 @@ class SetOutput : public CommonOutput {
 
     const Bitmap *GetCurrentBitmap() override final;
 
+  protected:
+
   public:
-    SetOutput(const MapIO io_adr, InputBase *incoming_item);
+    explicit SetOutput();
+    SetOutput(const MapIO io_adr);
     ~SetOutput();
 
-    bool DoAction(bool prev_changed) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    TvElementType GetElementType() override final;
 };

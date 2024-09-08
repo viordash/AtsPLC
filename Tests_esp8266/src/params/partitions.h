@@ -3,3 +3,4 @@
 #define storage_0_path "/tmp/storage_0"
 #define storage_1_path "/tmp/storage_1"
 #define settings_storage_name "settings"
+#define ladder_storage_name "ladder"

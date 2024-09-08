@@ -9,19 +9,22 @@
 
 static const char *TAG_DecOutput = "DecOutput";
 
-DecOutput::DecOutput(const MapIO io_adr, InputBase *incoming_item)
-    : CommonOutput(io_adr, incoming_item) {
+DecOutput::DecOutput() : CommonOutput() {
+}
+
+DecOutput::DecOutput(const MapIO io_adr) : DecOutput() {
+    SetIoAdr(io_adr);
 }
 
 DecOutput::~DecOutput() {
 }
 
-bool DecOutput::DoAction(bool prev_changed) {
-    (void)prev_changed;
+bool DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    (void)prev_elem_changed;
     bool any_changes = false;
     LogicItemState prev_state = state;
 
-    if (incoming_item->GetState() == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;
@@ -30,7 +33,7 @@ bool DecOutput::DoAction(bool prev_changed) {
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
             uint8_t prev_val = GetValue();
-            if (prev_val > StatefulElement::MinValue) {
+            if (prev_val > LogicElement::MinValue) {
                 prev_val--;
             }
             SetValue(prev_val);
@@ -43,11 +46,15 @@ bool DecOutput::DoAction(bool prev_changed) {
 }
 
 const Bitmap *DecOutput::GetCurrentBitmap() {
-    switch (incoming_item->GetState()) {
+    switch (state) {
         case LogicItemState::lisActive:
             return &DecOutput::bitmap_active;
 
         default:
             return &DecOutput::bitmap_passive;
     }
+}
+
+TvElementType DecOutput::GetElementType() {
+    return TvElementType::et_DecOutput;
 }

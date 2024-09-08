@@ -7,8 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorGE::ComparatorGE(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
-    : CommonComparator(ref_percent04, io_adr, incoming_item) {
+ComparatorGE::ComparatorGE() : CommonComparator() {
+}
+
+ComparatorGE::ComparatorGE(uint8_t ref_percent04, const MapIO io_adr) : ComparatorGE() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
 }
 
 ComparatorGE::~ComparatorGE() {
@@ -26,4 +30,8 @@ const Bitmap *ComparatorGE::GetCurrentBitmap() {
 
 bool ComparatorGE::CompareFunction() {
     return GetValue() >= ref_percent04;
+}
+
+TvElementType ComparatorGE::GetElementType() {
+    return TvElementType::et_ComparatorGE;
 }

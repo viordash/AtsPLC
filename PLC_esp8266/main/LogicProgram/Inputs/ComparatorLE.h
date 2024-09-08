@@ -13,6 +13,8 @@ class ComparatorLE : public CommonComparator {
     bool CompareFunction() override final;
 
   public:
-    ComparatorLE(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item);
+    ComparatorLE();
+    ComparatorLE(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorLE();
+    TvElementType GetElementType() override final;
 };

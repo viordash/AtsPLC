@@ -1,22 +1,21 @@
 #pragma once
 
 #include "Display/LabeledLogicItem.h"
-#include "LogicProgram/Inputs/InputBase.h"
+#include "Display/display.h"
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class CommonInput : public InputBase, public InputElement, public LabeledLogicItem {
+class CommonInput : public LogicElement, public InputElement, public LabeledLogicItem {
   protected:
-    InputBase *incoming_item;
     virtual const Bitmap *GetCurrentBitmap() = 0;
 
   public:
-    const uint8_t LeftPadding = 2;
-    const uint8_t RightPadding = 0;
-    CommonInput(const MapIO io_adr, InputBase *incoming_item);
+    const uint8_t LeftPadding = 4;
+    explicit CommonInput();
     virtual ~CommonInput();
 
-    bool Render(uint8_t *fb) override;
-    Point OutcomingPoint() override final;
+    void SetIoAdr(const MapIO io_adr) override final;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 };

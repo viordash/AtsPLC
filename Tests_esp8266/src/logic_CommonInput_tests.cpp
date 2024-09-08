@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonInput.h"
-#include "main/LogicProgram/Inputs/IncomeRail.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -33,8 +32,7 @@ namespace {
 
     class TestableCommonInput : public CommonInput {
       public:
-        TestableCommonInput(const MapIO io_adr, InputBase *incoming_item)
-            : CommonInput(io_adr, incoming_item) {
+        TestableCommonInput() : CommonInput() {
         }
         virtual ~TestableCommonInput() {
         }
@@ -44,21 +42,36 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        bool DoAction(bool prev_changed) {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) {
             (void)prev_changed;
+            (void)prev_elem_state;
             return true;
+        }
+
+        size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        size_t Deserialize(uint8_t *buffer, size_t buffer_size) override {
+            (void)buffer;
+            (void)buffer_size;
+            return 0;
+        }
+        TvElementType GetElementType() override {
+            return TvElementType::et_Undef;
         }
     };
 } // namespace
 
 TEST(LogicCommonInputTestsGroup, Render_when_active) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableCommonInput testable(MapIO::V1, &incomeRail);
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    Point start_point = { 0, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -68,14 +81,15 @@ TEST(LogicCommonInputTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+    CHECK_EQUAL(32, start_point.x);
 }
 
 TEST(LogicCommonInputTestsGroup, Render_when_passive) {
-    Controller controller(NULL);
-    IncomeRail incomeRail(&controller, 0, LogicItemState::lisActive);
-    TestableCommonInput testable(MapIO::V1, &incomeRail);
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    Point start_point = { 0, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -85,4 +99,5 @@ TEST(LogicCommonInputTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+    CHECK_EQUAL(32, start_point.x);
 }

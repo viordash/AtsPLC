@@ -13,6 +13,8 @@ class ComparatorEq : public CommonComparator {
     bool CompareFunction() override final;
 
   public:
-    ComparatorEq(uint8_t ref_percent04, const MapIO io_adr, InputBase *prev_item);
+    ComparatorEq();
+    ComparatorEq(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorEq();
+    TvElementType GetElementType() override final;
 };

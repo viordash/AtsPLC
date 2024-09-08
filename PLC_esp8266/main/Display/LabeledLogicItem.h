@@ -10,7 +10,7 @@ class LabeledLogicItem {
     uint8_t width;
     uint8_t height;
 
+    void SetLabel(const char *label);
+
   public:
-    explicit LabeledLogicItem(const char *label);
-    virtual ~LabeledLogicItem();
 };

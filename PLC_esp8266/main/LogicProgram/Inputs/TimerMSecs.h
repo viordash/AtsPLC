@@ -9,11 +9,19 @@ class TimerMSecs : public CommonTimer {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
+    static const uint32_t min_delay_time_ms = 1;
+    static const uint32_t max_delay_time_ms = 99999;
+
     const Bitmap *GetCurrentBitmap() override final;
 
   public:
-    TimerMSecs(uint32_t delay_time_ms, InputBase *incoming_item);
+    explicit TimerMSecs();
+    TimerMSecs(uint32_t delay_time_ms);
     ~TimerMSecs();
 
-    bool Render(uint8_t *fb) override final;
+    void SetTime(uint32_t delay_time_ms);
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
+    TvElementType GetElementType() override final;
 };

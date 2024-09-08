@@ -13,6 +13,8 @@ class ComparatorGr : public CommonComparator {
     bool CompareFunction() override final;
 
   public:
-    ComparatorGr(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item);
+    ComparatorGr();
+    ComparatorGr(uint8_t ref_percent04, const MapIO io_adr);
     ~ComparatorGr();
+    TvElementType GetElementType() override final;
 };

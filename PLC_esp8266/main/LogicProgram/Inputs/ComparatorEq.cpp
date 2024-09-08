@@ -7,8 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr, InputBase *incoming_item)
-    : CommonComparator(ref_percent04, io_adr, incoming_item) {
+ComparatorEq::ComparatorEq() : CommonComparator() {
+}
+
+ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr) : ComparatorEq() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
 }
 
 ComparatorEq::~ComparatorEq() {
@@ -26,4 +30,8 @@ const Bitmap *ComparatorEq::GetCurrentBitmap() {
 
 bool ComparatorEq::CompareFunction() {
     return GetValue() == ref_percent04;
+}
+
+TvElementType ComparatorEq::GetElementType() {
+    return TvElementType::et_ComparatorEq;
 }
