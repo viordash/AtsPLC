@@ -25,6 +25,22 @@ void Ladder::RemoveAll() {
     }
 }
 
+bool Ladder::DoAction() {
+    bool any_changes = false;
+    for (auto it = begin(); it != end(); ++it) {
+        any_changes |= (*it)->DoAction();
+    }
+    return any_changes;
+}
+
+bool Ladder::Render(uint8_t *fb) {
+    bool res = true;
+    for (auto it = begin(); it != end(); ++it) {
+        res &= (*it)->Render(fb);
+    }
+    return res;
+}
+
 void Ladder::Append(Network *network) {
     ESP_LOGI(TAG_Ladder, "append network: %p", network);
     push_back(network);

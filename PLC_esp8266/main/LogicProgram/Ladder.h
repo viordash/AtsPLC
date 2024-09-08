@@ -26,6 +26,10 @@ class Ladder : public std::vector<Network *> {
     Ladder();
     ~Ladder();
 
+
+    bool DoAction();
+    bool Render(uint8_t *fb);
+
     void Append(Network *network);
 
     void Load();

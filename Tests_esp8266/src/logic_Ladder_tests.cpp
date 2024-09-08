@@ -59,6 +59,26 @@ namespace {
         }
     };
 
+    class TestableNetwork : public Network, public MonitorLogicElement {
+      public:
+        TestableNetwork(uint8_t network_number, LogicItemState state)
+            : Network(network_number, state) {
+        }
+
+        bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override {
+            (void)prev_elem_changed;
+            (void)prev_elem_state;
+            return MonitorLogicElement::DoAction();
+        }
+
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+            (void)fb;
+            (void)prev_elem_state;
+            (void)start_point;
+            return MonitorLogicElement::Render();
+        }
+    };
+
     class TestableInputNC : public InputNC, public MonitorLogicElement {
       public:
         TestableInputNC(const MapIO io_adr) : InputNC(io_adr) {
@@ -271,4 +291,46 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
     CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, (*network1)[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ResetOutput, (*network1)[3]->GetElementType());
+}
+
+TEST(LogicLadderTestsGroup, append_network) {
+    Ladder testable;
+
+    testable.Append(new Network(0, LogicItemState::lisActive));
+    testable.Append(new Network(1, LogicItemState::lisActive));
+    testable.Append(new Network(2, LogicItemState::lisActive));
+
+    CHECK_EQUAL(3, testable.size());
+}
+
+TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
+    Ladder testable;
+
+    testable.Append(new TestableNetwork(0, LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(1, LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(2, LogicItemState::lisActive));
+
+    CHECK_FALSE(testable.DoAction());
+
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->DoAction_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->DoAction_called);
+
+    static_cast<TestableNetwork *>(testable[2])->DoAction_result = true;
+
+    CHECK_TRUE(testable.DoAction());
+}
+
+TEST(LogicLadderTestsGroup, Render__also_render_all_networks) {
+    Ladder testable;
+
+    testable.Append(new TestableNetwork(0, LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(1, LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(2, LogicItemState::lisActive));
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
 }

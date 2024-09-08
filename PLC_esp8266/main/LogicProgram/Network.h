@@ -6,11 +6,11 @@
 #include <vector>
 
 class Network : public std::vector<LogicElement *> {
-  private:
+  protected:
     LogicItemState state;
     uint8_t network_number;
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state);
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point);
+    virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state);
+    virtual bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point);
 
   public:
     const static size_t MinElementsCount = 2;

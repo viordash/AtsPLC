@@ -55,9 +55,7 @@ void Controller::ProcessTask(void *parm) {
 
         need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
 
-        for (auto network : ladder) {
-            need_render |= network->DoAction();
-        }
+        need_render |= ladder.DoAction();
 
         if (need_render) {
             ESP_LOGI(TAG_Controller, ".");
@@ -65,10 +63,7 @@ void Controller::ProcessTask(void *parm) {
             uint8_t *fb = begin_render();
 
             statusBar.Render(fb);
-
-            for (auto network : ladder) {
-                need_render |= network->Render(fb);
-            }
+            ladder.Render(fb);
 
             end_render(fb);
             need_render = false;
