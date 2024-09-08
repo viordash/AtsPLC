@@ -10,11 +10,11 @@ class IncOutput : public CommonOutput {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
-    const Bitmap *GetCurrentBitmap() override final;
+    const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   public:
     explicit IncOutput();
-    IncOutput(const MapIO io_adr);
+    explicit IncOutput(const MapIO io_adr);
     ~IncOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

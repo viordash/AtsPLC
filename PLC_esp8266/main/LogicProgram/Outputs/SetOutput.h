@@ -9,13 +9,12 @@ class SetOutput : public CommonOutput {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
-    const Bitmap *GetCurrentBitmap() override final;
+    const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   protected:
-
   public:
     explicit SetOutput();
-    SetOutput(const MapIO io_adr);
+    explicit SetOutput(const MapIO io_adr);
     ~SetOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

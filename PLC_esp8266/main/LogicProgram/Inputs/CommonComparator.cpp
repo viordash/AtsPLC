@@ -23,6 +23,7 @@ void CommonComparator::SetReference(uint8_t ref_percent04) {
 
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     (void)prev_elem_changed;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     bool any_changes = false;
     LogicItemState prev_state = state;
 
@@ -41,6 +42,8 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
 
 bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    
     bool res;
     res = CommonInput::Render(fb, state, start_point);
 

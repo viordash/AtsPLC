@@ -9,7 +9,7 @@
 
 class CommonInput : public LogicElement, public InputElement, public LabeledLogicItem {
   protected:
-    virtual const Bitmap *GetCurrentBitmap() = 0;
+    virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
   public:
     const uint8_t LeftPadding = 4;

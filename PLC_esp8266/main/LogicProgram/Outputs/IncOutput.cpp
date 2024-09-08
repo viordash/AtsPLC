@@ -21,6 +21,8 @@ IncOutput::~IncOutput() {
 
 bool IncOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     (void)prev_elem_changed;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+
     bool any_changes = false;
     LogicItemState prev_state = state;
 
@@ -45,7 +47,7 @@ bool IncOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-const Bitmap *IncOutput::GetCurrentBitmap() {
+const Bitmap *IncOutput::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
             return &IncOutput::bitmap_active;

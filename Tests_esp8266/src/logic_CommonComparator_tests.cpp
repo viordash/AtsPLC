@@ -41,7 +41,8 @@ namespace {
         virtual ~TestableCommonComparator() {
         }
 
-        const Bitmap *GetCurrentBitmap() {
+        const Bitmap *GetCurrentBitmap(LogicItemState state) {
+            (void)state;
             return &bitmap;
         }
 

@@ -35,7 +35,7 @@ void TimerSecs::SetTime(uint32_t delay_time_s) {
     ESP_LOGD(TAG_TimerSecs, "ctor, str_time:%s", this->str_time);
 }
 
-const Bitmap *TimerSecs::GetCurrentBitmap() {
+const Bitmap *TimerSecs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
             return &TimerSecs::bitmap_active;
@@ -56,6 +56,8 @@ bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
 bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    
     uint8_t x_pos = start_point->x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
 
     res = CommonTimer::Render(fb, prev_elem_state, start_point);

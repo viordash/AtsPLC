@@ -42,6 +42,7 @@ uint8_t CommonTimer::GetProgress(LogicItemState prev_elem_state) {
 
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = false;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     LogicItemState prev_state = state;
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
@@ -64,7 +65,9 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
 bool CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
-    auto bitmap = GetCurrentBitmap();
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    
+    auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
         res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);

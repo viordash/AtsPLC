@@ -9,7 +9,7 @@ class ComparatorEq : public CommonComparator {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
-    const Bitmap *GetCurrentBitmap() override final;
+    const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
     bool CompareFunction() override final;
 
   public:

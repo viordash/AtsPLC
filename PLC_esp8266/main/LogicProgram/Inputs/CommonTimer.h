@@ -16,7 +16,7 @@ class CommonTimer : public LogicElement {
     uint64_t GetLeftTime();
     uint8_t GetProgress(LogicItemState prev_elem_state);
 
-    virtual const Bitmap *GetCurrentBitmap() = 0;
+    virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
     const uint8_t LeftPadding = 8;
 
