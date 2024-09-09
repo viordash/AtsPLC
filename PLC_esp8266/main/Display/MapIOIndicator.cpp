@@ -1,6 +1,5 @@
 #include "Display/MapIOIndicator.h"
 #include "Display/display.h"
-#include "LogicProgram/MapIO.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -11,6 +10,10 @@ MapIOIndicator::MapIOIndicator(const char *name, uint8_t progress, uint8_t separ
     this->name = name;
     this->progress = progress;
     this->separator_width = separator_width;
+}
+
+MapIOIndicator::MapIOIndicator(const MapIO io_adr) {    
+    this->name = MapIONames[io_adr];
 }
 
 MapIOIndicator::~MapIOIndicator() {
@@ -27,8 +30,8 @@ bool MapIOIndicator::Render(uint8_t *fb, Point *start_point) {
                           start_point->x + margin,
                           start_point->y + margin + HORZ_PROGRESS_BAR_HEIGHT,
                           name);
-                
-    start_point->x += (text_width * name_size) + margin + margin + separator_width;          
+
+    start_point->x += (text_width * name_size) + margin + margin + separator_width;
     return res;
 }
 
