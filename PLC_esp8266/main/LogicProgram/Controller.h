@@ -12,6 +12,7 @@ extern "C" {
 }
 #endif
 
+#include "LogicProgram/Ladder.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -22,10 +23,12 @@ class Controller {
   private:
     static bool runned;
     static EventGroupHandle_t gpio_events;
+    static EventGroupHandle_t events;
     static uint8_t Var1;
     static uint8_t Var2;
     static uint8_t Var3;
     static uint8_t Var4;
+    static Ladder *ladder;
 
   public:
     static void Start(EventGroupHandle_t gpio_events);
