@@ -85,6 +85,9 @@ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void
 EventGroupHandle_t xEventGroupCreate(void) {
     return mock_c()->actualCall("xEventGroupCreate")->returnPointerValueOrDefault(NULL);
 }
+void vEventGroupDelete(EventGroupHandle_t xEventGroup) {
+    mock_c()->actualCall("vEventGroupDelete")->withPointerParameters("xEventGroup", xEventGroup);
+}
 
 BaseType_t xEventGroupSetBitsFromISR(EventGroupHandle_t xEventGroup,
                                      const EventBits_t uxBitsToSet,
@@ -95,6 +98,16 @@ BaseType_t xEventGroupSetBitsFromISR(EventGroupHandle_t xEventGroup,
 
     return mock_scope_c(buffer)
         ->actualCall("xEventGroupSetBitsFromISR")
+        ->withPointerParameters("xEventGroup", xEventGroup)
+        ->returnIntValueOrDefault(pdTRUE);
+}
+
+EventBits_t xEventGroupSetBits(EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet) {
+    char buffer[32];
+    sprintf(buffer, "0x%08X", uxBitsToSet);
+
+    return mock_scope_c(buffer)
+        ->actualCall("xEventGroupSetBits")
         ->withPointerParameters("xEventGroup", xEventGroup)
         ->returnIntValueOrDefault(pdTRUE);
 }
