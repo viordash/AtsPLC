@@ -2,6 +2,7 @@
 #include "Display/display.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -50,7 +51,7 @@ bool Network::DoAction() {
     return any_changes;
 }
 
-bool Network::Render(uint8_t *fb) {
+IRAM_ATTR bool Network::Render(uint8_t *fb) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };

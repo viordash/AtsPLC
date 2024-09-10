@@ -1,5 +1,6 @@
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -33,7 +34,7 @@ bool Ladder::DoAction() {
     return any_changes;
 }
 
-bool Ladder::Render(uint8_t *fb) {
+IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
     for (auto it = begin(); it != end(); ++it) {
         res &= (*it)->Render(fb);

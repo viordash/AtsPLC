@@ -1,6 +1,7 @@
 #include "LogicProgram/StatusBar.h"
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -31,7 +32,7 @@ StatusBar::~StatusBar() {
     delete indicator_V4;
 }
 
-bool StatusBar::Render(uint8_t *fb) {
+IRAM_ATTR bool StatusBar::Render(uint8_t *fb) {
     bool res = true;
     uint8_t separator_width = 1;
     Point point = { 2, y };

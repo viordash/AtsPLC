@@ -20,7 +20,7 @@ void CommonOutput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     

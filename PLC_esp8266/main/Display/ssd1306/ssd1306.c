@@ -12,6 +12,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "esp_attr.h"
 #include <driver/gpio.h>
 #include <driver/i2c.h>
 #include <stdio.h>
@@ -88,7 +89,7 @@
         y = temp##x##y;                                                                            \
     } while (0)
 
-static int inline i2c_send(const ssd1306_t *dev, uint8_t reg, uint8_t *data, uint8_t len) {
+static IRAM_ATTR int inline i2c_send(const ssd1306_t *dev, uint8_t reg, uint8_t *data, uint8_t len) {
     int ret;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -111,7 +112,7 @@ static int inline i2c_send(const ssd1306_t *dev, uint8_t reg, uint8_t *data, uin
  * in case of two-bytes command here will be Data byte
  * right after the command byte.
  */
-int ssd1306_command(const ssd1306_t *dev, uint8_t cmd) {
+IRAM_ATTR int ssd1306_command(const ssd1306_t *dev, uint8_t cmd) {
     return i2c_send(dev, 0x00, &cmd, 1);
 }
 
@@ -173,7 +174,7 @@ int ssd1306_init(const ssd1306_t *dev) {
     return -EIO;
 }
 
-static int sh1106_go_coordinate(const ssd1306_t *dev, uint8_t x, uint8_t y) {
+IRAM_ATTR static int sh1106_go_coordinate(const ssd1306_t *dev, uint8_t x, uint8_t y) {
     if (x >= dev->width || y >= (dev->height / 8))
         return -EINVAL;
     int err = 0;
@@ -186,7 +187,7 @@ static int sh1106_go_coordinate(const ssd1306_t *dev, uint8_t x, uint8_t y) {
     return ssd1306_command(dev, SH1106_SET_HIGH_COL_ADDR | (x >> 4)); //Set higher column address
 }
 
-int ssd1306_load_frame_buffer(const ssd1306_t *dev, uint8_t buf[]) {
+IRAM_ATTR int ssd1306_load_frame_buffer(const ssd1306_t *dev, uint8_t buf[]) {
     uint16_t i;
     uint8_t tab[16] = { 0 };
     size_t len = dev->width * dev->height / 8;
@@ -317,7 +318,7 @@ int ssd1306_set_mux_ratio(const ssd1306_t *dev, uint8_t ratio) {
     return ssd1306_command(dev, ratio);
 }
 
-int ssd1306_set_column_addr(const ssd1306_t *dev, uint8_t start, uint8_t stop) {
+IRAM_ATTR int ssd1306_set_column_addr(const ssd1306_t *dev, uint8_t start, uint8_t stop) {
     int err = 0;
     if ((err = ssd1306_command(dev, SSD1306_SET_COL_ADDR)))
         return err;
@@ -328,7 +329,7 @@ int ssd1306_set_column_addr(const ssd1306_t *dev, uint8_t start, uint8_t stop) {
     return ssd1306_command(dev, stop);
 }
 
-int ssd1306_set_page_addr(const ssd1306_t *dev, uint8_t start, uint8_t stop) {
+IRAM_ATTR int ssd1306_set_page_addr(const ssd1306_t *dev, uint8_t start, uint8_t stop) {
     int err = 0;
     if ((err = ssd1306_command(dev, SSD1306_SET_PAGE_ADDR)))
         return err;
@@ -381,7 +382,7 @@ int ssd1306_load_xbm(const ssd1306_t *dev, uint8_t *xbm, uint8_t *fb) {
     return ssd1306_load_frame_buffer(dev, fb);
 }
 
-int ssd1306_draw_pixel(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_draw_pixel(const ssd1306_t *dev,
                        uint8_t *fb,
                        int8_t x,
                        int8_t y,
@@ -407,7 +408,7 @@ int ssd1306_draw_pixel(const ssd1306_t *dev,
     return 0;
 }
 
-int ssd1306_draw_hline(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_draw_hline(const ssd1306_t *dev,
                        uint8_t *fb,
                        int8_t x,
                        int8_t y,
@@ -453,7 +454,7 @@ int ssd1306_draw_hline(const ssd1306_t *dev,
     return 0;
 }
 
-int ssd1306_draw_vline(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_draw_vline(const ssd1306_t *dev,
                        uint8_t *fb,
                        int8_t x,
                        int8_t y,
@@ -870,7 +871,7 @@ int ssd1306_fill_triangle(const ssd1306_t *dev,
     return 0;
 }
 
-int ssd1306_draw_char(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_draw_char(const ssd1306_t *dev,
                       uint8_t *fb,
                       const font_info_t *font,
                       uint8_t x,
@@ -920,7 +921,7 @@ int ssd1306_draw_char(const ssd1306_t *dev,
     return d->width;
 }
 
-int ssd1306_draw_string(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_draw_string(const ssd1306_t *dev,
                         uint8_t *fb,
                         const font_info_t *font,
                         uint8_t x,

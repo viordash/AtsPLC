@@ -1,5 +1,6 @@
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -43,7 +44,8 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
     return any_changes;
 }
 
-bool CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool
+CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 

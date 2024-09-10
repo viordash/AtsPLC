@@ -1,4 +1,5 @@
 #include "LogicProgram/Inputs/CommonInput.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -16,10 +17,11 @@ void CommonInput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-bool CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool
+CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    
+
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {

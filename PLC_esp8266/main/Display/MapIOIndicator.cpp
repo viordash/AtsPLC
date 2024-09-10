@@ -1,5 +1,6 @@
 #include "Display/MapIOIndicator.h"
 #include "Display/display.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -13,7 +14,7 @@ MapIOIndicator::MapIOIndicator(const MapIO io_adr) {
 MapIOIndicator::~MapIOIndicator() {
 }
 
-bool MapIOIndicator::Render(uint8_t *fb, Point *start_point, uint8_t progress) {
+IRAM_ATTR bool MapIOIndicator::Render(uint8_t *fb, Point *start_point, uint8_t progress) {
     bool res;
 
     start_point->x += margin;
