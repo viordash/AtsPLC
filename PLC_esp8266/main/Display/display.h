@@ -26,16 +26,6 @@ extern "C" {
 
 void display_init();
 
-void display_demo_0(bool active);
-void display_demo_1();
-void display_demo_2();
-void display_demo(uint8_t x, uint8_t y);
-
-void draw_demo(uint8_t x,
-               uint8_t y,
-               const uint8_t *xbm_data,
-               uint8_t xbm_width,
-               uint8_t xbm_height);
 uint8_t *begin_render();
 void end_render(uint8_t *fb);
 bool draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);

@@ -1,5 +1,4 @@
 #include "Display/display.h"
-#include "Display/demo.h"
 #include "LogicProgram/LogicProgram.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -36,11 +35,6 @@ static struct {
     const font_info_t *font_8X14 = font_builtin_fonts[FONT_FACE_TERMINUS_8X14_ISO8859_1];
 } display;
 
-// const font_info_t *font = font_builtin_fonts[FONT_FACE_GLCD5x7];
-
-void ladder_diagram(int8_t x, int8_t y);
-void ladder_diagram_acsii(int8_t x, int8_t y);
-
 void display_init() {
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
@@ -57,117 +51,7 @@ void display_init() {
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
 
-    // ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
-
-    // ssd1306_draw_string(&display.dev,
-    //                     display.buffer,
-    //                     display.font_4X7,
-    //                     0,
-    //                     0,
-    //                     "001.IN0 ? OUT0<1 : OUT1<1",
-    //                     OLED_COLOR_WHITE,
-    //                     OLED_COLOR_BLACK);
-
-    // ladder_diagram(16, 12);
-    // ladder_diagram(16, 29);
-    // ladder_diagram(16, 46);
-    // // ladder_diagram_acsii(14, 32);
-
-    // ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, display.buffer) != 0 ? ESP_FAIL
-    //                                                                              : ESP_OK);
     ESP_LOGI(TAG_display, "init succesfully");
-}
-
-void ladder_diagram(int8_t x, int8_t y) {
-
-    ssd1306_draw_vline(&display.dev, display.buffer, x, y, 17, OLED_COLOR_WHITE);
-    ssd1306_draw_hline(&display.dev, display.buffer, x + 1, y + 11 + 1, 18, OLED_COLOR_WHITE);
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 12,
-                      y + 0,
-                      '0',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 19, y + 7 + 1, 9, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 24, y + 7 + 1, 9, OLED_COLOR_WHITE);
-
-    ssd1306_draw_hline(&display.dev, display.buffer, x + 25, y + 11 + 1, 11, OLED_COLOR_WHITE);
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 29,
-                      y + 0,
-                      '1',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 36, y + 7 + 1, 9, OLED_COLOR_WHITE);
-    ssd1306_draw_line(&display.dev,
-                      display.buffer,
-                      x + 36,
-                      y + 15 + 1,
-                      x + 41,
-                      y + 7 + 1,
-                      OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 41, y + 7 + 1, 9, OLED_COLOR_WHITE);
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 46 + 5,
-                      y + 0,
-                      'A',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_hline(&display.dev, display.buffer, x + 42, y + 11 + 1, 11 + 5, OLED_COLOR_WHITE);
-    ssd1306_draw_circle(&display.dev, display.buffer, x + 57 + 5, y + 11 + 1, 5, OLED_COLOR_WHITE);
-    ssd1306_draw_hline(&display.dev, display.buffer, x + 62 + 5, y + 11 + 1, 7, OLED_COLOR_WHITE);
-    ssd1306_draw_vline(&display.dev, display.buffer, x + 74, y, 17, OLED_COLOR_WHITE);
-}
-
-void ladder_diagram_acsii(int8_t x, int8_t y) {
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 21,
-                      y + 0,
-                      '0',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 49,
-                      y + 0,
-                      '1',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_char(&display.dev,
-                      display.buffer,
-                      display.font_6X12,
-                      x + 77,
-                      y + 0,
-                      'A',
-                      OLED_COLOR_WHITE,
-                      OLED_COLOR_BLACK);
-
-    ssd1306_draw_string(&display.dev,
-                        display.buffer,
-                        display.font_8X14,
-                        x,
-                        y + 12,
-                        "\x15\x12\x16\x15\x12\x16/\x15\x12()\x12\x16",
-                        OLED_COLOR_WHITE,
-                        OLED_COLOR_BLACK);
 }
 
 uint8_t *begin_render() {
@@ -363,14 +247,4 @@ void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap)
             }
         }
     }
-}
-
-void display_demo(uint8_t x, uint8_t y) {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    draw_bitmap(display.buffer, x, y, &cmp_greate_or_equal_active);
-    ssd1306_load_frame_buffer(&display.dev, display.buffer);
-}
-
-void display_demo_1() {
-    ssd1306_load_frame_buffer(&display.dev, bitmap_demo_0);
 }
