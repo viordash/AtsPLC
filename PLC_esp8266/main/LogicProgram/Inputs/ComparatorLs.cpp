@@ -18,7 +18,7 @@ ComparatorLs::ComparatorLs(uint8_t ref_percent04, const MapIO io_adr) : Comparat
 ComparatorLs::~ComparatorLs() {
 }
 
-const Bitmap *ComparatorLs::GetCurrentBitmap() {
+const Bitmap *ComparatorLs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
             return &ComparatorLs::bitmap_active;

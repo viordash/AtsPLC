@@ -21,8 +21,12 @@ InputNO::~InputNO() {
 }
 
 bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    (void)prev_elem_changed;
+    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        return false;
+    }
+
     bool any_changes = false;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     if (prev_elem_state == LogicItemState::lisActive //
@@ -40,7 +44,7 @@ bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     return any_changes;
 }
 
-const Bitmap *InputNO::GetCurrentBitmap() {
+const Bitmap *InputNO::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
             return &InputNO::bitmap_active;

@@ -4,11 +4,11 @@
 
 #include "Display/Common.h"
 #include "Display/display.h"
-#include "LogicProgram/Ladder.h"
 #include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/StatusBar.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,33 +16,58 @@
 
 static const char *TAG_Controller = "controller";
 
-bool Controller::runned = false;
+#define PROCESS_TASK_STOPPED BIT1
+#define RENDER_TASK_STOPPED BIT2
+#define DO_RENDERING BIT3
+
+bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
+EventGroupHandle_t Controller::events = NULL;
 
 uint8_t Controller::Var1 = LogicElement::MinValue;
 uint8_t Controller::Var2 = LogicElement::MinValue;
 uint8_t Controller::Var3 = LogicElement::MinValue;
 uint8_t Controller::Var4 = LogicElement::MinValue;
 
+Ladder *Controller::ladder = NULL;
+
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
+    Controller::events = xEventGroupCreate();
+
+    ESP_LOGI(TAG_Controller, "start");
+    ladder = new Ladder();
     Controller::runned = true;
-    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "controller_task", 4096, NULL, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "ctrl_actions_task", 2048, NULL, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
 
 void Controller::Stop() {
     Controller::runned = false;
+
+    ESP_LOGI(TAG_Controller, "stop");
+    const int tasks_stopping_timeout = 500;
+    xEventGroupWaitBits(Controller::events,
+                        PROCESS_TASK_STOPPED | RENDER_TASK_STOPPED,
+                        true,
+                        true,
+                        tasks_stopping_timeout / portTICK_PERIOD_MS);
+
+    vEventGroupDelete(Controller::events);
+    delete ladder;
 }
 
 void Controller::ProcessTask(void *parm) {
     (void)parm;
-    ESP_LOGI(TAG_Controller, "start ++++++");
+    ESP_LOGI(TAG_Controller, "start process task");
 
-    StatusBar statusBar(0);
-    Ladder ladder;
-    ladder.Load();
+    ladder->Load();
+
+    ESP_ERROR_CHECK(xTaskCreate(RenderTask, "ctrl_render_task", 2048, NULL, tskIDLE_PRIORITY, NULL)
+                            != pdPASS
+                        ? ESP_FAIL
+                        : ESP_OK);
 
     bool need_render = true;
     while (Controller::runned) {
@@ -54,23 +79,39 @@ void Controller::ProcessTask(void *parm) {
                                                  read_adc_max_period_ms / portTICK_PERIOD_MS);
 
         need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
-
-        need_render |= ladder.DoAction();
+        need_render |= ladder->DoAction();
 
         if (need_render) {
-            ESP_LOGI(TAG_Controller, ".");
-
-            uint8_t *fb = begin_render();
-
-            statusBar.Render(fb);
-            ladder.Render(fb);
-
-            end_render(fb);
+            xEventGroupSetBits(Controller::events, DO_RENDERING);
             need_render = false;
         }
     }
 
-    ESP_LOGI(TAG_Controller, "stop -------");
+    xEventGroupSetBits(Controller::events, PROCESS_TASK_STOPPED);
+    ESP_LOGI(TAG_Controller, "stop process task");
+    vTaskDelete(NULL);
+}
+
+void Controller::RenderTask(void *parm) {
+    (void)parm;
+    ESP_LOGI(TAG_Controller, "start render task");
+
+    StatusBar statusBar(0);
+
+    while (Controller::runned) {
+        xEventGroupWaitBits(Controller::events, DO_RENDERING, true, false, portMAX_DELAY);
+
+        int64_t now_time = esp_timer_get_time();
+        uint8_t *fb = begin_render();
+        statusBar.Render(fb);
+        ladder->Render(fb);
+        end_render(fb);
+
+        ESP_LOGI(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
+    }
+
+    xEventGroupSetBits(Controller::events, RENDER_TASK_STOPPED);
+    ESP_LOGI(TAG_Controller, "stop render task");
     vTaskDelete(NULL);
 }
 

@@ -40,7 +40,8 @@ namespace {
         virtual ~TestableCommonTimer() {
         }
 
-        const Bitmap *GetCurrentBitmap() {
+        const Bitmap *GetCurrentBitmap(LogicItemState state) {
+            (void)state;
             return &bitmap;
         }
         LogicItemState *PublicMorozov_Get_state() {
@@ -280,6 +281,22 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+}
+
+TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
+    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
+
+    TestableCommonTimer testable(10);
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive), "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive), "no changes are expected to be detected");
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {

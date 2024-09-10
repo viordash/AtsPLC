@@ -4,6 +4,7 @@
 
 #include "driver/adc.h"
 #include "driver/gpio.h"
+#include "esp_attr.h"
 #include "esp_log.h"
 #include "sys_gpio.h"
 
@@ -48,7 +49,7 @@ static void outputs_init() {
     set_digital_value(OUTPUT_1, false);
 }
 
-static void BUTTON_UP_IO_isr_handler(void *arg) {
+static IRAM_ATTR void BUTTON_UP_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
@@ -63,7 +64,7 @@ static void BUTTON_UP_IO_isr_handler(void *arg) {
         portYIELD_FROM_ISR();
     }
 }
-static void BUTTON_DOWN_IO_isr_handler(void *arg) {
+static IRAM_ATTR void BUTTON_DOWN_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
@@ -78,7 +79,7 @@ static void BUTTON_DOWN_IO_isr_handler(void *arg) {
         portYIELD_FROM_ISR();
     }
 }
-static void BUTTON_RIGHT_IO_isr_handler(void *arg) {
+static IRAM_ATTR void BUTTON_RIGHT_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
@@ -95,7 +96,7 @@ static void BUTTON_RIGHT_IO_isr_handler(void *arg) {
         portYIELD_FROM_ISR();
     }
 }
-static void BUTTON_SELECT_IO_isr_handler(void *arg) {
+static IRAM_ATTR void BUTTON_SELECT_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;

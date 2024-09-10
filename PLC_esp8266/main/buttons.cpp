@@ -44,7 +44,7 @@ EventGroupHandle_t buttons_init(EventGroupHandle_t gpio_events, bool is_hotstart
         xEventGroupSetBits(buttons.event, BUTTON_LEFT_PRESSED);
     }
 
-    xTaskCreate(buttons_task, "buttons_task", 1024, (void *)gpio_events, 10, NULL);
+    xTaskCreate(buttons_task, "buttons_task", 1024, (void *)gpio_events, 2, NULL);
     return buttons.event;
 }
 

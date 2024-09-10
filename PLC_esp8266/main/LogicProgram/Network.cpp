@@ -2,6 +2,7 @@
 #include "Display/display.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -37,11 +38,9 @@ void Network::ChangeState(LogicItemState state) {
 }
 
 bool Network::DoAction() {
-    return DoAction(false, state);
-}
-
-bool Network::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = false;
+    bool prev_elem_changed = true;
+    LogicItemState prev_elem_state = state;
 
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
@@ -52,15 +51,12 @@ bool Network::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     return any_changes;
 }
 
-bool Network::Render(uint8_t *fb) {
+IRAM_ATTR bool Network::Render(uint8_t *fb) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };
-    return Render(fb, state, &start_point);
-}
-
-bool Network::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
+    LogicItemState prev_elem_state = state;
     switch (prev_elem_state) {
         case LogicItemState::lisActive:
             res = draw_active_income_rail(fb, network_number);
@@ -70,10 +66,10 @@ bool Network::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
             res = draw_passive_income_rail(fb, network_number);
             break;
     }
-    start_point->x += INCOME_RAIL_WIDTH;
+    start_point.x += INCOME_RAIL_WIDTH;
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
-        res = element->Render(fb, prev_elem_state, start_point);
+        res = element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
     }
 

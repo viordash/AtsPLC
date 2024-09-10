@@ -8,6 +8,8 @@ extern "C" {
 
 TickType_t xTaskGetTickCount(void) PRIVILEGED_FUNCTION;
 
+#define tskIDLE_PRIORITY ((UBaseType_t)0U)
+
 void vTaskDelay(const TickType_t xTicksToDelay) PRIVILEGED_FUNCTION;
 
 BaseType_t xTaskCreate(
@@ -19,7 +21,7 @@ BaseType_t xTaskCreate(
     UBaseType_t uxPriority,
     TaskHandle_t *const pxCreatedTask) PRIVILEGED_FUNCTION;
 
-void vTaskDelete( TaskHandle_t xTaskToDelete ) PRIVILEGED_FUNCTION;
+void vTaskDelete(TaskHandle_t xTaskToDelete) PRIVILEGED_FUNCTION;
 
 #ifdef __cplusplus
 }

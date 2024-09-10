@@ -20,9 +20,11 @@ void CommonOutput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
-    auto bitmap = GetCurrentBitmap();
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    
+    auto bitmap = GetCurrentBitmap(state);
 
     uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width;
     uint8_t incoming_width = (OUTCOME_RAIL_LEFT - start_point->x) - total_widht;

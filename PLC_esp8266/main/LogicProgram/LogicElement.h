@@ -4,6 +4,7 @@
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Serializer/TypeValueElement.h"
+#include <mutex>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -11,6 +12,7 @@ class Network;
 
 class LogicElement {
   protected:
+    std::recursive_mutex lock_mutex;
     LogicItemState state;
 
     friend Network;

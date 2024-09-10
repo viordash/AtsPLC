@@ -9,13 +9,13 @@ class ResetOutput : public CommonOutput {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
-    const Bitmap *GetCurrentBitmap() override final;
+    const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   protected:
 
   public:
     explicit ResetOutput();
-    ResetOutput(const MapIO io_adr);
+    explicit ResetOutput(const MapIO io_adr);
     ~ResetOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

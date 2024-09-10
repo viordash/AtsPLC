@@ -9,11 +9,11 @@ class InputNC : public CommonInput {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
-    const Bitmap *GetCurrentBitmap() override final;
+    const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   public:
     explicit InputNC();
-    InputNC(const MapIO io_adr);
+    explicit InputNC(const MapIO io_adr);
     ~InputNC();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

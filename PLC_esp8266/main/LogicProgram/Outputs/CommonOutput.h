@@ -11,7 +11,7 @@
 
 class CommonOutput : public LogicElement, public InputOutputElement, public LabeledLogicItem {
   protected:
-    virtual const Bitmap *GetCurrentBitmap() = 0;
+    virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
   public:
     CommonOutput();
