@@ -12,10 +12,14 @@
 #include "main/LogicProgram/Outputs/DecOutput.h"
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
-                                      TEST_SETUP(){}
+                                      TEST_SETUP(){ mock().disable();
+}
 
-                                      TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+    mock().enable();
+}
+}
+;
 
 namespace {
     class TestableDecOutput : public DecOutput {
@@ -65,8 +69,10 @@ TEST(LogicDecOutputTestsGroup,
     testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(42);
+    CHECK_TRUE(Controller::SampleIOValues());
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(41, Controller::GetV1RelativeValue());
 
