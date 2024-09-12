@@ -13,6 +13,7 @@
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
+Controller::Stop();
 }
 
 TEST_TEARDOWN() {
@@ -70,12 +71,12 @@ TEST(LogicDecOutputTestsGroup,
 
     Controller::SetV1RelativeValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
-
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(41, Controller::GetV1RelativeValue());
 
+    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(41, Controller::GetV1RelativeValue());
 }
@@ -87,6 +88,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(42, Controller::GetV1RelativeValue());

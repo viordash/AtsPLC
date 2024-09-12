@@ -11,14 +11,23 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DecOutput.h"
 
-TEST_GROUP(LogicControllerTestsGroup){ //
-                                       TEST_SETUP(){}
+TEST_GROUP(LogicControllerTestsGroup){
+    //
+    TEST_SETUP(){ mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
+mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+Controller::Stop();
+}
 
-                                       TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+}
+}
+;
 
 TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     volatile uint16_t adc = 100 / 0.1;
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));

@@ -16,6 +16,9 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicComparatorGrTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
+mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+Controller::Stop();
 }
 
 TEST_TEARDOWN() {
@@ -72,6 +75,9 @@ TEST(LogicComparatorGrTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
     volatile uint16_t adc = 51 / 0.1;
+    mock("0").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
@@ -79,17 +85,21 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
     TestableComparatorGr testable;
     testable.SetReference(51 / 0.4);
     testable.SetIoAdr(MapIO::AI);
-
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     adc = 52 / 0.1;
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
     volatile uint16_t adc = 49 / 0.1;
+    mock("0").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
@@ -97,10 +107,12 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
     TestableComparatorGr testable;
     testable.SetReference(48 / 0.4);
     testable.SetIoAdr(MapIO::AI);
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 47 / 0.1;
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }

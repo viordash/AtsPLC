@@ -31,7 +31,7 @@ uint8_t Controller::var4 = LogicElement::MinValue;
 
 Ladder *Controller::ladder = NULL;
 
-Controller::io_values Controller::cached_io_values;
+Controller::io_values Controller::cached_io_values = {};
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
@@ -57,6 +57,7 @@ void Controller::Stop() {
                         tasks_stopping_timeout / portTICK_PERIOD_MS);
 
     vEventGroupDelete(Controller::events);
+    Controller::cached_io_values = {};
     delete ladder;
 }
 
@@ -71,7 +72,6 @@ void Controller::ProcessTask(void *parm) {
                         ? ESP_FAIL
                         : ESP_OK);
 
-    Controller::cached_io_values = {};
     bool need_render = true;
     while (Controller::runned) {
         const int read_adc_max_period_ms = 100;

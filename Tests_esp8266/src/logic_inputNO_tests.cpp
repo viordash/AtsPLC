@@ -15,6 +15,10 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(LogicInputNOTestsGroup){ //
                                     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+
+mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
+mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+Controller::Stop();
 }
 
 TEST_TEARDOWN() {
@@ -78,39 +82,54 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
-    mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
+    mock("0").expectNCalls(2, "gpio_get_level").andReturnValue(0);
+    mock("2").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(2, "adc_read").ignoreOtherParameters();
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
+    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive), "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive), "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
-    mock("0").expectOneCall("gpio_get_level").andReturnValue(0);
+    mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
 
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
-    mock("0").expectOneCall("gpio_get_level").andReturnValue(1);
+    mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(1);
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }

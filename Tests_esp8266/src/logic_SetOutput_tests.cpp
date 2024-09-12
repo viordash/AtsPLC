@@ -12,10 +12,15 @@
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicSetOutputTestsGroup){ //
-                                      TEST_SETUP(){}
+                                      TEST_SETUP(){ mock().disable();
+Controller::Stop();
+}
 
-                                      TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+    mock().enable();
+}
+}
+;
 
 namespace {
     class TestableSetOutput : public SetOutput {
@@ -53,8 +58,10 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive__due_incoming_sw
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive), "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive), "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
 }
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_does_nothing) {
@@ -62,9 +69,10 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
     testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
-
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
@@ -77,7 +85,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
     TestableSetOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-
+    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());
