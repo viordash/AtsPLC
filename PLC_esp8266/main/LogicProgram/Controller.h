@@ -19,19 +19,19 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+    uint8_t AI;
+    uint8_t DI;
+    uint8_t O1;
+    uint8_t O2;
+    uint8_t V1;
+    uint8_t V2;
+    uint8_t V3;
+    uint8_t V4;
+} ControllerIOValues;
+
 class Controller {
   protected:
-    typedef struct {
-        uint8_t AI;
-        uint8_t DI;
-        uint8_t O1;
-        uint8_t O2;
-        uint8_t V1;
-        uint8_t V2;
-        uint8_t V3;
-        uint8_t V4;
-    } io_values;
-
     static bool runned;
     static EventGroupHandle_t gpio_events;
     static EventGroupHandle_t events;
@@ -41,12 +41,14 @@ class Controller {
     static uint8_t var4;
     static Ladder *ladder;
 
-    static io_values cached_io_values;
+    static std::recursive_mutex lock_io_values_mutex;
+    static ControllerIOValues cached_io_values;
 
   public:
     static void Start(EventGroupHandle_t gpio_events);
     static void Stop();
     static bool SampleIOValues();
+    static ControllerIOValues &GetIOValues();
 
     static void ProcessTask(void *parm);
     static void RenderTask(void *parm);
