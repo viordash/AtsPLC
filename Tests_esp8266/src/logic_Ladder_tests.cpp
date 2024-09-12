@@ -59,6 +59,13 @@ namespace {
         }
     };
 
+    class TestableLadder : public Ladder {
+      public:
+        size_t *PublicMorozov_Get_view_top_index() {
+            return &view_top_index;
+        }
+    };
+
     class TestableNetwork : public Network, public MonitorLogicElement {
       public:
         TestableNetwork(uint8_t network_number, LogicItemState state)
@@ -290,7 +297,7 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 }
 
 TEST(LogicLadderTestsGroup, append_network) {
-    Ladder testable;
+    TestableLadder testable;
 
     testable.Append(new Network(0, LogicItemState::lisActive));
     testable.Append(new Network(1, LogicItemState::lisActive));
@@ -300,7 +307,7 @@ TEST(LogicLadderTestsGroup, append_network) {
 }
 
 TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
-    Ladder testable;
+    TestableLadder testable;
 
     testable.Append(new TestableNetwork(0, LogicItemState::lisActive));
     testable.Append(new TestableNetwork(1, LogicItemState::lisActive));
@@ -318,7 +325,7 @@ TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
 }
 
 TEST(LogicLadderTestsGroup, Render__also_render_all_networks) {
-    Ladder testable;
+    TestableLadder testable;
 
     testable.Append(new TestableNetwork(0, LogicItemState::lisActive));
     testable.Append(new TestableNetwork(1, LogicItemState::lisActive));
@@ -329,4 +336,41 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks) {
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+}
+
+TEST(LogicLadderTestsGroup, CanScrollAuto_after_appending_second_network) {
+    TestableLadder testable;
+
+    CHECK_FALSE(testable.CanScrollAuto());
+    testable.Append(new Network());
+
+    CHECK_FALSE(testable.CanScrollAuto());
+    testable.Append(new Network());
+
+    CHECK_TRUE(testable.CanScrollAuto());
+}
+
+TEST(LogicLadderTestsGroup, AutoScroll) {
+    TestableLadder testable;
+
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network());
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network());
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network());
+    testable.AutoScroll();
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network());
+    testable.AutoScroll();
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
+
+
 }

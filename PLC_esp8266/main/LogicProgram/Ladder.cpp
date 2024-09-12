@@ -10,6 +10,7 @@
 static const char *TAG_Ladder = "Ladder";
 
 Ladder::Ladder() {
+    view_top_index = 0;
 }
 
 Ladder::~Ladder() {
@@ -24,6 +25,7 @@ void Ladder::RemoveAll() {
         ESP_LOGD(TAG_Ladder, "delete network: %p", network);
         delete network;
     }
+    view_top_index = 0;
 }
 
 bool Ladder::DoAction() {
@@ -36,7 +38,7 @@ bool Ladder::DoAction() {
 
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
-    for (auto it = begin(); it != end(); ++it) {
+    for (auto it = begin() + view_top_index; it != end(); ++it) {
         res &= (*it)->Render(fb);
     }
     return res;
@@ -45,6 +47,28 @@ IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
 void Ladder::Append(Network *network) {
     ESP_LOGI(TAG_Ladder, "append network: %p", network);
     push_back(network);
+}
+
+bool Ladder::CanScrollAuto() {
+    return view_top_index == size() - MaxViewPortCount;
+}
+
+void Ladder::AutoScroll() {
+    if (size() > MaxViewPortCount) {
+        view_top_index = size() - MaxViewPortCount;
+    }
+}
+
+void Ladder::ScrollUp() {
+    if (view_top_index > 0) {
+        view_top_index--;
+    }
+}
+
+void Ladder::ScrollDown() {
+    if (view_top_index + MaxViewPortCount < size()) {
+        view_top_index++;
+    }
 }
 
 void Ladder::Load() {
@@ -62,7 +86,6 @@ void Ladder::Load() {
         ESP_LOGI(TAG_Ladder, "load initial networks");
         InitialLoad();
     }
-
     delete[] storage.data;
 }
 

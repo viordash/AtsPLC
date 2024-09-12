@@ -13,6 +13,7 @@ static const char *TAG_Network = "Network";
 
 Network::Network() {
     this->network_number = 0;
+    this->state = LogicItemState::lisPassive;
 }
 Network::Network(uint8_t network_number, LogicItemState state) {
     this->network_number = network_number;
