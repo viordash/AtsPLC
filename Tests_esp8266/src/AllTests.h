@@ -65,3 +65,5 @@ IMPORT_TEST_GROUP(LogicDirectOutputTestsGroup);
 IMPORT_TEST_GROUP(LogicSetOutputTestsGroup);
 IMPORT_TEST_GROUP(LogicResetOutputTestsGroup);
 IMPORT_TEST_GROUP(LogicIncOutputTestsGroup);
+
+IMPORT_TEST_GROUP(LogicControllerTestsGroup);

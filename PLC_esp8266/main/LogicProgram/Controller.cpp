@@ -24,12 +24,15 @@ bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
 EventGroupHandle_t Controller::events = NULL;
 
-uint8_t Controller::Var1 = LogicElement::MinValue;
-uint8_t Controller::Var2 = LogicElement::MinValue;
-uint8_t Controller::Var3 = LogicElement::MinValue;
-uint8_t Controller::Var4 = LogicElement::MinValue;
+uint8_t Controller::var1 = LogicElement::MinValue;
+uint8_t Controller::var2 = LogicElement::MinValue;
+uint8_t Controller::var3 = LogicElement::MinValue;
+uint8_t Controller::var4 = LogicElement::MinValue;
 
 Ladder *Controller::ladder = NULL;
+
+std::recursive_mutex Controller::lock_io_values_mutex;
+ControllerIOValues Controller::cached_io_values = {};
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
@@ -55,6 +58,7 @@ void Controller::Stop() {
                         tasks_stopping_timeout / portTICK_PERIOD_MS);
 
     vEventGroupDelete(Controller::events);
+    Controller::cached_io_values = {};
     delete ladder;
 }
 
@@ -79,6 +83,7 @@ void Controller::ProcessTask(void *parm) {
                                                  read_adc_max_period_ms / portTICK_PERIOD_MS);
 
         need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
+        need_render |= SampleIOValues();
         need_render |= ladder->DoAction();
 
         if (need_render) {
@@ -115,40 +120,76 @@ void Controller::RenderTask(void *parm) {
     vTaskDelete(NULL);
 }
 
+bool Controller::SampleIOValues() {
+    bool val_1bit;
+    uint16_t val_10bit;
+    uint8_t percent04;
+    ControllerIOValues io_values;
+
+    val_10bit = get_analog_value();
+    percent04 = val_10bit / 4;
+    io_values.AI = percent04;
+
+    val_1bit = get_digital_input_value();
+    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+    io_values.DI = percent04;
+
+    val_1bit = get_digital_value(gpio_output::OUTPUT_0);
+    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+    io_values.O1 = percent04;
+
+    val_1bit = get_digital_value(gpio_output::OUTPUT_1);
+    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+    io_values.O2 = percent04;
+
+    io_values.V1 = Controller::var1;
+
+    io_values.V2 = Controller::var2;
+
+    io_values.V3 = Controller::var3;
+
+    io_values.V4 = Controller::var4;
+    {
+        std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
+        bool has_changes =
+            memcmp(&io_values, &Controller::cached_io_values, sizeof(io_values)) != 0;
+        Controller::cached_io_values = io_values;
+        return has_changes;
+    }
+}
+
+ControllerIOValues &Controller::GetIOValues() {
+    std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
+    return Controller::cached_io_values;
+}
+
 uint8_t Controller::GetAIRelativeValue() {
-    uint16_t val_10bit = get_analog_value();
-    uint8_t percent04 = val_10bit / 4;
-    ESP_LOGD(TAG_Controller, "adc, val_10bit:%u, percent04:%u", val_10bit, percent04);
+    uint8_t percent04 = Controller::cached_io_values.AI;
+    ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
     return percent04;
 }
 
 uint8_t Controller::GetDIRelativeValue() {
-    bool val_1bit = get_digital_input_value();
-    uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    return percent04;
+    return Controller::cached_io_values.DI;
 }
 
 uint8_t Controller::GetO1RelativeValue() {
-    uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_0) ? LogicElement::MaxValue : LogicElement::MinValue;
-    return percent04;
+    return Controller::cached_io_values.O1;
 }
 uint8_t Controller::GetO2RelativeValue() {
-    uint8_t percent04 =
-        get_digital_value(gpio_output::OUTPUT_1) ? LogicElement::MaxValue : LogicElement::MinValue;
-    return percent04;
+    return Controller::cached_io_values.O2;
 }
 uint8_t Controller::GetV1RelativeValue() {
-    return Controller::Var1;
+    return Controller::cached_io_values.V1;
 }
 uint8_t Controller::GetV2RelativeValue() {
-    return Controller::Var2;
+    return Controller::cached_io_values.V2;
 }
 uint8_t Controller::GetV3RelativeValue() {
-    return Controller::Var3;
+    return Controller::cached_io_values.V3;
 }
 uint8_t Controller::GetV4RelativeValue() {
-    return Controller::Var4;
+    return Controller::cached_io_values.V4;
 }
 
 void Controller::SetO1RelativeValue(uint8_t value) {
@@ -158,14 +199,14 @@ void Controller::SetO2RelativeValue(uint8_t value) {
     set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
 }
 void Controller::SetV1RelativeValue(uint8_t value) {
-    Controller::Var1 = value;
+    Controller::var1 = value;
 }
 void Controller::SetV2RelativeValue(uint8_t value) {
-    Controller::Var2 = value;
+    Controller::var2 = value;
 }
 void Controller::SetV3RelativeValue(uint8_t value) {
-    Controller::Var3 = value;
+    Controller::var3 = value;
 }
 void Controller::SetV4RelativeValue(uint8_t value) {
-    Controller::Var4 = value;
+    Controller::var4 = value;
 }
