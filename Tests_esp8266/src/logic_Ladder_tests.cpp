@@ -324,16 +324,134 @@ TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
     CHECK_TRUE(testable.DoAction());
 }
 
-TEST(LogicLadderTestsGroup, Render__also_render_all_networks) {
+TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     TestableLadder testable;
 
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.AutoScroll();
 
     CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[5])->Render_called);
 
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[3])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[4])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[5])->Render_called = false;
+
+    testable.ScrollUp();
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[5])->Render_called);
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[3])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[4])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[5])->Render_called = false;
+
+    testable.ScrollUp();
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[5])->Render_called);
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[3])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[4])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[5])->Render_called = false;
+
+    testable.ScrollUp();
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[5])->Render_called);
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[3])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[4])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[5])->Render_called = false;
+
+    testable.ScrollUp();
+    CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[5])->Render_called);
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[3])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[4])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[5])->Render_called = false;
+
+    testable.ScrollUp();
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[3])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[4])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[5])->Render_called);
+}
+
+TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
+    TestableLadder testable;
+
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.AutoScroll();
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+
+    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+
+    static_cast<TestableNetwork *>(testable[0])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[1])->Render_called = false;
+    static_cast<TestableNetwork *>(testable[2])->Render_called = false;
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
+    CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
 }
 
 TEST(LogicLadderTestsGroup, CanScrollAuto_after_appending_second_network) {
@@ -348,7 +466,7 @@ TEST(LogicLadderTestsGroup, CanScrollAuto_after_appending_second_network) {
     CHECK_TRUE(testable.CanScrollAuto());
 }
 
-TEST(LogicLadderTestsGroup, AutoScroll) {
+TEST(LogicLadderTestsGroup, AutoScroll_when_append_new_networks) {
     TestableLadder testable;
 
     testable.AutoScroll();
@@ -369,4 +487,80 @@ TEST(LogicLadderTestsGroup, AutoScroll) {
     testable.Append(new Network());
     testable.AutoScroll();
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderTestsGroup, ScrollDown_ScrollUp_can_scroll_from_first_to_last_network) {
+    TestableLadder testable;
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.AutoScroll();
+
+    CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollDown();
+    CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(4, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.ScrollDown();
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderTestsGroup, ScrollDown_ScrollUp__when_networks_less_than_viewport) {
+    TestableLadder testable;
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollDown();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollDown();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollDown();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.AutoScroll();
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollDown();
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+    testable.ScrollUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 }
