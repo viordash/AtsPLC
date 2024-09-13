@@ -38,9 +38,11 @@ bool Ladder::DoAction() {
 
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
-    for (auto it = begin() + view_top_index; it != end(); ++it) {
-        res &= (*it)->Render(fb);
+
+    for (size_t i = 0; i < std::min(Ladder::MaxViewPortCount, size()); i++) {
+        res &= at(i + view_top_index)->Render(fb, i);
     }
+
     return res;
 }
 
@@ -50,12 +52,12 @@ void Ladder::Append(Network *network) {
 }
 
 bool Ladder::CanScrollAuto() {
-    return view_top_index == size() - MaxViewPortCount;
+    return view_top_index == size() - Ladder::MaxViewPortCount;
 }
 
 void Ladder::AutoScroll() {
-    if (size() > MaxViewPortCount) {
-        view_top_index = size() - MaxViewPortCount;
+    if (size() > Ladder::MaxViewPortCount) {
+        view_top_index = size() - Ladder::MaxViewPortCount;
     }
 }
 
@@ -66,7 +68,7 @@ void Ladder::ScrollUp() {
 }
 
 void Ladder::ScrollDown() {
-    if (view_top_index + MaxViewPortCount < size()) {
+    if (view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
     }
 }

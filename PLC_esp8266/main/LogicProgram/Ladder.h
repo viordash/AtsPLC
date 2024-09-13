@@ -22,9 +22,9 @@ class Ladder : public std::vector<Network *> {
     void RemoveAll();
 
   public:
-    const static size_t MinNetworksCount = 1;
-    const static size_t MaxNetworksCount = 42;
-    const static size_t MaxViewPortCount = 2;
+    const size_t MinNetworksCount = 1;
+    const size_t MaxNetworksCount = 42;
+    const size_t MaxViewPortCount = 2;
 
     Ladder();
     ~Ladder();

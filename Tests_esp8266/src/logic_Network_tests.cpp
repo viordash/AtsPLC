@@ -186,7 +186,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -212,7 +212,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -239,7 +239,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
     testable.Append(new TestableDirectOutput);
     static_cast<TestableComparatorEq *>(testable[1])->Render_result = false;
 
-    CHECK_FALSE(testable.Render(frame_buffer));
+    CHECK_FALSE(testable.Render(frame_buffer, 0));
 
     CHECK_TRUE(static_cast<TestableInputNC *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);

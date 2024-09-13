@@ -7,9 +7,9 @@
 #include <string.h>
 
 void Ladder::InitialLoad() {
-    auto incomeRail0 = new Network(0, LogicItemState::lisActive);
+    auto incomeRail0 = new Network(LogicItemState::lisActive);
     Append(incomeRail0);
-    auto incomeRail1 = new Network(1, LogicItemState::lisActive);
+    auto incomeRail1 = new Network(LogicItemState::lisActive);
     Append(incomeRail1);
 
     incomeRail0->Append(new InputNO(MapIO::DI));
