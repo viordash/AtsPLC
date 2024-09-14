@@ -1,4 +1,5 @@
 #include "LogicProgram/Ladder.h"
+#include "Display/ScrollBar.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -43,6 +44,7 @@ IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
         res &= at(i + view_top_index)->Render(fb, i);
     }
 
+    ScrollBar::Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
     return res;
 }
 

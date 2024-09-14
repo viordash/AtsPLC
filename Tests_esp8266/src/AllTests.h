@@ -67,3 +67,4 @@ IMPORT_TEST_GROUP(LogicResetOutputTestsGroup);
 IMPORT_TEST_GROUP(LogicIncOutputTestsGroup);
 
 IMPORT_TEST_GROUP(LogicControllerTestsGroup);
+IMPORT_TEST_GROUP(ScrollBarTestsGroup);
