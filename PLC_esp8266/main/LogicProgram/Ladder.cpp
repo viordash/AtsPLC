@@ -64,12 +64,14 @@ void Ladder::AutoScroll() {
 }
 
 void Ladder::ScrollUp() {
+    ESP_LOGI(TAG_Ladder, "ScrollUp, %u", view_top_index);
     if (view_top_index > 0) {
         view_top_index--;
     }
 }
 
 void Ladder::ScrollDown() {
+    ESP_LOGI(TAG_Ladder, "ScrollDown, %u", view_top_index);
     if (view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
     }

@@ -6,6 +6,7 @@
 #include "Display/display.h"
 #include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/StatusBar.h"
+#include "buttons.h"
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -19,6 +20,10 @@ static const char *TAG_Controller = "controller";
 // #define STOP_PROCESS_TASK BIT1
 #define STOP_RENDER_TASK BIT2
 #define DO_RENDERING BIT3
+#define DO_SCROLL_UP BIT4
+#define DO_SCROLL_DOWN BIT5
+#define DO_SELECT BIT6
+#define DO_SELECT_OPTION BIT7
 
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
@@ -81,16 +86,43 @@ void Controller::ProcessTask(void *parm) {
     bool need_render = true;
     while (Controller::runned) {
         const int read_adc_max_period_ms = 100;
-        EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
-                                                 INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
-                                                 true,
-                                                 false,
-                                                 read_adc_max_period_ms / portTICK_PERIOD_MS);
+        EventBits_t uxBits = xEventGroupWaitBits(
+            Controller::gpio_events,
+            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
+                | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
+                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
+            true,
+            false,
+            read_adc_max_period_ms / portTICK_PERIOD_MS);
 
-        need_render |= (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
+        bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
+        bool buttons_changed = !inputs_changed && uxBits != 0;
+
+        if (buttons_changed) {
+            TButtons pressed_button = handle_buttons(uxBits);
+            ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
+            switch (pressed_button) {
+                case TButtons::UP_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
+                    break;
+                case TButtons::DOWN_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
+                    break;
+                case TButtons::SELECT_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
+                    break;
+                case TButtons::SELECT_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SELECT_OPTION, eNotifyAction::eSetBits);
+                    break;
+                default:
+                    break;
+            }
+            continue;
+        }
+
+        need_render |= inputs_changed;
         need_render |= SampleIOValues();
         need_render |= ladder->DoAction();
-
         if (need_render) {
             need_render = false;
             xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
@@ -108,13 +140,30 @@ void Controller::RenderTask(void *parm) {
 
     StatusBar statusBar(0);
 
-    while (Controller::runned) {
-        uint32_t ulNotifiedValue = {};
-        BaseType_t xResult = xTaskNotifyWait(0, DO_RENDERING, &ulNotifiedValue, portMAX_DELAY);
+    uint32_t ulNotifiedValue = {};
+
+    while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
+        BaseType_t xResult = xTaskNotifyWait(0,
+                                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN
+                                                 | DO_SELECT | DO_SELECT_OPTION,
+                                             &ulNotifiedValue,
+                                             portMAX_DELAY);
 
         if (xResult != pdPASS) {
+            ulNotifiedValue = {};
             ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
+            continue;
+        }
+
+        if (ulNotifiedValue & DO_SCROLL_UP) {
+            ladder->ScrollUp();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SCROLL_DOWN) {
+            ladder->ScrollDown();
+            ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_RENDERING) {
@@ -123,11 +172,7 @@ void Controller::RenderTask(void *parm) {
             statusBar.Render(fb);
             ladder->Render(fb);
             end_render(fb);
-
             ESP_LOGD(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
-        }
-        if (ulNotifiedValue & STOP_RENDER_TASK) {
-            break;
         }
     }
 

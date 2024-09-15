@@ -27,9 +27,9 @@ void Ladder::InitialLoad() {
     incomeRail1->Append(new ResetOutput(MapIO::V1));
 
     incomeRail2->Append(new InputNO(MapIO::V1));
-    incomeRail2->Append(new ResetOutput(MapIO::O1));
+    incomeRail2->Append(new DirectOutput(MapIO::O1));
 
     incomeRail3->Append(new InputNO(MapIO::DI));
-    incomeRail3->Append(new TimerSecs(1));
-    incomeRail3->Append(new ResetOutput(MapIO::O2));
+    incomeRail3->Append(new TimerSecs(5));
+    incomeRail3->Append(new DirectOutput(MapIO::O2));
 }
