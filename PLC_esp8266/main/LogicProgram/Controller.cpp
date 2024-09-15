@@ -16,13 +16,13 @@
 
 static const char *TAG_Controller = "controller";
 
-#define PROCESS_TASK_STOPPED BIT1
-#define RENDER_TASK_STOPPED BIT2
+// #define STOP_PROCESS_TASK BIT1
+#define STOP_RENDER_TASK BIT2
 #define DO_RENDERING BIT3
 
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
-EventGroupHandle_t Controller::events = NULL;
+TaskHandle_t Controller::process_task_handle = NULL;
 
 uint8_t Controller::var1 = LogicElement::MinValue;
 uint8_t Controller::var2 = LogicElement::MinValue;
@@ -36,12 +36,17 @@ ControllerIOValues Controller::cached_io_values = {};
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
-    Controller::events = xEventGroupCreate();
 
     ESP_LOGI(TAG_Controller, "start");
     ladder = new Ladder();
     Controller::runned = true;
-    ESP_ERROR_CHECK(xTaskCreate(ProcessTask, "ctrl_actions_task", 2048, NULL, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
+                                "ctrl_actions_task",
+                                2048,
+                                NULL,
+                                3,
+                                &Controller::process_task_handle)
+                            != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
@@ -51,13 +56,7 @@ void Controller::Stop() {
 
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
-    xEventGroupWaitBits(Controller::events,
-                        PROCESS_TASK_STOPPED | RENDER_TASK_STOPPED,
-                        true,
-                        true,
-                        tasks_stopping_timeout / portTICK_PERIOD_MS);
-
-    vEventGroupDelete(Controller::events);
+    vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
     Controller::cached_io_values = {};
     delete ladder;
 }
@@ -68,7 +67,13 @@ void Controller::ProcessTask(void *parm) {
 
     ladder->Load();
 
-    ESP_ERROR_CHECK(xTaskCreate(RenderTask, "ctrl_render_task", 2048, NULL, tskIDLE_PRIORITY, NULL)
+    TaskHandle_t render_task_handle;
+    ESP_ERROR_CHECK(xTaskCreate(RenderTask,
+                                "ctrl_render_task",
+                                2048,
+                                NULL,
+                                tskIDLE_PRIORITY,
+                                &render_task_handle)
                             != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
@@ -87,12 +92,12 @@ void Controller::ProcessTask(void *parm) {
         need_render |= ladder->DoAction();
 
         if (need_render) {
-            xEventGroupSetBits(Controller::events, DO_RENDERING);
             need_render = false;
+            xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
         }
     }
 
-    xEventGroupSetBits(Controller::events, PROCESS_TASK_STOPPED);
+    xTaskNotify(render_task_handle, STOP_RENDER_TASK, eNotifyAction::eSetBits);
     ESP_LOGI(TAG_Controller, "stop process task");
     vTaskDelete(NULL);
 }
@@ -104,18 +109,28 @@ void Controller::RenderTask(void *parm) {
     StatusBar statusBar(0);
 
     while (Controller::runned) {
-        xEventGroupWaitBits(Controller::events, DO_RENDERING, true, false, portMAX_DELAY);
+        uint32_t ulNotifiedValue = {};
+        BaseType_t xResult = xTaskNotifyWait(0, DO_RENDERING, &ulNotifiedValue, portMAX_DELAY);
 
-        int64_t now_time = esp_timer_get_time();
-        uint8_t *fb = begin_render();
-        statusBar.Render(fb);
-        ladder->Render(fb);
-        end_render(fb);
+        if (xResult != pdPASS) {
+            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+        }
 
-        ESP_LOGD(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
+        if (ulNotifiedValue & DO_RENDERING) {
+            int64_t now_time = esp_timer_get_time();
+            uint8_t *fb = begin_render();
+            statusBar.Render(fb);
+            ladder->Render(fb);
+            end_render(fb);
+
+            ESP_LOGD(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
+        }
+        if (ulNotifiedValue & STOP_RENDER_TASK) {
+            break;
+        }
     }
 
-    xEventGroupSetBits(Controller::events, RENDER_TASK_STOPPED);
     ESP_LOGI(TAG_Controller, "stop render task");
     vTaskDelete(NULL);
 }
