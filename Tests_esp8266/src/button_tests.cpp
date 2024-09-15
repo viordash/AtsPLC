@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "main/button.cpp"
+#include "main/buttons.h"
 #include "main/sys_gpio.h"
 
 TEST_GROUP(ButtonTestsGroup){ //
@@ -23,7 +24,11 @@ TEST(ButtonTestsGroup, handle_btDown) {
         .expectOneCall("esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -36,7 +41,11 @@ TEST(ButtonTestsGroup, handle_btDown) {
 TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
     mock().expectNoCall("esp_timer_get_time");
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_DOWN_IO_CLOSE);
     CHECK_EQUAL(button::state::btNone, state);
@@ -51,7 +60,11 @@ TEST(ButtonTestsGroup, handle_normal_press) {
         .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -67,7 +80,11 @@ TEST(ButtonTestsGroup, handle_press_when_os_us_overflowed) {
         .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -83,7 +100,11 @@ TEST(ButtonTestsGroup, handle_longpress_when_os_us_overflowed) {
         .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -99,7 +120,11 @@ TEST(ButtonTestsGroup, handle_short_press) {
         .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    button testable("test", BUTTON_UP_IO_CLOSE, BUTTON_UP_IO_OPEN, 0, 0);
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    TButtons::NOTHING_PRESSED,
+                    TButtons::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
