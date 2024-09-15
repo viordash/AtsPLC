@@ -18,12 +18,15 @@ ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_
         return res;
     }
     uint8_t x = SCROLLBAR_LEFT;
-    uint8_t height = SCROLLBAR_HEIGHT / (count / viewport_count);
+    uint8_t scroll_steps = count - viewport_count;
+    uint8_t height = SCROLLBAR_HEIGHT / (scroll_steps + 1);
     if (height < 3) {
         height = 3;
     }
     uint8_t moving_area = SCROLLBAR_HEIGHT - height;
-    uint8_t y_offset = (moving_area * (view_topindex + 0)) / (count - viewport_count);
+    uint8_t scroll_step_height = moving_area / scroll_steps;
+
+    uint8_t y_offset = view_topindex * scroll_step_height;
     uint8_t y = SCROLLBAR_TOP + y_offset;
 
     ESP_LOGI(TAG_ScrollBar,
