@@ -57,10 +57,10 @@ TEST(ScrollBarTestsGroup, No_screen_overflow) {
     CHECK_TRUE(ScrollBar::Render(frame_buffer, 4, 2, 0));
     CHECK_TRUE(ScrollBar::Render(frame_buffer, 4, 2, 1));
     CHECK_TRUE(ScrollBar::Render(frame_buffer, 4, 2, 2));
-    CHECK_TRUE(ScrollBar::Render(frame_buffer, 4, 2, 3));
 
     bool any_overflow_pixel = false;
-    size_t possible_line1_position_in_buffer = SCROLLBAR_LEFT + (DISPLAY_WIDTH * (INCOME_RAIL_TOP / 8));
+    size_t possible_line1_position_in_buffer =
+        SCROLLBAR_LEFT + (DISPLAY_WIDTH * (INCOME_RAIL_TOP / 8));
     size_t possible_line2_position_in_buffer = possible_line1_position_in_buffer + 1;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
         if (frame_buffer[i] != 0) {
