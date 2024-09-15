@@ -112,7 +112,7 @@ void Controller::RenderTask(void *parm) {
         ladder->Render(fb);
         end_render(fb);
 
-        ESP_LOGI(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
+        ESP_LOGD(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
     }
 
     xEventGroupSetBits(Controller::events, RENDER_TASK_STOPPED);
