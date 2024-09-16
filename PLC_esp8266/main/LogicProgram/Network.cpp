@@ -12,10 +12,9 @@
 static const char *TAG_Network = "Network";
 
 Network::Network() {
-    this->network_number = 0;
+    this->state = LogicItemState::lisPassive;
 }
-Network::Network(uint8_t network_number, LogicItemState state) {
-    this->network_number = network_number;
+Network::Network(LogicItemState state) {
     ChangeState(state);
 }
 
@@ -27,10 +26,6 @@ Network::~Network() {
         ESP_LOGD(TAG_Network, "delete elem: %p", element);
         delete element;
     }
-}
-
-void Network::SetNumber(uint8_t network_number) {
-    this->network_number = network_number;
 }
 
 void Network::ChangeState(LogicItemState state) {
@@ -51,7 +46,7 @@ bool Network::DoAction() {
     return any_changes;
 }
 
-IRAM_ATTR bool Network::Render(uint8_t *fb) {
+IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };

@@ -13,8 +13,7 @@
 
 TEST_GROUP(LogicControllerTestsGroup){
     //
-    TEST_SETUP(){ mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+    TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 Controller::Stop();
 }
 

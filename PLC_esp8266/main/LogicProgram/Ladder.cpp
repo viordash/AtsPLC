@@ -1,4 +1,5 @@
 #include "LogicProgram/Ladder.h"
+#include "Display/ScrollBar.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -10,6 +11,7 @@
 static const char *TAG_Ladder = "Ladder";
 
 Ladder::Ladder() {
+    view_top_index = 0;
 }
 
 Ladder::~Ladder() {
@@ -24,6 +26,7 @@ void Ladder::RemoveAll() {
         ESP_LOGD(TAG_Ladder, "delete network: %p", network);
         delete network;
     }
+    view_top_index = 0;
 }
 
 bool Ladder::DoAction() {
@@ -36,15 +39,42 @@ bool Ladder::DoAction() {
 
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
-    for (auto it = begin(); it != end(); ++it) {
-        res &= (*it)->Render(fb);
+
+    for (size_t i = 0; i < std::min(Ladder::MaxViewPortCount, size()); i++) {
+        res &= at(i + view_top_index)->Render(fb, i);
     }
+
+    ScrollBar::Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
     return res;
 }
 
 void Ladder::Append(Network *network) {
     ESP_LOGI(TAG_Ladder, "append network: %p", network);
     push_back(network);
+}
+
+bool Ladder::CanScrollAuto() {
+    return view_top_index == size() - Ladder::MaxViewPortCount;
+}
+
+void Ladder::AutoScroll() {
+    if (size() > Ladder::MaxViewPortCount) {
+        view_top_index = size() - Ladder::MaxViewPortCount;
+    }
+}
+
+void Ladder::ScrollUp() {
+    ESP_LOGI(TAG_Ladder, "ScrollUp, %u", (unsigned)view_top_index);
+    if (view_top_index > 0) {
+        view_top_index--;
+    }
+}
+
+void Ladder::ScrollDown() {
+    ESP_LOGI(TAG_Ladder, "ScrollDown, %u", (unsigned)view_top_index);
+    if (view_top_index + Ladder::MaxViewPortCount < size()) {
+        view_top_index++;
+    }
 }
 
 void Ladder::Load() {
@@ -62,7 +92,6 @@ void Ladder::Load() {
         ESP_LOGI(TAG_Ladder, "load initial networks");
         InitialLoad();
     }
-
     delete[] storage.data;
 }
 

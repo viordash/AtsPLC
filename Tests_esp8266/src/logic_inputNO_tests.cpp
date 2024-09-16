@@ -16,8 +16,7 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicInputNOTestsGroup){ //
                                     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
-mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 Controller::Stop();
 }
 

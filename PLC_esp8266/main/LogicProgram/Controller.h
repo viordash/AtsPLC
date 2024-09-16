@@ -34,7 +34,7 @@ class Controller {
   protected:
     static bool runned;
     static EventGroupHandle_t gpio_events;
-    static EventGroupHandle_t events;
+    static TaskHandle_t process_task_handle;
     static uint8_t var1;
     static uint8_t var2;
     static uint8_t var3;

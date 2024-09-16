@@ -17,8 +17,7 @@ TEST_GROUP(LogicComparatorEqTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
-mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-mock().expectOneCall("vEventGroupDelete").ignoreOtherParameters();
+mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 Controller::Stop();
 }
 

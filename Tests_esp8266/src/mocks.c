@@ -3,6 +3,7 @@
 #include "driver/gpio.h"
 #include "esp_spiffs.h"
 #include "freertos/event_groups.h"
+#include "freertos/task.h"
 #include <stdlib.h>
 
 const char *esp_err_to_name(esp_err_t code) {
@@ -170,4 +171,30 @@ BaseType_t xTaskCreate(
 
 void vTaskDelete(TaskHandle_t xTaskToDelete) {
     mock_c()->actualCall("vTaskDelete")->withPointerParameters("xTaskToDelete", xTaskToDelete);
+}
+
+BaseType_t xTaskNotifyWait(uint32_t ulBitsToClearOnEntry,
+                           uint32_t ulBitsToClearOnExit,
+                           uint32_t *pulNotificationValue,
+                           TickType_t xTicksToWait) {
+    return mock_c()
+        ->actualCall("xTaskNotifyWait")
+        ->withUnsignedIntParameters("ulBitsToClearOnEntry", ulBitsToClearOnEntry)
+        ->withUnsignedIntParameters("ulBitsToClearOnExit", ulBitsToClearOnExit)
+        ->withPointerParameters("pulNotificationValue", pulNotificationValue)
+        ->withUnsignedIntParameters("xTicksToWait", xTicksToWait)
+        ->returnIntValueOrDefault(pdPASS);
+}
+
+BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
+                              uint32_t ulValue,
+                              eNotifyAction eAction,
+                              uint32_t *pulPreviousNotificationValue) {
+    return mock_c()
+        ->actualCall("xTaskGenericNotify")
+        ->withPointerParameters("xTaskToNotify", xTaskToNotify)
+        ->withUnsignedIntParameters("ulValue", ulValue)
+        ->withIntParameters("eAction", (int)eAction)
+        ->withPointerParameters("pulPreviousNotificationValue", pulPreviousNotificationValue)
+        ->returnIntValueOrDefault(pdPASS);
 }

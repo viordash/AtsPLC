@@ -27,14 +27,14 @@ IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state,
     auto bitmap = GetCurrentBitmap(state);
 
     uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width;
-    uint8_t incoming_width = (OUTCOME_RAIL_LEFT - start_point->x) - total_widht;
+    uint8_t incoming_width = (OUTCOME_RAIL_RIGHT - start_point->x) - total_widht;
 
     ESP_LOGD(TAG_CommonOutput,
-             "x:%u, total_widht:%u, incoming_width:%u, OUTCOME_RAIL_LEFT:%u",
+             "x:%u, total_widht:%u, incoming_width:%u, OUTCOME_RAIL_RIGHT:%u",
              start_point->x,
              total_widht,
              incoming_width,
-             OUTCOME_RAIL_LEFT);
+             OUTCOME_RAIL_RIGHT);
 
     if (prev_elem_state == LogicItemState::lisActive) {
         res = draw_active_network(fb, start_point->x, start_point->y, incoming_width);

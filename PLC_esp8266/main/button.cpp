@@ -1,19 +1,17 @@
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/task.h"
+
 #include "button.h"
 #include "esp_timer.h"
 
 button::button(const char *tag,
                EventBits_t close_bit,
                EventBits_t open_bit,
-               EventBits_t pressed_bit,
-               EventBits_t long_pressed_bit) {
+               TButtons pressed_type,
+               TButtons long_pressed_type) {
     this->TAG = tag;
     this->close_bit = close_bit;
     this->open_bit = open_bit;
-    this->pressed_bit = pressed_bit;
-    this->long_pressed_bit = long_pressed_bit;
+    this->pressed_type = pressed_type;
+    this->long_pressed_type = long_pressed_type;
     down = false;
     down_time = 0;
 }

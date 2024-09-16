@@ -34,8 +34,6 @@ static const char *TAG = "main";
 
 extern device_settings settings;
 
-static EventGroupHandle_t buttons_events;
-
 static void system_init() {
     tcpip_adapter_init();
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -49,7 +47,6 @@ static void startup() {
     }
 
     EventGroupHandle_t gpio_events = gpio_init();
-    buttons_events = buttons_init(gpio_events, hotreload->is_hotstart);
 
     load_settings();
 
@@ -106,54 +103,8 @@ void app_main() {
         }
 
         printf("Restarting in %d seconds...  [free mem:%u]\n", i, esp_get_free_heap_size());
-        {
-            EventBits_t buttons_bits = xEventGroupWaitBits(
-                buttons_events,
-                BUTTON_UP_PRESSED | BUTTON_UP_LONG_PRESSED | BUTTON_DOWN_PRESSED
-                    | BUTTON_DOWN_LONG_PRESSED | BUTTON_RIGHT_PRESSED | BUTTON_RIGHT_LONG_PRESSED
-                    | BUTTON_SELECT_PRESSED | BUTTON_SELECT_LONG_PRESSED | BUTTON_LEFT_PRESSED,
-                true,
-                false,
-                5000 / portTICK_PERIOD_MS);
 
-            // static int8_t x = 0;
-            // static int8_t y = 0;
-
-            if (buttons_bits & BUTTON_UP_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_UP_PRESSED");
-                // display_demo(x, --y);
-            }
-            if (buttons_bits & BUTTON_UP_LONG_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_UP_LONG_PRESSED");
-            }
-            if (buttons_bits & BUTTON_DOWN_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_DOWN_PRESSED");
-                // display_demo(x, ++y);
-            }
-            if (buttons_bits & BUTTON_DOWN_LONG_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_DOWN_LONG_PRESSED");
-            }
-            if (buttons_bits & BUTTON_RIGHT_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_RIGHT_PRESSED");
-                // display_demo(++x, y);
-            }
-            if (buttons_bits & BUTTON_RIGHT_LONG_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_RIGHT_LONG_PRESSED");
-            }
-            if (buttons_bits & BUTTON_SELECT_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_SELECT_PRESSED");
-                // display_demo_0(true);
-            }
-            if (buttons_bits & BUTTON_SELECT_LONG_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_SELECT_LONG_PRESSED");
-                stop_process_engine();
-            }
-            if (buttons_bits & BUTTON_LEFT_PRESSED) {
-                // ESP_LOGI(TAG, "BUTTON_LEFT_PRESSED");
-                // display_demo_0(false);
-            }
-        }
-        // vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 
     stop_wifi_sta();

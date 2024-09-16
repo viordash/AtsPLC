@@ -173,11 +173,11 @@ IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
     int err;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
     uint8_t y = OUTCOME_RAIL_TOP + network_number * height;
-    err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_LEFT, y, height, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_RIGHT, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
         err = ssd1306_draw_vline(&display.dev,
                                  fb,
-                                 OUTCOME_RAIL_LEFT - 1,
+                                 OUTCOME_RAIL_RIGHT - 1,
                                  y,
                                  height,
                                  OLED_COLOR_WHITE);
@@ -221,8 +221,8 @@ IRAM_ATTR bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t
     return err == 0;
 }
 
-IRAM_ATTR bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
-    return ssd1306_draw_vline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE) == 0;
+IRAM_ATTR bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t h) {
+    return ssd1306_draw_vline(&display.dev, fb, x, y, h, OLED_COLOR_WHITE) == 0;
 }
 
 IRAM_ATTR bool draw_horz_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {

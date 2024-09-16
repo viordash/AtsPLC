@@ -2,7 +2,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
-#include "freertos/task.h"
+#include "buttons.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -26,14 +26,14 @@ class button {
         btLongPressed = 0x08,
     };
     const char *TAG;
-    EventBits_t pressed_bit;
-    EventBits_t long_pressed_bit;
+    TButtons pressed_type;
+    TButtons long_pressed_type;
 
     button(const char *tag,
            EventBits_t close_bit,
            EventBits_t open_bit,
-           EventBits_t pressed_bit,
-           EventBits_t long_pressed_bit);
+           TButtons pressed_type,
+           TButtons long_pressed_type);
 
     state handle(EventBits_t bits);
 };
