@@ -11,11 +11,10 @@
 
 static const char *TAG_Network = "Network";
 
-Network::Network() {
-    this->state = LogicItemState::lisPassive;
-}
-Network::Network(LogicItemState state) {
+Network::Network(LogicItemState state) : SelectableElement() {
     ChangeState(state);
+}
+Network::Network() : Network(LogicItemState::lisPassive) {
 }
 
 Network::~Network() {
@@ -51,16 +50,21 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };
     bool res = true;
-    LogicItemState prev_elem_state = state;
-    switch (prev_elem_state) {
+    switch (state) {
         case LogicItemState::lisActive:
-            res = draw_active_income_rail(fb, network_number);
+            if (selected) {
+                res = draw_passive_income_rail(fb, network_number);
+            } else {
+                res = draw_active_income_rail(fb, network_number);
+            }
             break;
 
         default:
             res = draw_passive_income_rail(fb, network_number);
             break;
     }
+
+    LogicItemState prev_elem_state = state;
     start_point.x += INCOME_RAIL_WIDTH;
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;

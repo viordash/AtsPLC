@@ -67,6 +67,10 @@ void Ladder::ScrollUp() {
     ESP_LOGI(TAG_Ladder, "ScrollUp, %u", (unsigned)view_top_index);
     if (view_top_index > 0) {
         view_top_index--;
+
+        for (size_t i = 0; i < size(); i++) {
+            at(i)->ChangeSelection(i == view_top_index);
+        }
     }
 }
 
@@ -74,6 +78,10 @@ void Ladder::ScrollDown() {
     ESP_LOGI(TAG_Ladder, "ScrollDown, %u", (unsigned)view_top_index);
     if (view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
+
+        for (size_t i = 0; i < size(); i++) {
+            at(i)->ChangeSelection(i == view_top_index);
+        }
     }
 }
 

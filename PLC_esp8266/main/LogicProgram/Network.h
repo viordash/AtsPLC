@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Display/SelectableElement.h"
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
 
-class Network : public std::vector<LogicElement *> {
+class Network : public std::vector<LogicElement *>, public SelectableElement {
   protected:
     LogicItemState state;
 
@@ -13,7 +14,7 @@ class Network : public std::vector<LogicElement *> {
     const static size_t MinElementsCount = 2;
     const static size_t MaxElementsCount = 5;
     explicit Network();
-    Network(LogicItemState state);
+    explicit Network(LogicItemState state);
     virtual ~Network();
 
     void ChangeState(LogicItemState state);
