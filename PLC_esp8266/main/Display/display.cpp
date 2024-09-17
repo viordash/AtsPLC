@@ -169,6 +169,13 @@ IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t network_number) {
     return err == 0;
 }
 
+IRAM_ATTR bool draw_income_rail_selection(uint8_t *fb, uint8_t network_number) {
+    int err;
+    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT + INCOME_RAIL_HEIGHT / 2;
+    err = ssd1306_fill_circle(&display.dev, fb, 5, y+4, 3, OLED_COLOR_WHITE);
+    return err == 0;
+}
+
 IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
     int err;
     uint8_t height = OUTCOME_RAIL_HEIGHT;

@@ -641,7 +641,7 @@ int ssd1306_draw_circle(const ssd1306_t *dev,
     return 0;
 }
 
-int ssd1306_fill_circle(const ssd1306_t *dev,
+IRAM_ATTR int ssd1306_fill_circle(const ssd1306_t *dev,
                         uint8_t *fb,
                         int8_t x0,
                         int8_t y0,

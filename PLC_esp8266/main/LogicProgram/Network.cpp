@@ -50,18 +50,19 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_OUTCOME_TOP) };
     bool res = true;
+
     switch (state) {
         case LogicItemState::lisActive:
-            if (selected) {
-                res = draw_passive_income_rail(fb, network_number);
-            } else {
-                res = draw_active_income_rail(fb, network_number);
-            }
+            res = draw_active_income_rail(fb, network_number);
             break;
 
         default:
             res = draw_passive_income_rail(fb, network_number);
             break;
+    }
+
+    if (res && selected) {
+        res = draw_income_rail_selection(fb, network_number);
     }
 
     LogicItemState prev_elem_state = state;
