@@ -131,19 +131,19 @@ draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_
     return err == 0;
 }
 
-IRAM_ATTR bool draw_active_income_rail(uint8_t *fb, uint8_t network_number) {
+IRAM_ATTR bool draw_active_income_rail(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
-    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT;
-    err = ssd1306_draw_vline(&display.dev, fb, 0, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    y -= INCOME_RAIL_NETWORK_TOP;
+    err = ssd1306_draw_vline(&display.dev, fb, x, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
     if (err == 0 && INCOME_RAIL_WIDTH == 2) {
-        ssd1306_draw_vline(&display.dev, fb, 1, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+        ssd1306_draw_vline(&display.dev, fb, x + 1, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
     }
     return err == 0;
 }
 
-IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t network_number) {
+IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
-    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT;
+    y -= INCOME_RAIL_NETWORK_TOP;
     uint8_t last_y = y + INCOME_RAIL_HEIGHT;
     err = ssd1306_draw_vline(&display.dev, fb, 0, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
     if (err == 0 && INCOME_RAIL_WIDTH == 2) {
@@ -169,17 +169,16 @@ IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t network_number) {
     return err == 0;
 }
 
-IRAM_ATTR bool draw_income_rail_selection(uint8_t *fb, uint8_t network_number) {
+IRAM_ATTR bool draw_income_rail_selection(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
-    uint8_t y = INCOME_RAIL_TOP + network_number * INCOME_RAIL_HEIGHT + INCOME_RAIL_HEIGHT / 2;
-    err = ssd1306_fill_circle(&display.dev, fb, 5, y+4, 3, OLED_COLOR_WHITE);
+    err = ssd1306_fill_circle(&display.dev, fb, x, y, 3, OLED_COLOR_WHITE);
     return err == 0;
 }
 
-IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t network_number) {
+IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
+    y -= OUTCOME_RAIL_TOP;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
-    uint8_t y = OUTCOME_RAIL_TOP + network_number * height;
     err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_RIGHT, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
         err = ssd1306_draw_vline(&display.dev,

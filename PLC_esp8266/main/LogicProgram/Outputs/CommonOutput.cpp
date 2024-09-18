@@ -49,7 +49,7 @@ IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state,
     start_point->x += incoming_width;
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
-    start_point->x += bitmap->size.width;
+    start_point->x += bitmap->size.width - 1;
     res = draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
     if (!res) {
         return res;

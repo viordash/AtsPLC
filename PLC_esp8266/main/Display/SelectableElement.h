@@ -9,6 +9,8 @@ class SelectableElement {
   protected:
     bool selected;
 
+    bool Render(uint8_t *fb, Point *start_point);
+
   public:
     explicit SelectableElement();
     virtual ~SelectableElement();

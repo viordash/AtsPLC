@@ -48,21 +48,28 @@ bool Network::DoAction() {
 IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
-                                    + INCOME_RAIL_OUTCOME_TOP) };
+                                    + INCOME_RAIL_NETWORK_TOP) };
     bool res = true;
+
+
+    ESP_LOGI(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
 
     switch (state) {
         case LogicItemState::lisActive:
-            res = draw_active_income_rail(fb, network_number);
+            res = draw_active_income_rail(fb, start_point.x, start_point.y);
             break;
 
         default:
-            res = draw_passive_income_rail(fb, network_number);
+            res = draw_passive_income_rail(fb, start_point.x, start_point.y);
             break;
     }
 
-    if (res && selected) {
-        res = draw_income_rail_selection(fb, network_number);
+    if (res) {
+        res = SelectableElement::Render(fb, &start_point);
+    }
+
+    if (res) {
+        res = draw_outcome_rail(fb, start_point.x, start_point.y);
     }
 
     LogicItemState prev_elem_state = state;
@@ -72,11 +79,6 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         res = element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
     }
-
-    if (!res) {
-        return res;
-    }
-    res = draw_outcome_rail(fb, network_number);
 
     return res;
 }

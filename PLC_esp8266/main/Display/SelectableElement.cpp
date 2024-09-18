@@ -24,3 +24,11 @@ void SelectableElement::ChangeSelection(bool selected) {
 bool SelectableElement::Selected() {
     return selected;
 }
+
+bool SelectableElement::Render(uint8_t *fb, Point *start_point) {
+    if (!selected) {
+        return true;
+    }
+
+    return draw_income_rail_selection(fb, start_point->x + 5, start_point->y + 5);
+}

@@ -29,7 +29,7 @@ ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_
     uint8_t y_offset = view_topindex * scroll_step_height;
     uint8_t y = SCROLLBAR_TOP + y_offset;
 
-    ESP_LOGI(TAG_ScrollBar,
+    ESP_LOGD(TAG_ScrollBar,
              "Render: x:%u, y:%u, height:%u, top:%u, count:%u, viewport_count:%u, view_topindex:%u",
              x,
              y,
