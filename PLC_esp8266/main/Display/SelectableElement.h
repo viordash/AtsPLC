@@ -9,6 +9,9 @@ class SelectableElement {
   protected:
     bool selected;
 
+    const static Bitmap bitmap_0;
+    const static Bitmap bitmap_1;
+
     bool Render(uint8_t *fb, Point *start_point);
 
   public:
