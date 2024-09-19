@@ -177,7 +177,7 @@ IRAM_ATTR bool draw_income_rail_selection(uint8_t *fb, uint8_t x, uint8_t y) {
 
 IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
-    y -= OUTCOME_RAIL_TOP;
+    y -= OUTCOME_RAIL_NETWORK_TOP;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
     err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_RIGHT, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
