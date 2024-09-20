@@ -9,6 +9,7 @@
 #include "main/redundant_storage.cpp"
 #include "main/storage.cpp"
 
+#include "main/Display/DesignedElement.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/SelectableElement.cpp"
