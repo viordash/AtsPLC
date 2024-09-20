@@ -13,6 +13,7 @@
 class Ladder : public std::vector<Network *> {
   protected:
     size_t view_top_index;
+    size_t selected_network;
 
     void InitialLoad();
 

@@ -12,6 +12,7 @@ static const char *TAG_Ladder = "Ladder";
 
 Ladder::Ladder() {
     view_top_index = 0;
+    selected_network = 0;
 }
 
 Ladder::~Ladder() {
@@ -27,6 +28,7 @@ void Ladder::RemoveAll() {
         delete network;
     }
     view_top_index = 0;
+    selected_network = 0;
 }
 
 bool Ladder::DoAction() {
@@ -65,23 +67,28 @@ void Ladder::AutoScroll() {
 
 void Ladder::ScrollUp() {
     ESP_LOGI(TAG_Ladder, "ScrollUp, %u", (unsigned)view_top_index);
-    if (view_top_index > 0) {
+    if (selected_network > view_top_index) {
+        selected_network--;
+    } else if (view_top_index > 0) {
         view_top_index--;
+        selected_network--;
+    }
 
-        for (size_t i = 0; i < size(); i++) {
-            at(i)->ChangeSelection(i == view_top_index);
-        }
+    for (size_t i = 0; i < size(); i++) {
+        at(i)->ChangeSelection(i == selected_network);
     }
 }
 
 void Ladder::ScrollDown() {
     ESP_LOGI(TAG_Ladder, "ScrollDown, %u", (unsigned)view_top_index);
-    if (view_top_index + Ladder::MaxViewPortCount < size()) {
+    if (selected_network == view_top_index) {
+        selected_network++;
+    } else if (view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
-
-        for (size_t i = 0; i < size(); i++) {
-            at(i)->ChangeSelection(i == view_top_index);
-        }
+        selected_network++;
+    }
+    for (size_t i = 0; i < size(); i++) {
+        at(i)->ChangeSelection(i == selected_network);
     }
 }
 

@@ -39,7 +39,6 @@ bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
 bool draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash);
 bool draw_active_income_rail(uint8_t *fb, uint8_t x, uint8_t y);
 bool draw_passive_income_rail(uint8_t *fb, uint8_t x, uint8_t y);
-bool draw_income_rail_selection(uint8_t *fb, uint8_t x, uint8_t y);
 bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y);
 bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04);
 bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04);
