@@ -10,7 +10,7 @@
 
 static const char *TAG_Ladder = "Ladder";
 
-Ladder::Ladder() {
+Ladder::Ladder() : DesignedElement() {
     view_top_index = 0;
     selected_network = 0;
 }
@@ -67,28 +67,36 @@ void Ladder::AutoScroll() {
 
 void Ladder::ScrollUp() {
     ESP_LOGI(TAG_Ladder, "ScrollUp, %u", (unsigned)view_top_index);
-    if (selected_network > view_top_index) {
+    if (in_design_state && selected_network > view_top_index) {
         selected_network--;
     } else if (view_top_index > 0) {
         view_top_index--;
         selected_network--;
     }
-
-    for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(i == selected_network);
+    if (in_design_state) {
+        for (size_t i = 0; i < size(); i++) {
+            at(i)->ChangeSelection(in_design_state && i == selected_network);
+        }
     }
 }
 
 void Ladder::ScrollDown() {
     ESP_LOGI(TAG_Ladder, "ScrollDown, %u", (unsigned)view_top_index);
-    if (selected_network == view_top_index) {
+    if (in_design_state && selected_network == view_top_index) {
         selected_network++;
     } else if (view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
         selected_network++;
     }
+
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(i == selected_network);
+        at(i)->ChangeSelection(in_design_state && i == selected_network);
+    }
+}
+void Ladder::SwitchDesign() {
+    in_design_state = !in_design_state;
+    for (size_t i = 0; i < size(); i++) {
+        at(i)->ChangeSelection(in_design_state && i == selected_network);
     }
 }
 

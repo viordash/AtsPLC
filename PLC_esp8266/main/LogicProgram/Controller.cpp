@@ -166,6 +166,11 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
+        if (ulNotifiedValue & DO_SELECT) {
+            ladder->SwitchDesign();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
         if (ulNotifiedValue & DO_RENDERING) {
             int64_t now_time = esp_timer_get_time();
             uint8_t *fb = begin_render();

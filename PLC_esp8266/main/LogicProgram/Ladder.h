@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/DesignedElement.h"
 #include "LogicProgram/Network.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -10,7 +11,7 @@
 
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
-class Ladder : public std::vector<Network *> {
+class Ladder : public std::vector<Network *>, public DesignedElement {
   protected:
     size_t view_top_index;
     size_t selected_network;
@@ -38,6 +39,7 @@ class Ladder : public std::vector<Network *> {
     void AutoScroll();
     void ScrollUp();
     void ScrollDown();
+    void SwitchDesign();
 
     void Load();
     void Store();
