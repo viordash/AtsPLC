@@ -51,7 +51,6 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
                                     + INCOME_RAIL_NETWORK_TOP) };
     bool res = true;
 
-
     ESP_LOGI(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
 
     switch (state) {
@@ -68,16 +67,16 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         res = SelectableElement::Render(fb, &start_point);
     }
 
-    if (res) {
-        res = draw_outcome_rail(fb, start_point.x, start_point.y);
-    }
-
     LogicItemState prev_elem_state = state;
     start_point.x += INCOME_RAIL_WIDTH;
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
         res = element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
+    }
+
+    if (res) {
+        res = draw_outcome_rail(fb, start_point.x, start_point.y);
     }
 
     return res;

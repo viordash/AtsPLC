@@ -179,14 +179,9 @@ IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y) {
     int err;
     y -= OUTCOME_RAIL_NETWORK_TOP;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
-    err = ssd1306_draw_vline(&display.dev, fb, OUTCOME_RAIL_RIGHT, y, height, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb, x, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
-        err = ssd1306_draw_vline(&display.dev,
-                                 fb,
-                                 OUTCOME_RAIL_RIGHT - 1,
-                                 y,
-                                 height,
-                                 OLED_COLOR_WHITE);
+        err = ssd1306_draw_vline(&display.dev, fb, x + 1, y, height, OLED_COLOR_WHITE);
     }
     return err == 0;
 }

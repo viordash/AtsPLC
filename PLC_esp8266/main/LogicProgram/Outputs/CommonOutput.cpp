@@ -61,6 +61,7 @@ IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state,
         res =
             draw_passive_network(fb, start_point->x, start_point->y, LabeledLogicItem::width, true);
     }
+    start_point->x += LabeledLogicItem::width;
     return res;
 }
 
