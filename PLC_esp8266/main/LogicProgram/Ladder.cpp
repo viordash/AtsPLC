@@ -10,9 +10,10 @@
 
 static const char *TAG_Ladder = "Ladder";
 
-Ladder::Ladder() : DesignedElement() {
+Ladder::Ladder() {
     view_top_index = 0;
     selected_network = 0;
+    design_state = TEditableElementState::des_Regular;
 }
 
 Ladder::~Ladder() {
@@ -67,36 +68,80 @@ void Ladder::AutoScroll() {
 
 void Ladder::ScrollUp() {
     ESP_LOGI(TAG_Ladder, "ScrollUp, %u", (unsigned)view_top_index);
-    if (in_design_state && selected_network > view_top_index) {
+    if (design_state == TEditableElementState::des_Selected && selected_network > view_top_index) {
         selected_network--;
-    } else if (view_top_index > 0) {
+    } else if (design_state != TEditableElementState::des_Editing && view_top_index > 0) {
         view_top_index--;
         selected_network--;
     }
-    if (in_design_state) {
-        for (size_t i = 0; i < size(); i++) {
-            at(i)->ChangeSelection(in_design_state && i == selected_network);
-        }
+
+    for (size_t i = 0; i < size(); i++) {
+        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+                               && i == selected_network);
+        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
+                             && i == selected_network);
     }
 }
 
 void Ladder::ScrollDown() {
     ESP_LOGI(TAG_Ladder, "ScrollDown, %u", (unsigned)view_top_index);
-    if (in_design_state && selected_network == view_top_index) {
+    if (design_state == TEditableElementState::des_Selected && selected_network == view_top_index) {
         selected_network++;
-    } else if (view_top_index + Ladder::MaxViewPortCount < size()) {
+    } else if (design_state != TEditableElementState::des_Editing
+               && view_top_index + Ladder::MaxViewPortCount < size()) {
         view_top_index++;
         selected_network++;
     }
 
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(in_design_state && i == selected_network);
+        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+                               && i == selected_network);
+        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
+                             && i == selected_network);
     }
 }
+
 void Ladder::SwitchDesign() {
-    in_design_state = !in_design_state;
+    ESP_LOGI(TAG_Ladder, "SwitchDesign, %u", (unsigned)design_state);
+    switch (design_state) {
+        case TEditableElementState::des_Regular:
+            design_state = TEditableElementState::des_Selected;
+            break;
+        case TEditableElementState::des_Selected:
+            design_state = TEditableElementState::des_Regular;
+            break;
+
+        default:
+            break;
+    }
+
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(in_design_state && i == selected_network);
+        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+                               && i == selected_network);
+        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
+                             && i == selected_network);
+    }
+}
+
+void Ladder::SwitchEditing() {
+    ESP_LOGI(TAG_Ladder, "SwitchEditing, %u", (unsigned)design_state);
+    switch (design_state) {
+        case TEditableElementState::des_Selected:
+            design_state = TEditableElementState::des_Editing;
+            break;
+        case TEditableElementState::des_Editing:
+            design_state = TEditableElementState::des_Regular;
+            break;
+
+        default:
+            break;
+    }
+
+    for (size_t i = 0; i < size(); i++) {
+        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+                               && i == selected_network);
+        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
+                             && i == selected_network);
     }
 }
 

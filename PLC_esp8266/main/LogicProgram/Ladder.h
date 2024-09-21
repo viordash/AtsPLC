@@ -1,6 +1,5 @@
 #pragma once
-
-#include "Display/DesignedElement.h"
+#include "Display/EditableElement.h"
 #include "LogicProgram/Network.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -11,8 +10,9 @@
 
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
-class Ladder : public std::vector<Network *>, public DesignedElement {
+class Ladder : public std::vector<Network *> {
   protected:
+    TEditableElementState design_state;
     size_t view_top_index;
     size_t selected_network;
 
@@ -40,6 +40,7 @@ class Ladder : public std::vector<Network *>, public DesignedElement {
     void ScrollUp();
     void ScrollDown();
     void SwitchDesign();
+    void SwitchEditing();
 
     void Load();
     void Store();

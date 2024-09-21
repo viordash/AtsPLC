@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Display/SelectableElement.h"
+#include "Display/EditableElement.h"
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
 
-class Network : public std::vector<LogicElement *>, public SelectableElement {
+class Network : public std::vector<LogicElement *>, public EditableElement {
   protected:
     LogicItemState state;
 

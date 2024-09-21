@@ -11,7 +11,7 @@
 
 static const char *TAG_Network = "Network";
 
-Network::Network(LogicItemState state) : SelectableElement() {
+Network::Network(LogicItemState state) : EditableElement() {
     ChangeState(state);
 }
 Network::Network() : Network(LogicItemState::lisPassive) {
@@ -64,7 +64,7 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     }
 
     if (res) {
-        res = SelectableElement::Render(fb, &start_point);
+        res = EditableElement::Render(fb, &start_point);
     }
 
     LogicItemState prev_elem_state = state;

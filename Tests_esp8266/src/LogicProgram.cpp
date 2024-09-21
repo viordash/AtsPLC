@@ -9,10 +9,9 @@
 #include "main/redundant_storage.cpp"
 #include "main/storage.cpp"
 
-#include "main/Display/DesignedElement.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
-#include "main/Display/SelectableElement.cpp"
+#include "main/Display/EditableElement.cpp"
 #include "main/Display/display.cpp"
 #include "main/LogicProgram/Controller.cpp"
 #include "main/LogicProgram/InputElement.cpp"
