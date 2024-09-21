@@ -8,6 +8,8 @@
 #include "partitions.h"
 #include "redundant_storage.h"
 
+#define TAG_Ladder "Ladder"
+
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
 class Ladder : public std::vector<Network *> {
