@@ -51,7 +51,7 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
                                     + INCOME_RAIL_NETWORK_TOP) };
     bool res = true;
 
-    ESP_LOGI(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
+    ESP_LOGD(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
 
     switch (state) {
         case LogicItemState::lisActive:

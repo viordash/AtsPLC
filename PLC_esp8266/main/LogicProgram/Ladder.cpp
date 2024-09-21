@@ -12,7 +12,7 @@ static const char *TAG_Ladder = "Ladder";
 
 Ladder::Ladder() {
     view_top_index = 0;
-    selected_network = 0;
+    selected_network = -1;
     design_state = TEditableElementState::des_Regular;
 }
 
@@ -29,7 +29,7 @@ void Ladder::RemoveAll() {
         delete network;
     }
     view_top_index = 0;
-    selected_network = 0;
+    selected_network = -1;
 }
 
 bool Ladder::DoAction() {
@@ -76,10 +76,11 @@ void Ladder::ScrollUp() {
     }
 
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+        auto network = (*this)[i];
+        network->ChangeSelection(design_state == TEditableElementState::des_Selected
+                                 && i == selected_network);
+        network->ChangeEditing(design_state == TEditableElementState::des_Editing
                                && i == selected_network);
-        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
-                             && i == selected_network);
     }
 }
 
@@ -94,10 +95,11 @@ void Ladder::ScrollDown() {
     }
 
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+        auto network = (*this)[i];
+        network->ChangeSelection(design_state == TEditableElementState::des_Selected
+                                 && i == selected_network);
+        network->ChangeEditing(design_state == TEditableElementState::des_Editing
                                && i == selected_network);
-        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
-                             && i == selected_network);
     }
 }
 
@@ -106,9 +108,11 @@ void Ladder::SwitchDesign() {
     switch (design_state) {
         case TEditableElementState::des_Regular:
             design_state = TEditableElementState::des_Selected;
+            selected_network = view_top_index;
             break;
         case TEditableElementState::des_Selected:
             design_state = TEditableElementState::des_Regular;
+            selected_network = -1;
             break;
 
         default:
@@ -116,10 +120,11 @@ void Ladder::SwitchDesign() {
     }
 
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+        auto network = (*this)[i];
+        network->ChangeSelection(design_state == TEditableElementState::des_Selected
+                                 && i == selected_network);
+        network->ChangeEditing(design_state == TEditableElementState::des_Editing
                                && i == selected_network);
-        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
-                             && i == selected_network);
     }
 }
 
@@ -138,10 +143,11 @@ void Ladder::SwitchEditing() {
     }
 
     for (size_t i = 0; i < size(); i++) {
-        at(i)->ChangeSelection(design_state == TEditableElementState::des_Selected
+        auto network = (*this)[i];
+        network->ChangeSelection(design_state == TEditableElementState::des_Selected
+                                 && i == selected_network);
+        network->ChangeEditing(design_state == TEditableElementState::des_Editing
                                && i == selected_network);
-        at(i)->ChangeEditing(design_state == TEditableElementState::des_Editing
-                             && i == selected_network);
     }
 }
 
