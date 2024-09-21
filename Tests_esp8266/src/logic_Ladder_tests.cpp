@@ -9,8 +9,9 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Ladder.cpp"
-#include "main/LogicProgram/LadderStoring.cpp"
+#include "main/LogicProgram/LadderDesigner.cpp"
 #include "main/LogicProgram/LadderInitial.cpp"
+#include "main/LogicProgram/LadderStoring.cpp"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
 
