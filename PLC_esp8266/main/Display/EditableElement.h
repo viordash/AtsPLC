@@ -13,7 +13,7 @@ typedef enum { //
 
 class EditableElement {
   protected:
-    TEditableElementState state;
+    TEditableElementState editable_state;
 
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;

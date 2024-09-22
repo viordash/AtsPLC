@@ -172,3 +172,53 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     }
     return readed;
 }
+
+TEditableElementState Network::GetDesignState() {
+
+    // for (auto it = begin(); it != end(); ++it) {
+    //     auto *element = *it;
+    //     switch (element->GetDesignState()) {
+    //         case TEditableElementState::des_Editing:
+    //             return TEditableElementState::des_Editing;
+
+    //         case TEditableElementState::des_Selected:
+    //             return TEditableElementState::des_Selected;
+
+    //         case TEditableElementState::des_Regular:
+    //             return TEditableElementState::des_Regular;
+    //     }
+    // }
+
+    switch (editable_state) {
+        case TEditableElementState::des_Editing:
+            return TEditableElementState::des_Editing;
+
+        case TEditableElementState::des_Selected:
+            return TEditableElementState::des_Selected;
+
+        default:
+            break;
+    }
+    return TEditableElementState::des_Regular;
+}
+
+void Network::ScrollUp() {
+}
+
+void Network::ScrollDown() {
+}
+
+void Network::SwitchSelecting() {
+}
+
+void Network::BeginEditing() {
+    auto design_state = GetDesignState();
+
+    ESP_LOGI(TAG_Network, "BeginEditing, %u", (unsigned)design_state);
+}
+
+void Network::EndEditing() {
+    auto design_state = GetDesignState();
+
+    ESP_LOGI(TAG_Network, "EndEditing, %u", (unsigned)design_state);
+}

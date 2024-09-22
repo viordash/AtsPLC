@@ -9,8 +9,6 @@
 
 Ladder::Ladder() {
     view_top_index = 0;
-    selected_network = -1;
-    design_state = TEditableElementState::des_Regular;
 }
 
 Ladder::~Ladder() {
@@ -26,7 +24,6 @@ void Ladder::RemoveAll() {
         delete network;
     }
     view_top_index = 0;
-    selected_network = -1;
 }
 
 bool Ladder::DoAction() {

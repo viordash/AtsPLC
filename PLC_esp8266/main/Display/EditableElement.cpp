@@ -14,7 +14,7 @@
 static const char *TAG_EditableElement = "EditableElement";
 
 EditableElement::EditableElement() {
-    state = TEditableElementState::des_Regular;
+    editable_state = TEditableElementState::des_Regular;
 }
 
 EditableElement::~EditableElement() {
@@ -23,15 +23,15 @@ EditableElement::~EditableElement() {
 void EditableElement::ChangeSelection(bool selected) {
     ESP_LOGD(TAG_EditableElement, "ChangeSelection, %u", selected);
 
-    switch (state) {
+    switch (editable_state) {
         case TEditableElementState::des_Regular:
             if (selected) {
-                state = TEditableElementState::des_Selected;
+                editable_state = TEditableElementState::des_Selected;
             }
             break;
         case TEditableElementState::des_Selected:
             if (!selected) {
-                state = TEditableElementState::des_Regular;
+                editable_state = TEditableElementState::des_Regular;
             }
             break;
 
@@ -43,15 +43,15 @@ void EditableElement::ChangeSelection(bool selected) {
 void EditableElement::ChangeEditing(bool edited) {
     ESP_LOGD(TAG_EditableElement, "ChangeEditing, %u", edited);
 
-    switch (state) {
+    switch (editable_state) {
         case TEditableElementState::des_Regular:
             if (edited) {
-                state = TEditableElementState::des_Editing;
+                editable_state = TEditableElementState::des_Editing;
             }
             break;
         case TEditableElementState::des_Editing:
             if (!edited) {
-                state = TEditableElementState::des_Regular;
+                editable_state = TEditableElementState::des_Regular;
             }
             break;
 
@@ -61,14 +61,14 @@ void EditableElement::ChangeEditing(bool edited) {
 }
 
 bool EditableElement::Selected() {
-    return state == TEditableElementState::des_Selected;
+    return editable_state == TEditableElementState::des_Selected;
 }
 
 bool EditableElement::Render(uint8_t *fb, Point *start_point) {
     const Bitmap *bitmap;
     const int blink_timer_524ms = 0x80000;
 
-    switch (state) {
+    switch (editable_state) {
         case TEditableElementState::des_Selected:
             if (esp_timer_get_time() & blink_timer_524ms) {
                 bitmap = &EditableElement::bitmap_selecting_blink_0;
@@ -91,5 +91,5 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 }
 
 bool EditableElement::Editing() {
-    return state == TEditableElementState::des_Editing;
+    return editable_state == TEditableElementState::des_Editing;
 }

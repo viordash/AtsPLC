@@ -68,3 +68,6 @@ IMPORT_TEST_GROUP(LogicIncOutputTestsGroup);
 
 IMPORT_TEST_GROUP(LogicControllerTestsGroup);
 IMPORT_TEST_GROUP(ScrollBarTestsGroup);
+
+IMPORT_TEST_GROUP(LogicLadderTestsGroup);
+IMPORT_TEST_GROUP(LogicLadderDesignerTestsGroup);

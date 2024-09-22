@@ -14,9 +14,7 @@
 
 class Ladder : public std::vector<Network *> {
   protected:
-    TEditableElementState design_state;
-    size_t view_top_index;
-    size_t selected_network;
+    int view_top_index;
 
     void InitialLoad();
 
@@ -24,6 +22,10 @@ class Ladder : public std::vector<Network *> {
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
 
     void RemoveAll();
+
+    TEditableElementState GetDesignState(int selected_network);
+    int GetSelectedNetwork();
+    void UpdateDesigning(TEditableElementState design_state, int selected_network);
 
   public:
     const size_t MinNetworksCount = 1;
@@ -41,7 +43,7 @@ class Ladder : public std::vector<Network *> {
     void AutoScroll();
     void ScrollUp();
     void ScrollDown();
-    void SwitchDesign();
+    void SwitchSelecting();
     void SwitchEditing();
 
     void Load();

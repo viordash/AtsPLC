@@ -167,7 +167,7 @@ void Controller::RenderTask(void *parm) {
         }
 
         if (ulNotifiedValue & DO_SELECT) {
-            ladder->SwitchDesign();
+            ladder->SwitchSelecting();
             ulNotifiedValue |= DO_RENDERING;
         }
 
