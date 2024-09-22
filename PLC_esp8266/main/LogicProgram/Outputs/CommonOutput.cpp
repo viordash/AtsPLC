@@ -1,6 +1,6 @@
 #include "LogicProgram/Outputs/CommonOutput.h"
-#include "LogicProgram/Serializer/Record.h"
 #include "Display/display.h"
+#include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -20,10 +20,11 @@ void CommonOutput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool
+CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    
+
     auto bitmap = GetCurrentBitmap(state);
 
     uint8_t total_widht = bitmap->size.width + LabeledLogicItem::width;
@@ -60,6 +61,10 @@ IRAM_ATTR bool CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state,
     } else {
         res =
             draw_passive_network(fb, start_point->x, start_point->y, LabeledLogicItem::width, true);
+    }
+
+    if (res) {
+        res = EditableElement::Render(fb, start_point);
     }
     start_point->x += LabeledLogicItem::width;
     return res;

@@ -25,10 +25,10 @@ class EditableElement {
     explicit EditableElement();
     virtual ~EditableElement();
 
-    virtual void Select();
-    virtual void CancelSelection();
+    void Select();
+    void CancelSelection();
 
-    virtual void BeginEditing();
+    void BeginEditing();
     virtual void EndEditing();
 
     bool Selected();

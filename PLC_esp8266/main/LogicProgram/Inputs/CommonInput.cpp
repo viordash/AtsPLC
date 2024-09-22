@@ -50,5 +50,7 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
     start_point->x += bitmap->size.width;
+
+    res = EditableElement::Render(fb, start_point);
     return res;
 }

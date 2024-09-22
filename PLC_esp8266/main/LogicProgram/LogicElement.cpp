@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-LogicElement::LogicElement() {
+LogicElement::LogicElement() : EditableElement() {
     this->state = LogicItemState::lisPassive;
 }
 

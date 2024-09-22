@@ -20,7 +20,7 @@ void Ladder::AutoScroll() {
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)size(); i++) {
         auto network = (*this)[i];
-        if (network->GetDesignState() != TEditableElementState::des_Regular) {
+        if (network->Selected() || network->Editing()) {
             return i;
         }
     }
@@ -33,20 +33,13 @@ TEditableElementState Ladder::GetDesignState(int selected_network) {
     }
 
     auto network = (*this)[selected_network];
-    auto network_state = network->GetDesignState();
-    switch (network_state) {
-        case TEditableElementState::des_Editing:
-            return TEditableElementState::des_Editing;
-
-        case TEditableElementState::des_Selected:
-            return TEditableElementState::des_Selected;
-        default:
-            ESP_LOGE(TAG_Ladder,
-                     "GetDesignState, unexpected network (id:%d) state (%u)",
-                     selected_network,
-                     (unsigned)network_state);
-            break;
+    if (network->Editing()) {
+        return TEditableElementState::des_Editing;
     }
+    if (network->Selected()) {
+        return TEditableElementState::des_Selected;
+    }
+    ESP_LOGE(TAG_Ladder, "GetDesignState, unexpected network (id:%d) state", selected_network);
     return TEditableElementState::des_Regular;
 }
 
@@ -156,7 +149,7 @@ void Ladder::SwitchEditing() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder, "SwitchEditing, %u", (unsigned)design_state);
+    ESP_LOGI(TAG_Ladder, "SwitchEditing, %u, selected_network:%d", (unsigned)design_state, selected_network);
     switch (design_state) {
         case TEditableElementState::des_Selected:
             (*this)[selected_network]->BeginEditing();

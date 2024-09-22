@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "Display/EditableElement.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Serializer/TypeValueElement.h"
@@ -10,7 +11,7 @@
 
 class Network;
 
-class LogicElement {
+class LogicElement: public EditableElement {
   protected:
     std::recursive_mutex lock_mutex;
     LogicItemState state;

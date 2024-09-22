@@ -63,16 +63,21 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
             break;
     }
 
-    if (res) {
-        res = EditableElement::Render(fb, &start_point);
-    }
-
+    Point editable_sign_start_point = start_point;
+    bool any_child_is_edited = false;
     LogicItemState prev_elem_state = state;
     start_point.x += INCOME_RAIL_WIDTH;
     for (auto it = begin(); res && it != end(); ++it) {
         auto element = *it;
+        if (element->Selected() || element->Editing()) {
+            any_child_is_edited = true;
+        }
         res = element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
+    }
+
+    if (res && !any_child_is_edited) {
+        res = EditableElement::Render(fb, &editable_sign_start_point);
     }
 
     if (res) {
@@ -173,46 +178,48 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
-TEditableElementState Network::GetDesignState() {
-
-    // for (auto it = begin(); it != end(); ++it) {
-    //     auto *element = *it;
-    //     switch (element->GetDesignState()) {
-    //         case TEditableElementState::des_Editing:
-    //             return TEditableElementState::des_Editing;
-
-    //         case TEditableElementState::des_Selected:
-    //             return TEditableElementState::des_Selected;
-
-    //         case TEditableElementState::des_Regular:
-    //             return TEditableElementState::des_Regular;
-    //     }
-    // }
-
-    switch (editable_state) {
-        case TEditableElementState::des_Editing:
-            return TEditableElementState::des_Editing;
-
-        case TEditableElementState::des_Selected:
-            return TEditableElementState::des_Selected;
-
-        default:
-            break;
-    }
-    return TEditableElementState::des_Regular;
-}
-
 void Network::HandleButtonUp() {
-    auto design_state = GetDesignState();
-    ESP_LOGI(TAG_Network, "HandleButtonUp, %u", (unsigned)design_state);
+    ESP_LOGI(TAG_Network, "HandleButtonUp, %u", (unsigned)editable_state);
 }
 
 void Network::HandleButtonDown() {
-    auto design_state = GetDesignState();
-    ESP_LOGI(TAG_Network, "HandleButtonDown, %u", (unsigned)design_state);
+    ESP_LOGI(TAG_Network, "HandleButtonDown, %u", (unsigned)editable_state);
 }
 
 void Network::HandleButtonSelect() {
-    auto design_state = GetDesignState();
-    ESP_LOGI(TAG_Network, "HandleButtonSelect, %u", (unsigned)design_state);
+    auto selected_element = GetSelectedElement();
+    ESP_LOGI(TAG_Network,
+             "HandleButtonSelect, %u, selected_element:%d",
+             (unsigned)editable_state,
+             selected_element);
+
+    if (selected_element >= 0) {
+        (*this)[selected_element]->CancelSelection();
+    }
+    selected_element++;
+
+    if (selected_element >= size()) {
+        selected_element = -1;
+    }
+    if (selected_element >= 0) {
+        (*this)[selected_element]->Select();
+    }
+}
+
+void Network::EndEditing() {
+    auto selected_element = GetSelectedElement();
+    if (selected_element >= 0) {
+        (*this)[selected_element]->CancelSelection();
+    }
+    EditableElement::EndEditing();
+}
+
+int Network::GetSelectedElement() {
+    for (int i = 0; i < (int)size(); i++) {
+        auto element = (*this)[i];
+        if (element->Selected() || element->Editing()) {
+            return i;
+        }
+    }
+    return -1;
 }

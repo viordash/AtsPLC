@@ -108,6 +108,10 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 
     start_point->x += bitmap->size.width;
 
+    if (res) {
+        res = EditableElement::Render(fb, start_point);
+    }
+
     ESP_LOGD(TAG_CommonTimer,
              "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
              str_time,
