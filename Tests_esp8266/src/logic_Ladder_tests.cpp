@@ -249,7 +249,7 @@ TEST(LogicLadderTestsGroup, initial_load_when_empty_storage) {
     Ladder ladder_load;
     ladder_load.Load();
 
-    CHECK_EQUAL(4, ladder_load.size());
+    CHECK_EQUAL(7, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());
@@ -281,7 +281,7 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 
     Ladder ladder_load;
     ladder_load.Load();
-    CHECK_EQUAL(4, ladder_load.size());
+    CHECK_EQUAL(7, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());

@@ -30,6 +30,21 @@ void Ladder::InitialLoad() {
     incomeRail2->Append(new DirectOutput(MapIO::O1));
 
     incomeRail3->Append(new InputNO(MapIO::DI));
-    incomeRail3->Append(new TimerSecs(5));
+    incomeRail3->Append(new TimerSecs(3));
     incomeRail3->Append(new DirectOutput(MapIO::O2));
+
+    auto incomeRail4 = new Network(LogicItemState::lisActive);
+    incomeRail4->Append(new TimerSecs(4));
+    incomeRail4->Append(new DirectOutput(MapIO::V2));
+    Append(incomeRail4);
+
+    auto incomeRail5 = new Network(LogicItemState::lisActive);
+    incomeRail5->Append(new TimerSecs(5));
+    incomeRail5->Append(new DirectOutput(MapIO::V3));
+    Append(incomeRail5);
+
+    auto incomeRail6 = new Network(LogicItemState::lisActive);
+    incomeRail6->Append(new TimerSecs(6));
+    incomeRail6->Append(new DirectOutput(MapIO::V4));
+    Append(incomeRail6);
 }
