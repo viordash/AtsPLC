@@ -179,11 +179,43 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
 }
 
 void Network::HandleButtonUp() {
-    ESP_LOGI(TAG_Network, "HandleButtonUp, %u", (unsigned)editable_state);
+    auto selected_element = GetSelectedElement();
+    ESP_LOGI(TAG_Network,
+             "HandleButtonUp, %u, selected_element:%d",
+             (unsigned)editable_state,
+             selected_element);
+
+    bool edit_this_network = selected_element < 0;
+    if (edit_this_network) {
+        switch (state) {
+            case LogicItemState::lisPassive:
+                ChangeState(LogicItemState::lisActive);
+                break;
+            default:
+                ChangeState(LogicItemState::lisPassive);
+                break;
+        }
+    }
 }
 
 void Network::HandleButtonDown() {
-    ESP_LOGI(TAG_Network, "HandleButtonDown, %u", (unsigned)editable_state);
+    auto selected_element = GetSelectedElement();
+    ESP_LOGI(TAG_Network,
+             "HandleButtonDown, %u, selected_element:%d",
+             (unsigned)editable_state,
+             selected_element);
+
+    bool edit_this_network = selected_element < 0;
+    if (edit_this_network) {
+        switch (state) {
+            case LogicItemState::lisPassive:
+                ChangeState(LogicItemState::lisActive);
+                break;
+            default:
+                ChangeState(LogicItemState::lisPassive);
+                break;
+        }
+    }
 }
 
 void Network::HandleButtonSelect() {
