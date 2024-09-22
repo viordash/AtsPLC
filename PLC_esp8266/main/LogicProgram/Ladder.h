@@ -43,7 +43,7 @@ class Ladder : public std::vector<Network *> {
     void HandleButtonUp();
     void HandleButtonDown();
     void HandleButtonSelect();
-    void SwitchEditing();
+    void HandleButtonOption();
 
     void Load();
     void Store();

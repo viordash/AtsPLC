@@ -172,7 +172,7 @@ void Controller::RenderTask(void *parm) {
         }
 
         if (ulNotifiedValue & DO_SELECT_OPTION) {
-            ladder->SwitchEditing();
+            ladder->HandleButtonOption();
             ulNotifiedValue |= DO_RENDERING;
         }
 

@@ -145,17 +145,20 @@ void Ladder::HandleButtonSelect() {
     }
 }
 
-void Ladder::SwitchEditing() {
+void Ladder::HandleButtonOption() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder, "SwitchEditing, %u, selected_network:%d", (unsigned)design_state, selected_network);
+    ESP_LOGI(TAG_Ladder,
+             "SwitchEditing, %u, selected_network:%d",
+             (unsigned)design_state,
+             selected_network);
     switch (design_state) {
         case TEditableElementState::des_Selected:
             (*this)[selected_network]->BeginEditing();
             break;
         case TEditableElementState::des_Editing:
-            (*this)[selected_network]->EndEditing();
+            (*this)[selected_network]->HandleButtonOption();
             break;
 
         default:
