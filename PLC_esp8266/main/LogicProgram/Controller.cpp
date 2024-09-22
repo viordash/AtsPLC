@@ -157,17 +157,17 @@ void Controller::RenderTask(void *parm) {
         }
 
         if (ulNotifiedValue & DO_SCROLL_UP) {
-            ladder->ScrollUp();
+            ladder->HandleButtonUp();
             ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_SCROLL_DOWN) {
-            ladder->ScrollDown();
+            ladder->HandleButtonDown();
             ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_SELECT) {
-            ladder->SwitchSelecting();
+            ladder->HandleButtonSelect();
             ulNotifiedValue |= DO_RENDERING;
         }
 

@@ -65,6 +65,9 @@ namespace {
         int PublicMorozov_GetSelectedNetwork() {
             return GetSelectedNetwork();
         }
+        TEditableElementState PublicMorozov_GetDesignState(int selected_network) {
+            return GetDesignState(selected_network);
+        }
     };
 
 } // namespace
@@ -104,7 +107,8 @@ TEST(LogicLadderDesignerTestsGroup, AutoScroll_when_append_new_networks) {
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
 }
 
-TEST(LogicLadderDesignerTestsGroup, ScrollDown_ScrollUp_can_scroll_from_first_to_last_network) {
+TEST(LogicLadderDesignerTestsGroup,
+     HandleButtonDown_HandleButtonUp_can_scroll_from_first_to_last_network) {
     TestableLadder testable;
     testable.Append(new Network(LogicItemState::lisActive));
     testable.Append(new Network(LogicItemState::lisActive));
@@ -116,67 +120,68 @@ TEST(LogicLadderDesignerTestsGroup, ScrollDown_ScrollUp_can_scroll_from_first_to
     testable.AutoScroll();
 
     CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
+    testable.HandleButtonDown();
     CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(4, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.ScrollDown();
+    testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
 }
 
-TEST(LogicLadderDesignerTestsGroup, ScrollDown_ScrollUp__when_networks_less_than_viewport) {
+TEST(LogicLadderDesignerTestsGroup,
+     HandleButtonDown_HandleButtonUp__when_networks_less_than_viewport) {
     TestableLadder testable;
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.AutoScroll();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
+    testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network(LogicItemState::lisActive));
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.Append(new Network(LogicItemState::lisActive));
 
     testable.AutoScroll();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
+    testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
+    testable.HandleButtonUp();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.AutoScroll();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.HandleButtonDown();
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+    testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.Append(new Network(LogicItemState::lisActive));
 
     testable.AutoScroll();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
+    testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 }
 
@@ -192,7 +197,28 @@ TEST(LogicLadderDesignerTestsGroup, GetSelectedNetwork) {
                      testable.PublicMorozov_GetSelectedNetwork(),
                      "when no selection must be return -1");
 
-    can_be_selected_network->ChangeSelection(true);
+    can_be_selected_network->Select();
 
     CHECK_EQUAL(2, testable.PublicMorozov_GetSelectedNetwork());
+}
+
+TEST(LogicLadderDesignerTestsGroup, GetDesignState) {
+    TestableLadder testable;
+    testable.Append(new Network());
+    auto can_be_edited_network = new Network();
+    testable.Append(can_be_edited_network);
+    auto can_be_selected_network = new Network();
+    testable.Append(can_be_selected_network);
+
+    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(-1));
+    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(0));
+    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(1));
+    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(2));
+
+    can_be_selected_network->Select();
+    CHECK_EQUAL(TEditableElementState::des_Selected, testable.PublicMorozov_GetDesignState(2));
+
+    can_be_edited_network->Select();
+    can_be_edited_network->BeginEditing();
+    CHECK_EQUAL(TEditableElementState::des_Editing, testable.PublicMorozov_GetDesignState(1));
 }

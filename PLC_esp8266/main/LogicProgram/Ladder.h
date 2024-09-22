@@ -25,7 +25,6 @@ class Ladder : public std::vector<Network *> {
 
     TEditableElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
-    void UpdateDesigning(TEditableElementState design_state, int selected_network);
 
   public:
     const size_t MinNetworksCount = 1;
@@ -41,9 +40,9 @@ class Ladder : public std::vector<Network *> {
     void Append(Network *network);
     bool CanScrollAuto();
     void AutoScroll();
-    void ScrollUp();
-    void ScrollDown();
-    void SwitchSelecting();
+    void HandleButtonUp();
+    void HandleButtonDown();
+    void HandleButtonSelect();
     void SwitchEditing();
 
     void Load();

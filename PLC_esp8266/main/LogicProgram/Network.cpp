@@ -202,23 +202,17 @@ TEditableElementState Network::GetDesignState() {
     return TEditableElementState::des_Regular;
 }
 
-void Network::ScrollUp() {
-}
-
-void Network::ScrollDown() {
-}
-
-void Network::SwitchSelecting() {
-}
-
-void Network::BeginEditing() {
+void Network::HandleButtonUp() {
     auto design_state = GetDesignState();
-
-    ESP_LOGI(TAG_Network, "BeginEditing, %u", (unsigned)design_state);
+    ESP_LOGI(TAG_Network, "HandleButtonUp, %u", (unsigned)design_state);
 }
 
-void Network::EndEditing() {
+void Network::HandleButtonDown() {
     auto design_state = GetDesignState();
+    ESP_LOGI(TAG_Network, "HandleButtonDown, %u", (unsigned)design_state);
+}
 
-    ESP_LOGI(TAG_Network, "EndEditing, %u", (unsigned)design_state);
+void Network::HandleButtonSelect() {
+    auto design_state = GetDesignState();
+    ESP_LOGI(TAG_Network, "HandleButtonSelect, %u", (unsigned)design_state);
 }

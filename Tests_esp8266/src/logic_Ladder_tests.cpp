@@ -346,7 +346,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -362,7 +362,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -378,7 +378,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -394,7 +394,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -410,7 +410,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);

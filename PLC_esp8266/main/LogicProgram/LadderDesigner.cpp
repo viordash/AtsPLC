@@ -50,22 +50,12 @@ TEditableElementState Ladder::GetDesignState(int selected_network) {
     return TEditableElementState::des_Regular;
 }
 
-void Ladder::UpdateDesigning(TEditableElementState design_state, int selected_network) {
-    for (int i = 0; i < (int)size(); i++) {
-        auto network = (*this)[i];
-        network->ChangeSelection(design_state == TEditableElementState::des_Selected
-                                 && i == selected_network);
-        network->ChangeEditing(design_state == TEditableElementState::des_Editing
-                               && i == selected_network);
-    }
-}
-
-void Ladder::ScrollUp() {
+void Ladder::HandleButtonUp() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
     ESP_LOGI(TAG_Ladder,
-             "ScrollUp, %u, view_top_index:%u, selected_network:%d",
+             "HandleButtonUp, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              view_top_index,
              selected_network);
@@ -74,35 +64,34 @@ void Ladder::ScrollUp() {
         case TEditableElementState::des_Regular:
             if (view_top_index > 0) {
                 view_top_index--;
-                selected_network--;
             }
-            UpdateDesigning(design_state, selected_network);
             break;
 
         case TEditableElementState::des_Selected:
+            (*this)[selected_network]->CancelSelection();
+
             if (selected_network > view_top_index) {
                 selected_network--;
             } else if (view_top_index > 0) {
                 view_top_index--;
                 selected_network--;
             }
-            UpdateDesigning(design_state, selected_network);
+
+            (*this)[selected_network]->Select();
             break;
 
-        case TEditableElementState::des_Editing: {
-            auto network = (*this)[selected_network];
-            network->ScrollUp();
+        case TEditableElementState::des_Editing:
+            (*this)[selected_network]->HandleButtonUp();
             return;
-        }
     }
 }
 
-void Ladder::ScrollDown() {
+void Ladder::HandleButtonDown() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
     ESP_LOGI(TAG_Ladder,
-             "ScrollDown, %u, view_top_index:%u, selected_network:%d",
+             "HandleButtonDown, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              view_top_index,
              selected_network);
@@ -111,57 +100,52 @@ void Ladder::ScrollDown() {
         case TEditableElementState::des_Regular:
             if (view_top_index + Ladder::MaxViewPortCount < size()) {
                 view_top_index++;
-                selected_network++;
             }
-            UpdateDesigning(design_state, selected_network);
             break;
 
         case TEditableElementState::des_Selected:
+            (*this)[selected_network]->CancelSelection();
+
             if (selected_network == view_top_index) {
                 selected_network++;
             } else if (view_top_index + Ladder::MaxViewPortCount < size()) {
                 view_top_index++;
                 selected_network++;
             }
-            UpdateDesigning(design_state, selected_network);
+
+            (*this)[selected_network]->Select();
             break;
 
         case TEditableElementState::des_Editing: {
             auto network = (*this)[selected_network];
-            network->ScrollDown();
+            network->HandleButtonDown();
             return;
         }
     }
 }
 
-void Ladder::SwitchSelecting() {
+void Ladder::HandleButtonSelect() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
     ESP_LOGI(TAG_Ladder,
-             "SwitchSelecting, %u, view_top_index:%u, selected_network:%d",
+             "HandleButtonSelect, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              (unsigned)view_top_index,
              selected_network);
 
     switch (design_state) {
         case TEditableElementState::des_Regular:
-            design_state = TEditableElementState::des_Selected;
-            selected_network = view_top_index;
-            UpdateDesigning(design_state, selected_network);
+            (*this)[view_top_index]->Select();
             break;
 
         case TEditableElementState::des_Selected:
-            design_state = TEditableElementState::des_Regular;
-            selected_network = -1;
-            UpdateDesigning(design_state, selected_network);
+            (*this)[selected_network]->CancelSelection();
             break;
 
-        case TEditableElementState::des_Editing: {
-            auto network = (*this)[selected_network];
-            network->SwitchSelecting();
+        case TEditableElementState::des_Editing:
+            (*this)[selected_network]->HandleButtonSelect();
             return;
-        }
 
         default:
             break;
@@ -175,17 +159,17 @@ void Ladder::SwitchEditing() {
     ESP_LOGI(TAG_Ladder, "SwitchEditing, %u", (unsigned)design_state);
     switch (design_state) {
         case TEditableElementState::des_Selected:
-            design_state = TEditableElementState::des_Editing;
             (*this)[selected_network]->BeginEditing();
             break;
         case TEditableElementState::des_Editing:
-            design_state = TEditableElementState::des_Regular;
             (*this)[selected_network]->EndEditing();
             break;
 
         default:
+            ESP_LOGE(TAG_Ladder,
+                     "SwitchEditing, unexpected network (id:%d) state (%u)",
+                     selected_network,
+                     (unsigned)design_state);
             break;
     }
-
-    UpdateDesigning(design_state, selected_network);
 }

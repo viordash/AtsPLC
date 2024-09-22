@@ -23,11 +23,9 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     virtual bool Render(uint8_t *fb, uint8_t network_number);
 
     void Append(LogicElement *element);
-    void ScrollUp();
-    void ScrollDown();
-    void SwitchSelecting();
-    void BeginEditing();
-    void EndEditing();
+    void HandleButtonUp();
+    void HandleButtonDown();
+    void HandleButtonSelect();
     TEditableElementState GetDesignState();
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
