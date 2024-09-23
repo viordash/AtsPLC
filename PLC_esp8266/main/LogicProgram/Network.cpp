@@ -262,6 +262,7 @@ void Network::HandleButtonOption() {
         (*this)[selected_element]->BeginEditing();
     } else if ((*this)[selected_element]->Editing()) {
         (*this)[selected_element]->EndEditing();
+        (*this)[selected_element]->Select();
     }
 }
 
