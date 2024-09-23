@@ -71,3 +71,5 @@ IMPORT_TEST_GROUP(ScrollBarTestsGroup);
 
 IMPORT_TEST_GROUP(LogicLadderTestsGroup);
 IMPORT_TEST_GROUP(LogicLadderDesignerTestsGroup);
+
+IMPORT_TEST_GROUP(TvElementTypeTestsGroup);
