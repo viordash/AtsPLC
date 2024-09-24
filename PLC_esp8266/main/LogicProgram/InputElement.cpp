@@ -36,3 +36,7 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
             break;
     }
 }
+
+MapIO InputElement::GetIoAdr() {
+    return this->io_adr;
+}

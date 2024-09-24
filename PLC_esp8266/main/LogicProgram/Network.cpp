@@ -237,7 +237,7 @@ void Network::HandleButtonSelect() {
     }
     selected_element++;
 
-    if (selected_element >= size()) {
+    if (selected_element >= (int)size()) {
         selected_element = -1;
     }
     if (selected_element >= 0) {

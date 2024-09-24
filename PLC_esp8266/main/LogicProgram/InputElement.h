@@ -17,4 +17,5 @@ class InputElement {
   public:
     InputElement();
     virtual void SetIoAdr(const MapIO io_adr);
+    MapIO GetIoAdr();
 };

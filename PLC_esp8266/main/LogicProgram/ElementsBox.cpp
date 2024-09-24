@@ -1,6 +1,8 @@
 
 #include "LogicProgram/ElementsBox.h"
 #include "Display/display.h"
+#include "LogicProgram/Inputs/InputNC.h"
+#include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -26,33 +28,54 @@ ElementsBox::~ElementsBox() {
     }
 }
 
+bool ElementsBox::MatchedToStoredElement(TvElementType element_type) {
+    if (IsInputElement(element_type) && IsOutputElement(stored_element->GetElementType())) {
+        return false;
+    }
+
+    if (IsOutputElement(element_type) && IsInputElement(stored_element->GetElementType())) {
+        return false;
+    }
+    return true;
+}
+
+void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
+    auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
+    if (stored_element_as_commonInput != NULL) {
+        auto *new_element_as_commonInput = CommonInput::TryToCast(new_element);
+        if (new_element_as_commonInput != NULL) {
+            new_element_as_commonInput->SetIoAdr(stored_element_as_commonInput->GetIoAdr());
+            return;
+        }
+    }
+}
+
 void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer) {
     if (stored_element->GetElementType() == element_type) {
         return;
     }
 
-    if (IsInputElement(element_type) && IsOutputElement(stored_element->GetElementType())) {
+    if (!MatchedToStoredElement(element_type)) {
         return;
     }
 
-    if (IsOutputElement(element_type) && IsInputElement(stored_element->GetElementType())) {
+    auto new_element = LogicElementFactory::Create(element_type);
+    if (new_element == NULL) {
         return;
     }
-
-    auto element = LogicElementFactory::Create(element_type);
-    if (element == NULL) {
-        return;
-    }
+    TakeParamsFromStoredElement(new_element);
 
     Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
-    if (!element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
+    if (!new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
+        delete new_element;
         return;
     }
     bool element_not_fit = start_point.x - (DISPLAY_WIDTH / 2) > place_width;
     if (element_not_fit) {
+        delete new_element;
         return;
     }
-    push_back(element);
+    push_back(new_element);
 }
 
 void ElementsBox::Fill() {
