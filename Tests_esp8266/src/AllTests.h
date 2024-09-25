@@ -75,3 +75,5 @@ IMPORT_TEST_GROUP(LogicLadderDesignerTestsGroup);
 IMPORT_TEST_GROUP(TvElementTypeTestsGroup);
 
 IMPORT_TEST_GROUP(LogicElementsBoxTestsGroup);
+
+IMPORT_TEST_GROUP(LogicCommonOutputTestsGroup);

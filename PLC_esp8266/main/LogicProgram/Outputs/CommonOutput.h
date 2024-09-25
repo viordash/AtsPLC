@@ -22,4 +22,6 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
+
+    static CommonOutput *TryToCast(LogicElement *logic_element);
 };
