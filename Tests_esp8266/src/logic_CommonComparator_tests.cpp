@@ -55,6 +55,9 @@ namespace {
         uint8_t PublicMorozov_GetReference() {
             return ref_percent04;
         }
+        const char *PublicMorozov_GetStrReference() {
+            return str_reference;
+        }
         TvElementType GetElementType() override final {
             return elementType;
         }
@@ -217,4 +220,10 @@ TEST(LogicCommonComparatorTestsGroup,
                      "no changes are expected to be detected");
     CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
+}
+
+TEST(LogicCommonComparatorTestsGroup, ctor_set_reference_to_zero) {
+    TestableCommonComparator testable;
+    CHECK_EQUAL(0, testable.PublicMorozov_GetReference());
+    STRCMP_EQUAL("0", testable.PublicMorozov_GetStrReference());
 }

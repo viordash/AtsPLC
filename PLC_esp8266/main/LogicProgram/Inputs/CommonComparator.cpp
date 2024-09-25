@@ -8,7 +8,7 @@
 #include <string.h>
 
 CommonComparator::CommonComparator() : CommonInput() {
-    this->ref_percent04 = 0;
+    SetReference(0);
 }
 
 CommonComparator::~CommonComparator() {

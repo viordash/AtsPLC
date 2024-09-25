@@ -6,11 +6,9 @@
 #include <unistd.h>
 
 class CommonComparator : public CommonInput {
-  private:
-    char str_reference[5];
-    int str_size;
-
   protected:
+    int str_size;
+    char str_reference[5];
     uint8_t ref_percent04;
 
     virtual bool CompareFunction() = 0;
