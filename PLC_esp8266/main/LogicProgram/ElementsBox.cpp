@@ -1,8 +1,10 @@
 
 #include "LogicProgram/ElementsBox.h"
 #include "Display/display.h"
+#include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -45,8 +47,17 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
         auto *new_element_as_commonInput = CommonInput::TryToCast(new_element);
         if (new_element_as_commonInput != NULL) {
             new_element_as_commonInput->SetIoAdr(stored_element_as_commonInput->GetIoAdr());
-            return;
         }
+        return;
+    }
+
+    auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
+    if (stored_element_as_commonOutput != NULL) {
+        auto *new_element_as_commonOutput = CommonOutput::TryToCast(new_element);
+        if (new_element_as_commonOutput != NULL) {
+            new_element_as_commonOutput->SetIoAdr(stored_element_as_commonOutput->GetIoAdr());
+        }
+        return;
     }
 }
 
