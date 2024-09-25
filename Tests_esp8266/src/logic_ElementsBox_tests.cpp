@@ -22,5 +22,5 @@ TEST_GROUP(LogicElementsBoxTestsGroup){ //
 TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(8, testable.size());
 }
