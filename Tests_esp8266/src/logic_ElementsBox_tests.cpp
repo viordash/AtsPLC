@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
+#include "MonitorLogicElement.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -10,10 +11,14 @@
 
 #include "main/LogicProgram/ElementsBox.cpp"
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Outputs/IncOutput.h"
+
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
+memset(frame_buffer, 0, sizeof(frame_buffer));
 }
 
 TEST_TEARDOWN() {
@@ -21,6 +26,28 @@ TEST_TEARDOWN() {
 }
 }
 ;
+
+namespace {
+    class TestableComparatorEq : public ComparatorEq, public MonitorLogicElement {
+      public:
+        TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
+            : ComparatorEq(ref_percent04, io_adr) {
+        }
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+            (void)prev_changed;
+            (void)prev_elem_state;
+            return MonitorLogicElement::DoAction();
+        }
+
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+            (void)fb;
+            (void)prev_elem_state;
+            (void)start_point;
+            return MonitorLogicElement::Render();
+        }
+    };
+
+} // namespace
 
 TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
     InputNC stored_element(MapIO::V1);
@@ -62,4 +89,27 @@ TEST(LogicElementsBoxTestsGroup, no_available_place_for_timers_and_comparators) 
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(30, &stored_element);
     CHECK_EQUAL(1, testable.size());
+}
+
+TEST(LogicElementsBoxTestsGroup, use_GetElementType_from_selected) {
+    InputNC stored_element(MapIO::V1);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+}
+
+TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
+    TestableComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element);
+    testable.DoAction(false, LogicItemState::lisActive);
+
+    CHECK_TRUE(stored_element.DoAction_called);
+}
+
+TEST(LogicElementsBoxTestsGroup, use_Render_from_selected) {
+    TestableComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element);
+    Point start_point = {};
+    testable.Render(frame_buffer, LogicItemState::lisActive, &start_point);
+
+    CHECK_TRUE(stored_element.Render_called);
 }
