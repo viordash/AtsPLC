@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
+#include "MonitorLogicElement.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -37,24 +38,6 @@ namespace {
         { 0xFF, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x0A, 0x0A, 0x0A,
           0x0A, 0x00, 0x00, 0xFF, 0x80, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
-    };
-
-    class MonitorLogicElement {
-      public:
-        bool DoAction_called = false;
-        bool DoAction_result = false;
-        bool Render_called = false;
-        bool Render_result = true;
-
-        bool DoAction() {
-            DoAction_called = true;
-            return DoAction_result;
-        }
-
-        bool Render() {
-            Render_called = true;
-            return Render_result;
-        }
     };
 
     class TestableLadder : public Ladder {
