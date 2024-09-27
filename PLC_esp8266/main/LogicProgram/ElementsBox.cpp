@@ -111,37 +111,96 @@ void ElementsBox::Fill() {
     delete[] frame_buffer;
 }
 
-bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+LogicElement *ElementsBox::GetSelectedElement() {
     if (selected_index <= 0) {
-        return stored_element->DoAction(prev_elem_changed, prev_elem_state);
+        return stored_element;
     }
-    return (*this)[selected_index]->DoAction(prev_elem_changed, prev_elem_state);
+    return (*this)[selected_index];
+}
+
+bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    return GetSelectedElement()->DoAction(prev_elem_changed, prev_elem_state);
 }
 
 bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    if (selected_index <= 0) {
-        return stored_element->Render(fb, prev_elem_state, start_point);
-    }
-    return (*this)[selected_index]->Render(fb, prev_elem_state, start_point);
+    return GetSelectedElement()->Render(fb, prev_elem_state, start_point);
 }
 
 size_t ElementsBox::Serialize(uint8_t *buffer, size_t buffer_size) {
-    if (selected_index <= 0) {
-        return stored_element->Serialize(buffer, buffer_size);
-    }
-    return (*this)[selected_index]->Serialize(buffer, buffer_size);
+    return GetSelectedElement()->Serialize(buffer, buffer_size);
 }
 
 size_t ElementsBox::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    if (selected_index <= 0) {
-        return stored_element->Deserialize(buffer, buffer_size);
-    }
-    return (*this)[selected_index]->Deserialize(buffer, buffer_size);
+    return GetSelectedElement()->Deserialize(buffer, buffer_size);
 }
 
 TvElementType ElementsBox::GetElementType() {
-    if (selected_index <= 0) {
-        return stored_element->GetElementType();
+    return GetSelectedElement()->GetElementType();
+}
+
+void ElementsBox::HandleButtonUp() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "HandleButtonUp, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        SelectedElementHandleButtonUp();
+        return;
     }
-    return (*this)[selected_index]->GetElementType();
+
+    selected_index--;
+
+    if (selected_index < 0) {
+        selected_index = size() - 1;
+    }
+}
+
+void ElementsBox::HandleButtonDown() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "HandleButtonDown, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        SelectedElementHandleButtonDown();
+        return;
+    }
+
+    selected_index++;
+    if (selected_index >= (int)size()) {
+        selected_index = -1;
+    }
+}
+void ElementsBox::HandleButtonSelect() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "HandleButtonSelect, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        SelectedElementHandleButtonSelect();
+        return;
+    }
+    GetSelectedElement()->BeginEditing();
+}
+
+void ElementsBox::SelectedElementHandleButtonUp() {
+    ESP_LOGI(TAG_ElementsBox, "SelectedElementHandleButtonUp, selected_index:%d", selected_index);
+}
+
+void ElementsBox::SelectedElementHandleButtonDown() {
+    ESP_LOGI(TAG_ElementsBox, "SelectedElementHandleButtonDown, selected_index:%d", selected_index);
+}
+
+void ElementsBox::SelectedElementHandleButtonSelect() {
+    ESP_LOGI(TAG_ElementsBox,
+             "SelectedElementHandleButtonSelect, selected_index:%d",
+             selected_index);
 }
