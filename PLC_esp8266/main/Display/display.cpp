@@ -47,7 +47,10 @@ void display_init() {
     ESP_ERROR_CHECK(i2c_driver_install(display.dev.i2c_port, conf.mode));
     ESP_ERROR_CHECK(i2c_param_config(display.dev.i2c_port, &conf));
 
-    ESP_ERROR_CHECK(ssd1306_init(&display.dev) != 0 ? ESP_FAIL : ESP_OK);
+    if (ssd1306_init(&display.dev) != 0) {
+        ESP_LOGW(TAG_display, "First init failed, trying to repeat init");
+        ESP_ERROR_CHECK(ssd1306_init(&display.dev) != 0 ? ESP_FAIL : ESP_OK);
+    }
     ESP_ERROR_CHECK(ssd1306_load_frame_buffer(&display.dev, NULL) != 0 ? ESP_FAIL : ESP_OK);
     ESP_ERROR_CHECK(ssd1306_set_whole_display_lighting(&display.dev, false) != 0 ? ESP_FAIL
                                                                                  : ESP_OK);
