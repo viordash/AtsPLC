@@ -27,8 +27,8 @@ TEST(ButtonTestsGroup, handle_btDown) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -44,8 +44,8 @@ TEST(ButtonTestsGroup, handle_with_unfamiliar_bits_nothing_to_do) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_DOWN_IO_CLOSE);
     CHECK_EQUAL(button::state::btNone, state);
@@ -63,8 +63,8 @@ TEST(ButtonTestsGroup, handle_normal_press) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -83,8 +83,8 @@ TEST(ButtonTestsGroup, handle_press_when_os_us_overflowed) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -103,8 +103,8 @@ TEST(ButtonTestsGroup, handle_longpress_when_os_us_overflowed) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);
@@ -123,8 +123,8 @@ TEST(ButtonTestsGroup, handle_short_press) {
     button testable("test",
                     BUTTON_UP_IO_CLOSE,
                     BUTTON_UP_IO_OPEN,
-                    TButtons::NOTHING_PRESSED,
-                    TButtons::NOTHING_PRESSED);
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
 
     auto state = testable.handle(BUTTON_UP_IO_CLOSE);
     CHECK_EQUAL(button::state::btDown, state);

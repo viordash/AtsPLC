@@ -5,8 +5,8 @@
 button::button(const char *tag,
                EventBits_t close_bit,
                EventBits_t open_bit,
-               TButtons pressed_type,
-               TButtons long_pressed_type) {
+               ButtonsPressType pressed_type,
+               ButtonsPressType long_pressed_type) {
     this->TAG = tag;
     this->close_bit = close_bit;
     this->open_bit = open_bit;
