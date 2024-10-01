@@ -112,7 +112,7 @@ void ElementsBox::Fill() {
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
-    if (selected_index <= 0) {
+    if (selected_index < 0) {
         return stored_element;
     }
     return (*this)[selected_index];
@@ -153,7 +153,7 @@ void ElementsBox::HandleButtonUp() {
 
     selected_index--;
 
-    if (selected_index < 0) {
+    if (selected_index < -1) {
         selected_index = size() - 1;
     }
 }
@@ -188,6 +188,7 @@ void ElementsBox::HandleButtonSelect() {
         SelectedElementHandleButtonSelect();
         return;
     }
+    GetSelectedElement()->Select();
     GetSelectedElement()->BeginEditing();
 }
 
@@ -203,4 +204,6 @@ void ElementsBox::SelectedElementHandleButtonSelect() {
     ESP_LOGI(TAG_ElementsBox,
              "SelectedElementHandleButtonSelect, selected_index:%d",
              selected_index);
+
+    GetSelectedElement()->EndEditing();
 }
