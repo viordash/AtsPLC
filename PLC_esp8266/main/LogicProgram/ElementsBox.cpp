@@ -8,6 +8,7 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,13 @@ ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) {
 }
 
 ElementsBox::~ElementsBox() {
+    auto selected = GetSelectedElement();
+    if (selected != stored_element) {
+        auto selected_it = std::find(begin(), end(), selected);
+        erase(selected_it);
+        delete stored_element;
+    }
+
     while (!empty()) {
         auto it = begin();
         auto element = *it;
