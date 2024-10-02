@@ -1,5 +1,6 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
+#include "LogicProgram/ElementsBox.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
@@ -259,10 +260,17 @@ void Network::HandleButtonOption() {
     }
 
     if ((*this)[selected_element]->Selected()) {
+        (*this)[selected_element] = new ElementsBox(100, (*this)[selected_element]);
+        (*this)[selected_element]->Select();
         (*this)[selected_element]->BeginEditing();
+
     } else if ((*this)[selected_element]->Editing()) {
         (*this)[selected_element]->EndEditing();
-        (*this)[selected_element]->Select();
+        auto editedElement =
+            static_cast<ElementsBox *>((*this)[selected_element])->GetSelectedElement();
+
+        delete (*this)[selected_element];
+        (*this)[selected_element] = editedElement;
     }
 }
 

@@ -23,9 +23,10 @@ ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) {
 }
 
 ElementsBox::~ElementsBox() {
-    auto selected = GetSelectedElement();
-    if (selected != stored_element) {
-        auto selected_it = std::find(begin(), end(), selected);
+    if (Editing()) {
+        delete stored_element;
+    } else if (GetSelectedElement() != stored_element) {
+        auto selected_it = std::find(begin(), end(), GetSelectedElement());
         erase(selected_it);
         delete stored_element;
     }

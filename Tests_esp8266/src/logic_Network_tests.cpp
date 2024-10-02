@@ -354,3 +354,49 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[3]->GetElementType());
 }
+
+TEST(LogicNetworkTestsGroup, First_HandleButtonOption_Begin_Editing_and_replacing_selected_element_with_ElementBox) {
+    Network testable;
+    testable.ChangeState(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+
+    testable.HandleButtonSelect();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.HandleButtonOption();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+}
+
+TEST(LogicNetworkTestsGroup, Second_HandleButtonOption_End_Editing_and_replacing_ElementBox_with_regular_one_and_it_is_still_selected) {
+    Network testable;
+    testable.ChangeState(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+
+    testable.HandleButtonSelect();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.HandleButtonOption();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+
+    testable.HandleButtonOption();
+
+    auto editedElement = testable[testable.GetSelectedElement()];
+    CHECK(selectedElement == editedElement);
+
+    CHECK_TRUE(editedElement->Selected());
+
+}

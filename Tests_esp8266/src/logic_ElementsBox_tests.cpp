@@ -200,11 +200,36 @@ TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to
     CHECK_TRUE(stored_element.Editing());
 }
 
-TEST(LogicElementsBoxTestsGroup, No_memleak_when_selection_changes_from__stored_element) {
+TEST(LogicElementsBoxTestsGroup, No_memleak_if_selection_changes) {
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.HandleButtonDown();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
     delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, No_memleak_if_no_selection_changes) {
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element);
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element);
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    testable.Select();
+    testable.BeginEditing();
+    testable.HandleButtonDown();
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+}
+
+TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) {
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element);
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    testable.Select();
+    testable.BeginEditing();
 }
