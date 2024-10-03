@@ -216,3 +216,10 @@ void ElementsBox::SelectedElementHandleButtonSelect() {
 
     GetSelectedElement()->EndEditing();
 }
+
+void ElementsBox::EndEditing() {
+    ESP_LOGI(TAG_ElementsBox, "EndEditing, %u", (unsigned)editable_state);
+
+    GetSelectedElement()->EndEditing();
+    EditableElement::EndEditing();
+}

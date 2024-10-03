@@ -233,3 +233,13 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) 
     testable.Select();
     testable.BeginEditing();
 }
+
+TEST(LogicElementsBoxTestsGroup, EndEditing_also_finish_editing_in_selected_element) {
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    testable.HandleButtonSelect();
+    CHECK_TRUE(stored_element.Editing());
+    testable.EndEditing();
+    CHECK_FALSE(stored_element.Editing());
+}

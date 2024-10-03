@@ -35,4 +35,6 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void SelectedElementHandleButtonUp();
     void SelectedElementHandleButtonDown();
     void SelectedElementHandleButtonSelect();
+
+    void EndEditing() override;
 };
