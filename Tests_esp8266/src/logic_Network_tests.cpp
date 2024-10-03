@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/ElementsBox.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Network.h"
 
@@ -355,7 +356,8 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[3]->GetElementType());
 }
 
-TEST(LogicNetworkTestsGroup, First_HandleButtonOption_Begin_Editing_and_replacing_selected_element_with_ElementBox) {
+TEST(LogicNetworkTestsGroup,
+     First_HandleButtonOption_Begin_Editing_and_replacing_selected_element_with_ElementBox) {
     Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
@@ -371,10 +373,13 @@ TEST(LogicNetworkTestsGroup, First_HandleButtonOption_Begin_Editing_and_replacin
 
     auto expectedElementBox = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK_TRUE(expectedElementBox->Editing());
     CHECK(selectedElement != expectedElementBox);
 }
 
-TEST(LogicNetworkTestsGroup, Second_HandleButtonOption_End_Editing_and_replacing_ElementBox_with_regular_one_and_it_is_still_selected) {
+TEST(
+    LogicNetworkTestsGroup,
+    Second_HandleButtonOption_End_Editing_and_replacing_ElementBox_with_regular_one_and_it_is_still_selected) {
     Network testable;
     testable.ChangeState(LogicItemState::lisActive);
 
@@ -398,5 +403,28 @@ TEST(LogicNetworkTestsGroup, Second_HandleButtonOption_End_Editing_and_replacing
     CHECK(selectedElement == editedElement);
 
     CHECK_TRUE(editedElement->Selected());
+}
 
+TEST(LogicNetworkTestsGroup, HandleButtonSelect_call_handler_in_a_child_element) {
+    Network testable;
+    testable.ChangeState(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+
+    testable.HandleButtonSelect();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.HandleButtonOption();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK_TRUE(expectedElementBox->Editing());
+
+    auto elementsBox = static_cast<ElementsBox *>(expectedElementBox);
+    CHECK_FALSE(elementsBox->GetSelectedElement()->Editing());
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(elementsBox->GetSelectedElement()->Editing());
 }

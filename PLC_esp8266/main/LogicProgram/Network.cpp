@@ -231,6 +231,7 @@ void Network::HandleButtonSelect() {
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
             ESP_LOGI(TAG_Network, "HandleButtonSelect for child element");
+            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonSelect();
             return;
         }
 
