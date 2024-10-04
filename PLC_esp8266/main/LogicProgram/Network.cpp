@@ -186,6 +186,14 @@ void Network::HandleButtonUp() {
              (unsigned)editable_state,
              selected_element);
 
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            ESP_LOGI(TAG_Network, "HandleButtonUp for child element");
+            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonUp();
+            return;
+        }
+    }
+
     bool edit_this_network = selected_element < 0;
     if (edit_this_network) {
         switch (state) {
@@ -207,6 +215,14 @@ void Network::HandleButtonDown() {
              (unsigned)editable_state,
              selected_element);
 
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            ESP_LOGI(TAG_Network, "HandleButtonDown for child element");
+            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonDown();
+            return;
+        }
+    }
+
     bool edit_this_network = selected_element < 0;
     if (edit_this_network) {
         switch (state) {
@@ -224,9 +240,10 @@ void Network::HandleButtonDown() {
 void Network::HandleButtonSelect() {
     auto selected_element = GetSelectedElement();
     ESP_LOGI(TAG_Network,
-             "HandleButtonSelect, %u, selected_element:%d",
+             "HandleButtonSelect, %u, selected_element:%d, size:%u",
              (unsigned)editable_state,
-             selected_element);
+             selected_element,
+             size());
 
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
@@ -234,7 +251,6 @@ void Network::HandleButtonSelect() {
             static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonSelect();
             return;
         }
-
         (*this)[selected_element]->CancelSelection();
     }
     selected_element++;
