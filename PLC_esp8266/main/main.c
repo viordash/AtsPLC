@@ -91,20 +91,8 @@ void app_main() {
         start_http_server();
     }
 
-    int wifi_restart = -980;
-    for (int i = 1000; i >= 0; i -= 5) {
-        if (i < wifi_restart) {
-            if (wifi_sta_is_runned()) {
-                stop_wifi_sta();
-            } else if (i < wifi_restart - 10 && has_wifi_sta_settings) {
-                start_wifi_sta();
-                wifi_restart -= 100;
-            }
-        }
-
-        printf("Restarting in %d seconds...  [free mem:%u]\n", i, esp_get_free_heap_size());
-
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+    while (true) {
+        vTaskDelay(portMAX_DELAY);
     }
 
     stop_wifi_sta();

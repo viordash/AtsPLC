@@ -47,7 +47,7 @@ void Ladder::HandleButtonUp() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder,
+    ESP_LOGD(TAG_Ladder,
              "HandleButtonUp, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              view_top_index,
@@ -83,7 +83,7 @@ void Ladder::HandleButtonDown() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder,
+    ESP_LOGD(TAG_Ladder,
              "HandleButtonDown, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              view_top_index,
@@ -121,7 +121,7 @@ void Ladder::HandleButtonSelect() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder,
+    ESP_LOGD(TAG_Ladder,
              "HandleButtonSelect, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              (unsigned)view_top_index,
@@ -149,7 +149,7 @@ void Ladder::HandleButtonOption() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGI(TAG_Ladder,
+    ESP_LOGD(TAG_Ladder,
              "SwitchEditing, %u, selected_network:%d",
              (unsigned)design_state,
              selected_network);
