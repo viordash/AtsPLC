@@ -194,6 +194,7 @@ TEST(LogicElementsBoxTestsGroup, HandleButtonDown_selecting_elements_in_loop) {
 
 TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to_editing) {
     ComparatorEq stored_element(42, MapIO::AI);
+    stored_element.Select();
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.HandleButtonSelect();
@@ -236,6 +237,7 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) 
 
 TEST(LogicElementsBoxTestsGroup, EndEditing_also_finish_editing_in_selected_element) {
     ComparatorEq stored_element(42, MapIO::AI);
+    stored_element.Select();
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.HandleButtonSelect();
