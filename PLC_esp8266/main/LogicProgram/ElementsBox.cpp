@@ -96,6 +96,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
         delete new_element;
         return;
     }
+    new_element->Select();
     push_back(new_element);
 }
 
@@ -197,7 +198,6 @@ void ElementsBox::HandleButtonSelect() {
         SelectedElementHandleButtonSelect();
         return;
     }
-    GetSelectedElement()->Select();
     GetSelectedElement()->BeginEditing();
 }
 
@@ -215,6 +215,7 @@ void ElementsBox::SelectedElementHandleButtonSelect() {
              selected_index);
 
     GetSelectedElement()->EndEditing();
+    GetSelectedElement()->Select();
 }
 
 void ElementsBox::EndEditing() {
