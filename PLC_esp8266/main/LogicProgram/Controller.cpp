@@ -147,13 +147,14 @@ void Controller::RenderTask(void *parm) {
                                              DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN
                                                  | DO_SELECT | DO_SELECT_OPTION,
                                              &ulNotifiedValue,
-                                             portMAX_DELAY);
+                                             200 / portTICK_PERIOD_MS);
 
         if (xResult != pdPASS) {
-            ulNotifiedValue = {};
-            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            continue;
+            ulNotifiedValue |= DO_RENDERING;
+            // ulNotifiedValue = {};
+            // ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
+            // vTaskDelay(500 / portTICK_PERIOD_MS);
+            // continue;
         }
 
         if (ulNotifiedValue & DO_SCROLL_UP) {
