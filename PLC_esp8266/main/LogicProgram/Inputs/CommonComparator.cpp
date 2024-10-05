@@ -1,4 +1,9 @@
 #include "LogicProgram/Inputs/CommonComparator.h"
+#include "LogicProgram/Inputs/ComparatorEq.h"
+#include "LogicProgram/Inputs/ComparatorGE.h"
+#include "LogicProgram/Inputs/ComparatorGr.h"
+#include "LogicProgram/Inputs/ComparatorLE.h"
+#include "LogicProgram/Inputs/ComparatorLs.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -106,4 +111,26 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     ref_percent04 = _ref_percent04;
     io_adr = _io_adr;
     return readed;
+}
+
+CommonComparator *CommonComparator::TryToCast(LogicElement *logic_element) {
+    switch (logic_element->GetElementType()) {
+        case TvElementType::et_ComparatorEq:
+            return static_cast<ComparatorEq *>(logic_element);
+
+        case TvElementType::et_ComparatorGE:
+            return static_cast<ComparatorGE *>(logic_element);
+
+        case TvElementType::et_ComparatorGr:
+            return static_cast<ComparatorGr *>(logic_element);
+
+        case TvElementType::et_ComparatorLE:
+            return static_cast<ComparatorLE *>(logic_element);
+
+        case TvElementType::et_ComparatorLs:
+            return static_cast<ComparatorLs *>(logic_element);
+
+        default:
+            return NULL;
+    }
 }

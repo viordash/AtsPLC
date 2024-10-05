@@ -9,14 +9,30 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonComparator.h"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
+#include "main/LogicProgram/Inputs/TimerMSecs.h"
+#include "main/LogicProgram/Inputs/TimerSecs.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicCommonComparatorTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+mock().disable();
 }
 
 TEST_TEARDOWN() {
+    mock().enable();
 }
 }
 ;
@@ -226,4 +242,48 @@ TEST(LogicCommonComparatorTestsGroup, ctor_set_reference_to_zero) {
     TestableCommonComparator testable;
     CHECK_EQUAL(0, testable.PublicMorozov_GetReference());
     STRCMP_EQUAL("0", testable.PublicMorozov_GetStrReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(CommonComparator::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(CommonComparator::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorEq) == &comparatorEq);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorGE) == &comparatorGE);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorGr) == &comparatorGr);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorLE) == &comparatorLE);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorLs) == &comparatorLs);
+
+    TimerMSecs timerMSecs;
+    CHECK_TRUE(CommonComparator::TryToCast(&timerMSecs) == NULL);
+
+    TimerSecs timerSecs;
+    CHECK_TRUE(CommonComparator::TryToCast(&timerSecs) == NULL);
+
+    DirectOutput directOutput;
+    CHECK_TRUE(CommonComparator::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(CommonComparator::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(CommonComparator::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(CommonComparator::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(CommonComparator::TryToCast(&decOutput) == NULL);
 }
