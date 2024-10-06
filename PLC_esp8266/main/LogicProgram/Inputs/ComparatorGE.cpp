@@ -35,3 +35,13 @@ bool ComparatorGE::CompareFunction() {
 TvElementType ComparatorGE::GetElementType() {
     return TvElementType::et_ComparatorGE;
 }
+
+ComparatorGE *ComparatorGE::TryToCast(CommonComparator *common_comparator) {
+    switch (common_comparator->GetElementType()) {
+        case TvElementType::et_ComparatorGE:
+            return static_cast<ComparatorGE *>(common_comparator);
+
+        default:
+            return NULL;
+    }
+}

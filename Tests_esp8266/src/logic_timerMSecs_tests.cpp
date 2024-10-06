@@ -10,6 +10,7 @@
 
 #include "main/LogicProgram/Inputs/TimerMSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerMSecs.h"
+#include "main/LogicProgram/Inputs/TimerSecs.h"
 
 TEST_GROUP(LogicTimerMSecsTestsGroup){ //
                                        TEST_SETUP(){}
@@ -139,4 +140,14 @@ TEST(LogicTimerMSecsTestsGroup, GetElementType) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TestableTimerMSecs testable;
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+}
+
+TEST(LogicTimerMSecsTestsGroup, TryToCast) {
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+
+    TimerMSecs timerMSecs;
+    CHECK_TRUE(TimerMSecs::TryToCast(&timerMSecs) == &timerMSecs);
+
+    TimerSecs timerSecs;
+    CHECK_TRUE(TimerMSecs::TryToCast(&timerSecs) == NULL);
 }

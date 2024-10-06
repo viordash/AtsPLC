@@ -57,3 +57,13 @@ const Bitmap *DirectOutput::GetCurrentBitmap(LogicItemState state) {
 TvElementType DirectOutput::GetElementType() {
     return TvElementType::et_DirectOutput;
 }
+
+DirectOutput *DirectOutput::TryToCast(CommonOutput *common_output) {
+    switch (common_output->GetElementType()) {
+        case TvElementType::et_DirectOutput:
+            return static_cast<DirectOutput *>(common_output);
+
+        default:
+            return NULL;
+    }
+}

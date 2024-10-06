@@ -24,4 +24,6 @@ class TimerMSecs : public CommonTimer {
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
     TvElementType GetElementType() override final;
+
+    static TimerMSecs *TryToCast(CommonTimer *common_timer);
 };

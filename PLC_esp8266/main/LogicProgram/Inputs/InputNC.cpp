@@ -82,3 +82,13 @@ size_t InputNC::Deserialize(uint8_t *buffer, size_t buffer_size) {
 TvElementType InputNC::GetElementType() {
     return TvElementType::et_InputNC;
 }
+
+InputNC *InputNC::TryToCast(CommonInput *common_input) {
+    switch (common_input->GetElementType()) {
+        case TvElementType::et_InputNC:
+            return static_cast<InputNC *>(common_input);
+
+        default:
+            return NULL;
+    }
+}

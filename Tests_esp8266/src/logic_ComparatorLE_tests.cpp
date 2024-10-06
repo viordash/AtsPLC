@@ -8,8 +8,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
 #include "main/LogicProgram/Inputs/ComparatorLE.cpp"
 #include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -156,4 +160,21 @@ TEST(LogicComparatorLETestsGroup, Deserialize) {
 TEST(LogicComparatorLETestsGroup, GetElementType) {
     TestableComparatorLE testable;
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
+}
+
+TEST(LogicComparatorLETestsGroup, TryToCast) {
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(ComparatorLE::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(ComparatorLE::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(ComparatorLE::TryToCast(&comparatorGr) == NULL);
+
+        ComparatorLE comparatorLE;
+    CHECK_TRUE(ComparatorLE::TryToCast(&comparatorLE) == &comparatorLE);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(ComparatorLE::TryToCast(&comparatorLs) == NULL);
 }

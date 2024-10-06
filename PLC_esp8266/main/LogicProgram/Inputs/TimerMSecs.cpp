@@ -77,3 +77,13 @@ size_t TimerMSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
 TvElementType TimerMSecs::GetElementType() {
     return TvElementType::et_TimerMSecs;
 }
+
+TimerMSecs *TimerMSecs::TryToCast(CommonTimer *common_timer) {
+    switch (common_timer->GetElementType()) {
+        case TvElementType::et_TimerMSecs:
+            return static_cast<TimerMSecs *>(common_timer);
+
+        default:
+            return NULL;
+    }
+}

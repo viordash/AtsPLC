@@ -250,7 +250,7 @@ void Network::HandleButtonSelect() {
              "HandleButtonSelect, %u, selected_element:%d, size:%u",
              (unsigned)editable_state,
              selected_element,
-             size());
+             (unsigned)size());
 
     selected_element++;
 

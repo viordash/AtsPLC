@@ -125,8 +125,6 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 CommonTimer *CommonTimer::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_TimerMSecs:
-            return static_cast<CommonTimer *>(logic_element);
-
         case TvElementType::et_TimerSecs:
             return static_cast<CommonTimer *>(logic_element);
 

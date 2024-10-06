@@ -8,6 +8,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
 #include "main/LogicProgram/Inputs/ComparatorLs.cpp"
 #include "main/LogicProgram/Inputs/ComparatorLs.h"
 
@@ -151,4 +155,21 @@ TEST(LogicComparatorLsTestsGroup, Deserialize) {
 TEST(LogicComparatorLsTestsGroup, GetElementType) {
     TestableComparatorLs testable;
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+}
+
+TEST(LogicComparatorLsTestsGroup, TryToCast) {
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(ComparatorLs::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(ComparatorLs::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(ComparatorLs::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(ComparatorLs::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(ComparatorLs::TryToCast(&comparatorLs) == &comparatorLs);
 }

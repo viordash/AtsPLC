@@ -35,3 +35,13 @@ bool ComparatorLs::CompareFunction() {
 TvElementType ComparatorLs::GetElementType() {
     return TvElementType::et_ComparatorLs;
 }
+
+ComparatorLs *ComparatorLs::TryToCast(CommonComparator *common_comparator) {
+    switch (common_comparator->GetElementType()) {
+        case TvElementType::et_ComparatorLs:
+            return static_cast<ComparatorLs *>(common_comparator);
+
+        default:
+            return NULL;
+    }
+}

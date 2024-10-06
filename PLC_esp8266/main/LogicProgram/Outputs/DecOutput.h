@@ -19,4 +19,6 @@ class DecOutput : public CommonOutput {
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
+
+    static DecOutput *TryToCast(CommonOutput *common_output);
 };

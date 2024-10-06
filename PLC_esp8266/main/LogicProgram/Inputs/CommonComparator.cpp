@@ -116,19 +116,11 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
 CommonComparator *CommonComparator::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_ComparatorEq:
-            return static_cast<ComparatorEq *>(logic_element);
-
         case TvElementType::et_ComparatorGE:
-            return static_cast<ComparatorGE *>(logic_element);
-
         case TvElementType::et_ComparatorGr:
-            return static_cast<ComparatorGr *>(logic_element);
-
         case TvElementType::et_ComparatorLE:
-            return static_cast<ComparatorLE *>(logic_element);
-
         case TvElementType::et_ComparatorLs:
-            return static_cast<ComparatorLs *>(logic_element);
+            return static_cast<CommonComparator *>(logic_element);
 
         default:
             return NULL;

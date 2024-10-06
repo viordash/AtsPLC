@@ -104,19 +104,11 @@ size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
 CommonOutput *CommonOutput::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_DirectOutput:
-            return static_cast<DirectOutput *>(logic_element);
-
         case TvElementType::et_SetOutput:
-            return static_cast<SetOutput *>(logic_element);
-
         case TvElementType::et_ResetOutput:
-            return static_cast<ResetOutput *>(logic_element);
-
         case TvElementType::et_IncOutput:
-            return static_cast<IncOutput *>(logic_element);
-
         case TvElementType::et_DecOutput:
-            return static_cast<DecOutput *>(logic_element);
+            return static_cast<CommonOutput *>(logic_element);
 
         default:
             return NULL;

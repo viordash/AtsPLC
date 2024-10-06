@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Inputs/TimerMSecs.h"
 #include "main/LogicProgram/Inputs/TimerSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerSecs.h"
 
@@ -202,4 +203,14 @@ TEST(LogicTimerSecsTestsGroup, GetElementType) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TestableTimerSecs testable;
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
+}
+
+TEST(LogicTimerSecsTestsGroup, TryToCast) {
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+
+    TimerMSecs timerMSecs;
+    CHECK_TRUE(TimerSecs::TryToCast(&timerMSecs) == NULL);
+
+    TimerSecs timerSecs;
+    CHECK_TRUE(TimerSecs::TryToCast(&timerSecs) == &timerSecs);
 }
