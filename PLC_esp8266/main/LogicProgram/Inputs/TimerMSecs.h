@@ -20,6 +20,7 @@ class TimerMSecs : public CommonTimer {
     ~TimerMSecs();
 
     void SetTime(uint32_t delay_time_ms);
+    uint64_t GetTimeUs();
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;

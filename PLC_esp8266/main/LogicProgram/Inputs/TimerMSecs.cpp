@@ -35,6 +35,10 @@ void TimerMSecs::SetTime(uint32_t delay_time_ms) {
     ESP_LOGD(TAG_TimerMSecs, "ctor, str_time:%s", this->str_time);
 }
 
+uint64_t TimerMSecs::GetTimeUs() {
+    return this->delay_time_us;
+}
+
 const Bitmap *TimerMSecs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:

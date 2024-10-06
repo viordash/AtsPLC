@@ -26,6 +26,7 @@ class TimerSecs : public CommonTimer {
     ~TimerSecs();
 
     void SetTime(uint32_t delay_time_s);
+    uint64_t GetTimeUs();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;

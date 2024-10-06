@@ -18,44 +18,30 @@ TEST_GROUP(LogicTimerMSecsTestsGroup){ //
                                        TEST_TEARDOWN(){}
 };
 
-namespace {
-    class TestableTimerMSecs : public TimerMSecs {
-      public:
-        TestableTimerMSecs() : TimerMSecs() {
-        }
-        virtual ~TestableTimerMSecs() {
-        }
-
-        uint64_t PublicMorozov_GetDelayTimeUs() {
-            return delay_time_us;
-        }
-    };
-} // namespace
-
 TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
     mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
-    TestableTimerMSecs testable_0;
+    TimerMSecs testable_0;
     testable_0.SetTime(0);
-    CHECK_EQUAL(1 * 1000LL, testable_0.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(1 * 1000LL, testable_0.GetTimeUs());
 
-    TestableTimerMSecs testable_99998;
+    TimerMSecs testable_99998;
     testable_99998.SetTime(99998);
-    CHECK_EQUAL(99998 * 1000LL, testable_99998.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99998 * 1000LL, testable_99998.GetTimeUs());
 
-    TestableTimerMSecs testable_99999;
+    TimerMSecs testable_99999;
     testable_99999.SetTime(99999);
-    CHECK_EQUAL(99999 * 1000LL, testable_99999.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99999 * 1000LL, testable_99999.GetTimeUs());
 
-    TestableTimerMSecs testable_100000;
+    TimerMSecs testable_100000;
     testable_100000.SetTime(100000);
-    CHECK_EQUAL(99999 * 1000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99999 * 1000LL, testable_100000.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, Serialize) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
     testable.SetTime(12345);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
@@ -67,7 +53,7 @@ TEST(LogicTimerMSecsTestsGroup, Serialize) {
 
 TEST(LogicTimerMSecsTestsGroup, Serialize_just_for_obtain_size) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
     testable.SetTime(12345);
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
@@ -80,7 +66,7 @@ TEST(LogicTimerMSecsTestsGroup, Serialize_just_for_obtain_size) {
 TEST(LogicTimerMSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[1] = {};
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
     testable.SetTime(12345);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
@@ -93,12 +79,12 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 123456789;
 
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(8, readed);
 
-    CHECK_EQUAL(123456789, testable.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(123456789, testable.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
@@ -106,7 +92,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
 
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
@@ -118,7 +104,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_less_value_return_zero) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 0;
 
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
@@ -130,7 +116,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 99999 * 1000000LL + 1;
 
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
@@ -138,7 +124,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
 
 TEST(LogicTimerMSecsTestsGroup, GetElementType) {
     mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-    TestableTimerMSecs testable;
+    TimerMSecs testable;
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
 }
 

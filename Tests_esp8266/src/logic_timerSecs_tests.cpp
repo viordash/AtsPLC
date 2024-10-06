@@ -31,9 +31,6 @@ namespace {
         virtual ~TestableTimerSecs() {
         }
 
-        uint64_t PublicMorozov_GetDelayTimeUs() {
-            return delay_time_us;
-        }
         uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
             return GetProgress(prev_elem_state);
         }
@@ -48,19 +45,19 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
 
     TestableTimerSecs testable_0;
     testable_0.SetTime(0);
-    CHECK_EQUAL(1 * 1000000LL, testable_0.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(1 * 1000000LL, testable_0.GetTimeUs());
 
     TestableTimerSecs testable_99998;
     testable_99998.SetTime(99998);
-    CHECK_EQUAL(99998 * 1000000LL, testable_99998.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99998 * 1000000LL, testable_99998.GetTimeUs());
 
     TestableTimerSecs testable_99999;
     testable_99999.SetTime(99999);
-    CHECK_EQUAL(99999 * 1000000LL, testable_99999.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99999 * 1000000LL, testable_99999.GetTimeUs());
 
     TestableTimerSecs testable_100000;
     testable_100000.SetTime(100000);
-    CHECK_EQUAL(99999 * 1000000LL, testable_100000.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(99999 * 1000000LL, testable_100000.GetTimeUs());
 }
 
 TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
@@ -161,7 +158,7 @@ TEST(LogicTimerSecsTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(8, readed);
 
-    CHECK_EQUAL(123456789, testable.PublicMorozov_GetDelayTimeUs());
+    CHECK_EQUAL(123456789, testable.GetTimeUs());
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
