@@ -15,7 +15,6 @@ class ComparatorLE : public CommonComparator {
   public:
     ComparatorLE();
     ComparatorLE(uint8_t ref_percent04, const MapIO io_adr);
-    ~ComparatorLE();
     TvElementType GetElementType() override final;
 
     static ComparatorLE *TryToCast(CommonComparator *common_comparator);

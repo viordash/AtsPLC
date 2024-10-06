@@ -15,7 +15,8 @@ class CommonComparator : public CommonInput {
 
   public:
     CommonComparator();
-    ~CommonComparator();
+    CommonComparator(uint8_t ref_percent04, const MapIO io_adr);
+    virtual ~CommonComparator();
 
     void SetReference(uint8_t ref_percent04);
 

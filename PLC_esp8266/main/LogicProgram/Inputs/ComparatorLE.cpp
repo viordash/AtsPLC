@@ -10,12 +10,8 @@
 ComparatorLE::ComparatorLE() : CommonComparator() {
 }
 
-ComparatorLE::ComparatorLE(uint8_t ref_percent04, const MapIO io_adr) : ComparatorLE() {
-    SetReference(ref_percent04);
-    SetIoAdr(io_adr);
-}
-
-ComparatorLE::~ComparatorLE() {
+ComparatorLE::ComparatorLE(uint8_t ref_percent04, const MapIO io_adr)
+    : CommonComparator(ref_percent04, io_adr) {
 }
 
 const Bitmap *ComparatorLE::GetCurrentBitmap(LogicItemState state) {
