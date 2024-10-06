@@ -13,7 +13,6 @@
 #include <string.h>
 
 CommonComparator::CommonComparator() : CommonInput() {
-    SetReference(0);
 }
 
 CommonComparator::CommonComparator(uint8_t ref_percent04, const MapIO io_adr) : CommonInput() {

@@ -54,8 +54,6 @@ namespace {
             : CommonComparator() {
             this->elementType = elementType;
         }
-        virtual ~TestableCommonComparator() {
-        }
 
         const Bitmap *GetCurrentBitmap(LogicItemState state) {
             (void)state;
@@ -82,6 +80,7 @@ namespace {
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
     TestableCommonComparator testable_0;
+    testable_0.SetReference(0);
     CHECK_EQUAL(0, testable_0.GetReference());
 
     TestableCommonComparator testable_100;
@@ -233,12 +232,6 @@ TEST(LogicCommonComparatorTestsGroup,
                      "no changes are expected to be detected");
     CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
-}
-
-TEST(LogicCommonComparatorTestsGroup, ctor_set_reference_to_zero) {
-    TestableCommonComparator testable;
-    CHECK_EQUAL(0, testable.GetReference());
-    STRCMP_EQUAL("0", testable.PublicMorozov_GetStrReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, TryToCast) {

@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/ElementsBox.cpp"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Outputs/IncOutput.h"
@@ -69,6 +70,39 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
             CHECK_EQUAL(MapIO::V1, element_as_commonInput->GetIoAdr());
+        }
+    }
+}
+
+TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(8, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_commonInput = CommonInput::TryToCast(element);
+        if (element_as_commonInput != NULL) {
+            auto *element_as_commonComparator = CommonComparator::TryToCast(element_as_commonInput);
+            if (element_as_commonComparator != NULL) {
+                CHECK_EQUAL(MapIO::AI, element_as_commonComparator->GetIoAdr());
+                CHECK_EQUAL(42, element_as_commonComparator->GetReference());
+            }
+        }
+    }
+}
+
+TEST(LogicElementsBoxTestsGroup,
+     takes_params_from_stored_element__set_reference_to_zero_by_default_for_comparators) {
+    InputNC stored_element(MapIO::V1);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(8, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_commonInput = CommonInput::TryToCast(element);
+        if (element_as_commonInput != NULL) {
+            auto *element_as_commonComparator = CommonComparator::TryToCast(element_as_commonInput);
+            if (element_as_commonComparator != NULL) {
+                CHECK_EQUAL(MapIO::V1, element_as_commonComparator->GetIoAdr());
+                CHECK_EQUAL(0, element_as_commonComparator->GetReference());
+            }
         }
     }
 }

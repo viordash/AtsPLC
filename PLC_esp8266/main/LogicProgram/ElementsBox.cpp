@@ -1,6 +1,7 @@
 
 #include "LogicProgram/ElementsBox.h"
 #include "Display/display.h"
+#include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
@@ -52,12 +53,29 @@ bool ElementsBox::MatchedToStoredElement(TvElementType element_type) {
 }
 
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
+
     auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
     if (stored_element_as_commonInput != NULL) {
         auto *new_element_as_commonInput = CommonInput::TryToCast(new_element);
         if (new_element_as_commonInput != NULL) {
             new_element_as_commonInput->SetIoAdr(stored_element_as_commonInput->GetIoAdr());
+
+            auto *new_element_as_commonComparator =
+                CommonComparator::TryToCast(new_element_as_commonInput);
+            if (new_element_as_commonComparator != NULL) {
+                uint8_t ref_percent04 = 0;
+
+                auto *stored_element_as_commonComparator =
+                    CommonComparator::TryToCast(stored_element_as_commonInput);
+
+                if (stored_element_as_commonComparator != NULL) {
+                    ref_percent04 = stored_element_as_commonComparator->GetReference();
+                }
+                new_element_as_commonComparator->SetReference(ref_percent04);
+                return;
+            }
         }
+
         return;
     }
 
