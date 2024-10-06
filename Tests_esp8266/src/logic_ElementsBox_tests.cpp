@@ -107,6 +107,57 @@ TEST(LogicElementsBoxTestsGroup,
     }
 }
 
+TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
+    TimerSecs stored_element(42);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(8, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_commonTimer = CommonTimer::TryToCast(element);
+        if (element_as_commonTimer != NULL) {
+            auto *element_as_TimerMSecs = TimerMSecs::TryToCast(element_as_commonTimer);
+            if (element_as_TimerMSecs != NULL) {
+                CHECK_EQUAL(42 * 1000000LL, element_as_TimerMSecs->GetTimeUs());
+            }
+        }
+    }
+}
+
+TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
+    TimerMSecs stored_element(42000);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(8, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_commonTimer = CommonTimer::TryToCast(element);
+        if (element_as_commonTimer != NULL) {
+            auto *element_as_TimerSecs = TimerSecs::TryToCast(element_as_commonTimer);
+            if (element_as_TimerSecs != NULL) {
+                CHECK_EQUAL(42 * 1000000LL, element_as_TimerSecs->GetTimeUs());
+            }
+        }
+    }
+}
+
+TEST(LogicElementsBoxTestsGroup,
+     takes_params_from_stored_element__set_default_delaytime_for_timers) {
+    InputNC stored_element(MapIO::V1);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(8, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_commonTimer = CommonTimer::TryToCast(element);
+        if (element_as_commonTimer != NULL) {
+            auto *element_as_TimerSecs = TimerSecs::TryToCast(element_as_commonTimer);
+            if (element_as_TimerSecs != NULL) {
+                CHECK_EQUAL(1000000LL, element_as_TimerSecs->GetTimeUs());
+            }
+
+            auto *element_as_TimerMSecs = TimerMSecs::TryToCast(element_as_commonTimer);
+            if (element_as_TimerMSecs != NULL) {
+                CHECK_EQUAL(1000LL, element_as_TimerMSecs->GetTimeUs());
+            }
+        }
+    }
+}
+
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element);

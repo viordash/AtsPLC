@@ -1,6 +1,9 @@
 #pragma once
 
+#include "LogicProgram/Inputs/CommonInput.h"
+#include "LogicProgram/Inputs/CommonTimer.h"
 #include "LogicProgram/LogicElement.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
@@ -14,6 +17,9 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void Fill();
     void AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer);
     bool MatchedToStoredElement(TvElementType element_type);
+    bool CopyParamsToCommonInput(CommonInput *common_input);
+    bool CopyParamsToCommonTimer(CommonTimer *common_timer);
+    bool CopyParamsToCommonOutput(CommonOutput *common_output);
     void TakeParamsFromStoredElement(LogicElement *new_element);
 
   public:

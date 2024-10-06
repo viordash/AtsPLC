@@ -2,10 +2,11 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/display.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
-#include "LogicProgram/Inputs/CommonInput.h"
+#include "LogicProgram/Inputs/CommonTimer.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
-#include "LogicProgram/Outputs/CommonOutput.h"
+#include "LogicProgram/Inputs/TimerMSecs.h"
+#include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -52,39 +53,99 @@ bool ElementsBox::MatchedToStoredElement(TvElementType element_type) {
     return true;
 }
 
-void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
+bool ElementsBox::CopyParamsToCommonInput(CommonInput *common_input) {
+    if (common_input == NULL) {
+        return false;
+    }
+    MapIO io_adr = MapIO::AI;
 
     auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
     if (stored_element_as_commonInput != NULL) {
-        auto *new_element_as_commonInput = CommonInput::TryToCast(new_element);
-        if (new_element_as_commonInput != NULL) {
-            new_element_as_commonInput->SetIoAdr(stored_element_as_commonInput->GetIoAdr());
-
-            auto *new_element_as_commonComparator =
-                CommonComparator::TryToCast(new_element_as_commonInput);
-            if (new_element_as_commonComparator != NULL) {
-                uint8_t ref_percent04 = 0;
-
-                auto *stored_element_as_commonComparator =
-                    CommonComparator::TryToCast(stored_element_as_commonInput);
-
-                if (stored_element_as_commonComparator != NULL) {
-                    ref_percent04 = stored_element_as_commonComparator->GetReference();
-                }
-                new_element_as_commonComparator->SetReference(ref_percent04);
-                return;
-            }
+        io_adr = stored_element_as_commonInput->GetIoAdr();
+    } else {
+        auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
+        if (stored_element_as_commonOutput != NULL) {
+            io_adr = stored_element_as_commonOutput->GetIoAdr();
         }
-
-        return;
     }
 
-    auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
-    if (stored_element_as_commonOutput != NULL) {
-        auto *new_element_as_commonOutput = CommonOutput::TryToCast(new_element);
-        if (new_element_as_commonOutput != NULL) {
-            new_element_as_commonOutput->SetIoAdr(stored_element_as_commonOutput->GetIoAdr());
+    auto *new_element_as_commonComparator = CommonComparator::TryToCast(common_input);
+    if (new_element_as_commonComparator != NULL) {
+        uint8_t ref_percent04 = 0;
+
+        if (stored_element_as_commonInput != NULL) {
+            auto *stored_element_as_commonComparator =
+                CommonComparator::TryToCast(stored_element_as_commonInput);
+
+            if (stored_element_as_commonComparator != NULL) {
+                ref_percent04 = stored_element_as_commonComparator->GetReference();
+            }
         }
+        new_element_as_commonComparator->SetReference(ref_percent04);
+    }
+    common_input->SetIoAdr(io_adr);
+    return true;
+}
+
+bool ElementsBox::CopyParamsToCommonTimer(CommonTimer *common_timer) {
+    if (common_timer == NULL) {
+        return false;
+    }
+
+    uint64_t time_us = 0;
+    auto *stored_element_as_commonTimer = CommonTimer::TryToCast(stored_element);
+    if (stored_element_as_commonTimer != NULL) {
+        auto *stored_element_as_timerSecs = TimerSecs::TryToCast(stored_element_as_commonTimer);
+        if (stored_element_as_timerSecs != NULL) {
+            time_us = stored_element_as_timerSecs->GetTimeUs();
+        } else {
+            auto *stored_element_as_timerMSecs =
+                TimerMSecs::TryToCast(stored_element_as_commonTimer);
+            if (stored_element_as_timerMSecs != NULL) {
+                time_us = stored_element_as_timerMSecs->GetTimeUs();
+            }
+        }
+    }
+
+    auto *new_element_as_TimerSecs = TimerSecs::TryToCast(common_timer);
+    if (new_element_as_TimerSecs != NULL) {
+        new_element_as_TimerSecs->SetTime(time_us / 1000000LL);
+    } else {
+        auto *new_element_as_TimerMSecs = TimerMSecs::TryToCast(common_timer);
+        if (new_element_as_TimerMSecs != NULL) {
+            new_element_as_TimerMSecs->SetTime(time_us / 1000LL);
+        }
+    }
+    return true;
+}
+
+bool ElementsBox::CopyParamsToCommonOutput(CommonOutput *common_output) {
+    if (common_output == NULL) {
+        return false;
+    }
+
+    MapIO io_adr = MapIO::V1;
+    auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
+    if (stored_element_as_commonInput != NULL) {
+        io_adr = stored_element_as_commonInput->GetIoAdr();
+    } else {
+        auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
+        if (stored_element_as_commonOutput != NULL) {
+            io_adr = stored_element_as_commonOutput->GetIoAdr();
+        }
+    }
+    common_output->SetIoAdr(io_adr);
+    return true;
+}
+
+void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
+    if (CopyParamsToCommonInput(CommonInput::TryToCast(new_element))) {
+        return;
+    }
+    if (CopyParamsToCommonTimer(CommonTimer::TryToCast(new_element))) {
+        return;
+    }
+    if (CopyParamsToCommonOutput(CommonOutput::TryToCast(new_element))) {
         return;
     }
 }
