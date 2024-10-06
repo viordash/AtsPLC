@@ -32,6 +32,10 @@ void CommonComparator::SetReference(uint8_t ref_percent04) {
     str_size = sprintf(this->str_reference, "%d", ref_percent04);
 }
 
+uint8_t CommonComparator::GetReference() {
+    return ref_percent04;
+}
+
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         return false;

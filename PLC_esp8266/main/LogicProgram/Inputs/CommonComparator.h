@@ -19,6 +19,7 @@ class CommonComparator : public CommonInput {
     virtual ~CommonComparator();
 
     void SetReference(uint8_t ref_percent04);
+    uint8_t GetReference();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;

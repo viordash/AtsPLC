@@ -68,9 +68,6 @@ namespace {
         MapIO PublicMorozov_Get_io_adr() {
             return io_adr;
         }
-        uint8_t PublicMorozov_GetReference() {
-            return ref_percent04;
-        }
         const char *PublicMorozov_GetStrReference() {
             return str_reference;
         }
@@ -85,19 +82,19 @@ namespace {
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
     TestableCommonComparator testable_0;
-    CHECK_EQUAL(0, testable_0.PublicMorozov_GetReference());
+    CHECK_EQUAL(0, testable_0.GetReference());
 
     TestableCommonComparator testable_100;
     testable_100.SetReference(100);
-    CHECK_EQUAL(100, testable_100.PublicMorozov_GetReference());
+    CHECK_EQUAL(100, testable_100.GetReference());
 
     TestableCommonComparator testable_250;
     testable_250.SetReference(250);
-    CHECK_EQUAL(250, testable_250.PublicMorozov_GetReference());
+    CHECK_EQUAL(250, testable_250.GetReference());
 
     TestableCommonComparator testable_251;
     testable_251.SetReference(251);
-    CHECK_EQUAL(250, testable_251.PublicMorozov_GetReference());
+    CHECK_EQUAL(250, testable_251.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Render) {
@@ -166,7 +163,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
 
-    CHECK_EQUAL(42, testable.PublicMorozov_GetReference());
+    CHECK_EQUAL(42, testable.GetReference());
     CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
 }
 
@@ -240,7 +237,7 @@ TEST(LogicCommonComparatorTestsGroup,
 
 TEST(LogicCommonComparatorTestsGroup, ctor_set_reference_to_zero) {
     TestableCommonComparator testable;
-    CHECK_EQUAL(0, testable.PublicMorozov_GetReference());
+    CHECK_EQUAL(0, testable.GetReference());
     STRCMP_EQUAL("0", testable.PublicMorozov_GetStrReference());
 }
 
