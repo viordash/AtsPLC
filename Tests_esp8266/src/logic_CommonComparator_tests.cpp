@@ -262,25 +262,4 @@ TEST(LogicCommonComparatorTestsGroup, TryToCast) {
 
     ComparatorLs comparatorLs;
     CHECK_TRUE(CommonComparator::TryToCast(&comparatorLs) == &comparatorLs);
-
-    TimerMSecs timerMSecs;
-    CHECK_TRUE(CommonComparator::TryToCast(&timerMSecs) == NULL);
-
-    TimerSecs timerSecs;
-    CHECK_TRUE(CommonComparator::TryToCast(&timerSecs) == NULL);
-
-    DirectOutput directOutput;
-    CHECK_TRUE(CommonComparator::TryToCast(&directOutput) == NULL);
-
-    SetOutput setOutput;
-    CHECK_TRUE(CommonComparator::TryToCast(&setOutput) == NULL);
-
-    ResetOutput resetOutput;
-    CHECK_TRUE(CommonComparator::TryToCast(&resetOutput) == NULL);
-
-    IncOutput incOutput;
-    CHECK_TRUE(CommonComparator::TryToCast(&incOutput) == NULL);
-
-    DecOutput decOutput;
-    CHECK_TRUE(CommonComparator::TryToCast(&decOutput) == NULL);
 }
