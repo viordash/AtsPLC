@@ -26,4 +26,6 @@ class CommonTimer : public LogicElement {
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+
+    static CommonTimer *TryToCast(LogicElement *logic_element);
 };
