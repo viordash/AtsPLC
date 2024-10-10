@@ -63,11 +63,7 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     bool res;
-    res = CommonInput::Render(fb, state, start_point);
 
-    if (!res) {
-        return res;
-    }
     uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
     switch (str_size) {
         case 1:
@@ -80,6 +76,12 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
             res = draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
             break;
     }
+
+    if (!res) {
+        return res;
+    }
+    res = CommonInput::Render(fb, state, start_point);
+
     return res;
 }
 
