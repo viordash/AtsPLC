@@ -288,6 +288,7 @@ void Network::HandleButtonOption() {
 
         delete (*this)[selected_element];
         (*this)[selected_element] = editedElement;
+        (*this)[selected_element]->Select();
     }
 }
 
