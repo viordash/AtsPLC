@@ -14,8 +14,6 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     LogicElement *stored_element;
     int selected_index;
 
-    const static Bitmap bitmap_editing;
-
     void Fill();
     void AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer);
     bool MatchedToStoredElement(TvElementType element_type);
