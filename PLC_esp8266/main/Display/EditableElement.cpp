@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "EditableElement.h"
 
 static const char *TAG_EditableElement = "EditableElement";
 
 EditableElement::EditableElement() {
     editable_state = TEditableElementState::des_Regular;
+    skip_rendering = false;
 }
 
 EditableElement::~EditableElement() {
@@ -88,6 +90,9 @@ bool EditableElement::Selected() {
 }
 
 bool EditableElement::Render(uint8_t *fb, Point *start_point) {
+    if (skip_rendering) {
+        return true;
+    }
     const Bitmap *bitmap;
     const int blink_timer_524ms = 0x80000;
 
@@ -115,4 +120,8 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 
 bool EditableElement::Editing() {
     return editable_state == TEditableElementState::des_Editing;
+}
+
+void EditableElement::SkipEditableStateRendering() {
+    skip_rendering = true;
 }

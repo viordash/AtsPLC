@@ -175,7 +175,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
         delete new_element;
         return;
     }
-    new_element->Select();
+    new_element->SkipEditableStateRendering();
     push_back(new_element);
 }
 

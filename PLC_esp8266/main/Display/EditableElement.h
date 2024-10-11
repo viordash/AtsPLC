@@ -14,6 +14,7 @@ typedef enum { //
 class EditableElement {
   protected:
     TEditableElementState editable_state;
+    bool skip_rendering;
 
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;
@@ -33,4 +34,6 @@ class EditableElement {
 
     bool Selected();
     bool Editing();
+
+    void SkipEditableStateRendering();
 };
