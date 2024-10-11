@@ -76,6 +76,10 @@ void Ladder::HandleButtonUp() {
         case TEditableElementState::des_Editing:
             (*this)[selected_network]->HandleButtonUp();
             return;
+            
+        case TEditableElementState::des_Editing_Property_0:
+        case TEditableElementState::des_Editing_Property_1:
+            break;
     }
 }
 
@@ -114,6 +118,10 @@ void Ladder::HandleButtonDown() {
             network->HandleButtonDown();
             return;
         }
+
+        case TEditableElementState::des_Editing_Property_0:
+        case TEditableElementState::des_Editing_Property_1:
+            break;
     }
 }
 

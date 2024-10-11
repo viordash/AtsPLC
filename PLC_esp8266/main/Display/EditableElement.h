@@ -8,7 +8,9 @@
 typedef enum { //
     des_Regular,
     des_Selected,
-    des_Editing
+    des_Editing,
+    des_Editing_Property_0,
+    des_Editing_Property_1
 } TEditableElementState;
 
 class EditableElement {
