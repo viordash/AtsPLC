@@ -283,7 +283,7 @@ void ElementsBox::SelectPrior() {
         selected_index = -1;
     }
 }
-void ElementsBox::HandleButtonSelect() {
+void ElementsBox::Change() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
     ESP_LOGI(TAG_ElementsBox,

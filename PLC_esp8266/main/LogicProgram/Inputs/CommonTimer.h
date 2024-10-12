@@ -31,4 +31,5 @@ class CommonTimer : public LogicElement {
 
     void SelectNext() override;
     void SelectPrior() override;
+    void Change() override;
 };

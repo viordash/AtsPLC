@@ -158,7 +158,7 @@ void Ladder::HandleButtonOption() {
             (*this)[selected_network]->BeginEditing();
             break;
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->HandleButtonOption();
+            (*this)[selected_network]->Change();
             break;
 
         default:

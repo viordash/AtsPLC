@@ -137,3 +137,5 @@ void CommonTimer::SelectNext() {
 }
 void CommonTimer::SelectPrior() {
 }
+void CommonTimer::Change() {
+}

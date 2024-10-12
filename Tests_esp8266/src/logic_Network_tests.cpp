@@ -369,7 +369,7 @@ TEST(LogicNetworkTestsGroup,
     auto selectedElement = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
 
-    testable.HandleButtonOption();
+    testable.Change();
 
     auto expectedElementBox = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
@@ -391,13 +391,13 @@ TEST(
     auto selectedElement = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
 
-    testable.HandleButtonOption();
+    testable.Change();
 
     auto expectedElementBox = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
     CHECK(selectedElement != expectedElementBox);
 
-    testable.HandleButtonOption();
+    testable.Change();
 
     auto editedElement = testable[testable.GetSelectedElement()];
     CHECK(selectedElement == editedElement);
@@ -416,7 +416,7 @@ TEST(LogicNetworkTestsGroup, HandleButtonSelect_call_handler_in_a_child_element)
     auto selectedElement = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
 
-    testable.HandleButtonOption();
+    testable.Change();
 
     auto expectedElementBox = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());

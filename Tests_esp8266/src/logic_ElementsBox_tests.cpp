@@ -282,7 +282,7 @@ TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to
     stored_element.Select();
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonSelect();
+    testable.Change();
     CHECK_TRUE(stored_element.Editing());
 }
 
@@ -323,7 +323,7 @@ TEST(LogicElementsBoxTestsGroup, EndEditing_also_finish_editing_in_selected_elem
     stored_element.Select();
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonSelect();
+    testable.Change();
     CHECK_TRUE(stored_element.Editing());
     testable.EndEditing();
     CHECK_FALSE(stored_element.Editing());

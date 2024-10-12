@@ -119,3 +119,5 @@ void CommonOutput::SelectNext() {
 }
 void CommonOutput::SelectPrior() {
 }
+void CommonOutput::Change() {
+}

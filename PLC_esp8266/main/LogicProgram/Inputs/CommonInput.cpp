@@ -82,3 +82,5 @@ void CommonInput::SelectNext() {
 }
 void CommonInput::SelectPrior() {
 }
+void CommonInput::Change() {
+}

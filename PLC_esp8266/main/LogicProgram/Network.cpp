@@ -241,7 +241,7 @@ void Network::HandleButtonSelect() {
 
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonSelect();
+            static_cast<ElementsBox *>((*this)[selected_element])->Change();
             return;
         }
         (*this)[selected_element]->CancelSelection();
@@ -262,7 +262,7 @@ void Network::HandleButtonSelect() {
     }
 }
 
-void Network::HandleButtonOption() {
+void Network::Change() {
     auto selected_element = GetSelectedElement();
     ESP_LOGI(TAG_Network,
              "HandleButtonOption, %u, selected_element:%d",

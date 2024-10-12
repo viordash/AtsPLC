@@ -30,7 +30,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     void SelectNext() override;
     void SelectPrior() override;
     void HandleButtonSelect();
-    void HandleButtonOption();
+    void Change();
     void EndEditing() override final;
     int GetSelectedElement();
 };

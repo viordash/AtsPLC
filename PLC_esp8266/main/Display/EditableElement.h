@@ -45,4 +45,5 @@ class EditableElement {
 
     virtual void SelectNext() = 0;
     virtual void SelectPrior() = 0;
+    virtual void Change() = 0;
 };

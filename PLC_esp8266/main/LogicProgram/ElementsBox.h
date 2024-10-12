@@ -43,7 +43,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
 
     void SelectNext() override;
     void SelectPrior() override;
-    void HandleButtonSelect();
+    void Change();
     void SelectedElementHandleButtonSelect();
 
     void EndEditing() override;

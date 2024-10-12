@@ -27,4 +27,5 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
 
     void SelectNext() override;
     void SelectPrior() override;
+    void Change() override;
 };
