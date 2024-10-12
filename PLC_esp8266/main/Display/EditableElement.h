@@ -42,4 +42,7 @@ class EditableElement {
 
     bool Selected();
     bool Editing();
+
+    virtual void SelectNext() = 0;
+    virtual void SelectPrior() = 0;
 };

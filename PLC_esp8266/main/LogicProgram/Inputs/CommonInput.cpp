@@ -77,3 +77,8 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
             return NULL;
     }
 }
+
+void CommonInput::SelectNext() {
+}
+void CommonInput::SelectPrior() {
+}

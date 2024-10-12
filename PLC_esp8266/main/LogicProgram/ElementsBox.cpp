@@ -245,16 +245,16 @@ TvElementType ElementsBox::GetElementType() {
     return GetSelectedElement()->GetElementType();
 }
 
-void ElementsBox::HandleButtonUp() {
+void ElementsBox::SelectNext() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
     ESP_LOGI(TAG_ElementsBox,
-             "HandleButtonUp, selected_index:%d, in_editing:%d",
+             "SelectNext, selected_index:%d, in_editing:%d",
              selected_index,
              selected_in_editing);
 
     if (selected_in_editing) {
-        SelectedElementHandleButtonUp();
+        GetSelectedElement()->SelectNext();
         return;
     }
 
@@ -265,16 +265,16 @@ void ElementsBox::HandleButtonUp() {
     }
 }
 
-void ElementsBox::HandleButtonDown() {
+void ElementsBox::SelectPrior() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
     ESP_LOGI(TAG_ElementsBox,
-             "HandleButtonDown, selected_index:%d, in_editing:%d",
+             "SelectPrior, selected_index:%d, in_editing:%d",
              selected_index,
              selected_in_editing);
 
     if (selected_in_editing) {
-        SelectedElementHandleButtonDown();
+        GetSelectedElement()->SelectPrior();
         return;
     }
 
@@ -296,14 +296,6 @@ void ElementsBox::HandleButtonSelect() {
         return;
     }
     GetSelectedElement()->BeginEditing();
-}
-
-void ElementsBox::SelectedElementHandleButtonUp() {
-    ESP_LOGI(TAG_ElementsBox, "SelectedElementHandleButtonUp, selected_index:%d", selected_index);
-}
-
-void ElementsBox::SelectedElementHandleButtonDown() {
-    ESP_LOGI(TAG_ElementsBox, "SelectedElementHandleButtonDown, selected_index:%d", selected_index);
 }
 
 void ElementsBox::SelectedElementHandleButtonSelect() {

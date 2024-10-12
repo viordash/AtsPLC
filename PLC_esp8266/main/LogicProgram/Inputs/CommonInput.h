@@ -20,4 +20,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     static CommonInput *TryToCast(LogicElement *logic_element);
+
+    void SelectNext() override;
+    void SelectPrior() override;
 };

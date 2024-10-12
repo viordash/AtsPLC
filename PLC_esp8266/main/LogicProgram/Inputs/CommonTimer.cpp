@@ -132,3 +132,8 @@ CommonTimer *CommonTimer::TryToCast(LogicElement *logic_element) {
             return NULL;
     }
 }
+
+void CommonTimer::SelectNext() {
+}
+void CommonTimer::SelectPrior() {
+}

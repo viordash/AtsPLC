@@ -179,18 +179,18 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
-void Network::HandleButtonUp() {
+void Network::SelectNext() {
     auto selected_element = GetSelectedElement();
 
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonUp();
+            static_cast<ElementsBox *>((*this)[selected_element])->SelectNext();
             return;
         }
     }
 
     ESP_LOGI(TAG_Network,
-             "HandleButtonUp, %u, selected_element:%d",
+             "SelectNext, %u, selected_element:%d",
              (unsigned)editable_state,
              selected_element);
 
@@ -208,17 +208,17 @@ void Network::HandleButtonUp() {
     }
 }
 
-void Network::HandleButtonDown() {
+void Network::SelectPrior() {
     auto selected_element = GetSelectedElement();
 
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->HandleButtonDown();
+            static_cast<ElementsBox *>((*this)[selected_element])->SelectPrior();
             return;
         }
     }
     ESP_LOGI(TAG_Network,
-             "HandleButtonDown, %u, selected_element:%d",
+             "SelectPrior, %u, selected_element:%d",
              (unsigned)editable_state,
              selected_element);
 

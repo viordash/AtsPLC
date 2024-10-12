@@ -199,80 +199,80 @@ TEST(LogicElementsBoxTestsGroup, use_Render_from_selected) {
     CHECK_TRUE(stored_element.Render_called);
 }
 
-TEST(LogicElementsBoxTestsGroup, HandleButtonUp__change__selected_index__to_backward) {
+TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward) {
     ComparatorEq stored_element(42, MapIO::AI);
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGr, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
 }
 
-TEST(LogicElementsBoxTestsGroup, HandleButtonUp_selecting_elements_in_reverse_loop) {
+TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) {
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGr, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonUp();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
 
-TEST(LogicElementsBoxTestsGroup, HandleButtonDown_selecting_elements_in_loop) {
+TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorGr, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
@@ -290,7 +290,7 @@ TEST(LogicElementsBoxTestsGroup, No_memleak_if_selection_changes) {
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
@@ -308,7 +308,7 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.Select();
     testable.BeginEditing();
-    testable.HandleButtonDown();
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
 }
 

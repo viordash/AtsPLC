@@ -74,7 +74,7 @@ void Ladder::HandleButtonUp() {
             break;
 
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->HandleButtonUp();
+            (*this)[selected_network]->SelectNext();
             return;
     }
 }
@@ -111,7 +111,7 @@ void Ladder::HandleButtonDown() {
 
         case EditableElement::ElementState::des_Editing: {
             auto network = (*this)[selected_network];
-            network->HandleButtonDown();
+            network->SelectPrior();
             return;
         }
     }

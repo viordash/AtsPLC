@@ -27,8 +27,8 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
 
-    void HandleButtonUp();
-    void HandleButtonDown();
+    void SelectNext() override;
+    void SelectPrior() override;
     void HandleButtonSelect();
     void HandleButtonOption();
     void EndEditing() override final;

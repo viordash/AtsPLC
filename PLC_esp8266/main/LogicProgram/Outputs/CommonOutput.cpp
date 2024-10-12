@@ -114,3 +114,8 @@ CommonOutput *CommonOutput::TryToCast(LogicElement *logic_element) {
             return NULL;
     }
 }
+
+void CommonOutput::SelectNext() {
+}
+void CommonOutput::SelectPrior() {
+}
