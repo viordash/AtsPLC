@@ -99,6 +99,7 @@ TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
 TEST(LogicCommonComparatorTestsGroup, Render) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::AI);
+    testable.SetReference(0);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
