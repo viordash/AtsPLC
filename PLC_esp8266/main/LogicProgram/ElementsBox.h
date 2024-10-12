@@ -8,6 +8,13 @@
 #include <unistd.h>
 #include <vector>
 
+
+
+typedef enum { //
+    eepi_None = TCommonEditingPropertyId::cepi_None,
+    eepi_ConfigureElement
+} TElementsBoxEditingPropertyId;
+
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
     uint8_t place_width;

@@ -27,6 +27,7 @@ void EditableElement::CancelSelection() {
 
 void EditableElement::BeginEditing() {
     editable_state = TEditableElementState::des_Editing;
+    editing_property_id = 0;
 }
 void EditableElement::EndEditing() {
     editable_state = TEditableElementState::des_Regular;
@@ -38,7 +39,6 @@ bool EditableElement::Selected() {
 
 bool EditableElement::Render(uint8_t *fb, Point *start_point) {
     const Bitmap *bitmap;
-    const int blink_timer_524ms = 0x80000;
 
     switch (editable_state) {
         case TEditableElementState::des_Selected:
@@ -51,8 +51,11 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
             break;
 
         case TEditableElementState::des_Editing:
-            bitmap = &EditableElement::bitmap_selecting_blink_2;
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
+            if ((TCommonEditingPropertyId)editing_property_id
+                == TCommonEditingPropertyId::cepi_None) {
+                bitmap = &EditableElement::bitmap_selecting_blink_2;
+                draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
+            }
             break;
 
         default:

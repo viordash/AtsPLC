@@ -1,5 +1,6 @@
 
 #include "LogicProgram/ElementsBox.h"
+#include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
@@ -212,7 +213,24 @@ bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 }
 
 bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    return GetSelectedElement()->Render(fb, prev_elem_state, start_point);
+    bool res = GetSelectedElement()->Render(fb, prev_elem_state, start_point);
+    if (!res) {
+        return res;
+    }
+
+    switch (editable_state) {
+        case TEditableElementState::des_Editing:
+            if ((TElementsBoxEditingPropertyId)editing_property_id
+                == TElementsBoxEditingPropertyId::eepi_ConfigureElement) {
+                const Bitmap *bitmap = &EditableElement::bitmap_selecting_blink_3;
+                draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
+            }
+            break;
+
+        default:
+            break;
+    }
+    return true;
 }
 
 size_t ElementsBox::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -294,7 +312,6 @@ void ElementsBox::SelectedElementHandleButtonSelect() {
              selected_index);
 
     GetSelectedElement()->EndEditing();
-    GetSelectedElement()->Select();
 }
 
 void ElementsBox::EndEditing() {
