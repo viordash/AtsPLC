@@ -306,7 +306,6 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.Select();
     testable.BeginEditing();
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
@@ -316,7 +315,6 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) 
     auto stored_element = new ComparatorEq(42, MapIO::AI);
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.Select();
     testable.BeginEditing();
 }
 
