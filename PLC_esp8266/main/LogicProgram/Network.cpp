@@ -278,7 +278,6 @@ void Network::HandleButtonOption() {
     if ((*this)[selected_element]->Selected()) {
         auto stored_element = (*this)[selected_element];
         (*this)[selected_element] = new ElementsBox(100, stored_element);
-        (*this)[selected_element]->Select();
         (*this)[selected_element]->BeginEditing();
 
     } else if ((*this)[selected_element]->Editing()) {
