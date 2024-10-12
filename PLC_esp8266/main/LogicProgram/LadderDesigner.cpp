@@ -27,20 +27,20 @@ int Ladder::GetSelectedNetwork() {
     return -1;
 }
 
-TEditableElementState Ladder::GetDesignState(int selected_network) {
+EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
     if (selected_network < 0) {
-        return TEditableElementState::des_Regular;
+        return EditableElement::ElementState::des_Regular;
     }
 
     auto network = (*this)[selected_network];
     if (network->Editing()) {
-        return TEditableElementState::des_Editing;
+        return EditableElement::ElementState::des_Editing;
     }
     if (network->Selected()) {
-        return TEditableElementState::des_Selected;
+        return EditableElement::ElementState::des_Selected;
     }
     ESP_LOGE(TAG_Ladder, "GetDesignState, unexpected network (id:%d) state", selected_network);
-    return TEditableElementState::des_Regular;
+    return EditableElement::ElementState::des_Regular;
 }
 
 void Ladder::HandleButtonUp() {
@@ -54,13 +54,13 @@ void Ladder::HandleButtonUp() {
              selected_network);
 
     switch (design_state) {
-        case TEditableElementState::des_Regular:
+        case EditableElement::ElementState::des_Regular:
             if (view_top_index > 0) {
                 view_top_index--;
             }
             break;
 
-        case TEditableElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
 
             if (selected_network > view_top_index) {
@@ -73,7 +73,7 @@ void Ladder::HandleButtonUp() {
             (*this)[selected_network]->Select();
             break;
 
-        case TEditableElementState::des_Editing:
+        case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->HandleButtonUp();
             return;
     }
@@ -90,13 +90,13 @@ void Ladder::HandleButtonDown() {
              selected_network);
 
     switch (design_state) {
-        case TEditableElementState::des_Regular:
+        case EditableElement::ElementState::des_Regular:
             if (view_top_index + Ladder::MaxViewPortCount < size()) {
                 view_top_index++;
             }
             break;
 
-        case TEditableElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
 
             if (selected_network == view_top_index) {
@@ -109,7 +109,7 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->Select();
             break;
 
-        case TEditableElementState::des_Editing: {
+        case EditableElement::ElementState::des_Editing: {
             auto network = (*this)[selected_network];
             network->HandleButtonDown();
             return;
@@ -128,15 +128,15 @@ void Ladder::HandleButtonSelect() {
              selected_network);
 
     switch (design_state) {
-        case TEditableElementState::des_Regular:
+        case EditableElement::ElementState::des_Regular:
             (*this)[view_top_index]->Select();
             break;
 
-        case TEditableElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
             break;
 
-        case TEditableElementState::des_Editing:
+        case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->HandleButtonSelect();
             return;
 
@@ -154,10 +154,10 @@ void Ladder::HandleButtonOption() {
              (unsigned)design_state,
              selected_network);
     switch (design_state) {
-        case TEditableElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->BeginEditing();
             break;
-        case TEditableElementState::des_Editing:
+        case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->HandleButtonOption();
             break;
 

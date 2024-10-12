@@ -12,36 +12,36 @@
 #include <string.h>
 
 EditableElement::EditableElement() {
-    editable_state = TEditableElementState::des_Regular;
+    editable_state = EditableElement::ElementState::des_Regular;
 }
 
 EditableElement::~EditableElement() {
 }
 
 void EditableElement::Select() {
-    editable_state = TEditableElementState::des_Selected;
+    editable_state = EditableElement::ElementState::des_Selected;
 }
 void EditableElement::CancelSelection() {
-    editable_state = TEditableElementState::des_Regular;
+    editable_state = EditableElement::ElementState::des_Regular;
 }
 
 void EditableElement::BeginEditing() {
-    editable_state = TEditableElementState::des_Editing;
+    editable_state = EditableElement::ElementState::des_Editing;
     editing_property_id = 0;
 }
 void EditableElement::EndEditing() {
-    editable_state = TEditableElementState::des_Regular;
+    editable_state = EditableElement::ElementState::des_Regular;
 }
 
 bool EditableElement::Selected() {
-    return editable_state == TEditableElementState::des_Selected;
+    return editable_state == EditableElement::ElementState::des_Selected;
 }
 
 bool EditableElement::Render(uint8_t *fb, Point *start_point) {
     const Bitmap *bitmap;
 
     switch (editable_state) {
-        case TEditableElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected:
             if (esp_timer_get_time() & blink_timer_524ms) {
                 bitmap = &EditableElement::bitmap_selecting_blink_0;
             } else {
@@ -50,9 +50,9 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
             draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
             break;
 
-        case TEditableElementState::des_Editing:
-            if ((TCommonEditingPropertyId)editing_property_id
-                == TCommonEditingPropertyId::cepi_None) {
+        case EditableElement::ElementState::des_Editing:
+            if ((EditableElement::EditingPropertyId)editing_property_id
+                == EditableElement::EditingPropertyId::cepi_None) {
                 bitmap = &EditableElement::bitmap_selecting_blink_2;
                 draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
             }
@@ -66,5 +66,5 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 }
 
 bool EditableElement::Editing() {
-    return editable_state == TEditableElementState::des_Editing;
+    return editable_state == EditableElement::ElementState::des_Editing;
 }

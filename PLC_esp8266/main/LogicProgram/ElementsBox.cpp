@@ -219,9 +219,9 @@ bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     }
 
     switch (editable_state) {
-        case TEditableElementState::des_Editing:
-            if ((TElementsBoxEditingPropertyId)editing_property_id
-                == TElementsBoxEditingPropertyId::eepi_ConfigureElement) {
+        case EditableElement::ElementState::des_Editing:
+            if ((ElementsBox::EditingPropertyId)editing_property_id
+                == ElementsBox::EditingPropertyId::eepi_ConfigureElement) {
                 const Bitmap *bitmap = &EditableElement::bitmap_selecting_blink_3;
                 draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
             }

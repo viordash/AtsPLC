@@ -48,7 +48,7 @@ namespace {
         int PublicMorozov_GetSelectedNetwork() {
             return GetSelectedNetwork();
         }
-        TEditableElementState PublicMorozov_GetDesignState(int selected_network) {
+        EditableElement::ElementState PublicMorozov_GetDesignState(int selected_network) {
             return GetDesignState(selected_network);
         }
     };
@@ -193,15 +193,15 @@ TEST(LogicLadderDesignerTestsGroup, GetDesignState) {
     auto can_be_selected_network = new Network();
     testable.Append(can_be_selected_network);
 
-    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(-1));
-    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(0));
-    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(1));
-    CHECK_EQUAL(TEditableElementState::des_Regular, testable.PublicMorozov_GetDesignState(2));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(-1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(0));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(2));
 
     can_be_selected_network->Select();
-    CHECK_EQUAL(TEditableElementState::des_Selected, testable.PublicMorozov_GetDesignState(2));
+    CHECK_EQUAL(EditableElement::ElementState::des_Selected, testable.PublicMorozov_GetDesignState(2));
 
     can_be_edited_network->Select();
     can_be_edited_network->BeginEditing();
-    CHECK_EQUAL(TEditableElementState::des_Editing, testable.PublicMorozov_GetDesignState(1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Editing, testable.PublicMorozov_GetDesignState(1));
 }

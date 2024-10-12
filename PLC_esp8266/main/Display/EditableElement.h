@@ -5,19 +5,21 @@
 #include <stdint.h>
 #include <unistd.h>
 
-typedef enum { //
-    des_Regular,
-    des_Selected,
-    des_Editing
-} TEditableElementState;
-
-typedef enum { //
-    cepi_None = 0
-} TCommonEditingPropertyId;
-
 class EditableElement {
+
+  public:
+    typedef enum { //
+        des_Regular,
+        des_Selected,
+        des_Editing
+    } ElementState;
+
+    typedef enum { //
+        cepi_None = 0
+    } EditingPropertyId;
+
   protected:
-    TEditableElementState editable_state;
+    EditableElement::ElementState editable_state;
     int editing_property_id;
 
     const static Bitmap bitmap_selecting_blink_0;

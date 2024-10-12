@@ -8,14 +8,13 @@
 #include <unistd.h>
 #include <vector>
 
-
-
-typedef enum { //
-    eepi_None = TCommonEditingPropertyId::cepi_None,
-    eepi_ConfigureElement
-} TElementsBoxEditingPropertyId;
-
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
+  public:
+    typedef enum { //
+        eepi_None = EditableElement::EditingPropertyId::cepi_None,
+        eepi_ConfigureElement
+    } EditingPropertyId;
+
   protected:
     uint8_t place_width;
     LogicElement *stored_element;

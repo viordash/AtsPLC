@@ -23,7 +23,7 @@ class Ladder : public std::vector<Network *> {
 
     void RemoveAll();
 
-    TEditableElementState GetDesignState(int selected_network);
+    EditableElement::ElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
 
   public:
