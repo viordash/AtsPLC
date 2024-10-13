@@ -272,3 +272,14 @@ int Network::GetSelectedElement() {
     }
     return -1;
 }
+
+void Network::SwitchState() {
+    switch (state) {
+        case LogicItemState::lisPassive:
+            ChangeState(LogicItemState::lisActive);
+            break;
+        default:
+            ChangeState(LogicItemState::lisPassive);
+            break;
+    }
+}

@@ -32,4 +32,6 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     void Change();
     void EndEditing() override final;
     int GetSelectedElement();
+
+    void SwitchState();
 };

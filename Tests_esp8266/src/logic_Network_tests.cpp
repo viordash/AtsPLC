@@ -35,6 +35,15 @@ namespace {
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
+    class TestableNetwork : public Network {
+      public:
+        TestableNetwork(LogicItemState state) : Network(state) {
+        }
+        LogicItemState PublicMorozov_state() {
+            return state;
+        }
+    };
+
     class TestableInputNC : public InputNC, public MonitorLogicElement {
       public:
         TestableInputNC() : InputNC() {
@@ -111,8 +120,7 @@ namespace {
 } // namespace
 
 TEST(LogicNetworkTestsGroup, append_elements) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -123,8 +131,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -140,8 +147,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -162,8 +168,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -188,8 +193,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -214,8 +218,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
 }
 
 TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -233,8 +236,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
 
 TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     auto input = new TestableInputNC;
     input->SetIoAdr(MapIO::DI);
     testable.Append(input);
@@ -270,8 +272,7 @@ TEST(LogicNetworkTestsGroup, Serialize) {
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -286,8 +287,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     for (size_t i = 0; i < 6; i++) {
         testable.Append(new TestableInputNC);
@@ -299,8 +299,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
 
@@ -310,8 +309,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_
 
 TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -344,8 +342,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[17]) = TvElementType::et_DirectOutput;
     *((MapIO *)&buffer[18]) = MapIO::O1;
 
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     size_t readed = testable.Deserialize(&buffer[0], sizeof(buffer) - 1);
     CHECK_EQUAL(19, readed);
@@ -357,8 +354,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
 }
 
 TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_ElementBox) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -378,8 +374,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
 
 TEST(LogicNetworkTestsGroup,
      EndEditing_is_replacing_ElementBox_with_regular_one_and_it_is_still_selected) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -401,4 +396,14 @@ TEST(LogicNetworkTestsGroup,
     CHECK(selectedElement == editedElement);
 
     CHECK_TRUE(editedElement->Selected());
+}
+
+TEST(LogicNetworkTestsGroup, SwitchState) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.SwitchState();
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.PublicMorozov_state());
+
+    testable.SwitchState();
+    CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_state());
 }

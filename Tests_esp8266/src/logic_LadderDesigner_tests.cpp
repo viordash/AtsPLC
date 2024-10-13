@@ -52,6 +52,14 @@ namespace {
             return GetDesignState(selected_network);
         }
     };
+    class TestableNetwork : public Network {
+      public:
+        TestableNetwork(LogicItemState state) : Network(state) {
+        }
+        LogicItemState PublicMorozov_state() {
+            return state;
+        }
+    };
 
 } // namespace
 
@@ -193,15 +201,35 @@ TEST(LogicLadderDesignerTestsGroup, GetDesignState) {
     auto can_be_selected_network = new Network();
     testable.Append(can_be_selected_network);
 
-    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(-1));
-    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(0));
-    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(1));
-    CHECK_EQUAL(EditableElement::ElementState::des_Regular, testable.PublicMorozov_GetDesignState(2));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular,
+                testable.PublicMorozov_GetDesignState(-1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular,
+                testable.PublicMorozov_GetDesignState(0));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular,
+                testable.PublicMorozov_GetDesignState(1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Regular,
+                testable.PublicMorozov_GetDesignState(2));
 
     can_be_selected_network->Select();
-    CHECK_EQUAL(EditableElement::ElementState::des_Selected, testable.PublicMorozov_GetDesignState(2));
+    CHECK_EQUAL(EditableElement::ElementState::des_Selected,
+                testable.PublicMorozov_GetDesignState(2));
 
     can_be_edited_network->Select();
     can_be_edited_network->BeginEditing();
-    CHECK_EQUAL(EditableElement::ElementState::des_Editing, testable.PublicMorozov_GetDesignState(1));
+    CHECK_EQUAL(EditableElement::ElementState::des_Editing,
+                testable.PublicMorozov_GetDesignState(1));
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_changed_network_state) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+    network->BeginEditing();
+
+    testable.HandleButtonOption();
+    CHECK_EQUAL(LogicItemState::lisPassive, network->PublicMorozov_state());
+
+    testable.HandleButtonOption();
+    CHECK_EQUAL(LogicItemState::lisActive, network->PublicMorozov_state());
 }
