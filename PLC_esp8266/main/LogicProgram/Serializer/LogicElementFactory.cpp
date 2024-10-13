@@ -22,7 +22,7 @@
 static const char *TAG_LogicElementFactory = "LogicElementFactory";
 
 LogicElement *LogicElementFactory::Create(TvElementType element_type) {
-    ESP_LOGI(TAG_LogicElementFactory, "Create: element type:%u", element_type);
+    ESP_LOGD(TAG_LogicElementFactory, "Create: element type:%u", element_type);
 
     LogicElement *element = NULL;
 

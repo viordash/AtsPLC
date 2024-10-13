@@ -10,13 +10,15 @@
 #include <unistd.h>
 
 class Network;
+class ElementsBox;
 
-class LogicElement: public EditableElement {
+class LogicElement : public EditableElement {
   protected:
     std::recursive_mutex lock_mutex;
     LogicItemState state;
 
     friend Network;
+    friend ElementsBox;
 
   public:
     static const uint8_t MinValue = 0;

@@ -209,7 +209,9 @@ LogicElement *ElementsBox::GetSelectedElement() {
 }
 
 bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    return GetSelectedElement()->DoAction(prev_elem_changed, prev_elem_state);
+    bool res = GetSelectedElement()->DoAction(prev_elem_changed, prev_elem_state);
+    state = GetSelectedElement()->state;
+    return res;
 }
 
 bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
@@ -287,7 +289,7 @@ void ElementsBox::Change() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
     ESP_LOGI(TAG_ElementsBox,
-             "HandleButtonSelect, selected_index:%d, in_editing:%d",
+             "Change, selected_index:%d, in_editing:%d",
              selected_index,
              selected_in_editing);
 

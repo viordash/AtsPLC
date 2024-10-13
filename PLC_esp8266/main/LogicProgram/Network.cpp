@@ -229,7 +229,7 @@ void Network::SelectPrior() {
 void Network::Change() {
     auto selected_element = GetSelectedElement();
     ESP_LOGI(TAG_Network,
-             "HandleButtonOption, %u, selected_element:%d",
+             "Change, %u, selected_element:%d",
              (unsigned)editable_state,
              selected_element);
 
