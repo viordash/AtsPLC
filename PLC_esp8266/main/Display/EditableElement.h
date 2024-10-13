@@ -37,7 +37,7 @@ class EditableElement {
     void Select();
     void CancelSelection();
 
-    void BeginEditing();
+    virtual void BeginEditing();
     virtual void EndEditing();
 
     bool Selected();
@@ -46,4 +46,5 @@ class EditableElement {
     virtual void SelectNext() = 0;
     virtual void SelectPrior() = 0;
     virtual void Change() = 0;
+    virtual bool EditingCompleted() = 0;
 };

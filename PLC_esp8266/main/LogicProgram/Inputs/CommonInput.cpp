@@ -84,3 +84,6 @@ void CommonInput::SelectPrior() {
 }
 void CommonInput::Change() {
 }
+bool CommonInput::EditingCompleted() {
+    return true;
+}

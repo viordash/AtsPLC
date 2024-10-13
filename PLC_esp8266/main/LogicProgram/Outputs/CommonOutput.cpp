@@ -121,3 +121,6 @@ void CommonOutput::SelectPrior() {
 }
 void CommonOutput::Change() {
 }
+bool CommonOutput::EditingCompleted() {
+    return true;
+}

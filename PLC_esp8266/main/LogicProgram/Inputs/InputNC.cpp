@@ -92,3 +92,13 @@ InputNC *InputNC::TryToCast(CommonInput *common_input) {
             return NULL;
     }
 }
+
+void InputNC::SelectNext() {
+}
+void InputNC::SelectPrior() {
+}
+void InputNC::Change() {
+}
+bool InputNC::EditingCompleted() {
+    return true;
+}

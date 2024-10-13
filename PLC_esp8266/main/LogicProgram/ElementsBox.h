@@ -41,10 +41,10 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
     TvElementType GetElementType() override final;
 
-    void SelectNext() override;
-    void SelectPrior() override;
-    void Change();
-    void SelectedElementHandleButtonSelect();
+    void BeginEditing() override final;
+    void SelectNext() override final;
+    void SelectPrior() override final;
+    void Change() override final;
+    bool EditingCompleted() override final;
 
-    void EndEditing() override;
 };

@@ -18,7 +18,7 @@
 
 static const char *TAG_ElementsBox = "ElementsBox";
 
-ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) {
+ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) : LogicElement() {
     this->place_width = place_width;
     this->stored_element = stored_element;
     selected_index = -1;
@@ -247,6 +247,11 @@ TvElementType ElementsBox::GetElementType() {
     return GetSelectedElement()->GetElementType();
 }
 
+void ElementsBox::BeginEditing() {
+    EditableElement::BeginEditing();
+    editing_property_id = ElementsBox::EditingPropertyId::eepi_ConfigureElement;
+}
+
 void ElementsBox::SelectNext() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
@@ -293,24 +298,18 @@ void ElementsBox::Change() {
              selected_index,
              selected_in_editing);
 
-    if (selected_in_editing) {
-        SelectedElementHandleButtonSelect();
+    if (!selected_in_editing) {
+        GetSelectedElement()->BeginEditing();
         return;
     }
-    GetSelectedElement()->BeginEditing();
+
+    GetSelectedElement()->Change();
+    if (GetSelectedElement()->EditingCompleted()) {
+        GetSelectedElement()->EndEditing();
+    }
 }
 
-void ElementsBox::SelectedElementHandleButtonSelect() {
-    ESP_LOGI(TAG_ElementsBox,
-             "SelectedElementHandleButtonSelect, selected_index:%d",
-             selected_index);
-
-    GetSelectedElement()->EndEditing();
-}
-
-void ElementsBox::EndEditing() {
-    ESP_LOGI(TAG_ElementsBox, "EndEditing, %u", (unsigned)editable_state);
-
-    GetSelectedElement()->EndEditing();
-    EditableElement::EndEditing();
+bool ElementsBox::EditingCompleted() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+    return !selected_in_editing;
 }

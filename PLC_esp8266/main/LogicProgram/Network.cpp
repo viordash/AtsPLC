@@ -241,17 +241,21 @@ void Network::Change() {
 
     if ((*this)[selected_element]->Selected()) {
         auto stored_element = (*this)[selected_element];
-        (*this)[selected_element] = new ElementsBox(100, stored_element);
-        (*this)[selected_element]->BeginEditing();
+        auto elementBox = new ElementsBox(100, stored_element);
+        elementBox->BeginEditing();
+        (*this)[selected_element] = elementBox;
 
     } else if ((*this)[selected_element]->Editing()) {
-        (*this)[selected_element]->EndEditing();
-        auto editedElement =
-            static_cast<ElementsBox *>((*this)[selected_element])->GetSelectedElement();
+        auto elementBox = static_cast<ElementsBox *>((*this)[selected_element]);
 
-        delete (*this)[selected_element];
-        (*this)[selected_element] = editedElement;
-        (*this)[selected_element]->Select();
+        elementBox->Change();
+        if (elementBox->EditingCompleted()) {
+            elementBox->EndEditing();
+            auto editedElement = elementBox->GetSelectedElement();
+            delete elementBox;
+            editedElement->Select();
+            (*this)[selected_element] = editedElement;
+        }
     }
 }
 
@@ -261,6 +265,14 @@ void Network::EndEditing() {
         (*this)[selected_element]->CancelSelection();
     }
     EditableElement::EndEditing();
+}
+
+bool Network::EditingCompleted() {
+    auto selected_element = GetSelectedElement();
+    if (selected_element >= 0 && !(*this)[selected_element]->EditingCompleted()) {
+        return false;
+    }
+    return true;
 }
 
 int Network::GetSelectedElement() {

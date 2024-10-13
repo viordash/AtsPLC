@@ -139,3 +139,6 @@ void CommonTimer::SelectPrior() {
 }
 void CommonTimer::Change() {
 }
+bool CommonTimer::EditingCompleted() {
+    return true;
+}

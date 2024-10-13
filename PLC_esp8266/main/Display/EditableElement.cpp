@@ -27,7 +27,7 @@ void EditableElement::CancelSelection() {
 
 void EditableElement::BeginEditing() {
     editable_state = EditableElement::ElementState::des_Editing;
-    editing_property_id = 0;
+    editing_property_id = EditingPropertyId::cepi_None;
 }
 void EditableElement::EndEditing() {
     editable_state = EditableElement::ElementState::des_Regular;

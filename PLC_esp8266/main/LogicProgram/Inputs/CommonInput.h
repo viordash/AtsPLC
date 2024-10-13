@@ -24,4 +24,5 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
     void SelectNext() override;
     void SelectPrior() override;
     void Change() override;
+    bool EditingCompleted() override;
 };
