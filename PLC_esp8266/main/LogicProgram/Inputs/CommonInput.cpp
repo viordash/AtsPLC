@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_CommonInput = "CommonInput";
+
 CommonInput::CommonInput() : LogicElement(), InputElement() {
 }
 
@@ -78,12 +80,36 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
     }
 }
 
+void CommonInput::BeginEditing() {
+    EditableElement::BeginEditing();
+    editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr;
+}
+
 void CommonInput::SelectNext() {
+    ESP_LOGI(TAG_CommonInput, "SelectNext");
+
+    auto io_adr = GetIoAdr();
+    io_adr = (MapIO)((int)io_adr + 1);
+    if (!ValidateMapIO(io_adr)) {
+        io_adr = MapIO::DI;
+    }
+    SetIoAdr(io_adr);
 }
 void CommonInput::SelectPrior() {
+    ESP_LOGI(TAG_CommonInput, "SelectPrior");
+
+    auto io_adr = GetIoAdr();
+    io_adr = (MapIO)((int)io_adr - 1);
+    if (!ValidateMapIO(io_adr)) {
+        io_adr = MapIO::V4;
+    }
+    SetIoAdr(io_adr);
 }
 void CommonInput::Change() {
+    ESP_LOGI(TAG_CommonInput, "Change");
+    EndEditing();
 }
 bool CommonInput::EditingCompleted() {
+    ESP_LOGI(TAG_CommonInput, "EditingCompleted");
     return true;
 }

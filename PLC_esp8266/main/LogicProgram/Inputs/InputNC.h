@@ -23,9 +23,4 @@ class InputNC : public CommonInput {
     TvElementType GetElementType() override final;
 
     static InputNC *TryToCast(CommonInput *common_input);
-
-    void SelectNext() override;
-    void SelectPrior() override;
-    void Change() override;
-    bool EditingCompleted() override;
 };

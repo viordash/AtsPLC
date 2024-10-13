@@ -8,6 +8,12 @@
 #include <unistd.h>
 
 class CommonInput : public LogicElement, public InputElement, public LabeledLogicItem {
+    public:
+    typedef enum { //
+        ciepi_None = EditableElement::EditingPropertyId::cepi_None,
+        ciepi_ConfigureIoAdr
+    } EditingPropertyId;
+
   protected:
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
@@ -21,6 +27,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
 
     static CommonInput *TryToCast(LogicElement *logic_element);
 
+    void BeginEditing() override final;
     void SelectNext() override;
     void SelectPrior() override;
     void Change() override;
