@@ -187,25 +187,19 @@ void Network::SelectNext() {
             static_cast<ElementsBox *>((*this)[selected_element])->SelectNext();
             return;
         }
+        (*this)[selected_element]->CancelSelection();
+    }
+    selected_element++;
+    if (selected_element >= (int)size()) {
+        selected_element = -1;
+    } else {
+        (*this)[selected_element]->Select();
     }
 
     ESP_LOGI(TAG_Network,
              "SelectNext, %u, selected_element:%d",
              (unsigned)editable_state,
              selected_element);
-
-    bool edit_this_network = selected_element < 0;
-    if (edit_this_network) {
-        switch (state) {
-            case LogicItemState::lisPassive:
-                ChangeState(LogicItemState::lisActive);
-                break;
-            default:
-                ChangeState(LogicItemState::lisPassive);
-                break;
-        }
-        return;
-    }
 }
 
 void Network::SelectPrior() {
@@ -216,50 +210,20 @@ void Network::SelectPrior() {
             static_cast<ElementsBox *>((*this)[selected_element])->SelectPrior();
             return;
         }
-    }
-    ESP_LOGI(TAG_Network,
-             "SelectPrior, %u, selected_element:%d",
-             (unsigned)editable_state,
-             selected_element);
-
-    bool edit_this_network = selected_element < 0;
-    if (edit_this_network) {
-        switch (state) {
-            case LogicItemState::lisPassive:
-                ChangeState(LogicItemState::lisActive);
-                break;
-            default:
-                ChangeState(LogicItemState::lisPassive);
-                break;
-        }
-        return;
-    }
-}
-
-void Network::HandleButtonSelect() {
-    auto selected_element = GetSelectedElement();
-
-    if (selected_element >= 0) {
-        if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->Change();
-            return;
-        }
         (*this)[selected_element]->CancelSelection();
     }
-    ESP_LOGI(TAG_Network,
-             "HandleButtonSelect, %u, selected_element:%d, size:%u",
-             (unsigned)editable_state,
-             selected_element,
-             (unsigned)size());
-
-    selected_element++;
-
-    if (selected_element >= (int)size()) {
-        selected_element = -1;
+    selected_element--;
+    if (selected_element < -1) {
+        selected_element = size() - 1;
     }
     if (selected_element >= 0) {
         (*this)[selected_element]->Select();
     }
+
+    ESP_LOGI(TAG_Network,
+             "SelectPrior, %u, selected_element:%d",
+             (unsigned)editable_state,
+             selected_element);
 }
 
 void Network::Change() {
