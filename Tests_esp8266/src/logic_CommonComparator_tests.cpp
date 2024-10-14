@@ -340,3 +340,16 @@ TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
     testable.SelectPrior();
     CHECK_EQUAL(247, testable.GetReference());
 }
+
+TEST(LogicCommonComparatorTestsGroup, Editing_completed_after_changed_reference) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(2);
+    testable.BeginEditing();
+
+    CHECK_FALSE(testable.EditingCompleted());
+    testable.Change();
+    CHECK_FALSE(testable.EditingCompleted());
+    testable.Change();
+    CHECK_TRUE(testable.EditingCompleted());
+}

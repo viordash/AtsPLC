@@ -10,7 +10,8 @@ class CommonComparator : public CommonInput {
     typedef enum { //
         ccepi_None = CommonInput::EditingPropertyId::ciepi_None,
         ccepi_ConfigureIoAdr = CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr,
-        ccepi_ConfigureReference
+        ccepi_ConfigureReference,
+        ccepi_Completed
     } EditingPropertyId;
 
   protected:

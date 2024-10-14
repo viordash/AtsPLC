@@ -181,6 +181,11 @@ void CommonComparator::Change() {
             editing_property_id = CommonComparator::EditingPropertyId::ccepi_ConfigureReference;
             break;
 
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ESP_LOGI(TAG_CommonComparator, "Change");
+            editing_property_id = CommonComparator::EditingPropertyId::ccepi_Completed;
+            break;
+
         default:
             CommonInput::Change();
             return;
@@ -190,7 +195,8 @@ void CommonComparator::Change() {
 bool CommonComparator::EditingCompleted() {
     switch (editing_property_id) {
         case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
-            ESP_LOGI(TAG_CommonComparator, "EditingCompleted");
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ESP_LOGI(TAG_CommonComparator, "EditingCompleted false");
             return false;
 
         default:
