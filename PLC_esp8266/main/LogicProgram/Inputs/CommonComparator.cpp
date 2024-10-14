@@ -155,8 +155,9 @@ void CommonComparator::SelectNext() {
     }
     ESP_LOGI(TAG_CommonComparator, "SelectNext");
 
-    if (ref_percent04 < LogicElement::MaxValue) {
-        SetReference(ref_percent04 + 1);
+    auto ref = GetReference();
+    if (ref < LogicElement::MaxValue) {
+        SetReference(ref + 1);
     }
 }
 
@@ -167,8 +168,9 @@ void CommonComparator::SelectPrior() {
     }
     ESP_LOGI(TAG_CommonComparator, "SelectPrior");
 
-    if (ref_percent04 > LogicElement::MinValue) {
-        SetReference(ref_percent04 - 1);
+    auto ref = GetReference();
+    if (ref > LogicElement::MinValue) {
+        SetReference(ref - 1);
     }
 }
 
