@@ -8,6 +8,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,15 +68,19 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     bool res;
 
     uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
+    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (CommonComparator::EditingPropertyId)editing_property_id
+                                      == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
+                               && (esp_timer_get_time() & blink_timer_524ms);
     switch (str_size) {
         case 1:
-            res = draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
+            res = blink_label_on_editing || draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
             break;
         case 2:
-            res = draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
+            res = blink_label_on_editing || draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
             break;
         default:
-            res = draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
+            res = blink_label_on_editing || draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
             break;
     }
 
