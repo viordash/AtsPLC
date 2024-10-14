@@ -104,6 +104,9 @@ void CommonInput::SelectNext() {
     SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 
+void CommonInput::PageUp() {
+}
+
 void CommonInput::SelectPrior() {
     ESP_LOGI(TAG_CommonInput, "SelectPrior");
 
@@ -114,6 +117,9 @@ void CommonInput::SelectPrior() {
         io_adr = allowed_inputs.count - 1;
     }
     SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
+}
+
+void CommonInput::PageDown() {
 }
 
 void CommonInput::Change() {

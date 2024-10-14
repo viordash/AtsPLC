@@ -24,6 +24,8 @@ static const char *TAG_Controller = "controller";
 #define DO_SCROLL_DOWN BIT5
 #define DO_SELECT BIT6
 #define DO_SELECT_OPTION BIT7
+#define DO_SCROLL_PAGE_UP BIT8
+#define DO_SCROLL_PAGE_DOWN BIT9
 
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
@@ -105,8 +107,14 @@ void Controller::ProcessTask(void *parm) {
                 case TButtons::UP_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
                     break;
+                case TButtons::UP_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_UP, eNotifyAction::eSetBits);
+                    break;
                 case TButtons::DOWN_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
+                    break;
+                case TButtons::DOWN_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
                     break;
                 case TButtons::SELECT_PRESSED:
                     xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
@@ -143,11 +151,12 @@ void Controller::RenderTask(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
-        BaseType_t xResult = xTaskNotifyWait(0,
-                                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN
-                                                 | DO_SELECT | DO_SELECT_OPTION,
-                                             &ulNotifiedValue,
-                                             200 / portTICK_PERIOD_MS);
+        BaseType_t xResult =
+            xTaskNotifyWait(0,
+                            DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
+                                | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
+                            &ulNotifiedValue,
+                            200 / portTICK_PERIOD_MS);
 
         if (xResult != pdPASS) {
             ulNotifiedValue |= DO_RENDERING;
@@ -162,8 +171,18 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
+        if (ulNotifiedValue & DO_SCROLL_PAGE_UP) {
+            ladder->HandleButtonPageUp();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
         if (ulNotifiedValue & DO_SCROLL_DOWN) {
             ladder->HandleButtonDown();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SCROLL_PAGE_DOWN) {
+            ladder->HandleButtonPageDown();
             ulNotifiedValue |= DO_RENDERING;
         }
 

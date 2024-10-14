@@ -39,7 +39,9 @@ class TimerSecs : public CommonTimer {
 
     void BeginEditing() override final;
     void SelectNext() override;
+    void PageUp() override;
     void SelectPrior() override;
+    void PageDown() override;
     void Change() override;
     bool EditingCompleted() override final;
 };

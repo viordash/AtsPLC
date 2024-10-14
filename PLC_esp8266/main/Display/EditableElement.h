@@ -44,7 +44,9 @@ class EditableElement {
     bool Editing();
 
     virtual void SelectNext() = 0;
+    virtual void PageUp() = 0;
     virtual void SelectPrior() = 0;
+    virtual void PageDown() = 0;
     virtual void Change() = 0;
     virtual bool EditingCompleted() = 0;
 };

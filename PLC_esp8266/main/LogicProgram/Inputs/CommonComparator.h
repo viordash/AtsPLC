@@ -38,7 +38,9 @@ class CommonComparator : public CommonInput {
     static CommonComparator *TryToCast(CommonInput *common_input);
 
     void SelectNext() override;
+    void PageUp() override;
     void SelectPrior() override;
+    void PageDown() override;
     void Change() override;
     bool EditingCompleted() override;
 };

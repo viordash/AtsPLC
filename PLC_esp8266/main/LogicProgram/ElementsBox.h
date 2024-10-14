@@ -43,8 +43,9 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
 
     void BeginEditing() override final;
     void SelectNext() override final;
+    void PageUp() override final;
     void SelectPrior() override final;
+    void PageDown() override final;
     void Change() override final;
     bool EditingCompleted() override final;
-
 };

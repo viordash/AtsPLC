@@ -272,6 +272,20 @@ void ElementsBox::SelectNext() {
     }
 }
 
+void ElementsBox::PageUp() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "PageUp, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        GetSelectedElement()->PageUp();
+        return;
+    }
+}
+
 void ElementsBox::SelectPrior() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
@@ -290,6 +304,21 @@ void ElementsBox::SelectPrior() {
         selected_index = -1;
     }
 }
+
+void ElementsBox::PageDown() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "PageDown, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        GetSelectedElement()->PageDown();
+        return;
+    }
+}
+
 void ElementsBox::Change() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 

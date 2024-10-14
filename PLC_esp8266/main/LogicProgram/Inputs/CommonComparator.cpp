@@ -160,6 +160,15 @@ void CommonComparator::SelectNext() {
     }
 }
 
+void CommonComparator::PageUp() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureReference) {
+        auto ref = GetReference();
+        if (ref >= LogicElement::MinValue - 10) {
+            SetReference(ref - 10);
+        }
+    }
+}
+
 void CommonComparator::SelectPrior() {
     if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
         CommonInput::SelectPrior();
@@ -170,6 +179,15 @@ void CommonComparator::SelectPrior() {
     auto ref = GetReference();
     if (ref < LogicElement::MaxValue) {
         SetReference(ref + 1);
+    }
+}
+
+void CommonComparator::PageDown() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureReference) {
+        auto ref = GetReference();
+        if (ref <= LogicElement::MaxValue - 10) {
+            SetReference(ref + 10);
+        }
     }
 }
 

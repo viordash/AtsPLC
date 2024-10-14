@@ -41,7 +41,9 @@ class Ladder : public std::vector<Network *> {
     bool CanScrollAuto();
     void AutoScroll();
     void HandleButtonUp();
+    void HandleButtonPageUp();
     void HandleButtonDown();
+    void HandleButtonPageDown();
     void HandleButtonSelect();
     void HandleButtonOption();
 

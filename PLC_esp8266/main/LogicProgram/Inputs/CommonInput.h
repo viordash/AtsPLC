@@ -30,7 +30,9 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
 
     void BeginEditing() override final;
     void SelectNext() override;
+    void PageUp() override;
     void SelectPrior() override;
+    void PageDown() override;
     void Change() override;
     bool EditingCompleted() override;
 };

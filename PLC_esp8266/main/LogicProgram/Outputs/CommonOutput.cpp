@@ -117,7 +117,11 @@ CommonOutput *CommonOutput::TryToCast(LogicElement *logic_element) {
 
 void CommonOutput::SelectNext() {
 }
+void CommonOutput::PageUp() {
+}
 void CommonOutput::SelectPrior() {
+}
+void CommonOutput::PageDown() {
 }
 void CommonOutput::Change() {
 }

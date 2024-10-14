@@ -26,7 +26,9 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
     static CommonOutput *TryToCast(LogicElement *logic_element);
 
     void SelectNext() override;
+    void PageUp() override;
     void SelectPrior() override;
+    void PageDown() override;
     void Change() override;
     bool EditingCompleted() override final;
 };

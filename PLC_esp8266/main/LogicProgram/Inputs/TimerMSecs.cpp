@@ -106,11 +106,25 @@ void TimerMSecs::SelectNext() {
     }
 }
 
+void TimerMSecs::PageUp() {
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + (10 * step_ms)) {
+        SetTime(delay_time_ms - (10 * step_ms));
+    }
+}
+
 void TimerMSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerMSecs, "SelectPrior");
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
     if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
         SetTime(delay_time_ms + step_ms);
+    }
+}
+
+void TimerMSecs::PageDown() {
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - (10 * step_ms)) {
+        SetTime(delay_time_ms + (10 * step_ms));
     }
 }
 

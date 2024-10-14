@@ -202,6 +202,17 @@ void Network::SelectNext() {
              selected_element);
 }
 
+void Network::PageUp() {
+    auto selected_element = GetSelectedElement();
+
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            static_cast<ElementsBox *>((*this)[selected_element])->PageUp();
+            return;
+        }
+    }
+}
+
 void Network::SelectPrior() {
     auto selected_element = GetSelectedElement();
 
@@ -224,6 +235,17 @@ void Network::SelectPrior() {
              "SelectPrior, %u, selected_element:%d",
              (unsigned)editable_state,
              selected_element);
+}
+
+void Network::PageDown() {
+    auto selected_element = GetSelectedElement();
+
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            static_cast<ElementsBox *>((*this)[selected_element])->PageDown();
+            return;
+        }
+    }
 }
 
 void Network::Change() {
