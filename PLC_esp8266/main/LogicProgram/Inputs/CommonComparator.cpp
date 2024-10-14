@@ -62,7 +62,6 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
 
 IRAM_ATTR bool
 CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    (void)prev_elem_state;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     bool res;
@@ -91,7 +90,7 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     if (!res) {
         return res;
     }
-    res = CommonInput::Render(fb, state, start_point);
+    res = CommonInput::Render(fb, prev_elem_state, start_point);
 
     return res;
 }
