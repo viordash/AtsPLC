@@ -84,6 +84,15 @@ namespace {
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
         }
+        void SelectNext() {
+        }
+        void SelectPrior() {
+        }
+        void Change() {
+        }
+        bool EditingCompleted() {
+            return true;
+        }
     };
 } // namespace
 

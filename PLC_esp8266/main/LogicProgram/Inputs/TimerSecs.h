@@ -36,4 +36,10 @@ class TimerSecs : public CommonTimer {
     TvElementType GetElementType() override final;
 
     static TimerSecs *TryToCast(CommonTimer *common_timer);
+
+    void BeginEditing() override final;
+    void SelectNext() override;
+    void SelectPrior() override;
+    void Change() override;
+    bool EditingCompleted() override final;
 };

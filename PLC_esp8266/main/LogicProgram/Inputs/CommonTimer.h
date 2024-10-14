@@ -6,7 +6,12 @@
 #include <unistd.h>
 
 class CommonTimer : public LogicElement {
-  private:
+  public:
+    typedef enum { //
+        ctepi_None = EditableElement::EditingPropertyId::cepi_None,
+        ctepi_ConfigureDelayTime
+    } EditingPropertyId;
+
   protected:
     uint64_t delay_time_us;
     uint64_t start_time_us;
@@ -28,9 +33,4 @@ class CommonTimer : public LogicElement {
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     static CommonTimer *TryToCast(LogicElement *logic_element);
-
-    void SelectNext() override;
-    void SelectPrior() override;
-    void Change() override;
-    bool EditingCompleted() override final;
 };

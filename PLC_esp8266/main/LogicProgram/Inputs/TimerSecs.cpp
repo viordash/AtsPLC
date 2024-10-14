@@ -144,3 +144,35 @@ TimerSecs *TimerSecs::TryToCast(CommonTimer *common_timer) {
             return NULL;
     }
 }
+
+void TimerSecs::BeginEditing() {
+    EditableElement::BeginEditing();
+    editing_property_id = TimerSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
+}
+
+void TimerSecs::SelectNext() {
+    ESP_LOGI(TAG_TimerSecs, "SelectNext");
+
+    uint32_t delay_time_s = GetTimeUs() / 1000000LL;
+    if (delay_time_s < TimerSecs::max_delay_time_s) {
+        SetTime(delay_time_s + 1);
+    }
+}
+
+void TimerSecs::SelectPrior() {
+    ESP_LOGI(TAG_TimerSecs, "SelectPrior");
+    uint32_t delay_time_s = GetTimeUs() / 1000000LL;
+    if (delay_time_s > TimerSecs::min_delay_time_s) {
+        SetTime(delay_time_s - 1);
+    }
+}
+
+void TimerSecs::Change() {
+    ESP_LOGI(TAG_TimerSecs, "Change");
+    EndEditing();
+}
+
+bool TimerSecs::EditingCompleted() {
+    ESP_LOGI(TAG_TimerSecs, "EditingCompleted");
+    return true;
+}

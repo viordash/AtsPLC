@@ -9,6 +9,7 @@ class TimerMSecs : public CommonTimer {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 
+    static const uint32_t step_ms = 50;
     static const uint32_t min_delay_time_ms = 1;
     static const uint32_t max_delay_time_ms = 99999;
 
@@ -27,4 +28,10 @@ class TimerMSecs : public CommonTimer {
     TvElementType GetElementType() override final;
 
     static TimerMSecs *TryToCast(CommonTimer *common_timer);
+
+    void BeginEditing() override final;
+    void SelectNext() override;
+    void SelectPrior() override;
+    void Change() override;
+    bool EditingCompleted() override final;
 };
