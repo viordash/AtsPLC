@@ -16,6 +16,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
 
   protected:
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
+    virtual const AllowedIO GetAllowedInputs() = 0;
 
   public:
     const uint8_t LeftPadding = 4;

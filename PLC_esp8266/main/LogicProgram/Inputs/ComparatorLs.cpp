@@ -41,3 +41,8 @@ ComparatorLs *ComparatorLs::TryToCast(CommonComparator *common_comparator) {
             return NULL;
     }
 }
+
+const AllowedIO ComparatorLs::GetAllowedInputs() {
+    static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}

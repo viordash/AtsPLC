@@ -10,6 +10,7 @@ class ComparatorGE : public CommonComparator {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedInputs() override final;
     bool CompareFunction() override final;
 
   public:

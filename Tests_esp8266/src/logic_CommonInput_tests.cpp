@@ -78,6 +78,11 @@ namespace {
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
         }
+        const AllowedIO GetAllowedInputs() {
+            static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1,
+                                         MapIO::V2, MapIO::V3, MapIO::V4 };
+            return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+        }
     };
 } // namespace
 
@@ -161,4 +166,38 @@ TEST(LogicCommonInputTestsGroup, TryToCast) {
 
     DecOutput decOutput;
     CHECK_TRUE(CommonInput::TryToCast(&decOutput) == NULL);
+}
+
+TEST(LogicCommonInputTestsGroup, SelectNext) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonInputTestsGroup, SelectPrior) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }

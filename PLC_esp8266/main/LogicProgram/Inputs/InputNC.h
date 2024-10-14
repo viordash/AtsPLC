@@ -10,6 +10,7 @@ class InputNC : public CommonInput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedInputs() override final;
 
   public:
     explicit InputNC();

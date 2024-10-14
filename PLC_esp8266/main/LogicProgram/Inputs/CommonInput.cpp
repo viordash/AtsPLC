@@ -88,22 +88,24 @@ void CommonInput::BeginEditing() {
 void CommonInput::SelectNext() {
     ESP_LOGI(TAG_CommonInput, "SelectNext");
 
-    auto io_adr = GetIoAdr();
-    io_adr = (MapIO)((int)io_adr + 1);
-    if (!ValidateMapIO(io_adr)) {
-        io_adr = MapIO::DI;
+    auto allowed_inputs = GetAllowedInputs();
+    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
+    io_adr++;
+    if (io_adr >= (int)allowed_inputs.count) {
+        io_adr = 0;
     }
-    SetIoAdr(io_adr);
+    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 void CommonInput::SelectPrior() {
     ESP_LOGI(TAG_CommonInput, "SelectPrior");
 
-    auto io_adr = GetIoAdr();
-    io_adr = (MapIO)((int)io_adr - 1);
-    if (!ValidateMapIO(io_adr)) {
-        io_adr = MapIO::V4;
+    auto allowed_inputs = GetAllowedInputs();
+    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
+    io_adr--;
+    if (io_adr < 0) {
+        io_adr = allowed_inputs.count - 1;
     }
-    SetIoAdr(io_adr);
+    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 void CommonInput::Change() {
     ESP_LOGI(TAG_CommonInput, "Change");
