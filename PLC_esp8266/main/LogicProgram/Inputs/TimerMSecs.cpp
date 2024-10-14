@@ -101,16 +101,16 @@ void TimerMSecs::SelectNext() {
     ESP_LOGI(TAG_TimerMSecs, "SelectNext");
 
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
-        SetTime(delay_time_ms + step_ms);
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
+        SetTime(delay_time_ms - step_ms);
     }
 }
 
 void TimerMSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerMSecs, "SelectPrior");
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
-        SetTime(delay_time_ms - step_ms);
+    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
+        SetTime(delay_time_ms + step_ms);
     }
 }
 

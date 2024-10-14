@@ -284,21 +284,23 @@ TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_IoAdr) {
 TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_References) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::DI);
-    testable.SetReference(0);
+    testable.SetReference(2);
     testable.BeginEditing();
     testable.Change();
     testable.SelectNext();
     CHECK_EQUAL(1, testable.GetReference());
     testable.SelectNext();
-    CHECK_EQUAL(2, testable.GetReference());
+    CHECK_EQUAL(0, testable.GetReference());
+    testable.SelectNext();
+    CHECK_EQUAL(0, testable.GetReference());
 
-    testable.SetReference(248);
+    testable.SetReference(250);
     testable.SelectNext();
     CHECK_EQUAL(249, testable.GetReference());
     testable.SelectNext();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(248, testable.GetReference());
     testable.SelectNext();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(247, testable.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_IoAdr) {
@@ -322,23 +324,21 @@ TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_IoAdr) {
 TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::DI);
-    testable.SetReference(2);
+    testable.SetReference(0);
     testable.BeginEditing();
     testable.Change();
     testable.SelectPrior();
     CHECK_EQUAL(1, testable.GetReference());
     testable.SelectPrior();
-    CHECK_EQUAL(0, testable.GetReference());
-    testable.SelectPrior();
-    CHECK_EQUAL(0, testable.GetReference());
+    CHECK_EQUAL(2, testable.GetReference());
 
-    testable.SetReference(250);
+    testable.SetReference(248);
     testable.SelectPrior();
     CHECK_EQUAL(249, testable.GetReference());
     testable.SelectPrior();
-    CHECK_EQUAL(248, testable.GetReference());
+    CHECK_EQUAL(250, testable.GetReference());
     testable.SelectPrior();
-    CHECK_EQUAL(247, testable.GetReference());
+    CHECK_EQUAL(250, testable.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Editing_completed_after_changed_reference) {

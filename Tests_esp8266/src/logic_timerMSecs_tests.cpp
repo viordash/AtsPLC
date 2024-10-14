@@ -138,38 +138,38 @@ TEST(LogicTimerMSecsTestsGroup, TryToCast) {
     CHECK_TRUE(TimerMSecs::TryToCast(&timerSecs) == NULL);
 }
 
-TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_delay_time) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-    TimerMSecs testable(1);
-    testable.BeginEditing();
-    testable.SelectNext();
-    CHECK_EQUAL(51 * 1000L, testable.GetTimeUs());
-    testable.SelectNext();
-    CHECK_EQUAL(101 * 1000L, testable.GetTimeUs());
-
-    testable.SetTime(99900);
-    testable.SelectNext();
-    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
-    testable.SelectNext();
-    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
-}
-
-TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_IoAdr) {
+TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable(150);
     testable.BeginEditing();
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(100 * 1000L, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99999);
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(99949 * 1000L, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(99899 * 1000L, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(99849 * 1000L, testable.GetTimeUs());
+}
+
+TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+    TimerMSecs testable(1);
+    testable.BeginEditing();
+    testable.SelectPrior();
+    CHECK_EQUAL(51 * 1000L, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(101 * 1000L, testable.GetTimeUs());
+
+    testable.SetTime(99900);
+    testable.SelectPrior();
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
 }
