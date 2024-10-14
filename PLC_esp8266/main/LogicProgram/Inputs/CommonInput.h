@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 class CommonInput : public LogicElement, public InputElement, public LabeledLogicItem {
-    public:
+  public:
     typedef enum { //
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
         ciepi_ConfigureIoAdr

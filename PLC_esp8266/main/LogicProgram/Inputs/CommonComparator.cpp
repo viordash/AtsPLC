@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_CommonComparator = "CommonComparator";
+
 CommonComparator::CommonComparator() : CommonInput() {
 }
 
@@ -134,5 +136,53 @@ CommonComparator *CommonComparator::TryToCast(CommonInput *common_input) {
 
         default:
             return NULL;
+    }
+}
+
+void CommonComparator::SelectNext() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
+        CommonInput::SelectNext();
+        return;
+    }
+    ESP_LOGI(TAG_CommonComparator, "SelectNext");
+
+    if (ref_percent04 < LogicElement::MaxValue) {
+        SetReference(ref_percent04 + 1);
+    }
+}
+
+void CommonComparator::SelectPrior() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
+        CommonInput::SelectPrior();
+        return;
+    }
+    ESP_LOGI(TAG_CommonComparator, "SelectPrior");
+
+    if (ref_percent04 > LogicElement::MinValue) {
+        SetReference(ref_percent04 - 1);
+    }
+}
+
+void CommonComparator::Change() {
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
+            ESP_LOGI(TAG_CommonComparator, "Change");
+            editing_property_id = CommonComparator::EditingPropertyId::ccepi_ConfigureReference;
+            break;
+
+        default:
+            CommonInput::Change();
+            return;
+    }
+}
+
+bool CommonComparator::EditingCompleted() {
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
+            ESP_LOGI(TAG_CommonComparator, "EditingCompleted");
+            return false;
+
+        default:
+            return CommonInput::EditingCompleted();
     }
 }

@@ -6,6 +6,13 @@
 #include <unistd.h>
 
 class CommonComparator : public CommonInput {
+  public:
+    typedef enum { //
+        ccepi_None = CommonInput::EditingPropertyId::ciepi_None,
+        ccepi_ConfigureIoAdr = CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr,
+        ccepi_ConfigureReference
+    } EditingPropertyId;
+
   protected:
     int str_size;
     char str_reference[5];
@@ -28,4 +35,9 @@ class CommonComparator : public CommonInput {
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 
     static CommonComparator *TryToCast(CommonInput *common_input);
+
+    void SelectNext() override;
+    void SelectPrior() override;
+    void Change() override;
+    bool EditingCompleted() override;
 };

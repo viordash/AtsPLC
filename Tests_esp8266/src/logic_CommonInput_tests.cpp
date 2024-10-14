@@ -168,9 +168,10 @@ TEST(LogicCommonInputTestsGroup, TryToCast) {
     CHECK_TRUE(CommonInput::TryToCast(&decOutput) == NULL);
 }
 
-TEST(LogicCommonInputTestsGroup, SelectNext) {
+TEST(LogicCommonInputTestsGroup, SelectNext_changing_IoAdr) {
     TestableCommonInput testable;
     testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
     testable.SelectNext();
     CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
     testable.SelectNext();
@@ -185,9 +186,10 @@ TEST(LogicCommonInputTestsGroup, SelectNext) {
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }
 
-TEST(LogicCommonInputTestsGroup, SelectPrior) {
+TEST(LogicCommonInputTestsGroup, SelectPrior_changing_IoAdr) {
     TestableCommonInput testable;
     testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
     testable.SelectPrior();
     CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
     testable.SelectPrior();

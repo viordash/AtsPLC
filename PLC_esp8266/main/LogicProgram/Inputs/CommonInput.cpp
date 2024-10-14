@@ -96,6 +96,7 @@ void CommonInput::SelectNext() {
     }
     SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
+
 void CommonInput::SelectPrior() {
     ESP_LOGI(TAG_CommonInput, "SelectPrior");
 
@@ -107,10 +108,12 @@ void CommonInput::SelectPrior() {
     }
     SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
+
 void CommonInput::Change() {
     ESP_LOGI(TAG_CommonInput, "Change");
     EndEditing();
 }
+
 bool CommonInput::EditingCompleted() {
     ESP_LOGI(TAG_CommonInput, "EditingCompleted");
     return true;
