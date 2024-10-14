@@ -88,21 +88,31 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
+    bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (CommonTimer::EditingPropertyId)editing_property_id
+                                      == CommonTimer::EditingPropertyId::ctepi_ConfigureDelayTime
+                               && (esp_timer_get_time() & blink_timer_524ms);
+
     switch (str_size) {
         case 1:
-            res = draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
+            res = blink_value_on_editing
+               || draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
             break;
         case 2:
-            res = draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
+            res = blink_value_on_editing
+               || draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
             break;
         case 3:
-            res = draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
+            res = blink_value_on_editing
+               || draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
             break;
         case 4:
-            res = draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
+            res = blink_value_on_editing
+               || draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
             break;
         default:
-            res = draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
+            res = blink_value_on_editing
+               || draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
             break;
     }
 
