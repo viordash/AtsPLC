@@ -203,3 +203,22 @@ TEST(LogicCommonInputTestsGroup, SelectPrior_changing_IoAdr) {
     testable.SelectPrior();
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }
+
+TEST(LogicCommonInputTestsGroup, Change_support_only_single_editing) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::O1);
+    testable.BeginEditing();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
+}
+
+TEST(LogicCommonInputTestsGroup, EditingCompleted_always) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::O1);
+    CHECK_TRUE(testable.EditingCompleted());
+    testable.BeginEditing();
+    CHECK_TRUE(testable.EditingCompleted());
+    testable.Change();
+    CHECK_TRUE(testable.EditingCompleted());
+}

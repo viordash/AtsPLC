@@ -115,16 +115,46 @@ CommonOutput *CommonOutput::TryToCast(LogicElement *logic_element) {
     }
 }
 
+void CommonOutput::BeginEditing() {
+    EditableElement::BeginEditing();
+    editing_property_id = CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr;
+}
+
 void CommonOutput::SelectPrior() {
+    ESP_LOGI(TAG_CommonOutput, "SelectPrior");
+
+    auto allowed_outputs = GetAllowedOutputs();
+    auto io_adr = FindAllowedIO(&allowed_outputs, GetIoAdr());
+    io_adr--;
+    if (io_adr < 0) {
+        io_adr = allowed_outputs.count - 1;
+    }
+    SetIoAdr(allowed_outputs.inputs_outputs[io_adr]);
 }
+
 void CommonOutput::SelectNext() {
+    ESP_LOGI(TAG_CommonOutput, "SelectNext");
+
+    auto allowed_outputs = GetAllowedOutputs();
+    auto io_adr = FindAllowedIO(&allowed_outputs, GetIoAdr());
+    io_adr++;
+    if (io_adr >= (int)allowed_outputs.count) {
+        io_adr = 0;
+    }
+    SetIoAdr(allowed_outputs.inputs_outputs[io_adr]);
 }
+
 void CommonOutput::PageUp() {
 }
 void CommonOutput::PageDown() {
 }
+
 void CommonOutput::Change() {
+    ESP_LOGI(TAG_CommonOutput, "Change");
+    EndEditing();
 }
+
 bool CommonOutput::EditingCompleted() {
+    ESP_LOGI(TAG_CommonOutput, "EditingCompleted");
     return true;
 }

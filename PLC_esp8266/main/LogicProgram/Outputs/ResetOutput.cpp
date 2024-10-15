@@ -68,3 +68,8 @@ ResetOutput *ResetOutput::TryToCast(CommonOutput *common_output) {
             return NULL;
     }
 }
+
+const AllowedIO ResetOutput::GetAllowedOutputs() {
+    static MapIO allowedIO[] = { MapIO::O1, MapIO::O2, MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}

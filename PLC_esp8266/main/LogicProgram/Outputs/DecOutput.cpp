@@ -72,3 +72,8 @@ DecOutput *DecOutput::TryToCast(CommonOutput *common_output) {
             return NULL;
     }
 }
+
+const AllowedIO DecOutput::GetAllowedOutputs() {
+    static MapIO allowedIO[] = { MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}

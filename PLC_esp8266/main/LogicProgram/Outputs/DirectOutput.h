@@ -11,6 +11,7 @@ class DirectOutput : public CommonOutput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedOutputs() override final;
 
   protected:
 

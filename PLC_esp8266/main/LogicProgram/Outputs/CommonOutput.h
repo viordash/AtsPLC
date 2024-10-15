@@ -10,8 +10,15 @@
 #include <unistd.h>
 
 class CommonOutput : public LogicElement, public InputOutputElement, public LabeledLogicItem {
+  public:
+    typedef enum { //
+        coepi_None = EditableElement::EditingPropertyId::cepi_None,
+        coepi_ConfigureOutputAdr
+    } EditingPropertyId;
+
   protected:
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
+    virtual const AllowedIO GetAllowedOutputs() = 0;
 
   public:
     CommonOutput();
@@ -25,6 +32,7 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
 
     static CommonOutput *TryToCast(LogicElement *logic_element);
 
+    void BeginEditing() override final;
     void SelectPrior() override;
     void SelectNext() override;
     void PageUp() override;
