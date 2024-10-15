@@ -212,6 +212,24 @@ TEST(LogicTimerSecsTestsGroup, TryToCast) {
     CHECK_TRUE(TimerSecs::TryToCast(&timerSecs) == &timerSecs);
 }
 
+TEST(LogicTimerSecsTestsGroup, SelectPrior_changing_delay_time) {
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+    TimerSecs testable(1);
+    testable.BeginEditing();
+    testable.SelectPrior();
+    CHECK_EQUAL(2 * 1000000LL, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(3 * 1000000LL, testable.GetTimeUs());
+
+    testable.SetTime(99997);
+    testable.SelectPrior();
+    CHECK_EQUAL(99998 * 1000000LL, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(99999 * 1000000LL, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(99999 * 1000000LL, testable.GetTimeUs());
+}
+
 TEST(LogicTimerSecsTestsGroup, SelectNext_changing_IoAdr) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(3);
@@ -232,20 +250,40 @@ TEST(LogicTimerSecsTestsGroup, SelectNext_changing_IoAdr) {
     CHECK_EQUAL(99996 * 1000000LL, testable.GetTimeUs());
 }
 
-TEST(LogicTimerSecsTestsGroup, SelectPrior_changing_delay_time) {
+TEST(LogicTimerSecsTestsGroup, PageUp_changing_delay_time) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(1);
     testable.BeginEditing();
-    testable.SelectPrior();
-    CHECK_EQUAL(2 * 1000000LL, testable.GetTimeUs());
-    testable.SelectPrior();
-    CHECK_EQUAL(3 * 1000000LL, testable.GetTimeUs());
+    testable.PageUp();
+    CHECK_EQUAL(11 * 1000000LL, testable.GetTimeUs());
+    testable.PageUp();
+    CHECK_EQUAL(21 * 1000000LL, testable.GetTimeUs());
 
-    testable.SetTime(99997);
-    testable.SelectPrior();
-    CHECK_EQUAL(99998 * 1000000LL, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.SetTime(99987);
+    testable.PageUp();
+    CHECK_EQUAL(99997 * 1000000LL, testable.GetTimeUs());
+    testable.PageUp();
     CHECK_EQUAL(99999 * 1000000LL, testable.GetTimeUs());
-    testable.SelectPrior();
+    testable.PageUp();
     CHECK_EQUAL(99999 * 1000000LL, testable.GetTimeUs());
+}
+
+TEST(LogicTimerSecsTestsGroup, PageDown_changing_IoAdr) {
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+    TimerSecs testable(15);
+    testable.BeginEditing();
+    testable.PageDown();
+    CHECK_EQUAL(5 * 1000000LL, testable.GetTimeUs());
+    testable.PageDown();
+    CHECK_EQUAL(1 * 1000000LL, testable.GetTimeUs());
+    testable.PageDown();
+    CHECK_EQUAL(1 * 1000000LL, testable.GetTimeUs());
+
+    testable.SetTime(99999);
+    testable.PageDown();
+    CHECK_EQUAL(99989 * 1000000LL, testable.GetTimeUs());
+    testable.PageDown();
+    CHECK_EQUAL(99979 * 1000000LL, testable.GetTimeUs());
+    testable.PageDown();
+    CHECK_EQUAL(99969 * 1000000LL, testable.GetTimeUs());
 }

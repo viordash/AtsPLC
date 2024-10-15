@@ -263,6 +263,44 @@ TEST(LogicCommonComparatorTestsGroup, TryToCast) {
     CHECK_TRUE(CommonComparator::TryToCast(&comparatorLs) == &comparatorLs);
 }
 
+TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(0);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(1, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(2, testable.GetReference());
+
+    testable.SetReference(248);
+    testable.SelectPrior();
+    CHECK_EQUAL(249, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(250, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(250, testable.GetReference());
+}
+
 TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_IoAdr) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::DI);
@@ -303,42 +341,46 @@ TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_References) {
     CHECK_EQUAL(247, testable.GetReference());
 }
 
-TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_IoAdr) {
-    TestableCommonComparator testable;
-    testable.SetIoAdr(MapIO::DI);
-    testable.BeginEditing();
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
-    testable.SelectPrior();
-    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
-}
-
-TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
+TEST(LogicCommonComparatorTestsGroup, PageUp_changing_References) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetReference(0);
     testable.BeginEditing();
     testable.Change();
-    testable.SelectPrior();
-    CHECK_EQUAL(1, testable.GetReference());
-    testable.SelectPrior();
-    CHECK_EQUAL(2, testable.GetReference());
+    testable.PageUp();
+    CHECK_EQUAL(10, testable.GetReference());
+    testable.PageUp();
+    CHECK_EQUAL(20, testable.GetReference());
 
-    testable.SetReference(248);
-    testable.SelectPrior();
+    testable.SetReference(239);
+    testable.PageUp();
     CHECK_EQUAL(249, testable.GetReference());
-    testable.SelectPrior();
+    testable.PageUp();
     CHECK_EQUAL(250, testable.GetReference());
-    testable.SelectPrior();
+    testable.PageUp();
     CHECK_EQUAL(250, testable.GetReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, PageDown_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(20);
+    testable.BeginEditing();
+    testable.Change();
+    testable.PageDown();
+    CHECK_EQUAL(10, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(0, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(0, testable.GetReference());
+
+    testable.SetReference(250);
+    testable.PageDown();
+    CHECK_EQUAL(240, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(230, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(220, testable.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Editing_completed_after_changed_reference) {
