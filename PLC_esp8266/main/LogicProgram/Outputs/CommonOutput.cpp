@@ -8,6 +8,7 @@
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,7 +57,12 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
     start_point->x += bitmap->size.width - 1;
-    res = draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
+    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (CommonOutput::EditingPropertyId)editing_property_id
+                                      == CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr
+                               && (esp_timer_get_time() & blink_timer_524ms);
+    res = blink_label_on_editing
+       || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
     if (!res) {
         return res;
     }
