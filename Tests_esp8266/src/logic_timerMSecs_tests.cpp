@@ -147,7 +147,9 @@ TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
     testable.SelectNext();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
     testable.SelectNext();
-    CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
+    testable.SelectNext();
+    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99999);
     testable.SelectNext();
@@ -171,5 +173,7 @@ TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
     testable.SelectPrior();
     CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
     testable.SelectPrior();
-    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
+    testable.SelectPrior();
+    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
 }

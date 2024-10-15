@@ -84,9 +84,13 @@ namespace {
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
         }
-        void SelectNext() {
+        void SelectNext() override {
         }
-        void SelectPrior() {
+        void SelectPrior() override {
+        }
+        void PageUp() override {
+        }
+        void PageDown() override {
         }
         void Change() {
         }

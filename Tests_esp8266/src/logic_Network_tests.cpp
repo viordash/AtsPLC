@@ -389,6 +389,10 @@ TEST(LogicNetworkTestsGroup,
     auto expectedElementBox = testable[testable.GetSelectedElement()];
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
     CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+
+    testable.Change();
+    CHECK_TRUE(elementBox->GetSelectedElement()->Editing());
 
     testable.Change();
 
