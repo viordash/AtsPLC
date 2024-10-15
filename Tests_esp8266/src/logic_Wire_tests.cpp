@@ -40,9 +40,6 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        uint16_t PublicMorozov_Get_width() {
-            return width;
-        }
     };
 } // namespace
 
@@ -58,24 +55,23 @@ TEST(LogicWireTestsGroup, Serialize) {
     TestableWire testable;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(3, writed);
+    CHECK_EQUAL(1, writed);
 
     CHECK_EQUAL(TvElementType::et_Wire, *((TvElementType *)&buffer[0]));
-    CHECK_EQUAL(1, *((uint16_t *)&buffer[1]));
 }
 
 TEST(LogicWireTestsGroup, Serialize_just_for_obtain_size) {
     TestableWire testable;
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
-    CHECK_EQUAL(3, writed);
+    CHECK_EQUAL(1, writed);
 
     writed = testable.Serialize(NULL, 0);
-    CHECK_EQUAL(3, writed);
+    CHECK_EQUAL(1, writed);
 }
 
 TEST(LogicWireTestsGroup, Serialize_to_small_buffer_return_zero) {
-    uint8_t buffer[1] = {};
+    uint8_t buffer[0] = {};
     TestableWire testable;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
@@ -85,14 +81,11 @@ TEST(LogicWireTestsGroup, Serialize_to_small_buffer_return_zero) {
 TEST(LogicWireTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Wire;
-    *((uint16_t *)&buffer[1]) = 42;
 
     TestableWire testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(2, readed);
-
-    CHECK_EQUAL(42, testable.PublicMorozov_Get_width());
+    CHECK_EQUAL(0, readed);
 }
 
 TEST(LogicWireTestsGroup, Deserialize_with_small_buffer_return_zero) {
@@ -103,25 +96,6 @@ TEST(LogicWireTestsGroup, Deserialize_with_small_buffer_return_zero) {
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
-}
-
-TEST(LogicWireTestsGroup, Deserialize_with_wrong_width_return_zero) {
-    uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_Wire;
-
-    TestableWire testable;
-
-    *((uint16_t *)&buffer[1]) = 0;
-    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
-
-    *((uint16_t *)&buffer[1]) = 129;
-    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
-
-    *((uint16_t *)&buffer[1]) = 122;
-    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(2, readed);
 }
 
 TEST(LogicWireTestsGroup, GetElementType) {
