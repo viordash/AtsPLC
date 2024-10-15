@@ -6,7 +6,6 @@
 
 class Wire : public LogicElement {
   protected:
-    uint16_t width;
 
   public:
     explicit Wire();
