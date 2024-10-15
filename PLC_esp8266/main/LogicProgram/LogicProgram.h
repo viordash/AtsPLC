@@ -17,3 +17,4 @@
 #include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/ResetOutput.h"
 #include "LogicProgram/Outputs/SetOutput.h"
+#include "LogicProgram/Wire.h"

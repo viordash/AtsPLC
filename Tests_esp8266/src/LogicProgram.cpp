@@ -34,4 +34,5 @@
 #include "main/LogicProgram/Outputs/ResetOutput.cpp"
 #include "main/LogicProgram/Outputs/SetOutput.cpp"
 #include "main/LogicProgram/Serializer/Record.cpp"
+#include "main/LogicProgram/Wire.cpp"
 #include "main/buttons.cpp"
