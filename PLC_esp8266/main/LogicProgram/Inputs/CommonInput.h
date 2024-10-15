@@ -11,7 +11,7 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
   public:
     typedef enum { //
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
-        ciepi_ConfigureIoAdr
+        ciepi_ConfigureInputAdr
     } EditingPropertyId;
 
   protected:

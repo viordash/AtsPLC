@@ -54,7 +54,7 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonInput::EditingPropertyId)editing_property_id
-                                      == CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr
+                                      == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
                                && (esp_timer_get_time() & blink_timer_524ms);
     res = blink_label_on_editing
        || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
@@ -89,7 +89,7 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
 
 void CommonInput::BeginEditing() {
     EditableElement::BeginEditing();
-    editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr;
+    editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr;
 }
 
 void CommonInput::SelectPrior() {
