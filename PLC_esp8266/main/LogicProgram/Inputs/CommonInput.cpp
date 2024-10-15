@@ -92,6 +92,18 @@ void CommonInput::BeginEditing() {
     editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureIoAdr;
 }
 
+void CommonInput::SelectPrior() {
+    ESP_LOGI(TAG_CommonInput, "SelectPrior");
+
+    auto allowed_inputs = GetAllowedInputs();
+    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
+    io_adr--;
+    if (io_adr < 0) {
+        io_adr = allowed_inputs.count - 1;
+    }
+    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
+}
+
 void CommonInput::SelectNext() {
     ESP_LOGI(TAG_CommonInput, "SelectNext");
 
@@ -105,18 +117,6 @@ void CommonInput::SelectNext() {
 }
 
 void CommonInput::PageUp() {
-}
-
-void CommonInput::SelectPrior() {
-    ESP_LOGI(TAG_CommonInput, "SelectPrior");
-
-    auto allowed_inputs = GetAllowedInputs();
-    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-    io_adr--;
-    if (io_adr < 0) {
-        io_adr = allowed_inputs.count - 1;
-    }
-    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 
 void CommonInput::PageDown() {

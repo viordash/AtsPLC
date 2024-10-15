@@ -97,34 +97,41 @@ void TimerMSecs::BeginEditing() {
     editing_property_id = TimerMSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
 }
 
-void TimerMSecs::SelectNext() {
-    ESP_LOGI(TAG_TimerMSecs, "SelectNext");
-
-    uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
-        SetTime(delay_time_ms - step_ms);
-    }
-}
-
-void TimerMSecs::PageUp() {
-    uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + (10 * step_ms)) {
-        SetTime(delay_time_ms - (10 * step_ms));
-    }
-}
-
 void TimerMSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerMSecs, "SelectPrior");
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
     if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
         SetTime(delay_time_ms + step_ms);
+    } else {
+        SetTime(TimerMSecs::max_delay_time_ms);
+    }
+}
+
+void TimerMSecs::SelectNext() {
+    ESP_LOGI(TAG_TimerMSecs, "SelectNext");
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
+        SetTime(delay_time_ms - step_ms);
+    } else {
+        SetTime(TimerMSecs::min_delay_time_ms);
+    }
+}
+
+void TimerMSecs::PageUp() {
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - faststep_ms) {
+        SetTime(delay_time_ms + faststep_ms);
+    } else {
+        SetTime(TimerMSecs::max_delay_time_ms);
     }
 }
 
 void TimerMSecs::PageDown() {
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - (10 * step_ms)) {
-        SetTime(delay_time_ms + (10 * step_ms));
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + faststep_ms) {
+        SetTime(delay_time_ms - faststep_ms);
+    } else {
+        SetTime(TimerMSecs::min_delay_time_ms);
     }
 }
 

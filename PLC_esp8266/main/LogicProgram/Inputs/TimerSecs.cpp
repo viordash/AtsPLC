@@ -150,34 +150,42 @@ void TimerSecs::BeginEditing() {
     editing_property_id = TimerSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
 }
 
+void TimerSecs::SelectPrior() {
+    ESP_LOGI(TAG_TimerSecs, "SelectPrior");
+    uint32_t delay_time_s = GetTimeUs() / 1000000LL;
+    if (delay_time_s <= TimerSecs::max_delay_time_s - step_s) {
+        SetTime(delay_time_s + step_s);
+    } else {
+        SetTime(TimerSecs::max_delay_time_s);
+    }
+}
+
 void TimerSecs::SelectNext() {
     ESP_LOGI(TAG_TimerSecs, "SelectNext");
 
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s > TimerSecs::min_delay_time_s) {
-        SetTime(delay_time_s - 1);
+    if (delay_time_s >= TimerSecs::min_delay_time_s + step_s) {
+        SetTime(delay_time_s - step_s);
+    } else {
+        SetTime(TimerSecs::min_delay_time_s);
     }
 }
 
 void TimerSecs::PageUp() {
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s >= TimerSecs::min_delay_time_s + 10) {
-        SetTime(delay_time_s - 10);
-    }
-}
-
-void TimerSecs::SelectPrior() {
-    ESP_LOGI(TAG_TimerSecs, "SelectPrior");
-    uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s < TimerSecs::max_delay_time_s) {
-        SetTime(delay_time_s + 1);
+    if (delay_time_s <= TimerSecs::max_delay_time_s - faststep_s) {
+        SetTime(delay_time_s + faststep_s);
+    } else {
+        SetTime(TimerSecs::max_delay_time_s);
     }
 }
 
 void TimerSecs::PageDown() {
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s <= TimerSecs::max_delay_time_s - 10) {
-        SetTime(delay_time_s + 10);
+    if (delay_time_s >= TimerSecs::min_delay_time_s + faststep_s) {
+        SetTime(delay_time_s - faststep_s);
+    } else {
+        SetTime(TimerSecs::min_delay_time_s);
     }
 }
 

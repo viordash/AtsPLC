@@ -252,6 +252,25 @@ void ElementsBox::BeginEditing() {
     editing_property_id = ElementsBox::EditingPropertyId::eepi_ConfigureElement;
 }
 
+void ElementsBox::SelectPrior() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "SelectPrior, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (selected_in_editing) {
+        GetSelectedElement()->SelectPrior();
+        return;
+    }
+
+    selected_index++;
+    if (selected_index >= (int)size()) {
+        selected_index = -1;
+    }
+}
+
 void ElementsBox::SelectNext() {
     bool selected_in_editing = GetSelectedElement()->Editing();
 
@@ -283,25 +302,6 @@ void ElementsBox::PageUp() {
     if (selected_in_editing) {
         GetSelectedElement()->PageUp();
         return;
-    }
-}
-
-void ElementsBox::SelectPrior() {
-    bool selected_in_editing = GetSelectedElement()->Editing();
-
-    ESP_LOGI(TAG_ElementsBox,
-             "SelectPrior, selected_index:%d, in_editing:%d",
-             selected_index,
-             selected_in_editing);
-
-    if (selected_in_editing) {
-        GetSelectedElement()->SelectPrior();
-        return;
-    }
-
-    selected_index++;
-    if (selected_index >= (int)size()) {
-        selected_index = -1;
     }
 }
 

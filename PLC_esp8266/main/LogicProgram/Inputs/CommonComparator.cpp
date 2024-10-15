@@ -147,28 +147,6 @@ CommonComparator *CommonComparator::TryToCast(CommonInput *common_input) {
     }
 }
 
-void CommonComparator::SelectNext() {
-    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
-        CommonInput::SelectNext();
-        return;
-    }
-    ESP_LOGI(TAG_CommonComparator, "SelectNext");
-
-    auto ref = GetReference();
-    if (ref > LogicElement::MinValue) {
-        SetReference(ref - 1);
-    }
-}
-
-void CommonComparator::PageUp() {
-    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureReference) {
-        auto ref = GetReference();
-        if (ref >= LogicElement::MinValue - 10) {
-            SetReference(ref - 10);
-        }
-    }
-}
-
 void CommonComparator::SelectPrior() {
     if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
         CommonInput::SelectPrior();
@@ -177,16 +155,46 @@ void CommonComparator::SelectPrior() {
     ESP_LOGI(TAG_CommonComparator, "SelectPrior");
 
     auto ref = GetReference();
-    if (ref < LogicElement::MaxValue) {
-        SetReference(ref + 1);
+    if (ref <= LogicElement::MaxValue - step_ref) {
+        SetReference(ref + step_ref);
+    } else {
+        SetReference(LogicElement::MaxValue);
+    }
+}
+
+void CommonComparator::SelectNext() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr) {
+        CommonInput::SelectNext();
+        return;
+    }
+    ESP_LOGI(TAG_CommonComparator, "SelectNext");
+
+    auto ref = GetReference();
+    if (ref >= LogicElement::MinValue + step_ref) {
+        SetReference(ref - step_ref);
+    } else {
+        SetReference(LogicElement::MinValue);
+    }
+}
+
+void CommonComparator::PageUp() {
+    if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureReference) {
+        auto ref = GetReference();
+        if (ref <= LogicElement::MaxValue - faststep_ref) {
+            SetReference(ref + faststep_ref);
+        } else {
+            SetReference(LogicElement::MaxValue);
+        }
     }
 }
 
 void CommonComparator::PageDown() {
     if (editing_property_id == CommonComparator::EditingPropertyId::ccepi_ConfigureReference) {
         auto ref = GetReference();
-        if (ref <= LogicElement::MaxValue - 10) {
-            SetReference(ref + 10);
+        if (ref >= LogicElement::MinValue + faststep_ref) {
+            SetReference(ref - faststep_ref);
+        } else {
+            SetReference(LogicElement::MinValue);
         }
     }
 }

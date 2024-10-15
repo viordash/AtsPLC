@@ -18,6 +18,9 @@ class CommonComparator : public CommonInput {
     int str_size;
     char str_reference[5];
     uint8_t ref_percent04;
+    
+    static const uint8_t step_ref = 1;
+    static const uint8_t faststep_ref = 10;
 
     virtual bool CompareFunction() = 0;
 
@@ -37,9 +40,9 @@ class CommonComparator : public CommonInput {
 
     static CommonComparator *TryToCast(CommonInput *common_input);
 
+    void SelectPrior() override;
     void SelectNext() override;
     void PageUp() override;
-    void SelectPrior() override;
     void PageDown() override;
     void Change() override;
     bool EditingCompleted() override;
