@@ -3,6 +3,7 @@
 #include "LogicProgram/ElementsBox.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "LogicProgram/Wire.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -68,13 +69,42 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     bool any_child_is_edited = false;
     LogicItemState prev_elem_state = state;
     start_point.x += INCOME_RAIL_WIDTH;
-    for (auto it = begin(); res && it != end(); ++it) {
-        auto element = *it;
-        if (element->Selected() || element->Editing()) {
+
+    auto it = begin();
+    while (res && it != end()) {
+        auto *common_input = CommonInput::TryToCast(*it);
+        it++;
+
+        if (common_input == NULL) {
+            break;
+        }
+
+        if (common_input->Selected() || common_input->Editing()) {
             any_child_is_edited = true;
         }
-        res = element->Render(fb, prev_elem_state, &start_point);
-        prev_elem_state = element->state;
+        res = common_input->Render(fb, prev_elem_state, &start_point);
+        prev_elem_state = common_input->state;
+    }
+
+    if (res) {
+        Wire wire;
+        res = wire.Render(fb, prev_elem_state, &start_point);
+    }
+
+    while (res && it != end()) {
+        auto *common_output = CommonOutput::TryToCast(*it);
+        it++;
+
+        if (common_output == NULL) {
+            break;
+        }
+
+        if (common_output->Selected() || common_output->Editing()) {
+            any_child_is_edited = true;
+        }
+
+        res = common_output->Render(fb, prev_elem_state, &start_point);
+        prev_elem_state = common_output->state;
     }
 
     if (res && !any_child_is_edited) {
