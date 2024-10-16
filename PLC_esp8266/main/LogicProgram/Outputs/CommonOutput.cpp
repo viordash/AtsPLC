@@ -44,16 +44,16 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
              OUTCOME_RAIL_RIGHT);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, total_width);
+        res = draw_active_network(fb, start_point->x, start_point->y, incoming_width);
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, total_width, false);
+        res = draw_passive_network(fb, start_point->x, start_point->y, incoming_width, false);
     }
 
     if (!res) {
         return res;
     }
 
-    start_point->x += total_width;
+    start_point->x += incoming_width;
     draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
 
     start_point->x += bitmap->size.width - 1;
