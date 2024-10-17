@@ -1,6 +1,10 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
 #include "LogicProgram/ElementsBox.h"
+#include "LogicProgram/Inputs/CommonComparator.h"
+#include "LogicProgram/Inputs/CommonInput.h"
+#include "LogicProgram/Inputs/CommonTimer.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
@@ -13,6 +17,7 @@
 static const char *TAG_Network = "Network";
 
 Network::Network(LogicItemState state) : EditableElement() {
+    fill_wire = 0;
     ChangeState(state);
 }
 Network::Network() : Network(LogicItemState::lisPassive) {
@@ -68,8 +73,28 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     bool any_child_is_edited = false;
     LogicItemState prev_elem_state = state;
     start_point.x += INCOME_RAIL_WIDTH;
-    for (auto it = begin(); res && it != end(); ++it) {
+
+    auto it = begin();
+    while (res && it != end()) {
         auto element = *it;
+        if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL) {
+            break;
+        }
+        it++;
+        if (element->Selected() || element->Editing()) {
+            any_child_is_edited = true;
+        }
+        res = element->Render(fb, prev_elem_state, &start_point);
+        prev_elem_state = element->state;
+    }
+    uint8_t wire_size = OUTCOME_RAIL_RIGHT - start_point.x;
+
+    while (res && it != end()) {
+        auto element = *it;
+        if (CommonOutput::TryToCast(element) == NULL) {
+            break;
+        }
+        it++;
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
         }
@@ -82,9 +107,9 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     }
 
     if (res) {
-        res = draw_outcome_rail(fb, start_point.x, start_point.y);
+        res = draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y);
     }
-
+    fill_wire = wire_size;
     return res;
 }
 

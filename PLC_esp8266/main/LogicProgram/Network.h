@@ -9,6 +9,7 @@
 class Network : public std::vector<LogicElement *>, public EditableElement {
   protected:
     LogicItemState state;
+    uint8_t fill_wire;
 
   public:
     const static size_t MinElementsCount = 2;
