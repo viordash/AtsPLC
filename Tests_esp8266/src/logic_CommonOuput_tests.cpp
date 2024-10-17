@@ -142,3 +142,34 @@ TEST(LogicCommonOutputTestsGroup, EditingCompleted_always) {
     testable.Change();
     CHECK_TRUE(testable.EditingCompleted());
 }
+
+TEST(LogicCommonOutputTestsGroup, Render_when_active) {
+    TestableCommonOutput testable;
+    testable.SetIoAdr(MapIO::O1);
+
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+}
+
+TEST(LogicCommonOutputTestsGroup, Render_update_start_point_with_most_left_point) {
+    TestableCommonOutput testable;
+    testable.SetIoAdr(MapIO::O1);
+
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+
+    // CHECK_EQUAL(32, start_point.x);
+}

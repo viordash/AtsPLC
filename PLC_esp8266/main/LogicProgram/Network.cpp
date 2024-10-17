@@ -87,8 +87,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         res = element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
     }
-    uint8_t wire_size = OUTCOME_RAIL_RIGHT - start_point.x;
 
+    Point end_point = { OUTCOME_RAIL_RIGHT, start_point.y };
     while (res && it != end()) {
         auto element = *it;
         if (CommonOutput::TryToCast(element) == NULL) {
@@ -98,7 +98,7 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
         }
-        res = element->Render(fb, prev_elem_state, &start_point);
+        res = element->Render(fb, prev_elem_state, &end_point);
         prev_elem_state = element->state;
     }
 
@@ -106,10 +106,20 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         res = EditableElement::Render(fb, &editable_sign_start_point);
     }
 
+    fill_wire = end_point.x - start_point.x;
+
+    if (res) {
+        if (prev_elem_state == LogicItemState::lisActive) {
+            res = draw_active_network(fb, start_point.x, start_point.y, fill_wire);
+        } else {
+            res = draw_passive_network(fb, start_point.x, start_point.y, fill_wire, false);
+        }
+    }
+
     if (res) {
         res = draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y);
     }
-    fill_wire = wire_size;
+
     return res;
 }
 

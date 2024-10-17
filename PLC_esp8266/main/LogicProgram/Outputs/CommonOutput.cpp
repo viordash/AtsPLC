@@ -33,51 +33,37 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
 
     auto bitmap = GetCurrentBitmap(state);
 
-    uint8_t total_width = bitmap->size.width + LabeledLogicItem::width;
-    uint8_t incoming_width = (OUTCOME_RAIL_RIGHT - start_point->x) - total_width;
+    start_point->x -= LabeledLogicItem::width;
 
-    ESP_LOGD(TAG_CommonOutput,
-             "x:%u, total_width:%u, incoming_width:%u, OUTCOME_RAIL_RIGHT:%u",
-             start_point->x,
-             total_width,
-             incoming_width,
-             OUTCOME_RAIL_RIGHT);
+    res = EditableElement::Render(fb, start_point);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, incoming_width);
-    } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, incoming_width, false);
-    }
-
-    if (!res) {
-        return res;
-    }
-
-    start_point->x += incoming_width;
-    draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
-
-    start_point->x += bitmap->size.width - 1;
-    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                               && (CommonOutput::EditingPropertyId)editing_property_id
-                                      == CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr
-                               && (esp_timer_get_time() & blink_timer_524ms);
-    res = blink_label_on_editing
-       || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
-    if (!res) {
-        return res;
-    }
-
-    if (state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LabeledLogicItem::width);
-    } else {
-        res =
-            draw_passive_network(fb, start_point->x, start_point->y, LabeledLogicItem::width, true);
+    if (res) {
+        if (state == LogicItemState::lisActive) {
+            res = draw_active_network(fb, start_point->x, start_point->y, LabeledLogicItem::width);
+        } else {
+            res = draw_passive_network(fb,
+                                       start_point->x,
+                                       start_point->y,
+                                       LabeledLogicItem::width,
+                                       true);
+        }
     }
 
     if (res) {
-        res = EditableElement::Render(fb, start_point);
+        bool blink_label_on_editing =
+            editable_state == EditableElement::ElementState::des_Editing
+            && (CommonOutput::EditingPropertyId)editing_property_id
+                   == CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr
+            && (esp_timer_get_time() & blink_timer_524ms);
+        res = blink_label_on_editing
+           || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
     }
-    start_point->x += LabeledLogicItem::width;
+
+    start_point->x -= bitmap->size.width;
+    if (res) {
+        draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
+    }
+
     return res;
 }
 
