@@ -51,11 +51,8 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
             break;
 
         case EditableElement::ElementState::des_Editing:
-            if ((EditableElement::EditingPropertyId)editing_property_id
-                == EditableElement::EditingPropertyId::cepi_None) {
-                bitmap = &EditableElement::bitmap_selecting_blink_2;
-                draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
-            }
+            bitmap = &EditableElement::bitmap_selecting_blink_2;
+            draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
             break;
 
         default:
@@ -67,4 +64,8 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 
 bool EditableElement::Editing() {
     return editable_state == EditableElement::ElementState::des_Editing;
+}
+
+bool EditableElement::InEditingProperty() {
+    return editing_property_id != EditableElement::EditingPropertyId::cepi_None;
 }

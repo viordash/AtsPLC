@@ -10,15 +10,14 @@ class CommonComparator : public CommonInput {
     typedef enum { //
         ccepi_None = CommonInput::EditingPropertyId::ciepi_None,
         ccepi_ConfigureIoAdr = CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr,
-        ccepi_ConfigureReference,
-        ccepi_Completed
+        ccepi_ConfigureReference
     } EditingPropertyId;
 
   protected:
     int str_size;
     char str_reference[5];
     uint8_t ref_percent04;
-    
+
     static const uint8_t step_ref = 1;
     static const uint8_t faststep_ref = 10;
 
@@ -45,5 +44,4 @@ class CommonComparator : public CommonInput {
     void PageUp() override;
     void PageDown() override;
     void Change() override;
-    bool EditingCompleted() override;
 };

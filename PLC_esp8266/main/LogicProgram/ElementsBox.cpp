@@ -21,6 +21,7 @@ static const char *TAG_ElementsBox = "ElementsBox";
 ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) : LogicElement() {
     this->place_width = place_width;
     this->stored_element = stored_element;
+    stored_element->BeginEditing();
     selected_index = -1;
     Fill();
 }
@@ -176,7 +177,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
         delete new_element;
         return;
     }
-    new_element->Select();
+    new_element->BeginEditing();
     push_back(new_element);
 }
 
@@ -216,23 +217,7 @@ bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
 bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = GetSelectedElement()->Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
-
-    switch (editable_state) {
-        case EditableElement::ElementState::des_Editing:
-            if ((ElementsBox::EditingPropertyId)editing_property_id
-                == ElementsBox::EditingPropertyId::eepi_ConfigureElement) {
-                const Bitmap *bitmap = &EditableElement::bitmap_selecting_blink_3;
-                draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
-            }
-            break;
-
-        default:
-            break;
-    }
-    return true;
+    return res;
 }
 
 size_t ElementsBox::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -247,20 +232,16 @@ TvElementType ElementsBox::GetElementType() {
     return GetSelectedElement()->GetElementType();
 }
 
-void ElementsBox::BeginEditing() {
-    EditableElement::BeginEditing();
-    editing_property_id = ElementsBox::EditingPropertyId::eepi_ConfigureElement;
-}
-
 void ElementsBox::SelectPrior() {
-    bool selected_in_editing = GetSelectedElement()->Editing();
+    bool selected_in_editing_property =
+        GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
 
     ESP_LOGI(TAG_ElementsBox,
              "SelectPrior, selected_index:%d, in_editing:%d",
              selected_index,
-             selected_in_editing);
+             selected_in_editing_property);
 
-    if (selected_in_editing) {
+    if (selected_in_editing_property) {
         GetSelectedElement()->SelectPrior();
         return;
     }
@@ -272,14 +253,15 @@ void ElementsBox::SelectPrior() {
 }
 
 void ElementsBox::SelectNext() {
-    bool selected_in_editing = GetSelectedElement()->Editing();
+    bool selected_in_editing_property =
+        GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
 
     ESP_LOGI(TAG_ElementsBox,
              "SelectNext, selected_index:%d, in_editing:%d",
              selected_index,
-             selected_in_editing);
+             selected_in_editing_property);
 
-    if (selected_in_editing) {
+    if (selected_in_editing_property) {
         GetSelectedElement()->SelectNext();
         return;
     }
@@ -292,30 +274,29 @@ void ElementsBox::SelectNext() {
 }
 
 void ElementsBox::PageUp() {
-    bool selected_in_editing = GetSelectedElement()->Editing();
-
+    bool selected_in_editing_property =
+        GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
     ESP_LOGI(TAG_ElementsBox,
              "PageUp, selected_index:%d, in_editing:%d",
              selected_index,
-             selected_in_editing);
+             selected_in_editing_property);
 
-    if (selected_in_editing) {
+    if (selected_in_editing_property) {
         GetSelectedElement()->PageUp();
-        return;
     }
 }
 
 void ElementsBox::PageDown() {
-    bool selected_in_editing = GetSelectedElement()->Editing();
+    bool selected_in_editing_property =
+        GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
 
     ESP_LOGI(TAG_ElementsBox,
              "PageDown, selected_index:%d, in_editing:%d",
              selected_index,
-             selected_in_editing);
+             selected_in_editing_property);
 
-    if (selected_in_editing) {
+    if (selected_in_editing_property) {
         GetSelectedElement()->PageDown();
-        return;
     }
 }
 
@@ -328,17 +309,18 @@ void ElementsBox::Change() {
              selected_in_editing);
 
     if (!selected_in_editing) {
-        GetSelectedElement()->BeginEditing();
+        ESP_LOGE(TAG_ElementsBox, "Change");
         return;
     }
 
     GetSelectedElement()->Change();
-    if (GetSelectedElement()->EditingCompleted()) {
-        GetSelectedElement()->EndEditing();
-    }
 }
 
 bool ElementsBox::EditingCompleted() {
     bool selected_in_editing = GetSelectedElement()->Editing();
+    ESP_LOGI(TAG_ElementsBox,
+             "EditingCompleted, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
     return !selected_in_editing;
 }

@@ -87,11 +87,6 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
     }
 }
 
-void CommonInput::BeginEditing() {
-    EditableElement::BeginEditing();
-    editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr;
-}
-
 void CommonInput::SelectPrior() {
     ESP_LOGI(TAG_CommonInput, "SelectPrior");
 
@@ -124,10 +119,13 @@ void CommonInput::PageDown() {
 
 void CommonInput::Change() {
     ESP_LOGI(TAG_CommonInput, "Change");
-    EndEditing();
-}
+    switch (editing_property_id) {
+        case CommonInput::EditingPropertyId::ciepi_None:
+            editing_property_id = CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr;
+            break;
 
-bool CommonInput::EditingCompleted() {
-    ESP_LOGI(TAG_CommonInput, "EditingCompleted");
-    return true;
+        default:
+            EndEditing();
+            break;
+    }
 }

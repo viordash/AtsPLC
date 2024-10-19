@@ -107,11 +107,6 @@ CommonOutput *CommonOutput::TryToCast(LogicElement *logic_element) {
     }
 }
 
-void CommonOutput::BeginEditing() {
-    EditableElement::BeginEditing();
-    editing_property_id = CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr;
-}
-
 void CommonOutput::SelectPrior() {
     ESP_LOGI(TAG_CommonOutput, "SelectPrior");
 
@@ -143,10 +138,13 @@ void CommonOutput::PageDown() {
 
 void CommonOutput::Change() {
     ESP_LOGI(TAG_CommonOutput, "Change");
-    EndEditing();
-}
+    switch (editing_property_id) {
+        case CommonOutput::EditingPropertyId::coepi_None:
+            editing_property_id = CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr;
+            break;
 
-bool CommonOutput::EditingCompleted() {
-    ESP_LOGI(TAG_CommonOutput, "EditingCompleted");
-    return true;
+        default:
+            EndEditing();
+            break;
+    }
 }

@@ -324,14 +324,6 @@ void Network::EndEditing() {
     EditableElement::EndEditing();
 }
 
-bool Network::EditingCompleted() {
-    auto selected_element = GetSelectedElement();
-    if (selected_element >= 0 && !(*this)[selected_element]->EditingCompleted()) {
-        return false;
-    }
-    return true;
-}
-
 int Network::GetSelectedElement() {
     for (int i = 0; i < (int)size(); i++) {
         auto element = (*this)[i];

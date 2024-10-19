@@ -30,11 +30,9 @@ class TimerMSecs : public CommonTimer {
 
     static TimerMSecs *TryToCast(CommonTimer *common_timer);
 
-    void BeginEditing() override final;
     void SelectPrior() override;
     void SelectNext() override;
     void PageUp() override;
     void PageDown() override;
     void Change() override;
-    bool EditingCompleted() override final;
 };

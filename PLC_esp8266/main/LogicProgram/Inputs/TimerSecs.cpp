@@ -145,11 +145,6 @@ TimerSecs *TimerSecs::TryToCast(CommonTimer *common_timer) {
     }
 }
 
-void TimerSecs::BeginEditing() {
-    EditableElement::BeginEditing();
-    editing_property_id = TimerSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
-}
-
 void TimerSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerSecs, "SelectPrior");
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
@@ -191,10 +186,13 @@ void TimerSecs::PageDown() {
 
 void TimerSecs::Change() {
     ESP_LOGI(TAG_TimerSecs, "Change");
-    EndEditing();
-}
+    switch (editing_property_id) {
+        case TimerSecs::EditingPropertyId::ctepi_None:
+            editing_property_id = TimerSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
+            break;
 
-bool TimerSecs::EditingCompleted() {
-    ESP_LOGI(TAG_TimerSecs, "EditingCompleted");
-    return true;
+        default:
+            EndEditing();
+            break;
+    }
 }

@@ -9,12 +9,6 @@
 #include <vector>
 
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
-  public:
-    typedef enum { //
-        eepi_None = EditableElement::EditingPropertyId::cepi_None,
-        eepi_ConfigureElement
-    } EditingPropertyId;
-
   protected:
     uint8_t place_width;
     LogicElement *stored_element;
@@ -41,11 +35,10 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
     TvElementType GetElementType() override final;
 
-    void BeginEditing() override final;
     void SelectPrior() override final;
     void SelectNext() override final;
     void PageUp() override final;
     void PageDown() override final;
     void Change() override final;
-    bool EditingCompleted() override final;
+    bool EditingCompleted();
 };

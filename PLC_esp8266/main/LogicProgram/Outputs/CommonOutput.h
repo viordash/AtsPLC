@@ -32,11 +32,9 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
 
     static CommonOutput *TryToCast(LogicElement *logic_element);
 
-    void BeginEditing() override final;
     void SelectPrior() override;
     void SelectNext() override;
     void PageUp() override;
     void PageDown() override;
     void Change() override;
-    bool EditingCompleted() override final;
 };
