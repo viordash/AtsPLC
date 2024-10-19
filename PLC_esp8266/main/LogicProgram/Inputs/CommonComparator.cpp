@@ -71,7 +71,7 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
         editable_state == EditableElement::ElementState::des_Editing
         && (CommonComparator::EditingPropertyId)editing_property_id
                == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
-        && (esp_timer_get_time() & blink_timer_524ms);
+        && Blinking_50();
     switch (str_size) {
         case 1:
             res = blink_label_on_editing

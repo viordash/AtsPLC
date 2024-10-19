@@ -55,7 +55,7 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonInput::EditingPropertyId)editing_property_id
                                       == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
-                               && (esp_timer_get_time() & blink_timer_524ms);
+                               && Blinking_50();
     res = blink_label_on_editing
        || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
     if (!res) {
@@ -63,7 +63,13 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     }
 
     start_point->x += LabeledLogicItem::width;
-    draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
+    bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                                && (CommonInput::EditingPropertyId)editing_property_id
+                                       == CommonInput::EditingPropertyId::ciepi_None
+                                && Blinking_10();
+    if (!blink_bitmap_on_editing) {
+        draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
+    }
 
     start_point->x += bitmap->size.width;
 

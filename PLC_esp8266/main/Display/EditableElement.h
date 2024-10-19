@@ -26,9 +26,11 @@ class EditableElement {
     const static Bitmap bitmap_selecting_blink_1;
     const static Bitmap bitmap_selecting_blink_2;
     const static Bitmap bitmap_selecting_blink_3;
-    const int blink_timer_524ms = 0x80000;
 
     bool Render(uint8_t *fb, Point *start_point);
+
+    bool Blinking_50();
+    bool Blinking_10();
 
   public:
     explicit EditableElement();

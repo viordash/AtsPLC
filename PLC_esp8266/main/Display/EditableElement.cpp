@@ -3,6 +3,7 @@
 #include "Display/bitmaps/element_cursor_1.h"
 #include "Display/bitmaps/element_cursor_2.h"
 #include "Display/display.h"
+#include "EditableElement.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -42,7 +43,7 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 
     switch (editable_state) {
         case EditableElement::ElementState::des_Selected:
-            if (esp_timer_get_time() & blink_timer_524ms) {
+            if (Blinking_50()) {
                 bitmap = &EditableElement::bitmap_selecting_blink_0;
             } else {
                 bitmap = &EditableElement::bitmap_selecting_blink_1;
@@ -68,4 +69,14 @@ bool EditableElement::Editing() {
 
 bool EditableElement::InEditingProperty() {
     return editing_property_id != EditableElement::EditingPropertyId::cepi_None;
+}
+
+bool EditableElement::Blinking_50() {
+    const int blink_timer = 0x80000;
+    return (esp_timer_get_time() & blink_timer) == blink_timer;
+}
+
+bool EditableElement::Blinking_10() {
+    const int blink_timer = 0xC0000;
+    return (esp_timer_get_time() & blink_timer) == blink_timer;
 }
