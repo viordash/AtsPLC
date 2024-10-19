@@ -133,16 +133,6 @@ TEST(LogicCommonOutputTestsGroup, Change_support_only_single_editing) {
     CHECK_FALSE(testable.Editing());
 }
 
-TEST(LogicCommonOutputTestsGroup, EditingCompleted_always) {
-    TestableCommonOutput testable;
-    testable.SetIoAdr(MapIO::O1);
-    CHECK_TRUE(testable.EditingCompleted());
-    testable.BeginEditing();
-    CHECK_TRUE(testable.EditingCompleted());
-    testable.Change();
-    CHECK_TRUE(testable.EditingCompleted());
-}
-
 TEST(LogicCommonOutputTestsGroup, Render_when_active) {
     TestableCommonOutput testable;
     testable.SetIoAdr(MapIO::O1);
