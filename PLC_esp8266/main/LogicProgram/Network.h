@@ -33,6 +33,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     void PageUp() override;
     void PageDown() override;
     void Change();
+    void BeginEditing() override final;
     void EndEditing() override final;
     int GetSelectedElement();
 

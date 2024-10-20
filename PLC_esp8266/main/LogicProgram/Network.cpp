@@ -316,11 +316,19 @@ void Network::Change() {
     }
 }
 
+void Network::BeginEditing() {
+    ESP_LOGI(TAG_Network, "BeginEditing");
+    EditableElement::BeginEditing();
+}
+
 void Network::EndEditing() {
     auto selected_element = GetSelectedElement();
     if (selected_element >= 0) {
         (*this)[selected_element]->CancelSelection();
     }
+
+    ESP_LOGI(TAG_Network, "EndEditing");
+
     EditableElement::EndEditing();
 }
 
