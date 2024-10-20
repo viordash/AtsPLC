@@ -214,6 +214,30 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
+void Network::SelectPrior() {
+    auto selected_element = GetSelectedElement();
+
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            static_cast<ElementsBox *>((*this)[selected_element])->SelectPrior();
+            return;
+        }
+        (*this)[selected_element]->CancelSelection();
+    }
+    selected_element--;
+    if (selected_element < -1) {
+        selected_element = size() - 1;
+    }
+    if (selected_element >= 0) {
+        (*this)[selected_element]->Select();
+    }
+
+    ESP_LOGI(TAG_Network,
+             "SelectPrior, %u, selected_element:%d",
+             (unsigned)editable_state,
+             selected_element);
+}
+
 void Network::SelectNext() {
     auto selected_element = GetSelectedElement();
 
@@ -246,30 +270,6 @@ void Network::PageUp() {
             return;
         }
     }
-}
-
-void Network::SelectPrior() {
-    auto selected_element = GetSelectedElement();
-
-    if (selected_element >= 0) {
-        if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->SelectPrior();
-            return;
-        }
-        (*this)[selected_element]->CancelSelection();
-    }
-    selected_element--;
-    if (selected_element < -1) {
-        selected_element = size() - 1;
-    }
-    if (selected_element >= 0) {
-        (*this)[selected_element]->Select();
-    }
-
-    ESP_LOGI(TAG_Network,
-             "SelectPrior, %u, selected_element:%d",
-             (unsigned)editable_state,
-             selected_element);
 }
 
 void Network::PageDown() {
