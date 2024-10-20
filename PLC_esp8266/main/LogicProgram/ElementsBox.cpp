@@ -23,6 +23,7 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *stored_element) : Logi
     this->stored_element = stored_element;
     stored_element->BeginEditing();
     selected_index = -1;
+    force_do_action_result = false;
     Fill();
 }
 
@@ -233,8 +234,11 @@ LogicElement *ElementsBox::GetSelectedElement() {
 }
 
 bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    bool res = GetSelectedElement()->DoAction(prev_elem_changed, prev_elem_state);
+    bool res =
+        GetSelectedElement()->DoAction(prev_elem_changed || force_do_action_result, prev_elem_state)
+        || force_do_action_result;
     state = GetSelectedElement()->state;
+    force_do_action_result = false;
     return res;
 }
 
@@ -272,6 +276,7 @@ void ElementsBox::SelectPrior() {
     if (selected_index >= (int)size()) {
         selected_index = -1;
     }
+    force_do_action_result = true;
 }
 
 void ElementsBox::SelectNext() {
@@ -293,6 +298,7 @@ void ElementsBox::SelectNext() {
     if (selected_index < -1) {
         selected_index = size() - 1;
     }
+    force_do_action_result = true;
 }
 
 void ElementsBox::PageUp() {

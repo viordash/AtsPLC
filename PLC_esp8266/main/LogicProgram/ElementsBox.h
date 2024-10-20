@@ -13,6 +13,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     uint8_t place_width;
     LogicElement *stored_element;
     int selected_index;
+    bool force_do_action_result;
 
     uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element);
     void Fill();
