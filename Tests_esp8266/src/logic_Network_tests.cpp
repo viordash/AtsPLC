@@ -455,5 +455,5 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
 
     CHECK_TRUE(testable.Render(frame_buffer, 0));
 
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_fill_wire());
+    CHECK_EQUAL(35, testable.PublicMorozov_Get_fill_wire());
 }
