@@ -204,10 +204,12 @@ TEST(LogicCommonInputTestsGroup, SelectPrior_changing_IoAdr) {
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }
 
-TEST(LogicCommonInputTestsGroup, Change_support_only_single_editing) {
+TEST(LogicCommonInputTestsGroup, second_Change_calls_end_editing) {
     TestableCommonInput testable;
     testable.SetIoAdr(MapIO::O1);
     testable.BeginEditing();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
     CHECK_TRUE(testable.Editing());
     testable.Change();
     CHECK_FALSE(testable.Editing());

@@ -172,7 +172,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
 
 TEST(LogicElementsBoxTestsGroup, no_available_place_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
-    ElementsBox testable(30, &stored_element);
+    ElementsBox testable(7, &stored_element);
     CHECK_EQUAL(1, testable.size());
 }
 
