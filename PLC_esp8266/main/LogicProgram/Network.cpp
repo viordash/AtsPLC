@@ -7,6 +7,7 @@
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "LogicProgram/Wire.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -77,7 +78,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     auto it = begin();
     while (res && it != end()) {
         auto element = *it;
-        if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL) {
+        if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
+            && Wire::TryToCast(element) == NULL) {
             break;
         }
         it++;
@@ -318,6 +320,28 @@ void Network::Change() {
 
 void Network::BeginEditing() {
     ESP_LOGI(TAG_Network, "BeginEditing");
+
+    auto wire = new Wire();
+    ElementsBox elementBox(fill_wire, wire);
+    bool can_be_add_new_element = elementBox.size() > 0;
+    if (can_be_add_new_element) {
+        ESP_LOGI(TAG_Network, "insert wire element");
+
+        auto it = begin();
+        while (it != end()) {
+            auto element = *it;
+            if (CommonInput::TryToCast(element) == NULL
+                && CommonTimer::TryToCast(element) == NULL) {
+                break;
+            }
+            it++;
+        }
+        wire->SetWidth(fill_wire);
+        insert(it, wire);
+
+    } else {
+        delete wire;
+    }
     EditableElement::BeginEditing();
 }
 

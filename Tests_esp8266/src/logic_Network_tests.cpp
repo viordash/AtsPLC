@@ -42,6 +42,9 @@ namespace {
         LogicItemState PublicMorozov_state() {
             return state;
         }
+        uint8_t PublicMorozov_Get_fill_wire() {
+            return fill_wire;
+        }
     };
 
     class TestableInputNC : public InputNC, public MonitorLogicElement {
@@ -410,4 +413,47 @@ TEST(LogicNetworkTestsGroup, SwitchState) {
 
     testable.SwitchState();
     CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_state());
+}
+
+TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
+    testable.Append(new TimerMSecs(100));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.BeginEditing();
+    CHECK_EQUAL(4, testable.size());
+}
+
+TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.BeginEditing();
+    CHECK_EQUAL(3, testable.size());
+}
+
+TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_EQUAL(71, testable.PublicMorozov_Get_fill_wire());
+
+    testable.BeginEditing();
+    CHECK_EQUAL(3, testable.size());
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_fill_wire());
 }

@@ -6,11 +6,13 @@
 
 class Wire : public LogicElement {
   protected:
-    uint16_t width;
+    uint8_t width;
 
   public:
     explicit Wire();
     ~Wire();
+
+    void SetWidth(uint8_t width);
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
@@ -24,5 +26,6 @@ class Wire : public LogicElement {
     void PageUp() override;
     void PageDown() override;
     void Change() override;
-    bool EditingCompleted() override;
+
+    static Wire *TryToCast(LogicElement *logic_element);
 };
