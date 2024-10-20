@@ -34,8 +34,12 @@ IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
     } else {
         res = draw_passive_network(fb, start_point->x, start_point->y, width, false);
     }
+    if (!res) {
+        return res;
+    }
 
     start_point->x += width;
+    res = EditableElement::Render(fb, start_point);
     return res;
 }
 

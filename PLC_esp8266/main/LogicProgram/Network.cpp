@@ -336,7 +336,8 @@ void Network::BeginEditing() {
             }
             it++;
         }
-        wire->SetWidth(fill_wire);
+        wire->SetWidth(fill_wire / 2 + 1);
+        wire->EndEditing();
         insert(it, wire);
 
     } else {
