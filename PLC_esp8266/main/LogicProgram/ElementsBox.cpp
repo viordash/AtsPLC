@@ -18,8 +18,8 @@
 
 static const char *TAG_ElementsBox = "ElementsBox";
 
-ElementsBox::ElementsBox(uint8_t place_width, LogicElement *stored_element) : LogicElement() {
-    this->place_width = place_width;
+ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *stored_element) : LogicElement() {
+    this->place_width = CalcEntirePlaceWidth(fill_wire, stored_element);
     this->stored_element = stored_element;
     stored_element->BeginEditing();
     selected_index = -1;
@@ -42,6 +42,22 @@ ElementsBox::~ElementsBox() {
         ESP_LOGD(TAG_ElementsBox, "delete elem: %p", element);
         delete element;
     }
+}
+
+uint8_t ElementsBox::CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element) {
+    uint8_t stored_element_width = 0;
+    uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+    Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
+    if (stored_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
+        bool calc_reverse_for_output = CommonOutput::TryToCast(stored_element) != NULL;
+        if (calc_reverse_for_output) {
+            stored_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
+        } else {
+            stored_element_width = start_point.x - (DISPLAY_WIDTH / 2);
+        }
+    }
+    delete[] frame_buffer;
+    return stored_element_width + fill_wire;
 }
 
 bool ElementsBox::MatchedToStoredElement(TvElementType element_type) {
@@ -172,7 +188,14 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
         delete new_element;
         return;
     }
-    bool element_not_fit = start_point.x - (DISPLAY_WIDTH / 2) > place_width;
+    uint8_t new_element_width = 0;
+    bool calc_reverse_for_output = CommonOutput::TryToCast(new_element) != NULL;
+    if (calc_reverse_for_output) {
+        new_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
+    } else {
+        new_element_width = start_point.x - (DISPLAY_WIDTH / 2);
+    }
+    bool element_not_fit = new_element_width > place_width;
     if (element_not_fit) {
         delete new_element;
         return;
@@ -245,7 +268,6 @@ void ElementsBox::SelectPrior() {
         GetSelectedElement()->SelectPrior();
         return;
     }
-
     selected_index++;
     if (selected_index >= (int)size()) {
         selected_index = -1;

@@ -14,6 +14,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     LogicElement *stored_element;
     int selected_index;
 
+    uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element);
     void Fill();
     void AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer);
     bool MatchedToStoredElement(TvElementType element_type);
@@ -23,7 +24,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void TakeParamsFromStoredElement(LogicElement *new_element);
 
   public:
-    ElementsBox(uint8_t place_width, LogicElement *stored_element);
+    ElementsBox(uint8_t fill_wire, LogicElement *stored_element);
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();

@@ -298,7 +298,7 @@ void Network::Change() {
 
     if ((*this)[selected_element]->Selected()) {
         auto stored_element = (*this)[selected_element];
-        auto elementBox = new ElementsBox(100, stored_element);
+        auto elementBox = new ElementsBox(fill_wire, stored_element);
         elementBox->BeginEditing();
         (*this)[selected_element] = elementBox;
 
