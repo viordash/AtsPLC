@@ -11,6 +11,8 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     LogicItemState state;
     uint8_t fill_wire;
 
+    bool EnoughSpaceForNewElement(LogicElement *new_element);
+
   public:
     const static size_t MinElementsCount = 2;
     const static size_t MaxElementsCount = 5;

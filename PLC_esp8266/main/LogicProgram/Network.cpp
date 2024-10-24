@@ -318,26 +318,30 @@ void Network::Change() {
     }
 }
 
+bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
+    ElementsBox elementBox(fill_wire, new_element);
+    new_element->EndEditing();
+    return elementBox.size() > 0;
+}
+
 void Network::BeginEditing() {
     ESP_LOGI(TAG_Network, "BeginEditing");
 
     auto wire = new Wire();
-    ElementsBox elementBox(fill_wire, wire);
-    bool can_be_add_new_element = elementBox.size() > 0;
-    if (can_be_add_new_element) {
+    if (EnoughSpaceForNewElement(wire)) {
         ESP_LOGI(TAG_Network, "insert wire element");
 
         auto it = begin();
         while (it != end()) {
             auto element = *it;
-            if (CommonInput::TryToCast(element) == NULL
-                && CommonTimer::TryToCast(element) == NULL) {
+            bool is_output_element =
+                CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL;
+            if (is_output_element) {
                 break;
             }
             it++;
         }
         wire->SetWidth(fill_wire / 2 + 1);
-        wire->EndEditing();
         insert(it, wire);
 
     } else {

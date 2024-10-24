@@ -439,6 +439,7 @@ TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
 
     testable.BeginEditing();
     CHECK_EQUAL(3, testable.size());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
 }
 
 TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
