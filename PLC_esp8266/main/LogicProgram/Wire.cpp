@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_Wire = "Wire";
+
 Wire::Wire() : LogicElement() {
     this->width = 0;
 }
@@ -13,9 +15,14 @@ Wire::Wire() : LogicElement() {
 Wire::~Wire() {
 }
 
+uint8_t Wire::GetWidth() {
+    return this->width;
+}
+
 void Wire::SetWidth(uint8_t width) {
     this->width = width;
 }
+
 
 bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     (void)prev_elem_state;
@@ -24,6 +31,7 @@ bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
 
 IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
+    ESP_LOGI(TAG_Wire, "Render w:%u", width);
     if (width == 0) {
         return true;
     }

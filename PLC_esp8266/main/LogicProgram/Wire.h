@@ -12,6 +12,7 @@ class Wire : public LogicElement {
     explicit Wire();
     ~Wire();
 
+    uint8_t GetWidth();
     void SetWidth(uint8_t width);
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

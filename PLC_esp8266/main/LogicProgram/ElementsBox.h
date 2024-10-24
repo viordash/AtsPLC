@@ -11,6 +11,7 @@
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
     uint8_t place_width;
+    uint8_t stored_element_width;
     LogicElement *stored_element;
     int selected_index;
     bool force_do_action_result;

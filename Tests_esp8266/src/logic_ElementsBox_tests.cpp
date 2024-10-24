@@ -170,6 +170,18 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
     }
 }
 
+TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
+    InputNC stored_element(MapIO::V1);
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(9, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_wire = Wire::TryToCast(element);
+        if (element_as_wire != NULL) {
+            CHECK_EQUAL(24, element_as_wire->GetWidth());
+        }
+    }
+}
+
 TEST(LogicElementsBoxTestsGroup, no_available_place_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element);

@@ -9,6 +9,7 @@
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Wire.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <algorithm>
@@ -46,7 +47,6 @@ ElementsBox::~ElementsBox() {
 }
 
 uint8_t ElementsBox::CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element) {
-    uint8_t stored_element_width = 0;
     uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
     Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
     if (stored_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
@@ -166,6 +166,10 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
     }
     if (CopyParamsToCommonOutput(CommonOutput::TryToCast(new_element))) {
         return;
+    }
+    auto as_wire = Wire::TryToCast(new_element);
+    if (as_wire != NULL) {
+        as_wire->SetWidth(stored_element_width);
     }
 }
 
