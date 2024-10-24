@@ -357,8 +357,19 @@ void Network::EndEditing() {
     }
 
     ESP_LOGI(TAG_Network, "EndEditing");
-
     EditableElement::EndEditing();
+
+    auto it = begin();
+    while (it != end()) {
+        auto element = *it;
+        auto as_wire = Wire::TryToCast(element);
+        if (as_wire != NULL) {
+            erase(it);
+            delete as_wire;
+            break;
+        }
+        it++;
+    }
 }
 
 int Network::GetSelectedElement() {

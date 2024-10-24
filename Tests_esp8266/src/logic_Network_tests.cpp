@@ -458,3 +458,38 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
 
     CHECK_EQUAL(35, testable.PublicMorozov_Get_fill_wire());
 }
+
+TEST(LogicNetworkTestsGroup, Wire_element_must_be_deleted_after_editing_) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_Wire, elementBox->GetSelectedElement()->GetElementType());
+
+    testable.Change();
+    CHECK_EQUAL(TvElementType::et_Wire, testable[testable.GetSelectedElement()]->GetElementType());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(-1, testable.GetSelectedElement());
+
+    CHECK_EQUAL(3, testable.size());
+    testable.Change();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[0]->GetElementType());
+
+}
