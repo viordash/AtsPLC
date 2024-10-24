@@ -23,7 +23,6 @@ void Wire::SetWidth(uint8_t width) {
     this->width = width;
 }
 
-
 bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     (void)prev_elem_state;
     return prev_elem_changed;
@@ -31,16 +30,21 @@ bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
 
 IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
-    ESP_LOGI(TAG_Wire, "Render w:%u", width);
+    ESP_LOGD(TAG_Wire, "Render w:%u", width);
     if (width == 0) {
         return true;
     }
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, width);
-    } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, width, false);
+    bool blink_on_editing =
+        editable_state == EditableElement::ElementState::des_Editing && Blinking_10();
+
+    if (!blink_on_editing) {
+        if (prev_elem_state == LogicItemState::lisActive) {
+            res = draw_active_network(fb, start_point->x, start_point->y, width);
+        } else {
+            res = draw_passive_network(fb, start_point->x, start_point->y, width, false);
+        }
     }
     if (!res) {
         return res;
