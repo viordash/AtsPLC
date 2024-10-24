@@ -222,6 +222,7 @@ void ElementsBox::Fill() {
     AppendStandartElement(TvElementType::et_ResetOutput, frame_buffer);
     AppendStandartElement(TvElementType::et_IncOutput, frame_buffer);
     AppendStandartElement(TvElementType::et_DecOutput, frame_buffer);
+    AppendStandartElement(TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;
 }

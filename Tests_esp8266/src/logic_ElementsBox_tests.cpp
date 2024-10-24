@@ -53,19 +53,19 @@ namespace {
 TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
 }
 
 TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(4, testable.size());
+    CHECK_EQUAL(5, testable.size());
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -77,7 +77,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
     ComparatorEq stored_element(42, MapIO::AI);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -94,7 +94,7 @@ TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_reference_to_zero_by_default_for_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -110,7 +110,7 @@ TEST(LogicElementsBoxTestsGroup,
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
     TimerSecs stored_element(42);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -125,7 +125,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
     TimerMSecs stored_element(42000);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -141,7 +141,7 @@ TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_default_delaytime_for_timers) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(8, testable.size());
+    CHECK_EQUAL(9, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -161,7 +161,7 @@ TEST(LogicElementsBoxTestsGroup,
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element);
-    CHECK_EQUAL(4, testable.size());
+    CHECK_EQUAL(5, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonOutput = CommonOutput::TryToCast(element);
         if (element_as_commonOutput != NULL) {
@@ -173,7 +173,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
 TEST(LogicElementsBoxTestsGroup, no_available_place_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element);
-    CHECK_EQUAL(1, testable.size());
+    CHECK_EQUAL(2, testable.size());
 }
 
 TEST(LogicElementsBoxTestsGroup, use_GetElementType_from_selected) {
@@ -204,6 +204,8 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
@@ -228,6 +230,8 @@ TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) 
     ElementsBox testable(100, stored_element);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
@@ -246,7 +250,7 @@ TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) 
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -270,6 +274,8 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectPrior();

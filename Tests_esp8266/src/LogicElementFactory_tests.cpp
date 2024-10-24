@@ -107,3 +107,9 @@ TEST(LogicElementFactoryTestsGroup, Create_DecOutput) {
     CHECK(element != NULL);
     delete element;
 }
+
+TEST(LogicElementFactoryTestsGroup, Create_Wire) {
+    auto element = LogicElementFactory::Create(TvElementType::et_Wire);
+    CHECK(element != NULL);
+    delete element;
+}

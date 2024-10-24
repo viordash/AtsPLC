@@ -13,6 +13,7 @@
 #include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/ResetOutput.h"
 #include "LogicProgram/Outputs/SetOutput.h"
+#include "LogicProgram/Wire.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -68,6 +69,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_DecOutput:
             element = new DecOutput();
+            break;
+        case et_Wire:
+            element = new Wire();
             break;
         default:
             break;
