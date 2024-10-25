@@ -13,6 +13,7 @@
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/LogicProgram.h"
+#include "main/LogicProgram/Wire.h"
 #include "main/LogicProgram/Outputs/IncOutput.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
@@ -54,12 +55,46 @@ TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(TvElementType::et_InputNO, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[3]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[5]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[6]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[7]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[8]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element);
     CHECK_EQUAL(5, testable.size());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[3]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[4]->GetElementType());
+}
+
+TEST(LogicElementsBoxTestsGroup, box_for_wire) {
+    Wire stored_element;
+    ElementsBox testable(100, &stored_element);
+    CHECK_EQUAL(14, testable.size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[3]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[5]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[6]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[9]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[13]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
@@ -182,7 +217,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
     }
 }
 
-TEST(LogicElementsBoxTestsGroup, no_available_place_for_timers_and_comparators) {
+TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element);
     CHECK_EQUAL(2, testable.size());
