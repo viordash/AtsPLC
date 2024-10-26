@@ -10,8 +10,10 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
   protected:
     LogicItemState state;
     uint8_t fill_wire;
-
+    
     bool EnoughSpaceForNewElement(LogicElement *new_element);
+    void AddSpaceForNewElement();
+    void RemoveSpaceForNewElement();
 
   public:
     const static size_t MinElementsCount = 2;

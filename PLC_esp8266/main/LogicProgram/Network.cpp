@@ -312,8 +312,10 @@ void Network::Change() {
             elementBox->EndEditing();
             auto editedElement = elementBox->GetSelectedElement();
             delete elementBox;
-            editedElement->Select();
             (*this)[selected_element] = editedElement;
+
+            RemoveSpaceForNewElement();
+            AddSpaceForNewElement();
         }
     }
 }
@@ -324,9 +326,7 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
     return elementBox.size() > 0;
 }
 
-void Network::BeginEditing() {
-    ESP_LOGI(TAG_Network, "BeginEditing");
-
+void Network::AddSpaceForNewElement() {
     auto wire = new Wire();
     if (EnoughSpaceForNewElement(wire)) {
         ESP_LOGI(TAG_Network, "insert wire element");
@@ -351,6 +351,28 @@ void Network::BeginEditing() {
     } else {
         delete wire;
     }
+}
+
+void Network::RemoveSpaceForNewElement() {
+    auto it = begin();
+    while (it != end()) {
+        auto element = *it;
+        auto as_wire = Wire::TryToCast(element);
+        if (as_wire != NULL) {
+            fill_wire += as_wire->GetWidth();
+            it = erase(it);
+            delete as_wire;
+            ESP_LOGI(TAG_Network, "remove wire element");
+        } else {
+            it++;
+        }
+    }
+}
+
+void Network::BeginEditing() {
+    ESP_LOGI(TAG_Network, "BeginEditing");
+
+    AddSpaceForNewElement();
     EditableElement::BeginEditing();
 }
 
@@ -363,17 +385,7 @@ void Network::EndEditing() {
     ESP_LOGI(TAG_Network, "EndEditing");
     EditableElement::EndEditing();
 
-    auto it = begin();
-    while (it != end()) {
-        auto element = *it;
-        auto as_wire = Wire::TryToCast(element);
-        if (as_wire != NULL) {
-            erase(it);
-            delete as_wire;
-            break;
-        }
-        it++;
-    }
+    RemoveSpaceForNewElement();
 }
 
 int Network::GetSelectedElement() {

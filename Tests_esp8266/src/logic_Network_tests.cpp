@@ -375,8 +375,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
     CHECK(selectedElement != expectedElementBox);
 }
 
-TEST(LogicNetworkTestsGroup,
-     EndEditing_is_replacing_ElementBox_with_regular_one_and_it_is_still_selected) {
+TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
@@ -399,10 +398,7 @@ TEST(LogicNetworkTestsGroup,
 
     testable.Change();
 
-    auto editedElement = testable[testable.GetSelectedElement()];
-    CHECK(selectedElement == editedElement);
-
-    CHECK_TRUE(editedElement->Selected());
+    CHECK_EQUAL(-1, testable.GetSelectedElement());
 }
 
 TEST(LogicNetworkTestsGroup, SwitchState) {
@@ -459,12 +455,16 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
     CHECK_EQUAL(47, testable.PublicMorozov_Get_fill_wire());
 }
 
-TEST(LogicNetworkTestsGroup, Wire_element_must_be_deleted_after_editing_) {
+TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
     Network testable(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq());
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
     testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    testable.BeginEditing();
+    CHECK_EQUAL(4, testable.size());
 
     testable.SelectNext();
 
@@ -478,18 +478,14 @@ TEST(LogicNetworkTestsGroup, Wire_element_must_be_deleted_after_editing_) {
     CHECK(selectedElement != expectedElementBox);
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
 
-    testable.SelectPrior();
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Wire, elementBox->GetSelectedElement()->GetElementType());
 
     testable.Change();
-    CHECK_EQUAL(TvElementType::et_Wire, testable[testable.GetSelectedElement()]->GetElementType());
-
-    testable.SelectPrior();
     CHECK_EQUAL(-1, testable.GetSelectedElement());
 
     CHECK_EQUAL(3, testable.size());
     testable.Change();
     CHECK_EQUAL(2, testable.size());
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[0]->GetElementType());
-
 }
