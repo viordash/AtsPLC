@@ -36,21 +36,34 @@ IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
     }
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
+    uint8_t income_width = 0;
+    if (width > WIRE_BLINK_BODY_WIDTH) {
+        income_width = width - WIRE_BLINK_BODY_WIDTH;
+        if (prev_elem_state == LogicItemState::lisActive) {
+            res = draw_active_network(fb, start_point->x, start_point->y, income_width);
+        } else {
+            res = draw_passive_network(fb, start_point->x, start_point->y, income_width, false);
+        }
+
+        start_point->x += income_width;
+    }
+    uint8_t body_width = width - income_width;
+
     bool blink_on_editing =
         editable_state == EditableElement::ElementState::des_Editing && Blinking_50();
 
     if (!blink_on_editing) {
         if (prev_elem_state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point->x, start_point->y, width);
+            res = draw_active_network(fb, start_point->x, start_point->y, body_width);
         } else {
-            res = draw_passive_network(fb, start_point->x, start_point->y, width, false);
+            res = draw_passive_network(fb, start_point->x, start_point->y, body_width, false);
         }
     }
     if (!res) {
         return res;
     }
 
-    start_point->x += width;
+    start_point->x += body_width;
     res = EditableElement::Render(fb, start_point);
     return res;
 }

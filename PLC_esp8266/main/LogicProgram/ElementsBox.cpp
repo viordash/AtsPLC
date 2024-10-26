@@ -201,6 +201,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
         new_element_width = start_point.x - (DISPLAY_WIDTH / 2);
     }
     bool element_not_fit = new_element_width > place_width;
+    ESP_LOGD(TAG_ElementsBox, "new_element_width: %u", new_element_width);
     if (element_not_fit) {
         delete new_element;
         return;

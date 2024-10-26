@@ -341,7 +341,11 @@ void Network::BeginEditing() {
             }
             it++;
         }
-        wire->SetWidth(fill_wire / 2 + 1);
+        uint8_t wire_width = fill_wire / 2 + 1;
+        if (wire_width > WIRE_STANDART_WIDTH) {
+            wire_width = WIRE_STANDART_WIDTH;
+        }
+        wire->SetWidth(wire_width);
         insert(it, wire);
 
     } else {
