@@ -24,7 +24,7 @@ void Wire::SetWidth(uint8_t width) {
 }
 
 bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    (void)prev_elem_state;
+    state = prev_elem_state;
     return prev_elem_changed;
 }
 

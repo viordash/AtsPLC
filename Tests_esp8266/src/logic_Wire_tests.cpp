@@ -30,14 +30,35 @@ TEST_TEARDOWN() {
 }
 ;
 
+
+namespace {
+    class TestableWire : public Wire {
+      public:
+        LogicItemState PublicMorozov_Get_state() {
+            return state;
+        }
+
+    };
+} // namespace
+
 TEST(LogicWireTestsGroup, DoAction_copied_prev_elem_changed) {
-    Wire testable;
+    TestableWire testable;
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
 }
 
+TEST(LogicWireTestsGroup, DoAction_use_prev_elem_state) {
+    TestableWire testable;
+
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.PublicMorozov_Get_state());
+
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_Get_state());
+}
+
 TEST(LogicWireTestsGroup, GetElementType) {
-    Wire testable;
+    TestableWire testable;
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
 }
