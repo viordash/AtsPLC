@@ -75,8 +75,3 @@ bool EditableElement::Blinking_50() {
     const int blink_timer = 0x80000;
     return (esp_timer_get_time() & blink_timer) == blink_timer;
 }
-
-bool EditableElement::Blinking_10() {
-    const int blink_timer = 0xC0000;
-    return (esp_timer_get_time() & blink_timer) == blink_timer;
-}

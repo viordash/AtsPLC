@@ -97,7 +97,7 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonTimer::EditingPropertyId)editing_property_id
                                       == CommonTimer::EditingPropertyId::ctepi_ConfigureDelayTime
-                               && Blinking_10();
+                               && Blinking_50();
 
     switch (str_size) {
         case 1:

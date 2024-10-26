@@ -65,7 +65,7 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
         bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                     && (CommonOutput::EditingPropertyId)editing_property_id
                                            == CommonOutput::EditingPropertyId::coepi_None
-                                    && Blinking_10();
+                                    && Blinking_50();
         if (!blink_bitmap_on_editing) {
             draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
         }

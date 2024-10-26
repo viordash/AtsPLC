@@ -37,7 +37,7 @@ IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     bool blink_on_editing =
-        editable_state == EditableElement::ElementState::des_Editing && Blinking_10();
+        editable_state == EditableElement::ElementState::des_Editing && Blinking_50();
 
     if (!blink_on_editing) {
         if (prev_elem_state == LogicItemState::lisActive) {

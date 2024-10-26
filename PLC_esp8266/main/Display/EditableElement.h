@@ -30,7 +30,6 @@ class EditableElement {
     bool Render(uint8_t *fb, Point *start_point);
 
     bool Blinking_50();
-    bool Blinking_10();
 
   public:
     explicit EditableElement();
