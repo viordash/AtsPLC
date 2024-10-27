@@ -319,3 +319,12 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_removes_empty_network_after_i
 
     CHECK_EQUAL(0, testable.size());
 }
+
+TEST(LogicLadderDesignerTestsGroup,
+     HandleButtonSelect_immediatelly_creates_new_network_if_there_is_none) {
+    TestableLadder testable;
+
+    CHECK_EQUAL(0, testable.size());
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(1, testable.size());
+}

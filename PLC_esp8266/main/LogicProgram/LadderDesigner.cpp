@@ -122,7 +122,6 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
-                ESP_LOGI(TAG_Ladder, "HandleButtonDown....");
                 if (selected_network == view_top_index) {
                     selected_network++;
                 } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
@@ -179,6 +178,10 @@ void Ladder::HandleButtonSelect() {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
+            if (size() == 0) {
+                auto new_network = new Network(LogicItemState::lisActive);
+                Append(new_network);
+            }
             (*this)[view_top_index]->Select();
             break;
 
