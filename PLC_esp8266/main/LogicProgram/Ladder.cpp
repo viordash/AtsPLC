@@ -37,8 +37,12 @@ bool Ladder::DoAction() {
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
 
-    for (size_t i = 0; i < std::min(Ladder::MaxViewPortCount, size()); i++) {
-        res &= at(i + view_top_index)->Render(fb, i);
+    for (size_t i = view_top_index; i < size(); i++) {
+        uint8_t network_number = i - view_top_index;
+        if (network_number >= Ladder::MaxViewPortCount) {
+            break;
+        }
+        res &= at(i)->Render(fb, i - view_top_index);
     }
 
     ScrollBar::Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);

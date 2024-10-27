@@ -25,6 +25,7 @@ class Ladder : public std::vector<Network *> {
 
     EditableElement::ElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
+    bool RemoveNetworkIfEmpty(int network_id);
 
   public:
     const size_t MinNetworksCount = 1;

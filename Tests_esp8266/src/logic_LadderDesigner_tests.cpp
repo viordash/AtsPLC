@@ -51,6 +51,9 @@ namespace {
         EditableElement::ElementState PublicMorozov_GetDesignState(int selected_network) {
             return GetDesignState(selected_network);
         }
+        bool PublicMorozov_RemoveNetworkIfEmpty(int network_id) {
+            return RemoveNetworkIfEmpty(network_id);
+        }
     };
     class TestableNetwork : public Network {
       public:
@@ -232,4 +235,87 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_changed_network_state) {
 
     testable.HandleButtonOption();
     CHECK_EQUAL(LogicItemState::lisActive, network->PublicMorozov_state());
+}
+
+TEST(LogicLadderDesignerTestsGroup, RemoveNetworkIfEmpty) {
+    TestableLadder testable;
+
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network0->Append(new DirectOutput(MapIO::O1));
+    testable.Append(network0);
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    auto network1 = new Network(LogicItemState::lisActive);
+    network1->Append(new InputNC(MapIO::V1));
+    network1->Append(new InputNC(MapIO::V2));
+    network1->Append(new DirectOutput(MapIO::O2));
+    testable.Append(network1);
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    CHECK_FALSE(testable.PublicMorozov_RemoveNetworkIfEmpty(0));
+    CHECK_FALSE(testable.PublicMorozov_RemoveNetworkIfEmpty(2));
+    CHECK_TRUE(testable.PublicMorozov_RemoveNetworkIfEmpty(1));
+    CHECK_EQUAL(3, testable.size());
+    CHECK_EQUAL(network1, testable[1]);
+
+    CHECK_TRUE(testable.PublicMorozov_RemoveNetworkIfEmpty(2));
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(network1, testable[1]);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_removes_empty_network_after_its_editing) {
+    TestableLadder testable;
+
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network0->Append(new DirectOutput(MapIO::O1));
+    testable.Append(network0);
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    testable.HandleButtonDown();
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+
+    CHECK_EQUAL(EditableElement::ElementState::des_Editing,
+                testable.PublicMorozov_GetDesignState(1));
+
+    testable.HandleButtonSelect();
+
+    CHECK_EQUAL(1, testable.size());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_removes_empty_network_after_its_editing) {
+    TestableLadder testable;
+
+    testable.Append(new Network(LogicItemState::lisActive));
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network0->Append(new DirectOutput(MapIO::O1));
+    testable.Append(network0);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    testable.HandleButtonDown();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+
+    CHECK_EQUAL(1, testable.size());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_removes_empty_network_after_its_editing) {
+    TestableLadder testable;
+
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    testable.HandleButtonUp();
+    CHECK_EQUAL(-1, testable.PublicMorozov_GetSelectedNetwork());
+
+    CHECK_EQUAL(0, testable.size());
 }

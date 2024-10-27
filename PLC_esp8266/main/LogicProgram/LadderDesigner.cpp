@@ -62,6 +62,7 @@ void Ladder::HandleButtonUp() {
 
         case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
+            RemoveNetworkIfEmpty(selected_network);
 
             if (selected_network > view_top_index) {
                 selected_network--;
@@ -69,8 +70,9 @@ void Ladder::HandleButtonUp() {
                 view_top_index--;
                 selected_network--;
             }
-
-            (*this)[selected_network]->Select();
+            if (size() > 0) {
+                (*this)[selected_network]->Select();
+            }
             break;
 
         case EditableElement::ElementState::des_Editing:
@@ -119,11 +121,19 @@ void Ladder::HandleButtonDown() {
         case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
 
-            if (selected_network == view_top_index) {
-                selected_network++;
-            } else if (view_top_index + Ladder::MaxViewPortCount < size()) {
-                view_top_index++;
-                selected_network++;
+            if (!RemoveNetworkIfEmpty(selected_network)) {
+                ESP_LOGI(TAG_Ladder, "HandleButtonDown....");
+                if (selected_network == view_top_index) {
+                    selected_network++;
+                } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
+                    view_top_index++;
+                    selected_network++;
+                }
+            }
+
+            if (selected_network == (int)size()) {
+                auto new_network = new Network(LogicItemState::lisActive);
+                Append(new_network);
             }
 
             (*this)[selected_network]->Select();
@@ -178,6 +188,9 @@ void Ladder::HandleButtonSelect() {
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->Change();
+            if (!(*this)[selected_network]->Editing()) {
+                RemoveNetworkIfEmpty(selected_network);
+            }
             return;
 
         default:
@@ -201,4 +214,19 @@ void Ladder::HandleButtonOption() {
         default:
             break;
     }
+}
+
+bool Ladder::RemoveNetworkIfEmpty(int network_id) {
+    auto network = (*this)[network_id];
+    if (network->empty()) {
+        for (auto it = begin(); it != end(); ++it) {
+            if (network == *it) {
+                erase(it);
+                ESP_LOGI(TAG_Ladder, "delete network: %p", network);
+                delete network;
+                return true;
+            }
+        }
+    }
+    return false;
 }
