@@ -300,7 +300,9 @@ void Network::Change() {
 
     if ((*this)[selected_element]->Selected()) {
         auto stored_element = (*this)[selected_element];
-        auto elementBox = new ElementsBox(fill_wire, stored_element);
+        bool hide_output_elements = HasOutputElement();
+        ESP_LOGI(TAG_Network, "hide_output_elements:%u", hide_output_elements);
+        auto elementBox = new ElementsBox(fill_wire, stored_element, hide_output_elements);
         elementBox->BeginEditing();
         (*this)[selected_element] = elementBox;
 
@@ -321,7 +323,8 @@ void Network::Change() {
 }
 
 bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
-    ElementsBox elementBox(fill_wire, new_element);
+    bool hide_output_elements = HasOutputElement();
+    ElementsBox elementBox(fill_wire, new_element, hide_output_elements);
     new_element->EndEditing();
     return elementBox.size() > 0;
 }
@@ -367,6 +370,17 @@ void Network::RemoveSpaceForNewElement() {
             it++;
         }
     }
+}
+
+bool Network::HasOutputElement() {
+    for (auto it = begin(); it != end(); ++it) {
+        auto element = *it;
+        bool is_output_element = CommonOutput::TryToCast(element) != NULL;
+        if (is_output_element) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Network::BeginEditing() {

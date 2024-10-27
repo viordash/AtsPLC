@@ -17,7 +17,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     bool force_do_action_result;
 
     uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element);
-    void Fill();
+    void Fill(bool hide_output_elements);
     void AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer);
     bool MatchedToStoredElement(TvElementType element_type);
     bool CopyParamsToCommonInput(CommonInput *common_input);
@@ -26,7 +26,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void TakeParamsFromStoredElement(LogicElement *new_element);
 
   public:
-    ElementsBox(uint8_t fill_wire, LogicElement *stored_element);
+    ElementsBox(uint8_t fill_wire, LogicElement *stored_element, bool hide_output_elements);
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();

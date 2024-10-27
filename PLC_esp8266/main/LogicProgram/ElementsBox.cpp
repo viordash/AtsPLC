@@ -19,13 +19,14 @@
 
 static const char *TAG_ElementsBox = "ElementsBox";
 
-ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *stored_element) : LogicElement() {
+ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *stored_element, bool hide_output_elements)
+    : LogicElement() {
     this->place_width = CalcEntirePlaceWidth(fill_wire, stored_element);
     this->stored_element = stored_element;
     stored_element->BeginEditing();
     selected_index = -1;
     force_do_action_result = false;
-    Fill();
+    Fill(hide_output_elements);
 }
 
 ElementsBox::~ElementsBox() {
@@ -210,7 +211,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
     push_back(new_element);
 }
 
-void ElementsBox::Fill() {
+void ElementsBox::Fill(bool hide_output_elements) {
     uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
     AppendStandartElement(TvElementType::et_InputNC, frame_buffer);
@@ -222,11 +223,13 @@ void ElementsBox::Fill() {
     AppendStandartElement(TvElementType::et_ComparatorGr, frame_buffer);
     AppendStandartElement(TvElementType::et_ComparatorLE, frame_buffer);
     AppendStandartElement(TvElementType::et_ComparatorLs, frame_buffer);
-    AppendStandartElement(TvElementType::et_DirectOutput, frame_buffer);
-    AppendStandartElement(TvElementType::et_SetOutput, frame_buffer);
-    AppendStandartElement(TvElementType::et_ResetOutput, frame_buffer);
-    AppendStandartElement(TvElementType::et_IncOutput, frame_buffer);
-    AppendStandartElement(TvElementType::et_DecOutput, frame_buffer);
+    if (!hide_output_elements) {
+        AppendStandartElement(TvElementType::et_DirectOutput, frame_buffer);
+        AppendStandartElement(TvElementType::et_SetOutput, frame_buffer);
+        AppendStandartElement(TvElementType::et_ResetOutput, frame_buffer);
+        AppendStandartElement(TvElementType::et_IncOutput, frame_buffer);
+        AppendStandartElement(TvElementType::et_DecOutput, frame_buffer);
+    }
     AppendStandartElement(TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;
