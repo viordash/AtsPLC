@@ -13,27 +13,27 @@ static struct {
         { button("button UP",
                  BUTTON_UP_IO_CLOSE,
                  BUTTON_UP_IO_OPEN,
-                 TButtons::UP_PRESSED,
-                 TButtons::UP_LONG_PRESSED) },
+                 ButtonsPressType::UP_PRESSED,
+                 ButtonsPressType::UP_LONG_PRESSED) },
         { button("button DOWN",
                  BUTTON_DOWN_IO_CLOSE,
                  BUTTON_DOWN_IO_OPEN,
-                 TButtons::DOWN_PRESSED,
-                 TButtons::DOWN_LONG_PRESSED) },
+                 ButtonsPressType::DOWN_PRESSED,
+                 ButtonsPressType::DOWN_LONG_PRESSED) },
         { button("button RIGHT",
                  BUTTON_RIGHT_IO_CLOSE,
                  BUTTON_RIGHT_IO_OPEN,
-                 TButtons::RIGHT_PRESSED,
-                 TButtons::RIGHT_LONG_PRESSED) },
+                 ButtonsPressType::RIGHT_PRESSED,
+                 ButtonsPressType::RIGHT_LONG_PRESSED) },
         { button("button SELECT",
                  BUTTON_SELECT_IO_CLOSE,
                  BUTTON_SELECT_IO_OPEN,
-                 TButtons::SELECT_PRESSED,
-                 TButtons::SELECT_LONG_PRESSED) },
+                 ButtonsPressType::SELECT_PRESSED,
+                 ButtonsPressType::SELECT_LONG_PRESSED) },
     };
 } buttons;
 
-TButtons handle_buttons(EventBits_t uxBits) {
+ButtonsPressType handle_buttons(EventBits_t uxBits) {
     for (auto &button : buttons.buttons) {
         switch (button.handle(uxBits)) {
             case button::state::btDown:
@@ -55,5 +55,5 @@ TButtons handle_buttons(EventBits_t uxBits) {
                 break;
         }
     }
-    return TButtons::NOTHING_PRESSED;
+    return ButtonsPressType::NOTHING_PRESSED;
 }

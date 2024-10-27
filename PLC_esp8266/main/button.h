@@ -26,14 +26,14 @@ class button {
         btLongPressed = 0x08,
     };
     const char *TAG;
-    TButtons pressed_type;
-    TButtons long_pressed_type;
+    ButtonsPressType pressed_type;
+    ButtonsPressType long_pressed_type;
 
     button(const char *tag,
            EventBits_t close_bit,
            EventBits_t open_bit,
-           TButtons pressed_type,
-           TButtons long_pressed_type);
+           ButtonsPressType pressed_type,
+           ButtonsPressType long_pressed_type);
 
     state handle(EventBits_t bits);
 };

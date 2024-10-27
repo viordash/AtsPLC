@@ -101,25 +101,22 @@ void Controller::ProcessTask(void *parm) {
         bool buttons_changed = !inputs_changed && uxBits != 0;
 
         if (buttons_changed) {
-            TButtons pressed_button = handle_buttons(uxBits);
+            ButtonsPressType pressed_button = handle_buttons(uxBits);
             ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
             switch (pressed_button) {
-                case TButtons::UP_PRESSED:
+                case ButtonsPressType::UP_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
                     break;
-                case TButtons::UP_LONG_PRESSED:
+                case ButtonsPressType::UP_LONG_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_PAGE_UP, eNotifyAction::eSetBits);
                     break;
-                case TButtons::DOWN_PRESSED:
+                case ButtonsPressType::DOWN_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
                     break;
-                case TButtons::DOWN_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
-                    break;
-                case TButtons::SELECT_PRESSED:
+                case ButtonsPressType::SELECT_PRESSED:
                     xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
                     break;
-                case TButtons::SELECT_LONG_PRESSED:
+                case ButtonsPressType::SELECT_LONG_PRESSED:
                     xTaskNotify(render_task_handle, DO_SELECT_OPTION, eNotifyAction::eSetBits);
                     break;
                 default:
