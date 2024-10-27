@@ -94,6 +94,7 @@ void Ladder::HandleButtonPageUp() {
             (*this)[selected_network]->PageUp();
             return;
         default:
+            HandleButtonUp();
             break;
     }
 }
@@ -151,6 +152,7 @@ void Ladder::HandleButtonPageDown() {
             (*this)[selected_network]->PageDown();
             return;
         default:
+            HandleButtonDown();
             break;
     }
 }
