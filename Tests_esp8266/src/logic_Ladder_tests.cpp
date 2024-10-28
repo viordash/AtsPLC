@@ -42,7 +42,6 @@ namespace {
 
     class TestableLadder : public Ladder {
       public:
-
     };
 
     class TestableNetwork : public Network, public MonitorLogicElement {
@@ -78,9 +77,6 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
-        MapIO PublicMorozov_Get_io_adr() {
-            return io_adr;
-        }
     };
 
     class TestableComparatorEq : public ComparatorEq, public MonitorLogicElement {
@@ -102,9 +98,6 @@ namespace {
         }
         uint8_t PublicMorozov_GetReference() {
             return ref_percent04;
-        }
-        MapIO PublicMorozov_Get_io_adr() {
-            return io_adr;
         }
     };
 
@@ -146,9 +139,6 @@ namespace {
             (void)start_point;
             return MonitorLogicElement::Render();
         }
-        MapIO PublicMorozov_Get_io_adr() {
-            return io_adr;
-        }
     };
 } // namespace
 
@@ -172,19 +162,18 @@ TEST(LogicLadderTestsGroup, Store_Load) {
     auto network_load = ladder_load[0];
     CHECK_EQUAL(4, network_load->size());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
-    CHECK_EQUAL(MapIO::DI, ((TestableInputNC *)(*network_load)[0])->PublicMorozov_Get_io_adr());
+    CHECK_EQUAL(MapIO::DI, ((TestableInputNC *)(*network_load)[0])->GetIoAdr());
 
     CHECK_EQUAL(TvElementType::et_ComparatorEq, (*network_load)[1]->GetElementType());
     CHECK_EQUAL(5, ((TestableComparatorEq *)(*network_load)[1])->PublicMorozov_GetReference());
-    CHECK_EQUAL(MapIO::AI, ((TestableInputNC *)(*network_load)[1])->PublicMorozov_Get_io_adr());
+    CHECK_EQUAL(MapIO::AI, ((TestableInputNC *)(*network_load)[1])->GetIoAdr());
 
     CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network_load)[2]->GetElementType());
     CHECK_EQUAL(12345000,
                 ((TestableTimerMSecs *)(*network_load)[2])->PublicMorozov_GetDelayTimeUs());
 
     CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[3]->GetElementType());
-    CHECK_EQUAL(MapIO::O1,
-                ((TestableDirectOutput *)(*network_load)[3])->PublicMorozov_Get_io_adr());
+    CHECK_EQUAL(MapIO::O1, ((TestableDirectOutput *)(*network_load)[3])->GetIoAdr());
 }
 
 TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
