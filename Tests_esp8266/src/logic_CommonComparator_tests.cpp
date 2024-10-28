@@ -63,9 +63,6 @@ namespace {
         bool CompareFunction() override {
             return true;
         }
-        MapIO PublicMorozov_Get_io_adr() {
-            return io_adr;
-        }
         const char *PublicMorozov_GetStrReference() {
             return str_reference;
         }
@@ -169,7 +166,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize) {
     CHECK_EQUAL(2, readed);
 
     CHECK_EQUAL(42, testable.GetReference());
-    CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Deserialize_with_small_buffer_return_zero) {

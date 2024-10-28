@@ -43,6 +43,9 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
+        f_GetValue PublicMorozov_GetValue() {
+            return GetValue;
+        }
     };
 } // namespace
 
@@ -154,6 +157,7 @@ TEST(LogicComparatorLETestsGroup, Deserialize) {
     testable.SetIoAdr(MapIO::AI);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(Controller::GetV3RelativeValue, testable.PublicMorozov_GetValue());
     CHECK_EQUAL(2, readed);
 }
 

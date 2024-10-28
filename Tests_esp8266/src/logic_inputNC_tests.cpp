@@ -44,8 +44,8 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        MapIO PublicMorozov_Get_io_adr() {
-            return io_adr;
+        f_GetValue PublicMorozov_GetValue() {
+            return GetValue;
         }
     };
 } // namespace
@@ -152,7 +152,8 @@ TEST(LogicInputNCTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
 
-    CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    CHECK_EQUAL(Controller::GetV3RelativeValue, testable.PublicMorozov_GetValue());
 }
 
 TEST(LogicInputNCTestsGroup, Deserialize_with_small_buffer_return_zero) {

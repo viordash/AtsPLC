@@ -76,7 +76,7 @@ size_t InputNO::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!ValidateMapIO(_io_adr)) {
         return 0;
     }
-    io_adr = _io_adr;
+    SetIoAdr(_io_adr);
     return readed;
 }
 
