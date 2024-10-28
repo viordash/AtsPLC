@@ -157,7 +157,7 @@ TEST(LogicComparatorEqTestsGroup, Deserialize) {
     testable.SetIoAdr(MapIO::DI);
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(Controller::GetV3RelativeValue, testable.PublicMorozov_GetValue());
+    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
     CHECK_EQUAL(2, readed);
 }
 

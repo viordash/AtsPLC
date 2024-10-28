@@ -182,7 +182,7 @@ TEST(LogicInputNOTestsGroup, Deserialize) {
     CHECK_EQUAL(1, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
-    CHECK_EQUAL(Controller::GetV3RelativeValue, testable.PublicMorozov_GetValue());
+    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
 }
 
 TEST(LogicInputNOTestsGroup, Deserialize_with_small_buffer_return_zero) {
