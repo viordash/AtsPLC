@@ -171,14 +171,14 @@ TEST(LogicLadderTestsGroup, Store_Load) {
     CHECK_EQUAL(4, network_load->size());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
     CHECK_EQUAL(MapIO::DI, ((TestableInputNC *)(*network_load)[0])->GetIoAdr());
-    CHECK_EQUAL(Controller::GetDIRelativeValue,
-                ((TestableInputNC *)(*network_load)[0])->PublicMorozov_GetValue());
+    CHECK(Controller::GetDIRelativeValue
+          == ((TestableInputNC *)(*network_load)[0])->PublicMorozov_GetValue());
 
     CHECK_EQUAL(TvElementType::et_ComparatorEq, (*network_load)[1]->GetElementType());
     CHECK_EQUAL(5, ((TestableComparatorEq *)(*network_load)[1])->PublicMorozov_GetReference());
     CHECK_EQUAL(MapIO::AI, ((TestableComparatorEq *)(*network_load)[1])->GetIoAdr());
-    CHECK_EQUAL(Controller::GetAIRelativeValue,
-                ((TestableComparatorEq *)(*network_load)[1])->PublicMorozov_GetValue());
+    CHECK(Controller::GetAIRelativeValue
+          == ((TestableComparatorEq *)(*network_load)[1])->PublicMorozov_GetValue());
 
     CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network_load)[2]->GetElementType());
     CHECK_EQUAL(12345000,
