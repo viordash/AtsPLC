@@ -37,7 +37,7 @@ namespace {
         uint8_t PublicMorozov_ProgressHasChanges(LogicItemState prev_elem_state) {
             return ProgressHasChanges(prev_elem_state);
         }
-        const char * PublicMorozov_Get_str_time() {
+        const char *PublicMorozov_Get_str_time() {
             return str_time;
         }
     };
