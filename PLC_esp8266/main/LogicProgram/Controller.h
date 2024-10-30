@@ -13,7 +13,6 @@ extern "C" {
 #endif
 
 #include "LogicProgram/Ladder.h"
-#include "LogicProgram/ProcessTicksService.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -41,7 +40,6 @@ class Controller {
     static uint8_t var3;
     static uint8_t var4;
     static Ladder *ladder;
-    static ProcessTicksService * processTicksService;
 
     static std::recursive_mutex lock_io_values_mutex;
     static ControllerIOValues cached_io_values;

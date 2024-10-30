@@ -1,6 +1,7 @@
 
 
 #include "LogicProgram/Controller.h"
+
 #include "Display/Common.h"
 #include "Display/display.h"
 #include "LogicProgram/LogicProgram.h"
@@ -36,7 +37,6 @@ uint8_t Controller::var3 = LogicElement::MinValue;
 uint8_t Controller::var4 = LogicElement::MinValue;
 
 Ladder *Controller::ladder = NULL;
-ProcessTicksService *Controller::processTicksService = NULL;
 
 std::recursive_mutex Controller::lock_io_values_mutex;
 ControllerIOValues Controller::cached_io_values = {};
@@ -45,8 +45,6 @@ void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
 
     ESP_LOGI(TAG_Controller, "start");
-
-    processTicksService = new ProcessTicksService();
     ladder = new Ladder();
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
@@ -68,13 +66,10 @@ void Controller::Stop() {
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
     Controller::cached_io_values = {};
     delete ladder;
-    delete processTicksService;
 }
 
 void Controller::ProcessTask(void *parm) {
     (void)parm;
-    const int read_adc_max_period_ms = 100;
-
     ESP_LOGI(TAG_Controller, "start process task");
 
     ladder->Load();
@@ -92,8 +87,7 @@ void Controller::ProcessTask(void *parm) {
 
     bool need_render = true;
     while (Controller::runned) {
-        processTicksService->Request(read_adc_max_period_ms);
-
+        const int read_adc_max_period_ms = 100;
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
@@ -101,7 +95,7 @@ void Controller::ProcessTask(void *parm) {
                 | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
             true,
             false,
-            processTicksService->GetTicksToWait());
+            read_adc_max_period_ms / portTICK_PERIOD_MS);
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
