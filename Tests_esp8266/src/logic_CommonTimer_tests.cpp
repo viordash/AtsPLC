@@ -50,6 +50,7 @@ namespace {
         TestableCommonTimer(uint64_t delay_time_us) : CommonTimer() {
 
             this->delay_time_us = delay_time_us;
+            str_size = sprintf(this->str_time, "%u", (uint32_t)delay_time_us);
         }
         virtual ~TestableCommonTimer() {
         }
