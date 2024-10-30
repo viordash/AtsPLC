@@ -1,14 +1,26 @@
 #include "LogicProgram/Inputs/CommonComparator.h"
+#include "LogicProgram/Inputs/ComparatorEq.h"
+#include "LogicProgram/Inputs/ComparatorGE.h"
+#include "LogicProgram/Inputs/ComparatorGr.h"
+#include "LogicProgram/Inputs/ComparatorLE.h"
+#include "LogicProgram/Inputs/ComparatorLs.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_CommonComparator = "CommonComparator";
+
 CommonComparator::CommonComparator() : CommonInput() {
-    this->ref_percent04 = 0;
+}
+
+CommonComparator::CommonComparator(uint8_t ref_percent04, const MapIO io_adr) : CommonInput() {
+    SetReference(ref_percent04);
+    SetIoAdr(io_adr);
 }
 
 CommonComparator::~CommonComparator() {
@@ -20,6 +32,10 @@ void CommonComparator::SetReference(uint8_t ref_percent04) {
     }
     this->ref_percent04 = ref_percent04;
     str_size = sprintf(this->str_reference, "%d", ref_percent04);
+}
+
+uint8_t CommonComparator::GetReference() {
+    return ref_percent04;
 }
 
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
@@ -46,27 +62,36 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
 
 IRAM_ATTR bool
 CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    (void)prev_elem_state;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     bool res;
-    res = CommonInput::Render(fb, state, start_point);
+
+    uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
+    bool blink_label_on_editing =
+        editable_state == EditableElement::ElementState::des_Editing
+        && (CommonComparator::EditingPropertyId)editing_property_id
+               == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
+        && Blinking_50();
+    switch (str_size) {
+        case 1:
+            res = blink_label_on_editing
+               || draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
+            break;
+        case 2:
+            res = blink_label_on_editing
+               || draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
+            break;
+        default:
+            res = blink_label_on_editing
+               || draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
+            break;
+    }
 
     if (!res) {
         return res;
     }
-    uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
-    switch (str_size) {
-        case 1:
-            res = draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
-            break;
-        case 2:
-            res = draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
-            break;
-        default:
-            res = draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
-            break;
-    }
+    res = CommonInput::Render(fb, prev_elem_state, start_point);
+
     return res;
 }
 
@@ -106,4 +131,107 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     ref_percent04 = _ref_percent04;
     io_adr = _io_adr;
     return readed;
+}
+
+CommonComparator *CommonComparator::TryToCast(CommonInput *common_input) {
+    switch (common_input->GetElementType()) {
+        case TvElementType::et_ComparatorEq:
+        case TvElementType::et_ComparatorGE:
+        case TvElementType::et_ComparatorGr:
+        case TvElementType::et_ComparatorLE:
+        case TvElementType::et_ComparatorLs:
+            return static_cast<CommonComparator *>(common_input);
+
+        default:
+            return NULL;
+    }
+}
+
+void CommonComparator::SelectPrior() {
+    uint8_t ref;
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
+            CommonInput::SelectPrior();
+            return;
+
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ref = GetReference();
+            if (ref <= LogicElement::MaxValue - step_ref) {
+                SetReference(ref + step_ref);
+            } else {
+                SetReference(LogicElement::MaxValue);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void CommonComparator::SelectNext() {
+    uint8_t ref;
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
+            CommonInput::SelectNext();
+            return;
+
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ref = GetReference();
+            if (ref >= LogicElement::MinValue + step_ref) {
+                SetReference(ref - step_ref);
+            } else {
+                SetReference(LogicElement::MinValue);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void CommonComparator::PageUp() {
+    uint8_t ref;
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ref = GetReference();
+            if (ref <= LogicElement::MaxValue - faststep_ref) {
+                SetReference(ref + faststep_ref);
+            } else {
+                SetReference(LogicElement::MaxValue);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void CommonComparator::PageDown() {
+    uint8_t ref;
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureReference:
+            ref = GetReference();
+            if (ref >= LogicElement::MinValue + faststep_ref) {
+                SetReference(ref - faststep_ref);
+            } else {
+                SetReference(LogicElement::MinValue);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void CommonComparator::Change() {
+    switch (editing_property_id) {
+        case CommonComparator::EditingPropertyId::ccepi_ConfigureIoAdr:
+            ESP_LOGI(TAG_CommonComparator, "Change");
+            editing_property_id = CommonComparator::EditingPropertyId::ccepi_ConfigureReference;
+            break;
+
+        default:
+            CommonInput::Change();
+            return;
+    }
 }

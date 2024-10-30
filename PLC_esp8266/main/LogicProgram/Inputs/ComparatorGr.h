@@ -10,11 +10,13 @@ class ComparatorGr : public CommonComparator {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedInputs() override final;
     bool CompareFunction() override final;
 
   public:
     ComparatorGr();
     ComparatorGr(uint8_t ref_percent04, const MapIO io_adr);
-    ~ComparatorGr();
     TvElementType GetElementType() override final;
+
+    static ComparatorGr *TryToCast(CommonComparator *common_comparator);
 };

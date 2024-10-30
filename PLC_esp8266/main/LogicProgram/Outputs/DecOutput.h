@@ -11,6 +11,7 @@ class DecOutput : public CommonOutput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedOutputs() override final;
 
   public:
     explicit DecOutput();
@@ -19,4 +20,6 @@ class DecOutput : public CommonOutput {
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
+
+    static DecOutput *TryToCast(CommonOutput *common_output);
 };

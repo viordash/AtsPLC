@@ -10,6 +10,7 @@ class InputNO : public CommonInput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedInputs() override final;
 
   public:
     explicit InputNO();
@@ -21,4 +22,6 @@ class InputNO : public CommonInput {
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
     TvElementType GetElementType() override final;
+
+    static InputNO *TryToCast(CommonInput *common_input);
 };

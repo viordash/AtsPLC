@@ -8,7 +8,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -181,4 +187,27 @@ TEST(LogicInputNCTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 TEST(LogicInputNCTestsGroup, GetElementType) {
     TestableInputNC testable;
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+}
+
+TEST(LogicInputNCTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(InputNC::TryToCast(&inputNC) == &inputNC);
+
+    InputNO inputNO;
+    CHECK_TRUE(InputNC::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(InputNC::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(InputNC::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(InputNC::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(InputNC::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(InputNC::TryToCast(&comparatorLs) == NULL);
 }

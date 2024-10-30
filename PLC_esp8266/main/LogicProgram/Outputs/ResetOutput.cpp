@@ -58,3 +58,18 @@ const Bitmap *ResetOutput::GetCurrentBitmap(LogicItemState state) {
 TvElementType ResetOutput::GetElementType() {
     return TvElementType::et_ResetOutput;
 }
+
+ResetOutput *ResetOutput::TryToCast(CommonOutput *common_output) {
+    switch (common_output->GetElementType()) {
+        case TvElementType::et_ResetOutput:
+            return static_cast<ResetOutput *>(common_output);
+
+        default:
+            return NULL;
+    }
+}
+
+const AllowedIO ResetOutput::GetAllowedOutputs() {
+    static MapIO allowedIO[] = { MapIO::O1, MapIO::O2, MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}

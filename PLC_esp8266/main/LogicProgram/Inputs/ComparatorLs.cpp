@@ -10,12 +10,8 @@
 ComparatorLs::ComparatorLs() : CommonComparator() {
 }
 
-ComparatorLs::ComparatorLs(uint8_t ref_percent04, const MapIO io_adr) : ComparatorLs() {
-    SetReference(ref_percent04);
-    SetIoAdr(io_adr);
-}
-
-ComparatorLs::~ComparatorLs() {
+ComparatorLs::ComparatorLs(uint8_t ref_percent04, const MapIO io_adr)
+    : CommonComparator(ref_percent04, io_adr) {
 }
 
 const Bitmap *ComparatorLs::GetCurrentBitmap(LogicItemState state) {
@@ -34,4 +30,19 @@ bool ComparatorLs::CompareFunction() {
 
 TvElementType ComparatorLs::GetElementType() {
     return TvElementType::et_ComparatorLs;
+}
+
+ComparatorLs *ComparatorLs::TryToCast(CommonComparator *common_comparator) {
+    switch (common_comparator->GetElementType()) {
+        case TvElementType::et_ComparatorLs:
+            return static_cast<ComparatorLs *>(common_comparator);
+
+        default:
+            return NULL;
+    }
+}
+
+const AllowedIO ComparatorLs::GetAllowedInputs() {
+    static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
 }

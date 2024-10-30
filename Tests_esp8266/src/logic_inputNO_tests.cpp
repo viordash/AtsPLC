@@ -8,6 +8,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.cpp"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
@@ -210,4 +216,27 @@ TEST(LogicInputNOTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 TEST(LogicInputNOTestsGroup, GetElementType) {
     TestableInputNO testable;
     CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
+}
+
+TEST(LogicInputNOTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(InputNO::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(InputNO::TryToCast(&inputNO) == &inputNO);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(InputNO::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(InputNO::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(InputNO::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(InputNO::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(InputNO::TryToCast(&comparatorLs) == NULL);
 }

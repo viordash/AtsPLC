@@ -14,7 +14,7 @@
             }
         },
         {
-            "label": "build & install tzsl",
+            "label": "build & install",
             "type": "shell",
             "command": "make project_prepare && make flash",
             "problemMatcher": [],

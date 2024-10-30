@@ -9,14 +9,30 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonComparator.h"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
+#include "main/LogicProgram/Inputs/TimerMSecs.h"
+#include "main/LogicProgram/Inputs/TimerSecs.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicCommonComparatorTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+mock().disable();
 }
 
 TEST_TEARDOWN() {
+    mock().enable();
 }
 }
 ;
@@ -38,8 +54,6 @@ namespace {
             : CommonComparator() {
             this->elementType = elementType;
         }
-        virtual ~TestableCommonComparator() {
-        }
 
         const Bitmap *GetCurrentBitmap(LogicItemState state) {
             (void)state;
@@ -52,8 +66,8 @@ namespace {
         MapIO PublicMorozov_Get_io_adr() {
             return io_adr;
         }
-        uint8_t PublicMorozov_GetReference() {
-            return ref_percent04;
+        const char *PublicMorozov_GetStrReference() {
+            return str_reference;
         }
         TvElementType GetElementType() override final {
             return elementType;
@@ -61,29 +75,36 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
+        const AllowedIO GetAllowedInputs() {
+            static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1,
+                                         MapIO::V2, MapIO::V3, MapIO::V4 };
+            return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+        }
     };
 } // namespace
 
 TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
     TestableCommonComparator testable_0;
-    CHECK_EQUAL(0, testable_0.PublicMorozov_GetReference());
+    testable_0.SetReference(0);
+    CHECK_EQUAL(0, testable_0.GetReference());
 
     TestableCommonComparator testable_100;
     testable_100.SetReference(100);
-    CHECK_EQUAL(100, testable_100.PublicMorozov_GetReference());
+    CHECK_EQUAL(100, testable_100.GetReference());
 
     TestableCommonComparator testable_250;
     testable_250.SetReference(250);
-    CHECK_EQUAL(250, testable_250.PublicMorozov_GetReference());
+    CHECK_EQUAL(250, testable_250.GetReference());
 
     TestableCommonComparator testable_251;
     testable_251.SetReference(251);
-    CHECK_EQUAL(250, testable_251.PublicMorozov_GetReference());
+    CHECK_EQUAL(250, testable_251.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, Render) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::AI);
+    testable.SetReference(0);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
@@ -147,7 +168,7 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
 
-    CHECK_EQUAL(42, testable.PublicMorozov_GetReference());
+    CHECK_EQUAL(42, testable.GetReference());
     CHECK_EQUAL(MapIO::V3, testable.PublicMorozov_Get_io_adr());
 }
 
@@ -217,4 +238,153 @@ TEST(LogicCommonComparatorTestsGroup,
                      "no changes are expected to be detected");
     CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
+}
+
+TEST(LogicCommonComparatorTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(CommonComparator::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(CommonComparator::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorEq) == &comparatorEq);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorGE) == &comparatorGE);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorGr) == &comparatorGr);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorLE) == &comparatorLE);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(CommonComparator::TryToCast(&comparatorLs) == &comparatorLs);
+}
+
+TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(0);
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(1, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(2, testable.GetReference());
+
+    testable.SetReference(248);
+    testable.SelectPrior();
+    CHECK_EQUAL(249, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(250, testable.GetReference());
+    testable.SelectPrior();
+    CHECK_EQUAL(250, testable.GetReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_IoAdr) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(2);
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.SelectNext();
+    CHECK_EQUAL(1, testable.GetReference());
+    testable.SelectNext();
+    CHECK_EQUAL(0, testable.GetReference());
+    testable.SelectNext();
+    CHECK_EQUAL(0, testable.GetReference());
+
+    testable.SetReference(250);
+    testable.SelectNext();
+    CHECK_EQUAL(249, testable.GetReference());
+    testable.SelectNext();
+    CHECK_EQUAL(248, testable.GetReference());
+    testable.SelectNext();
+    CHECK_EQUAL(247, testable.GetReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, PageUp_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(0);
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.PageUp();
+    CHECK_EQUAL(10, testable.GetReference());
+    testable.PageUp();
+    CHECK_EQUAL(20, testable.GetReference());
+
+    testable.SetReference(239);
+    testable.PageUp();
+    CHECK_EQUAL(249, testable.GetReference());
+    testable.PageUp();
+    CHECK_EQUAL(250, testable.GetReference());
+    testable.PageUp();
+    CHECK_EQUAL(250, testable.GetReference());
+}
+
+TEST(LogicCommonComparatorTestsGroup, PageDown_changing_References) {
+    TestableCommonComparator testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetReference(20);
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.PageDown();
+    CHECK_EQUAL(10, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(0, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(0, testable.GetReference());
+
+    testable.SetReference(250);
+    testable.PageDown();
+    CHECK_EQUAL(240, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(230, testable.GetReference());
+    testable.PageDown();
+    CHECK_EQUAL(220, testable.GetReference());
 }

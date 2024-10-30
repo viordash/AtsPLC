@@ -10,6 +10,7 @@ class ResetOutput : public CommonOutput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedOutputs() override final;
 
   protected:
 
@@ -20,4 +21,6 @@ class ResetOutput : public CommonOutput {
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
+
+    static ResetOutput *TryToCast(CommonOutput *common_output);
 };

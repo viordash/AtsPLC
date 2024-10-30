@@ -24,6 +24,8 @@ static const char *TAG_Controller = "controller";
 #define DO_SCROLL_DOWN BIT5
 #define DO_SELECT BIT6
 #define DO_SELECT_OPTION BIT7
+#define DO_SCROLL_PAGE_UP BIT8
+#define DO_SCROLL_PAGE_DOWN BIT9
 
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
@@ -105,6 +107,9 @@ void Controller::ProcessTask(void *parm) {
                 case ButtonsPressType::UP_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
                     break;
+                case ButtonsPressType::UP_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_UP, eNotifyAction::eSetBits);
+                    break;
                 case ButtonsPressType::DOWN_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
                     break;
@@ -143,26 +148,48 @@ void Controller::RenderTask(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
-        BaseType_t xResult = xTaskNotifyWait(0,
-                                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN
-                                                 | DO_SELECT | DO_SELECT_OPTION,
-                                             &ulNotifiedValue,
-                                             portMAX_DELAY);
+        BaseType_t xResult =
+            xTaskNotifyWait(0,
+                            DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
+                                | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
+                            &ulNotifiedValue,
+                            200 / portTICK_PERIOD_MS);
 
         if (xResult != pdPASS) {
-            ulNotifiedValue = {};
-            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            continue;
+            ulNotifiedValue |= DO_RENDERING;
+            // ulNotifiedValue = {};
+            // ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
+            // vTaskDelay(500 / portTICK_PERIOD_MS);
+            // continue;
         }
 
         if (ulNotifiedValue & DO_SCROLL_UP) {
-            ladder->ScrollUp();
+            ladder->HandleButtonUp();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SCROLL_PAGE_UP) {
+            ladder->HandleButtonPageUp();
             ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_SCROLL_DOWN) {
-            ladder->ScrollDown();
+            ladder->HandleButtonDown();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SCROLL_PAGE_DOWN) {
+            ladder->HandleButtonPageDown();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SELECT) {
+            ladder->HandleButtonSelect();
+            ulNotifiedValue |= DO_RENDERING;
+        }
+
+        if (ulNotifiedValue & DO_SELECT_OPTION) {
+            ladder->HandleButtonOption();
             ulNotifiedValue |= DO_RENDERING;
         }
 

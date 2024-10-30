@@ -31,8 +31,19 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
             GetValue = Controller::GetV4RelativeValue;
             break;
 
+        case MapIO::O1:
+            GetValue = Controller::GetO1RelativeValue;
+            break;
+        case MapIO::O2:
+            GetValue = Controller::GetO1RelativeValue;
+            break;
+
         default:
             GetValue = NULL;
             break;
     }
+}
+
+MapIO InputElement::GetIoAdr() {
+    return this->io_adr;
 }

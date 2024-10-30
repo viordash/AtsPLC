@@ -6,24 +6,42 @@
 #include <unistd.h>
 
 class CommonComparator : public CommonInput {
-  private:
-    char str_reference[5];
-    int str_size;
+  public:
+    typedef enum { //
+        ccepi_None = CommonInput::EditingPropertyId::ciepi_None,
+        ccepi_ConfigureIoAdr = CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr,
+        ccepi_ConfigureReference
+    } EditingPropertyId;
 
   protected:
+    int str_size;
+    char str_reference[5];
     uint8_t ref_percent04;
+
+    static const uint8_t step_ref = 1;
+    static const uint8_t faststep_ref = 10;
 
     virtual bool CompareFunction() = 0;
 
   public:
     CommonComparator();
-    ~CommonComparator();
+    CommonComparator(uint8_t ref_percent04, const MapIO io_adr);
+    virtual ~CommonComparator();
 
     void SetReference(uint8_t ref_percent04);
+    uint8_t GetReference();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
+
+    static CommonComparator *TryToCast(CommonInput *common_input);
+
+    void SelectPrior() override;
+    void SelectNext() override;
+    void PageUp() override;
+    void PageDown() override;
+    void Change() override;
 };

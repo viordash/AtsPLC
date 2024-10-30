@@ -9,6 +9,10 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicSetOutputTestsGroup){ //
@@ -122,4 +126,21 @@ TEST(LogicSetOutputTestsGroup, Deserialize) {
 TEST(LogicSetOutputTestsGroup, GetElementType) {
     TestableSetOutput testable;
     CHECK_EQUAL(TvElementType::et_SetOutput, testable.GetElementType());
+}
+
+TEST(LogicSetOutputTestsGroup, TryToCast) {
+    DirectOutput directOutput;
+    CHECK_TRUE(SetOutput::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(SetOutput::TryToCast(&setOutput) == &setOutput);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(SetOutput::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(SetOutput::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(SetOutput::TryToCast(&decOutput) == NULL);
 }

@@ -35,6 +35,10 @@ void TimerMSecs::SetTime(uint32_t delay_time_ms) {
     ESP_LOGD(TAG_TimerMSecs, "ctor, str_time:%s", this->str_time);
 }
 
+uint64_t TimerMSecs::GetTimeUs() {
+    return this->delay_time_us;
+}
+
 const Bitmap *TimerMSecs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
@@ -76,4 +80,65 @@ size_t TimerMSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
 
 TvElementType TimerMSecs::GetElementType() {
     return TvElementType::et_TimerMSecs;
+}
+
+TimerMSecs *TimerMSecs::TryToCast(CommonTimer *common_timer) {
+    switch (common_timer->GetElementType()) {
+        case TvElementType::et_TimerMSecs:
+            return static_cast<TimerMSecs *>(common_timer);
+
+        default:
+            return NULL;
+    }
+}
+
+void TimerMSecs::SelectPrior() {
+    ESP_LOGI(TAG_TimerMSecs, "SelectPrior");
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
+        SetTime(delay_time_ms + step_ms);
+    } else {
+        SetTime(TimerMSecs::max_delay_time_ms);
+    }
+}
+
+void TimerMSecs::SelectNext() {
+    ESP_LOGI(TAG_TimerMSecs, "SelectNext");
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
+        SetTime(delay_time_ms - step_ms);
+    } else {
+        SetTime(TimerMSecs::min_delay_time_ms);
+    }
+}
+
+void TimerMSecs::PageUp() {
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - faststep_ms) {
+        SetTime(delay_time_ms + faststep_ms);
+    } else {
+        SetTime(TimerMSecs::max_delay_time_ms);
+    }
+}
+
+void TimerMSecs::PageDown() {
+    uint32_t delay_time_ms = GetTimeUs() / 1000L;
+    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + faststep_ms) {
+        SetTime(delay_time_ms - faststep_ms);
+    } else {
+        SetTime(TimerMSecs::min_delay_time_ms);
+    }
+}
+
+void TimerMSecs::Change() {
+    ESP_LOGI(TAG_TimerMSecs, "Change");
+    switch (editing_property_id) {
+        case TimerMSecs::EditingPropertyId::ctepi_None:
+            editing_property_id = TimerMSecs::EditingPropertyId::ctepi_ConfigureDelayTime;
+            break;
+
+        default:
+            EndEditing();
+            break;
+    }
 }

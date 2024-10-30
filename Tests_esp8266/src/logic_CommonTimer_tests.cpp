@@ -10,6 +10,20 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonTimer.h"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
+#include "main/LogicProgram/Inputs/TimerMSecs.h"
+#include "main/LogicProgram/Inputs/TimerSecs.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
@@ -69,6 +83,19 @@ namespace {
         }
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
+        }
+        void SelectNext() override {
+        }
+        void SelectPrior() override {
+        }
+        void PageUp() override {
+        }
+        void PageDown() override {
+        }
+        void Change() {
+        }
+        bool EditingCompleted() {
+            return true;
         }
     };
 } // namespace
@@ -295,8 +322,10 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive), "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive), "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
@@ -360,4 +389,49 @@ TEST(LogicCommonTimerTestsGroup, set_start_time_in_ctor) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(10);
+}
+
+TEST(LogicCommonTimerTestsGroup, TryToCast) {
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    InputNC inputNC;
+    CHECK_TRUE(CommonTimer::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(CommonTimer::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(CommonTimer::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(CommonTimer::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(CommonTimer::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(CommonTimer::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(CommonTimer::TryToCast(&comparatorLs) == NULL);
+
+    TimerMSecs timerMSecs;
+    CHECK_TRUE(CommonTimer::TryToCast(&timerMSecs) == &timerMSecs);
+
+    TimerSecs timerSecs;
+    CHECK_TRUE(CommonTimer::TryToCast(&timerSecs) == &timerSecs);
+
+    DirectOutput directOutput;
+    CHECK_TRUE(CommonTimer::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(CommonTimer::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(CommonTimer::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(CommonTimer::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(CommonTimer::TryToCast(&decOutput) == NULL);
 }

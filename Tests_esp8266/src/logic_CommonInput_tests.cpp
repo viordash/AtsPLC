@@ -9,14 +9,30 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/CommonInput.h"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
+#include "main/LogicProgram/Inputs/TimerMSecs.h"
+#include "main/LogicProgram/Inputs/TimerSecs.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(LogicCommonInputTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+mock().disable();
 }
 
 TEST_TEARDOWN() {
+    mock().enable();
 }
 }
 ;
@@ -62,6 +78,11 @@ namespace {
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
         }
+        const AllowedIO GetAllowedInputs() {
+            static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1,
+                                         MapIO::V2, MapIO::V3, MapIO::V4 };
+            return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+        }
     };
 } // namespace
 
@@ -101,4 +122,95 @@ TEST(LogicCommonInputTestsGroup, Render_when_passive) {
     }
     CHECK_TRUE(any_pixel_coloring);
     CHECK_EQUAL(32, start_point.x);
+}
+
+TEST(LogicCommonInputTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(CommonInput::TryToCast(&inputNC) == &inputNC);
+
+    InputNO inputNO;
+    CHECK_TRUE(CommonInput::TryToCast(&inputNO) == &inputNO);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(CommonInput::TryToCast(&comparatorEq) == &comparatorEq);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(CommonInput::TryToCast(&comparatorGE) == &comparatorGE);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(CommonInput::TryToCast(&comparatorGr) == &comparatorGr);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(CommonInput::TryToCast(&comparatorLE) == &comparatorLE);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(CommonInput::TryToCast(&comparatorLs) == &comparatorLs);
+
+    TimerMSecs timerMSecs;
+    CHECK_TRUE(CommonInput::TryToCast(&timerMSecs) == NULL);
+
+    TimerSecs timerSecs;
+    CHECK_TRUE(CommonInput::TryToCast(&timerSecs) == NULL);
+
+    DirectOutput directOutput;
+    CHECK_TRUE(CommonInput::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(CommonInput::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(CommonInput::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(CommonInput::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(CommonInput::TryToCast(&decOutput) == NULL);
+}
+
+TEST(LogicCommonInputTestsGroup, SelectNext_changing_IoAdr) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonInputTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
+}
+
+TEST(LogicCommonInputTestsGroup, second_Change_calls_end_editing) {
+    TestableCommonInput testable;
+    testable.SetIoAdr(MapIO::O1);
+    testable.BeginEditing();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
 }

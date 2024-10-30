@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Display/EditableElement.h"
 #include "LogicProgram/Network.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -8,11 +8,13 @@
 #include "partitions.h"
 #include "redundant_storage.h"
 
+#define TAG_Ladder "Ladder"
+
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
 class Ladder : public std::vector<Network *> {
   protected:
-    size_t view_top_index;
+    int view_top_index;
 
     void InitialLoad();
 
@@ -20,6 +22,10 @@ class Ladder : public std::vector<Network *> {
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
 
     void RemoveAll();
+
+    EditableElement::ElementState GetDesignState(int selected_network);
+    int GetSelectedNetwork();
+    bool RemoveNetworkIfEmpty(int network_id);
 
   public:
     const size_t MinNetworksCount = 1;
@@ -35,8 +41,12 @@ class Ladder : public std::vector<Network *> {
     void Append(Network *network);
     bool CanScrollAuto();
     void AutoScroll();
-    void ScrollUp();
-    void ScrollDown();
+    void HandleButtonUp();
+    void HandleButtonPageUp();
+    void HandleButtonDown();
+    void HandleButtonPageDown();
+    void HandleButtonSelect();
+    void HandleButtonOption();
 
     void Load();
     void Store();

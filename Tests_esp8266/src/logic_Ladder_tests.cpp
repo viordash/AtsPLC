@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
+#include "MonitorLogicElement.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -8,8 +9,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/Ladder.cpp"
-#include "main/LogicProgram/LadderInitial.cpp"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
 
@@ -41,29 +40,9 @@ namespace {
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
-    class MonitorLogicElement {
-      public:
-        bool DoAction_called = false;
-        bool DoAction_result = false;
-        bool Render_called = false;
-        bool Render_result = true;
-
-        bool DoAction() {
-            DoAction_called = true;
-            return DoAction_result;
-        }
-
-        bool Render() {
-            Render_called = true;
-            return Render_result;
-        }
-    };
-
     class TestableLadder : public Ladder {
       public:
-        size_t *PublicMorozov_Get_view_top_index() {
-            return &view_top_index;
-        }
+
     };
 
     class TestableNetwork : public Network, public MonitorLogicElement {
@@ -247,7 +226,7 @@ TEST(LogicLadderTestsGroup, initial_load_when_empty_storage) {
     Ladder ladder_load;
     ladder_load.Load();
 
-    CHECK_EQUAL(4, ladder_load.size());
+    CHECK_EQUAL(7, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());
@@ -279,7 +258,7 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 
     Ladder ladder_load;
     ladder_load.Load();
-    CHECK_EQUAL(4, ladder_load.size());
+    CHECK_EQUAL(7, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());
@@ -350,7 +329,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -366,7 +345,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -382,7 +361,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -398,7 +377,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -414,7 +393,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[4])->Render_called = false;
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
-    testable.ScrollUp();
+    testable.HandleButtonUp();
     CHECK_TRUE(testable.Render(frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
@@ -452,115 +431,4 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
-}
-
-TEST(LogicLadderTestsGroup, CanScrollAuto_after_appending_second_network) {
-    TestableLadder testable;
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_TRUE(testable.CanScrollAuto());
-}
-
-TEST(LogicLadderTestsGroup, AutoScroll_when_append_new_networks) {
-    TestableLadder testable;
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-}
-
-TEST(LogicLadderTestsGroup, ScrollDown_ScrollUp_can_scroll_from_first_to_last_network) {
-    TestableLadder testable;
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.AutoScroll();
-
-    CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(4, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.ScrollDown();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-}
-
-TEST(LogicLadderTestsGroup, ScrollDown_ScrollUp__when_networks_less_than_viewport) {
-    TestableLadder testable;
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network(LogicItemState::lisActive));
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network(LogicItemState::lisActive));
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network(LogicItemState::lisActive));
-
-    testable.AutoScroll();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollDown();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    testable.ScrollUp();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 }

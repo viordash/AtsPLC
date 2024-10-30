@@ -11,6 +11,7 @@ class DirectOutput : public CommonOutput {
     const static Bitmap bitmap_passive;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
+    const AllowedIO GetAllowedOutputs() override final;
 
   protected:
 
@@ -21,4 +22,6 @@ class DirectOutput : public CommonOutput {
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     TvElementType GetElementType() override final;
+
+    static DirectOutput *TryToCast(CommonOutput *common_output);
 };

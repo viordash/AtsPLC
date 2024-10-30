@@ -10,6 +10,10 @@
 
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
@@ -124,4 +128,21 @@ TEST(LogicDecOutputTestsGroup, Deserialize) {
 TEST(LogicDecOutputTestsGroup, GetElementType) {
     TestableDecOutput testable;
     CHECK_EQUAL(TvElementType::et_DecOutput, testable.GetElementType());
+}
+
+TEST(LogicDecOutputTestsGroup, TryToCast) {
+    DirectOutput directOutput;
+    CHECK_TRUE(DecOutput::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(DecOutput::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(DecOutput::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(DecOutput::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(DecOutput::TryToCast(&decOutput) == &decOutput);
 }

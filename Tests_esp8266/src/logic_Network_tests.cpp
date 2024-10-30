@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
+#include "MonitorLogicElement.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -8,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/ElementsBox.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Network.h"
 
@@ -33,21 +35,15 @@ namespace {
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01 }
     };
 
-    class MonitorLogicElement {
+    class TestableNetwork : public Network {
       public:
-        bool DoAction_called = false;
-        bool DoAction_result = false;
-        bool Render_called = false;
-        bool Render_result = true;
-
-        bool DoAction() {
-            DoAction_called = true;
-            return DoAction_result;
+        TestableNetwork(LogicItemState state) : Network(state) {
         }
-
-        bool Render() {
-            Render_called = true;
-            return Render_result;
+        LogicItemState PublicMorozov_state() {
+            return state;
+        }
+        uint8_t PublicMorozov_Get_fill_wire() {
+            return fill_wire;
         }
     };
 
@@ -127,8 +123,7 @@ namespace {
 } // namespace
 
 TEST(LogicNetworkTestsGroup, append_elements) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -139,8 +134,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -156,8 +150,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -178,8 +171,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -204,8 +196,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -230,8 +221,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
 }
 
 TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_process) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -249,8 +239,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
 
 TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     auto input = new TestableInputNC;
     input->SetIoAdr(MapIO::DI);
     testable.Append(input);
@@ -286,8 +275,7 @@ TEST(LogicNetworkTestsGroup, Serialize) {
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -302,8 +290,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     for (size_t i = 0; i < 6; i++) {
         testable.Append(new TestableInputNC);
@@ -315,8 +302,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);
 
@@ -326,8 +312,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_
 
 TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[256] = {};
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -360,8 +345,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[17]) = TvElementType::et_DirectOutput;
     *((MapIO *)&buffer[18]) = MapIO::O1;
 
-    Network testable;
-    testable.ChangeState(LogicItemState::lisActive);
+    Network testable(LogicItemState::lisActive);
 
     size_t readed = testable.Deserialize(&buffer[0], sizeof(buffer) - 1);
     CHECK_EQUAL(19, readed);
@@ -370,4 +354,138 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[3]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_ElementBox) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK_TRUE(expectedElementBox->Editing());
+    CHECK(selectedElement != expectedElementBox);
+}
+
+TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+
+    testable.Change();
+    CHECK_TRUE(elementBox->GetSelectedElement()->Editing());
+
+    testable.Change();
+
+    CHECK_EQUAL(-1, testable.GetSelectedElement());
+}
+
+TEST(LogicNetworkTestsGroup, SwitchState) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.SwitchState();
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.PublicMorozov_state());
+
+    testable.SwitchState();
+    CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_state());
+}
+
+TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
+    testable.Append(new TimerMSecs(100));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.BeginEditing();
+    CHECK_EQUAL(4, testable.size());
+}
+
+TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.BeginEditing();
+    CHECK_EQUAL(3, testable.size());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_EQUAL(71, testable.PublicMorozov_Get_fill_wire());
+
+    testable.BeginEditing();
+    CHECK_EQUAL(3, testable.size());
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    CHECK_EQUAL(47, testable.PublicMorozov_Get_fill_wire());
+}
+
+TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
+    testable.Append(new DirectOutput(MapIO::O1));
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    testable.BeginEditing();
+    CHECK_EQUAL(4, testable.size());
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_Wire, elementBox->GetSelectedElement()->GetElementType());
+
+    testable.Change();
+    CHECK_EQUAL(-1, testable.GetSelectedElement());
+
+    CHECK_EQUAL(3, testable.size());
+    testable.Change();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[0]->GetElementType());
 }

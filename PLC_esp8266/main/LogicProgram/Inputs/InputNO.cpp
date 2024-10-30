@@ -83,3 +83,18 @@ size_t InputNO::Deserialize(uint8_t *buffer, size_t buffer_size) {
 TvElementType InputNO::GetElementType() {
     return TvElementType::et_InputNO;
 }
+
+InputNO *InputNO::TryToCast(CommonInput *common_input) {
+    switch (common_input->GetElementType()) {
+        case TvElementType::et_InputNO:
+            return static_cast<InputNO *>(common_input);
+
+        default:
+            return NULL;
+    }
+}
+
+const AllowedIO InputNO::GetAllowedInputs() {
+    static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
+    return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}

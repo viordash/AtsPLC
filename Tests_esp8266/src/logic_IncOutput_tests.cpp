@@ -9,17 +9,22 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
+#include "main/LogicProgram/Outputs/DirectOutput.h"
 #include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicIncOutputTestsGroup){ //
-                                         TEST_SETUP(){ mock().disable();
+                                      TEST_SETUP(){ mock().disable();
 Controller::Stop();
 }
 
 TEST_TEARDOWN() {
     mock().enable();
 }
-};
+}
+;
 
 namespace {
     class TestableIncOutput : public IncOutput {
@@ -57,8 +62,10 @@ TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive__due_incoming_sw
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive), "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive), "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+                     "no changes are expected to be detected");
 }
 
 TEST(LogicIncOutputTestsGroup,
@@ -122,4 +129,21 @@ TEST(LogicIncOutputTestsGroup, Deserialize) {
 TEST(LogicIncOutputTestsGroup, GetElementType) {
     TestableIncOutput testable;
     CHECK_EQUAL(TvElementType::et_IncOutput, testable.GetElementType());
+}
+
+TEST(LogicIncOutputTestsGroup, TryToCast) {
+    DirectOutput directOutput;
+    CHECK_TRUE(IncOutput::TryToCast(&directOutput) == NULL);
+
+    SetOutput setOutput;
+    CHECK_TRUE(IncOutput::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(IncOutput::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(IncOutput::TryToCast(&incOutput) == &incOutput);
+
+    DecOutput decOutput;
+    CHECK_TRUE(IncOutput::TryToCast(&decOutput) == NULL);
 }

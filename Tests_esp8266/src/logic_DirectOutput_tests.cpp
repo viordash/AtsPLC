@@ -9,7 +9,11 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Outputs/DecOutput.h"
 #include "main/LogicProgram/Outputs/DirectOutput.h"
+#include "main/LogicProgram/Outputs/IncOutput.h"
+#include "main/LogicProgram/Outputs/ResetOutput.h"
+#include "main/LogicProgram/Outputs/SetOutput.h"
 
 TEST_GROUP(LogicDirectOutputTestsGroup){ //
                                          TEST_SETUP(){ mock().disable();
@@ -122,4 +126,21 @@ TEST(LogicDirectOutputTestsGroup, Deserialize) {
 TEST(LogicDirectOutputTestsGroup, GetElementType) {
     TestableDirectOutput testable;
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
+}
+
+TEST(LogicDirectOutputTestsGroup, TryToCast) {
+    DirectOutput directOutput;
+    CHECK_TRUE(DirectOutput::TryToCast(&directOutput) == &directOutput);
+
+    SetOutput setOutput;
+    CHECK_TRUE(DirectOutput::TryToCast(&setOutput) == NULL);
+
+    ResetOutput resetOutput;
+    CHECK_TRUE(DirectOutput::TryToCast(&resetOutput) == NULL);
+
+    IncOutput incOutput;
+    CHECK_TRUE(DirectOutput::TryToCast(&incOutput) == NULL);
+
+    DecOutput decOutput;
+    CHECK_TRUE(DirectOutput::TryToCast(&decOutput) == NULL);
 }
