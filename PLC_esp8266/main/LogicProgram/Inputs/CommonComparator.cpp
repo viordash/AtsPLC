@@ -128,8 +128,8 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!ValidateMapIO(_io_adr)) {
         return 0;
     }
-    ref_percent04 = _ref_percent04;
-    io_adr = _io_adr;
+    SetIoAdr(_io_adr);
+    SetReference(_ref_percent04);
     return readed;
 }
 

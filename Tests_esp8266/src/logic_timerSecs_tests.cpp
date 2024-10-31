@@ -37,6 +37,9 @@ namespace {
         uint8_t PublicMorozov_ProgressHasChanges(LogicItemState prev_elem_state) {
             return ProgressHasChanges(prev_elem_state);
         }
+        const char *PublicMorozov_Get_str_time() {
+            return str_time;
+        }
     };
 } // namespace
 
@@ -158,7 +161,8 @@ TEST(LogicTimerSecsTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(8, readed);
 
-    CHECK_EQUAL(123456789, testable.GetTimeUs());
+    CHECK_EQUAL(123000000, testable.GetTimeUs());
+    STRCMP_EQUAL("123", testable.PublicMorozov_Get_str_time());
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {

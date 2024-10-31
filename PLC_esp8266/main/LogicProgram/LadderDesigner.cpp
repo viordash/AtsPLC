@@ -193,6 +193,7 @@ void Ladder::HandleButtonSelect() {
             (*this)[selected_network]->Change();
             if (!(*this)[selected_network]->Editing()) {
                 RemoveNetworkIfEmpty(selected_network);
+                Store();
             }
             return;
 
