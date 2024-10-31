@@ -56,8 +56,7 @@ MD	:= mkdir -p
 endif
 
 INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) $(SOURCE_PROJECT_DIR) \
-	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorMallocMacros.h \
-	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorNewMacros.h
+	-include $(SRC)/MemoryLeakDetector_and_stl.h
 
 # define the C libs
 LIBS		:= -Llib
