@@ -78,6 +78,7 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "forward_list": "cpp"
     }
 }
