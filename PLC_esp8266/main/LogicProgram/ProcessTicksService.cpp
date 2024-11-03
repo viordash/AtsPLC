@@ -1,8 +1,6 @@
 #include "LogicProgram/ProcessTicksService.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "esp_timer.h"
-#include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,28 +12,34 @@ ProcessTicksService::~ProcessTicksService() {
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
+    uint32_t delay_ticks = delay_ms / portTICK_PERIOD_MS;
     auto it = delays.begin();
+    if (delays.empty() || *it > delay_ticks) {
+        delays.push_front(delay_ticks);
+        return;
+    }
+
+    auto it_prev = it;
     while (it != delays.end()) {
         auto delay = *it;
-        bool further_large_values = delay > delay_ms;
-        if (further_large_values) {
-            delays.insert(it, delay_ms);
+        bool filter_unique = delay == delay_ticks;
+        if (filter_unique) {
             return;
         }
 
-        int diff = delay_ms - delay;
-        bool filter_identical = diff < min_time_step_ms;
-        if (filter_identical) {
-            return;
+        bool further_large_values = delay > delay_ticks;
+        if (further_large_values) {
+            break;
         }
+        it_prev = it;
         it++;
     }
-    delays.push_back(delay_ms);
+    delays.insert_after(it_prev, delay_ticks);
 }
 
 uint32_t ProcessTicksService::PopTicksToWait() {
     if (delays.empty()) {
-        return default_delay_ms / portTICK_PERIOD_MS;
+        return default_delay;
     }
     auto smallest_delay = delays.front();
     delays.pop_front();
@@ -45,5 +49,5 @@ uint32_t ProcessTicksService::PopTicksToWait() {
         *it = delay - smallest_delay;
     }
 
-    return smallest_delay / portTICK_PERIOD_MS;
+    return smallest_delay;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <list>
+#include "freertos/FreeRTOS.h"
+#include <forward_list>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +9,9 @@
 
 class ProcessTicksService {
   protected:
-    static const uint32_t default_delay_ms = 100;
+    static const uint32_t default_delay = 100 / portTICK_PERIOD_MS;
     static const int min_time_step_ms = 10;
-    std::list<uint32_t> delays;
+    std::forward_list<uint32_t> delays;
 
   public:
     ProcessTicksService(/* args */);
