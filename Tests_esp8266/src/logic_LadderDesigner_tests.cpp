@@ -328,3 +328,33 @@ TEST(LogicLadderDesignerTestsGroup,
     testable.HandleButtonSelect();
     CHECK_EQUAL(1, testable.size());
 }
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network_editing) {
+    TestableLadder testable;
+
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network0->Append(new DirectOutput(MapIO::O1));
+    testable.Append(network0);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+
+    CHECK_EQUAL(EditableElement::ElementState::des_Editing,
+                testable.PublicMorozov_GetDesignState(0));
+
+    testable.HandleButtonSelect();
+
+    Ladder ladder_load;
+    ladder_load.Load();
+
+    CHECK_EQUAL(1, ladder_load.size());
+    auto network_load = ladder_load[0];
+    CHECK_EQUAL(2, network_load->size());
+    CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
+    CHECK_EQUAL(MapIO::DI, ((InputNC *)(*network_load)[0])->GetIoAdr());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[1]->GetElementType());
+    CHECK_EQUAL(MapIO::O1, ((DirectOutput *)(*network_load)[1])->GetIoAdr());
+}

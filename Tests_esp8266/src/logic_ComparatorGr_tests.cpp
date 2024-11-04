@@ -43,6 +43,12 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
+        f_GetValue PublicMorozov_GetValue() {
+            return GetValue;
+        }
+        const char *PublicMorozov_Get_str_reference() {
+            return str_reference;
+        }
     };
 } // namespace
 
@@ -150,6 +156,8 @@ TEST(LogicComparatorGrTestsGroup, Deserialize) {
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
+    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    STRCMP_EQUAL("42", testable.PublicMorozov_Get_str_reference());
 }
 
 TEST(LogicComparatorGrTestsGroup, GetElementType) {
@@ -164,7 +172,7 @@ TEST(LogicComparatorGrTestsGroup, TryToCast) {
     ComparatorGE comparatorGE;
     CHECK_TRUE(ComparatorGr::TryToCast(&comparatorGE) == NULL);
 
-        ComparatorGr comparatorGr;
+    ComparatorGr comparatorGr;
     CHECK_TRUE(ComparatorGr::TryToCast(&comparatorGr) == &comparatorGr);
 
     ComparatorLE comparatorLE;

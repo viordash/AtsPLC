@@ -39,6 +39,12 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
+        f_GetValue PublicMorozov_GetValue() {
+            return GetValue;
+        }
+        f_SetValue PublicMorozov_SetValue() {
+            return SetValue;
+        }
     };
 } // namespace
 
@@ -116,11 +122,15 @@ TEST(LogicSetOutputTestsGroup, Serialize) {
 TEST(LogicSetOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_SetOutput;
+    *((MapIO *)&buffer[1]) = MapIO::O2;
 
     TestableSetOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
+    CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
+    CHECK(Controller::SetO2RelativeValue == testable.PublicMorozov_SetValue());
+    CHECK(Controller::GetO2RelativeValue == testable.PublicMorozov_GetValue());
 }
 
 TEST(LogicSetOutputTestsGroup, GetElementType) {

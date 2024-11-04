@@ -127,7 +127,7 @@ size_t TimerSecs::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (_delay_time_us > TimerSecs::max_delay_time_s * 1000000LL) {
         return 0;
     }
-    delay_time_us = _delay_time_us;
+    SetTime(_delay_time_us / 1000000LL);
     return readed;
 }
 
