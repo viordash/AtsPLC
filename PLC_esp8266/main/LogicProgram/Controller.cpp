@@ -101,7 +101,7 @@ void Controller::ProcessTask(void *parm) {
                 | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
             true,
             false,
-            processTicksService->PopTicksToWait());
+            processTicksService->Get());
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;

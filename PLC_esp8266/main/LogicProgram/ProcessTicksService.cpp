@@ -12,42 +12,52 @@ ProcessTicksService::~ProcessTicksService() {
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
-    uint32_t delay_ticks = delay_ms / portTICK_PERIOD_MS;
-    auto it = delays.begin();
-    if (delays.empty() || *it > delay_ticks) {
-        delays.push_front(delay_ticks);
-        return;
-    }
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    auto current_tick = xTaskGetTickCount();
+    auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
 
-    auto it_prev = it;
-    while (it != delays.end()) {
-        auto delay = *it;
-        bool filter_unique = delay == delay_ticks;
+    auto it = ticks.begin();
+    auto it_prev = ticks.before_begin();
+    while (it != ticks.end()) {
+        auto tick = *it;
+        int timespan_from_current = tick - current_tick;
+
+        bool expired = timespan_from_current < 0;
+        if (expired) {
+            it = ticks.erase_after(it_prev);
+            continue;
+        }
+
+        bool filter_unique = tick == next_tick;
         if (filter_unique) {
             return;
         }
 
-        bool further_large_values = delay > delay_ticks;
+        int timespan = tick - next_tick;
+        bool further_large_values = timespan > 0;
         if (further_large_values) {
             break;
         }
         it_prev = it;
         it++;
     }
-    delays.insert_after(it_prev, delay_ticks);
+    ticks.insert_after(it_prev, next_tick);
 }
 
-uint32_t ProcessTicksService::PopTicksToWait() {
-    if (delays.empty()) {
-        return default_delay;
-    }
-    auto smallest_delay = delays.front();
-    delays.pop_front();
+TickType_t ProcessTicksService::Get() {
+    if (!ticks.empty()) {
+        std::lock_guard<std::mutex> lock(lock_mutex);
+        auto current_tick = xTaskGetTickCount();
+        int timespan;
+        do {
+            auto next_tick = ticks.front();
+            ticks.pop_front();
+            timespan = next_tick - current_tick;
+        } while (!ticks.empty() && timespan < 0);
 
-    for (auto it = delays.begin(); it != delays.end(); ++it) {
-        auto delay = *it;
-        *it = delay - smallest_delay;
+        if (timespan >= 0) {
+            return (TickType_t)timespan;
+        }
     }
-
-    return smallest_delay;
+    return default_delay;
 }
