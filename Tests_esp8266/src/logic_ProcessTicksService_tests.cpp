@@ -24,7 +24,7 @@ namespace {
         void println() {
             std::cout << '[';
             bool first{ true };
-            for (const int x : ticks) {
+            for (auto x : ticks) {
                 std::cout << (first ? first = false, "" : ", ") << x;
             }
             std::cout << "]\n";
@@ -33,11 +33,14 @@ namespace {
         size_t PublicMorozov_Get_ticks_size() {
             return std::distance(ticks.begin(), ticks.end());
         }
+        int32_t PublicMorozov_GetTimespan(uint32_t from, uint32_t to) {
+            return GetTimespan(from, to);
+        }
     };
 } // namespace
 
 TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PERIOD_MS) {
-    volatile TickType_t ticks = 10000;
+    volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(9, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
@@ -65,9 +68,9 @@ TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PER
 }
 
 TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
-    volatile TickType_t ticks = 10000;
+    volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(5, "xTaskGetTickCount")
+        .expectNCalls(6, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessTicksService testable;
@@ -81,10 +84,16 @@ TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
     testable.Request(40);
     testable.Request(50);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+
+    testable.println();
+    ticks = INT32_MAX;
+    testable.Request(0);
+    testable.println();
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
-    volatile TickType_t ticks = 10000;
+    volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(16, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
@@ -125,13 +134,13 @@ TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
     ticksToWait = testable.Get();
     CHECK_EQUAL(201, ticksToWait);
 
-    const uint32_t default_delay_ticks = 10;
+    const uint32_t default_delay_ticks = -1;
     ticksToWait = testable.Get();
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
-    volatile TickType_t ticks = 10000;
+    volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(11, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
@@ -162,7 +171,47 @@ TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
 
     ticks += 100;
 
-    const uint32_t default_delay_ticks = 10;
+    const uint32_t default_delay_ticks = -1;
     ticksToWait = testable.Get();
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
+}
+
+TEST(ProcessTicksServiceTestsGroup, GetTimespan) {
+    TestableProcessTicksService testable;
+
+    auto timespan = testable.PublicMorozov_GetTimespan(100, 400);
+    CHECK_EQUAL(300, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(400, 100);
+    CHECK_EQUAL(-300, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 100, 0);
+    CHECK_EQUAL(101, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(0, UINT32_MAX - 100);
+    CHECK_EQUAL(-101, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 100, UINT32_MAX);
+    CHECK_EQUAL(100, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX, UINT32_MAX - 100);
+    CHECK_EQUAL(-100, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(0, INT32_MAX);
+    CHECK_EQUAL(INT32_MAX, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(INT32_MAX, 0);
+    CHECK_EQUAL(-INT32_MAX, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(INT32_MAX - 100, UINT32_MAX - 101);
+    CHECK_EQUAL(INT32_MAX, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 101, INT32_MAX - 100);
+    CHECK_EQUAL(-INT32_MAX, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX, 0);
+    CHECK_EQUAL(1, timespan);
+
+    timespan = testable.PublicMorozov_GetTimespan(0, UINT32_MAX);
+    CHECK_EQUAL(-1, timespan);
 }

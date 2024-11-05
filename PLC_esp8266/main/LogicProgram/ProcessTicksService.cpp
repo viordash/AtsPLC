@@ -1,3 +1,5 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "LogicProgram/ProcessTicksService.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -5,23 +7,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-ProcessTicksService::ProcessTicksService(/* args */) {
-}
+static const char *TAG_ProcessTicksService = "ProcessTicksService";
 
-ProcessTicksService::~ProcessTicksService() {
+int32_t ProcessTicksService::GetTimespan(uint32_t from, uint32_t to) {
+    uint32_t timespan = to > from //
+                          ? to - from
+                          : to - from;
+    return (int32_t)timespan;
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    auto current_tick = xTaskGetTickCount();
+    ESP_LOGI(TAG_ProcessTicksService, "Request:%u", delay_ms);
+
+    auto current_tick = (uint32_t)xTaskGetTickCount();
     auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
+    std::lock_guard<std::mutex> lock(lock_mutex);
 
     auto it = ticks.begin();
     auto it_prev = ticks.before_begin();
     while (it != ticks.end()) {
         auto tick = *it;
-        int timespan_from_current = tick - current_tick;
 
+        int32_t timespan_from_current = GetTimespan(current_tick, tick);
         bool expired = timespan_from_current < 0;
         if (expired) {
             it = ticks.erase_after(it_prev);
@@ -33,7 +40,7 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
             return;
         }
 
-        int timespan = tick - next_tick;
+        int timespan = GetTimespan(next_tick, tick);
         bool further_large_values = timespan > 0;
         if (further_large_values) {
             break;
@@ -47,7 +54,7 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
 TickType_t ProcessTicksService::Get() {
     if (!ticks.empty()) {
         std::lock_guard<std::mutex> lock(lock_mutex);
-        auto current_tick = xTaskGetTickCount();
+        auto current_tick = (uint32_t)xTaskGetTickCount();
         int timespan;
         do {
             auto next_tick = ticks.front();
@@ -56,8 +63,10 @@ TickType_t ProcessTicksService::Get() {
         } while (!ticks.empty() && timespan < 0);
 
         if (timespan >= 0) {
+            ESP_LOGI(TAG_ProcessTicksService, "Get:%u", (TickType_t)timespan);
             return (TickType_t)timespan;
         }
     }
+    ESP_LOGI(TAG_ProcessTicksService, "Get def:%u", default_delay);
     return default_delay;
 }

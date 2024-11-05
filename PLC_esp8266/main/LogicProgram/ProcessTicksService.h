@@ -1,7 +1,5 @@
 #pragma once
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include <forward_list>
 #include <mutex>
 #include <stdio.h>
@@ -11,16 +9,13 @@
 
 class ProcessTicksService {
   protected:
-    static const uint32_t default_delay = 100 / portTICK_PERIOD_MS;
-    std::forward_list<TickType_t> ticks;
+    static const uint32_t default_delay = -1;
+    std::forward_list<uint32_t> ticks;
     std::mutex lock_mutex;
 
-    TickType_t last_tick;
+    int32_t GetTimespan(uint32_t from, uint32_t to);
 
   public:
-    ProcessTicksService(/* args */);
-    ~ProcessTicksService();
-
     void Request(uint32_t delay_ms);
-    TickType_t Get();
+    uint32_t Get();
 };
