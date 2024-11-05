@@ -30,7 +30,7 @@ uint64_t CommonTimer::GetLeftTime() {
         return 0;
     }
     uint64_t left_time = delay_time_us - elapsed;
-    Controller::RequestDelayMs(left_time / 1000LL);
+    Controller::RequestWakeupMs(left_time / 1000LL);
     return left_time;
 }
 

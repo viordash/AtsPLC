@@ -97,7 +97,7 @@ void Controller::ProcessTask(void *parm) {
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
                 | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
-                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
+                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN | GPIO_TASK_WAKEUP,
             true,
             false,
             processTicksService->Get());
@@ -307,6 +307,7 @@ void Controller::SetV4RelativeValue(uint8_t value) {
     Controller::var4 = value;
 }
 
-void Controller::RequestDelayMs(uint32_t delay_ms) {
+void Controller::RequestWakeupMs(uint32_t delay_ms) {
     processTicksService->Request(delay_ms);
+    xEventGroupSetBits(Controller::gpio_events, GPIO_TASK_WAKEUP);
 }

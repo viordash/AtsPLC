@@ -16,6 +16,7 @@
 #define BUTTON_SELECT_IO_OPEN BIT7
 #define INPUT_1_IO_CLOSE BIT8
 #define INPUT_1_IO_OPEN BIT9
+#define GPIO_TASK_WAKEUP BIT15
 
 #ifdef __cplusplus
 extern "C" {
