@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "make size",
+            "command": "make -j4 size",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
