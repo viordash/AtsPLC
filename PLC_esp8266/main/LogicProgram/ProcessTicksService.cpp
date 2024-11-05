@@ -10,14 +10,12 @@
 static const char *TAG_ProcessTicksService = "ProcessTicksService";
 
 int32_t ProcessTicksService::GetTimespan(uint32_t from, uint32_t to) {
-    uint32_t timespan = to > from //
-                          ? to - from
-                          : to - from;
+    uint32_t timespan = to - from;
     return (int32_t)timespan;
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
-    ESP_LOGI(TAG_ProcessTicksService, "Request:%u", delay_ms);
+    ESP_LOGD(TAG_ProcessTicksService, "Request:%u", delay_ms);
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
     auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
