@@ -22,14 +22,15 @@ TEST_GROUP(LogicWireTestsGroup){ //
                                  TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
-Controller::Stop();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
 }
 }
 ;
-
 
 namespace {
     class TestableWire : public Wire {
@@ -37,7 +38,6 @@ namespace {
         LogicItemState PublicMorozov_Get_state() {
             return state;
         }
-
     };
 } // namespace
 

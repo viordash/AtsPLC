@@ -17,10 +17,11 @@
 
 TEST_GROUP(LogicSetOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
-Controller::Stop();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }

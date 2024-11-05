@@ -14,10 +14,12 @@
 TEST_GROUP(LogicControllerTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
-Controller::Stop();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
 }
 }
 ;
@@ -27,6 +29,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));

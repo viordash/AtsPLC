@@ -22,10 +22,12 @@ TEST_GROUP(LogicInputNCTestsGroup){ //
                                     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
-Controller::Stop();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
 }
 }
 ;

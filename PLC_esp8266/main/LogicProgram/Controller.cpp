@@ -73,7 +73,6 @@ void Controller::Stop() {
 
 void Controller::ProcessTask(void *parm) {
     (void)parm;
-    const int read_adc_max_period_ms = 100;
 
     ESP_LOGI(TAG_Controller, "start process task");
 
@@ -90,10 +89,10 @@ void Controller::ProcessTask(void *parm) {
                         ? ESP_FAIL
                         : ESP_OK);
 
+    const uint32_t first_iteration_delay = 0;
+    processTicksService->Request(first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
-        processTicksService->Request(read_adc_max_period_ms);
-
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
@@ -259,6 +258,10 @@ ControllerIOValues &Controller::GetIOValues() {
 uint8_t Controller::GetAIRelativeValue() {
     uint8_t percent04 = Controller::cached_io_values.AI;
     ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
+
+    const int read_adc_max_period_ms = 1000;
+    processTicksService->Request(read_adc_max_period_ms);
+
     return percent04;
 }
 
@@ -302,4 +305,8 @@ void Controller::SetV3RelativeValue(uint8_t value) {
 }
 void Controller::SetV4RelativeValue(uint8_t value) {
     Controller::var4 = value;
+}
+
+void Controller::RequestDelayMs(uint32_t delay_ms) {
+    processTicksService->Request(delay_ms);
 }

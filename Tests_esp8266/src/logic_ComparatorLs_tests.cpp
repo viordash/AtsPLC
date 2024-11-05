@@ -21,10 +21,12 @@ TEST_GROUP(LogicComparatorLsTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
-Controller::Stop();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
 }
 }
 ;
@@ -87,6 +89,7 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
@@ -109,6 +112,7 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(2, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));

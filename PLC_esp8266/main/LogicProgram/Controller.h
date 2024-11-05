@@ -41,7 +41,7 @@ class Controller {
     static uint8_t var3;
     static uint8_t var4;
     static Ladder *ladder;
-    static ProcessTicksService * processTicksService;
+    static ProcessTicksService *processTicksService;
 
     static std::recursive_mutex lock_io_values_mutex;
     static ControllerIOValues cached_io_values;
@@ -70,4 +70,6 @@ class Controller {
     static void SetV2RelativeValue(uint8_t value);
     static void SetV3RelativeValue(uint8_t value);
     static void SetV4RelativeValue(uint8_t value);
+
+    static void RequestDelayMs(uint32_t delay_ms);
 };
