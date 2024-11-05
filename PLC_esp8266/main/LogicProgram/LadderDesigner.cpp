@@ -234,3 +234,17 @@ bool Ladder::RemoveNetworkIfEmpty(int network_id) {
     }
     return false;
 }
+
+bool Ladder::ForcePeriodicRendering() {
+    auto selected_network = GetSelectedNetwork();
+    auto design_state = GetDesignState(selected_network);
+
+    switch (design_state) {
+        case EditableElement::ElementState::des_Selected:
+        case EditableElement::ElementState::des_Editing:
+            return true;
+
+        default:
+            return false;
+    }
+}

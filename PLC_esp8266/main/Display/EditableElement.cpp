@@ -15,6 +15,7 @@
 
 EditableElement::EditableElement() {
     editable_state = EditableElement::ElementState::des_Regular;
+    editing_property_id = EditingPropertyId::cepi_None;
 }
 
 EditableElement::~EditableElement() {
@@ -74,7 +75,5 @@ bool EditableElement::InEditingProperty() {
 
 bool EditableElement::Blinking_50() {
     const int blink_timer_us = 0x80000;
-
-    Controller::RequestWakeupMs(blink_timer_us / 1000L);
     return (esp_timer_get_time() & blink_timer_us) == blink_timer_us;
 }

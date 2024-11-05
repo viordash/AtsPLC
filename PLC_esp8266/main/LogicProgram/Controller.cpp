@@ -154,14 +154,18 @@ void Controller::RenderTask(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
+        bool force_render = ladder->ForcePeriodicRendering();
+
         BaseType_t xResult =
             xTaskNotifyWait(0,
                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
                                 | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
                             &ulNotifiedValue,
-                            portMAX_DELAY);
+                            force_render //
+                                ? 200 / portTICK_PERIOD_MS
+                                : portMAX_DELAY);
 
-        if (xResult != pdPASS) {
+        if (!force_render && xResult != pdPASS) {
             ulNotifiedValue = {};
             ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -198,7 +202,7 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
-        if (ulNotifiedValue & DO_RENDERING) {
+        if (force_render || (ulNotifiedValue & DO_RENDERING)) {
             int64_t now_time = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
