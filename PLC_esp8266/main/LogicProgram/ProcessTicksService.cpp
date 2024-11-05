@@ -15,7 +15,7 @@ int32_t ProcessTicksService::GetTimespan(uint32_t from, uint32_t to) {
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
-    ESP_LOGD(TAG_ProcessTicksService, "Request:%u", delay_ms);
+    ESP_LOGI(TAG_ProcessTicksService, "Request:%u", delay_ms);
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
     auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
@@ -49,7 +49,7 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
     ticks.insert_after(it_prev, next_tick);
 }
 
-TickType_t ProcessTicksService::Get() {
+uint32_t ProcessTicksService::Get() {
     if (!ticks.empty()) {
         std::lock_guard<std::mutex> lock(lock_mutex);
         auto current_tick = (uint32_t)xTaskGetTickCount();
@@ -61,10 +61,10 @@ TickType_t ProcessTicksService::Get() {
         } while (!ticks.empty() && timespan < 0);
 
         if (timespan >= 0) {
-            ESP_LOGI(TAG_ProcessTicksService, "Get:%u", (TickType_t)timespan);
-            return (TickType_t)timespan;
+            ESP_LOGI(TAG_ProcessTicksService, "Get:%d", timespan);
+            return (uint32_t)timespan;
         }
     }
-    ESP_LOGI(TAG_ProcessTicksService, "Get def:%u", default_delay);
+    ESP_LOGI(TAG_ProcessTicksService, "Get def:%d", default_delay);
     return default_delay;
 }

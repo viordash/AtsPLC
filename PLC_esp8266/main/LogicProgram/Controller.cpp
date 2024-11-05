@@ -104,6 +104,7 @@ void Controller::ProcessTask(void *parm) {
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
+        bool force_render = uxBits == 0;
 
         if (buttons_changed) {
             ButtonsPressType pressed_button = handle_buttons(uxBits);
@@ -127,12 +128,12 @@ void Controller::ProcessTask(void *parm) {
                 default:
                     break;
             }
-            continue;
         }
 
         need_render |= inputs_changed;
         need_render |= SampleIOValues();
         need_render |= ladder->DoAction();
+        need_render |= force_render;
         if (need_render) {
             need_render = false;
             xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
@@ -158,14 +159,13 @@ void Controller::RenderTask(void *parm) {
                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
                                 | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
                             &ulNotifiedValue,
-                            200 / portTICK_PERIOD_MS);
+                            portMAX_DELAY);
 
         if (xResult != pdPASS) {
-            ulNotifiedValue |= DO_RENDERING;
-            // ulNotifiedValue = {};
-            // ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
-            // vTaskDelay(500 / portTICK_PERIOD_MS);
-            // continue;
+            ulNotifiedValue = {};
+            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            continue;
         }
 
         if (ulNotifiedValue & DO_SCROLL_UP) {
