@@ -19,7 +19,6 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
     auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     auto it = ticks.begin();
     auto it_prev = ticks.before_begin();
@@ -51,7 +50,6 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
 
 uint32_t ProcessTicksService::Get() {
     if (!ticks.empty()) {
-        std::lock_guard<std::mutex> lock(lock_mutex);
         auto current_tick = (uint32_t)xTaskGetTickCount();
         int timespan;
         do {

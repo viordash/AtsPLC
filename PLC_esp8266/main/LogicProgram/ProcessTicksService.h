@@ -11,7 +11,6 @@ class ProcessTicksService {
   protected:
     static const uint32_t default_delay = -1;
     std::forward_list<uint32_t> ticks;
-    std::mutex lock_mutex;
 
     int32_t GetTimespan(uint32_t from, uint32_t to);
 
