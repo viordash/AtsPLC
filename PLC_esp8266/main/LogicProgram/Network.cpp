@@ -40,7 +40,7 @@ void Network::ChangeState(LogicItemState state) {
 
 bool Network::DoAction() {
     bool any_changes = false;
-    bool prev_elem_changed = true;
+    bool prev_elem_changed = false;
     LogicItemState prev_elem_state = state;
 
     for (auto it = begin(); it != end(); ++it) {
