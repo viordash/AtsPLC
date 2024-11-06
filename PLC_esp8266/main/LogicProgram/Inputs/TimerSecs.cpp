@@ -1,6 +1,7 @@
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "Display/bitmaps/timer_sec_active.h"
 #include "Display/bitmaps/timer_sec_passive.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -52,6 +53,11 @@ const Bitmap *TimerSecs::GetCurrentBitmap(LogicItemState state) {
 
 bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     bool any_changes = CommonTimer::DoAction(prev_elem_changed, prev_elem_state);
+
+    if (prev_elem_state == LogicItemState::lisActive
+        && (any_changes || state != LogicItemState::lisActive)) {
+        Controller::RequestWakeupMs(((delay_time_us / 4) + 1000LL - 1) / 1000LL);
+    }
 
     if (!any_changes) {
         any_changes = ProgressHasChanges(prev_elem_state);

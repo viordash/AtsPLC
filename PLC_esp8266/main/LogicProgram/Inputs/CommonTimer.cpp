@@ -1,5 +1,4 @@
 #include "LogicProgram/Inputs/CommonTimer.h"
-#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -29,8 +28,8 @@ uint64_t CommonTimer::GetLeftTime() {
     if (elapsed > (int64_t)delay_time_us) {
         return 0;
     }
+
     uint64_t left_time = delay_time_us - elapsed;
-    Controller::RequestWakeupMs(left_time / 1000LL);
     return left_time;
 }
 
