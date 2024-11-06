@@ -34,9 +34,6 @@ namespace {
         uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
             return GetProgress(prev_elem_state);
         }
-        uint8_t PublicMorozov_ProgressHasChanges(LogicItemState prev_elem_state) {
-            return ProgressHasChanges(prev_elem_state);
-        }
         const char *PublicMorozov_Get_str_time() {
             return str_time;
         }
@@ -61,43 +58,6 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     TestableTimerSecs testable_100000;
     testable_100000.SetTime(100000);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.GetTimeUs());
-}
-
-TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(11, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableTimerSecs testable;
-    testable.SetTime(10);
-    testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
-
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 500000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 1000000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 1200000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 2000000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 2500000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = UINT64_MAX - 900000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 100000 - 2;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 100000 - 1;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
 }
 
 TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {

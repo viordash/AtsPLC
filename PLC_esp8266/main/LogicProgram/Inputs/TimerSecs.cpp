@@ -59,9 +59,6 @@ bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
         Controller::RequestWakeupMs(((delay_time_us / 4) + 1000LL - 1) / 1000LL);
     }
 
-    if (!any_changes) {
-        any_changes = ProgressHasChanges(prev_elem_state);
-    }
     return any_changes;
 }
 
@@ -86,26 +83,6 @@ IRAM_ATTR bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
     }
 
     return res;
-}
-
-bool TimerSecs::ProgressHasChanges(LogicItemState prev_elem_state) {
-    if (prev_elem_state != LogicItemState::lisActive) {
-        return false;
-    }
-    if (state == LogicItemState::lisActive) {
-        return false;
-    }
-
-    uint64_t curr_time = esp_timer_get_time();
-    int64_t elapsed = curr_time - force_render_time_us;
-    if (elapsed >= 0 && elapsed < (int64_t)force_render_period_us) {
-        return false;
-    }
-    if (elapsed < 0 && elapsed > (int64_t)-force_render_period_us) {
-        return false;
-    }
-    force_render_time_us = curr_time;
-    return true;
 }
 
 size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
