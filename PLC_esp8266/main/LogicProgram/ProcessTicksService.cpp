@@ -18,7 +18,7 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
     ESP_LOGI(TAG_ProcessTicksService, "Request:%u", delay_ms);
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
-    auto next_tick = current_tick + (delay_ms / portTICK_PERIOD_MS);
+    auto next_tick = current_tick + ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS);
 
     auto it = ticks.begin();
     auto it_prev = ticks.before_begin();

@@ -56,13 +56,13 @@ TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PER
     testable.Request(20);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
     testable.Request(21);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
     testable.Request(25);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
     testable.Request(28);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
     testable.Request(29);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
     testable.Request(30);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
 }
@@ -137,6 +137,40 @@ TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
     const uint32_t default_delay_ticks = -1;
     ticksToWait = testable.Get();
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
+}
+
+TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
+    volatile uint32_t ticks = 10000;
+    mock()
+        .expectNCalls(12, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    TestableProcessTicksService testable;
+
+    testable.Request(200);
+    auto ticksToWait = testable.Get();
+    CHECK_EQUAL(20, ticksToWait);
+
+    testable.Request(201);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+
+    testable.Request(205);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+
+    testable.Request(209);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+
+    testable.Request(210);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+
+    testable.Request(211);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(22, ticksToWait);
+
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
