@@ -132,7 +132,12 @@ void Controller::ProcessTask(void *parm) {
 
         need_render |= inputs_changed;
         need_render |= SampleIOValues();
-        need_render |= ladder->DoAction();
+
+        bool any_changes_in_actions = ladder->DoAction();
+        need_render |= any_changes_in_actions;
+        if (any_changes_in_actions) {
+            Controller::RequestWakeupMs(0);
+        }
         need_render |= force_render;
         if (need_render) {
             need_render = false;
