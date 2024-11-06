@@ -33,15 +33,6 @@ uint64_t CommonTimer::GetLeftTime() {
     return left_time;
 }
 
-uint8_t CommonTimer::GetProgress(LogicItemState prev_elem_state) {
-    if (prev_elem_state != LogicItemState::lisActive) {
-        return LogicElement::MinValue;
-    }
-    uint64_t left_time = GetLeftTime();
-    uint8_t percent04 = (left_time * LogicElement::MaxValue) / delay_time_us;
-    return LogicElement::MaxValue - (uint8_t)percent04;
-}
-
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         return false;

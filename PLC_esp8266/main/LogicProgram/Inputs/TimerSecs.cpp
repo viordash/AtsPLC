@@ -62,29 +62,6 @@ bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-IRAM_ATTR bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    uint8_t x_pos = start_point->x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
-
-    res = CommonTimer::Render(fb, prev_elem_state, start_point);
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        uint8_t percent = GetProgress(prev_elem_state);
-        res = draw_vert_progress_bar(fb,
-                                     x_pos,
-                                     start_point->y - (VERT_PROGRESS_BAR_HEIGHT + 1),
-                                     percent);
-        ESP_LOGD(TAG_TimerSecs,
-                 "Render, percent:%u, delay:%u",
-                 percent,
-                 (uint32_t)(delay_time_us / 1000000LL));
-    }
-
-    return res;
-}
-
 size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;

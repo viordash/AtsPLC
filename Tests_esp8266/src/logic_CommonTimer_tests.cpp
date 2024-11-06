@@ -65,9 +65,6 @@ namespace {
         uint64_t PublicMorozov_GetLeftTime() {
             return GetLeftTime();
         }
-        uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
-            return GetProgress(prev_elem_state);
-        }
         uint64_t PublicMorozov_start_time_us() {
             return start_time_us;
         }
@@ -257,49 +254,6 @@ TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
     os_us = (uint64_t)INT64_MAX;
     left_time = testable_0.PublicMorozov_GetLeftTime();
     CHECK_EQUAL(0, left_time);
-}
-
-TEST(LogicCommonTimerTestsGroup, GetProgress) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(10, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableCommonTimer testable_0(1000);
-    uint8_t percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    CHECK_EQUAL(0, percent04);
-
-    os_us = 1;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(0.4 / 0.4, percent04, 0.5);
-
-    os_us = 5;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(0.8 / 0.4, percent04, 0.5);
-
-    os_us = 100;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(10 / 0.4, percent04, 0.5);
-
-    os_us = 250;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(25 / 0.4, percent04, 0.5);
-
-    os_us = 500;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(50 / 0.4, percent04, 0.5);
-
-    os_us = 990;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(99 / 0.4, percent04, 0.5);
-
-    os_us = 1000;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
-
-    os_us = 1200;
-    percent04 = testable_0.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    DOUBLES_EQUAL(100 / 0.4, percent04, 0.5);
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {

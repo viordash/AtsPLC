@@ -30,10 +30,6 @@ namespace {
         }
         virtual ~TestableTimerSecs() {
         }
-
-        uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
-            return GetProgress(prev_elem_state);
-        }
         const char *PublicMorozov_Get_str_time() {
             return str_time;
         }
@@ -58,21 +54,6 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     TestableTimerSecs testable_100000;
     testable_100000.SetTime(100000);
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.GetTimeUs());
-}
-
-TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(3, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableTimerSecs testable;
-    testable.SetTime(10);
-
-    uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    CHECK_EQUAL(0, percent04);
-    Point start_point = { 0, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
 TEST(LogicTimerSecsTestsGroup, Serialize) {
