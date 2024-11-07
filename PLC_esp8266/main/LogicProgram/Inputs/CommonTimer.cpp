@@ -1,4 +1,5 @@
 #include "LogicProgram/Inputs/CommonTimer.h"
+#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -37,9 +38,9 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         return false;
     }
-
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         start_time_us = esp_timer_get_time();
+        Controller::RequestWakeupMs(delay_time_us / 1000LL);
     }
 
     bool any_changes = false;

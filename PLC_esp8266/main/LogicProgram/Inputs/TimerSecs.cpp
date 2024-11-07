@@ -51,17 +51,6 @@ const Bitmap *TimerSecs::GetCurrentBitmap(LogicItemState state) {
     }
 }
 
-bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    bool any_changes = CommonTimer::DoAction(prev_elem_changed, prev_elem_state);
-
-    if (prev_elem_state == LogicItemState::lisActive
-        && (any_changes || state != LogicItemState::lisActive)) {
-        Controller::RequestWakeupMs(((delay_time_us / 4) + 1000LL - 1) / 1000LL);
-    }
-
-    return any_changes;
-}
-
 size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
     TvElement tvElement;
