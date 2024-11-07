@@ -24,14 +24,14 @@ namespace {
         void println() {
             std::cout << '[';
             bool first{ true };
-            for (auto x : ticks) {
+            for (auto x : moments) {
                 std::cout << (first ? first = false, "" : ", ") << x;
             }
             std::cout << "]\n";
         }
 
-        size_t PublicMorozov_Get_ticks_size() {
-            return std::distance(ticks.begin(), ticks.end());
+        size_t PublicMorozov_Get_moments_size() {
+            return std::distance(moments.begin(), moments.end());
         }
         int32_t PublicMorozov_GetTimespan(uint32_t from, uint32_t to) {
             return GetTimespan(from, to);
@@ -40,63 +40,65 @@ namespace {
 } // namespace
 
 TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PERIOD_MS) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 100000;
     mock()
-        .expectNCalls(9, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(9, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessTicksService testable;
 
     testable.Request(10);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_moments_size());
     testable.Request(20);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_moments_size());
     testable.Request(10);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_moments_size());
     testable.Request(20);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_moments_size());
+
+    testable.println();
     testable.Request(21);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
     testable.Request(25);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
     testable.Request(28);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
     testable.Request(29);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
     testable.Request(30);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
 }
 
 TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 100000;
     mock()
-        .expectNCalls(6, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(6, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessTicksService testable;
 
     testable.Request(10);
     testable.Request(20);
     testable.Request(30);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
-    ticks += 3;
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
+    os_us += 30 * 1000;
 
     testable.Request(40);
     testable.Request(50);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_moments_size());
 
     testable.println();
-    ticks = INT32_MAX;
+    os_us = (int64_t)INT32_MAX * 1000LL;
     testable.Request(0);
     testable.println();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_moments_size());
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 100000;
     mock()
-        .expectNCalls(16, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(18, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessTicksService testable;
 
@@ -110,6 +112,10 @@ TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
 
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(4, ticksToWait);
+
+    testable.Request(0);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(0, ticksToWait);
 
     ticksToWait = testable.Get();
     CHECK_EQUAL(20, ticksToWait);
@@ -139,11 +145,25 @@ TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
 }
 
-TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
-    volatile uint32_t ticks = 10000;
+TEST(ProcessTicksServiceTestsGroup, Request_zero) {
+    volatile uint64_t os_us = 516159000;
     mock()
-        .expectNCalls(12, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableProcessTicksService testable;
+
+    testable.Request(0);
+    os_us = 516163000;
+    auto ticksToWait = testable.Get();
+    CHECK_EQUAL(0, ticksToWait);
+}
+
+TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
+    volatile uint64_t os_us = 100000;
+    mock()
+        .expectNCalls(12, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessTicksService testable;
 
@@ -170,14 +190,13 @@ TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
     testable.Request(211);
     ticksToWait = testable.Get();
     CHECK_EQUAL(22, ticksToWait);
-
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 100000;
     mock()
-        .expectNCalls(11, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(11, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessTicksService testable;
 
@@ -193,17 +212,17 @@ TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(10, ticksToWait);
 
-    ticks += 5;
+    os_us += 50 * 1000;
 
     ticksToWait = testable.Get();
     CHECK_EQUAL(15, ticksToWait);
 
-    ticks += 35;
+    os_us += 350 * 1000;
 
     ticksToWait = testable.Get();
     CHECK_EQUAL(0, ticksToWait);
 
-    ticks += 100;
+    os_us += 1000 * 1000;
 
     const uint32_t default_delay_ticks = -1;
     ticksToWait = testable.Get();
@@ -249,3 +268,18 @@ TEST(ProcessTicksServiceTestsGroup, GetTimespan) {
     timespan = testable.PublicMorozov_GetTimespan(0, UINT32_MAX);
     CHECK_EQUAL(-1, timespan);
 }
+
+// TEST(ProcessTicksServiceTestsGroup, Get_test) {
+//     volatile uint64_t os_us = 241693 * 1000;
+//     mock()
+//         .expectNCalls(16, "esp_timer_get_time")
+//         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+//     TestableProcessTicksService testable;
+
+//     testable.Request(1000);
+
+//     os_us = 241711 * 1000;
+//     auto ticksToWait = testable.Get();
+//     CHECK_EQUAL(98, ticksToWait);
+// }

@@ -10,9 +10,10 @@
 class ProcessTicksService {
   protected:
     static const uint32_t default_delay = -1;
-    std::forward_list<uint32_t> ticks;
+    std::forward_list<uint64_t> moments;
 
-    int32_t GetTimespan(uint32_t from, uint32_t to);
+    int64_t GetTimespan(uint64_t from, uint64_t to);
+    int64_t ConvertToSysTickCount(int64_t timespan);
 
   public:
     void Request(uint32_t delay_ms);
