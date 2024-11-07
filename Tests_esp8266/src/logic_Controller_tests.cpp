@@ -29,7 +29,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
