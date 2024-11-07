@@ -29,9 +29,14 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(LogicCommonTimerTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+
+mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
 }
 }
 ;
@@ -324,6 +329,8 @@ TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_r
     mock()
         .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
 
     TestableCommonTimer testable(10);
 
