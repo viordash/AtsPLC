@@ -170,7 +170,20 @@ TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
     testable.Request(211);
     ticksToWait = testable.Get();
     CHECK_EQUAL(22, ticksToWait);
+}
 
+TEST(ProcessTicksServiceTestsGroup, Request_zero) {
+    volatile uint32_t ticks = 51615;
+    mock()
+        .expectNCalls(2, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    TestableProcessTicksService testable;
+
+    testable.Request(0);
+    ticks = 51616;
+    auto ticksToWait = testable.Get();
+    CHECK_EQUAL(0, ticksToWait);
 }
 
 TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
@@ -205,9 +218,8 @@ TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
 
     ticks += 100;
 
-    const uint32_t default_delay_ticks = -1;
     ticksToWait = testable.Get();
-    CHECK_EQUAL(default_delay_ticks, ticksToWait);
+    CHECK_EQUAL(0, ticksToWait);
 }
 
 TEST(ProcessTicksServiceTestsGroup, GetTimespan) {

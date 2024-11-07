@@ -61,6 +61,8 @@ uint32_t ProcessTicksService::Get() {
         if (timespan >= 0) {
             ESP_LOGI(TAG_ProcessTicksService, "Get:%d", timespan);
             return (uint32_t)timespan;
+        } else {
+            return 0;
         }
     }
     ESP_LOGI(TAG_ProcessTicksService, "Get def:%d", default_delay);
