@@ -95,7 +95,7 @@ TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
 TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick) {
     volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(8, "xTaskGetTickCount")
+        .expectNCalls(6, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessTicksService testable;
@@ -176,7 +176,7 @@ TEST(ProcessTicksServiceTestsGroup, Request_zero) {
 TEST(ProcessTicksServiceTestsGroup, RemoveExpired) {
     volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(13, "xTaskGetTickCount")
+        .expectNCalls(5, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessTicksService testable;

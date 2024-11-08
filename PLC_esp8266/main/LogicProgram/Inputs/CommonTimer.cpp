@@ -47,11 +47,13 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive //
-        && (state == LogicItemState::lisActive || GetLeftTime() == 0)) {
-        state = LogicItemState::lisActive;
-    } else {
+    if (prev_elem_state != LogicItemState::lisActive) {
         state = LogicItemState::lisPassive;
+    } else if (state != LogicItemState::lisActive) {
+        uint64_t left_time = GetLeftTime();
+        if (left_time <= portTICK_PERIOD_MS * 1000) {
+            state = LogicItemState::lisActive;
+        }
     }
 
     if (state != prev_state) {
