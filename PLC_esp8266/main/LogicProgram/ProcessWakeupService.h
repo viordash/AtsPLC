@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-class ProcessTicksService {
+class ProcessWakeupService {
   protected:
     static const uint32_t default_delay = -1;
     std::forward_list<uint32_t> ticks;

@@ -36,7 +36,7 @@ uint8_t Controller::var3 = LogicElement::MinValue;
 uint8_t Controller::var4 = LogicElement::MinValue;
 
 Ladder *Controller::ladder = NULL;
-ProcessTicksService *Controller::processTicksService = NULL;
+ProcessWakeupService *Controller::processWakeupService = NULL;
 
 std::recursive_mutex Controller::lock_io_values_mutex;
 ControllerIOValues Controller::cached_io_values = {};
@@ -46,7 +46,7 @@ void Controller::Start(EventGroupHandle_t gpio_events) {
 
     ESP_LOGI(TAG_Controller, "start");
 
-    processTicksService = new ProcessTicksService();
+    processWakeupService = new ProcessWakeupService();
     ladder = new Ladder();
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
@@ -68,7 +68,7 @@ void Controller::Stop() {
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
     Controller::cached_io_values = {};
     delete ladder;
-    delete processTicksService;
+    delete processWakeupService;
 }
 
 void Controller::ProcessTask(void *parm) {
@@ -90,9 +90,10 @@ void Controller::ProcessTask(void *parm) {
                         : ESP_OK);
 
     const uint32_t first_iteration_delay = 0;
-    processTicksService->Request(first_iteration_delay);
+    processWakeupService->Request(first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
+        ESP_LOGD(TAG_Controller, ">");
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
@@ -100,9 +101,10 @@ void Controller::ProcessTask(void *parm) {
                 | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
             true,
             false,
-            processTicksService->Get());
-        processTicksService->RemoveExpired();
-        
+            processWakeupService->Get());
+        ESP_LOGD(TAG_Controller, "< %04X", uxBits);
+        processWakeupService->RemoveExpired();
+
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
         bool force_render = uxBits == 0;
@@ -137,6 +139,7 @@ void Controller::ProcessTask(void *parm) {
         bool any_changes_in_actions = ladder->DoAction();
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
+            ESP_LOGD(TAG_Controller, "any_changes_in_actions");
             Controller::RequestWakeupMs(0);
         }
         need_render |= force_render;
@@ -270,7 +273,7 @@ uint8_t Controller::GetAIRelativeValue() {
     ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
 
     const int read_adc_max_period_ms = 1000;
-    processTicksService->Request(read_adc_max_period_ms);
+    processWakeupService->Request(read_adc_max_period_ms);
 
     return percent04;
 }
@@ -318,5 +321,5 @@ void Controller::SetV4RelativeValue(uint8_t value) {
 }
 
 void Controller::RequestWakeupMs(uint32_t delay_ms) {
-    processTicksService->Request(delay_ms);
+    processWakeupService->Request(delay_ms);
 }

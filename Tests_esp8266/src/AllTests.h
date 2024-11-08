@@ -77,4 +77,4 @@ IMPORT_TEST_GROUP(TvElementTypeTestsGroup);
 IMPORT_TEST_GROUP(LogicElementsBoxTestsGroup);
 
 IMPORT_TEST_GROUP(LogicCommonOutputTestsGroup);
-IMPORT_TEST_GROUP(ProcessTicksServiceTestsGroup);
+IMPORT_TEST_GROUP(ProcessWakeupServiceTestsGroup);

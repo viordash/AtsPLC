@@ -9,9 +9,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/LogicProgram/ProcessTicksService.cpp"
+#include "main/LogicProgram/ProcessWakeupService.cpp"
 
-TEST_GROUP(ProcessTicksServiceTestsGroup){ //
+TEST_GROUP(ProcessWakeupServiceTestsGroup){ //
                                            TEST_SETUP(){}
 
                                            TEST_TEARDOWN(){}
@@ -19,7 +19,7 @@ TEST_GROUP(ProcessTicksServiceTestsGroup){ //
 
 namespace {
 
-    class TestableProcessTicksService : public ProcessTicksService {
+    class TestableProcessWakeupService : public ProcessWakeupService {
       public:
         void println() {
             std::cout << '[';
@@ -39,13 +39,13 @@ namespace {
     };
 } // namespace
 
-TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PERIOD_MS) {
+TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PERIOD_MS) {
     volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(9, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(10);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
@@ -67,13 +67,13 @@ TEST(ProcessTicksServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PER
     CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
 }
 
-TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
+TEST(ProcessWakeupServiceTestsGroup, Requests_remove_expired_ticks) {
     volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(6, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(10);
     testable.Request(20);
@@ -92,13 +92,13 @@ TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
 }
 
-TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick) {
+TEST(ProcessWakeupServiceTestsGroup, Get_returns_early_tick) {
     volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(6, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(200);
     testable.Request(1000);
@@ -110,23 +110,23 @@ TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick) {
     CHECK_EQUAL(4, ticksToWait);
 }
 
-TEST(ProcessTicksServiceTestsGroup, Get_returns_default_when_empty) {
+TEST(ProcessWakeupServiceTestsGroup, Get_returns_default_when_empty) {
     mock().expectNoCall("xTaskGetTickCount");
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     auto ticksToWait = testable.Get();
     const uint32_t default_delay_ticks = -1;
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
 }
 
-TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
+TEST(ProcessWakeupServiceTestsGroup, Requested_ticks_rounds_to_up) {
     volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(12, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(211);
     auto ticksToWait = testable.Get();
@@ -159,13 +159,13 @@ TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
     CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
 }
 
-TEST(ProcessTicksServiceTestsGroup, Request_zero) {
+TEST(ProcessWakeupServiceTestsGroup, Request_zero) {
     volatile uint32_t ticks = 51615;
     mock()
         .expectNCalls(2, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(0);
     ticks = 51616;
@@ -173,13 +173,13 @@ TEST(ProcessTicksServiceTestsGroup, Request_zero) {
     CHECK_EQUAL(0, ticksToWait);
 }
 
-TEST(ProcessTicksServiceTestsGroup, RemoveExpired) {
+TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
     volatile uint32_t ticks = 10000;
     mock()
         .expectNCalls(5, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableProcessTicksService testable;
+    TestableProcessWakeupService testable;
 
     testable.Request(100);
     testable.Request(200);
@@ -200,8 +200,8 @@ TEST(ProcessTicksServiceTestsGroup, RemoveExpired) {
     CHECK_EQUAL(0, testable.PublicMorozov_Get_ticks_size());
 }
 
-TEST(ProcessTicksServiceTestsGroup, GetTimespan) {
-    TestableProcessTicksService testable;
+TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
+    TestableProcessWakeupService testable;
 
     auto timespan = testable.PublicMorozov_GetTimespan(100, 400);
     CHECK_EQUAL(300, timespan);
