@@ -101,7 +101,8 @@ void Controller::ProcessTask(void *parm) {
             true,
             false,
             processTicksService->Get());
-
+        processTicksService->RemoveExpired();
+        
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
         bool force_render = uxBits == 0;

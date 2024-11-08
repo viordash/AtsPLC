@@ -17,4 +17,5 @@ class ProcessTicksService {
   public:
     void Request(uint32_t delay_ms);
     uint32_t Get();
+    int RemoveExpired();
 };

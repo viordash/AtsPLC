@@ -15,9 +15,12 @@ int32_t ProcessTicksService::GetTimespan(uint32_t from, uint32_t to) {
 }
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
-    ESP_LOGI(TAG_ProcessTicksService, "Request:%u", delay_ms);
-
     auto current_tick = (uint32_t)xTaskGetTickCount();
+    ESP_LOGI(TAG_ProcessTicksService,
+             "Request:%u, tick:%u",
+             ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
+             current_tick);
+
     auto next_tick = current_tick + ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS);
 
     auto it = ticks.begin();
@@ -49,22 +52,36 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
 }
 
 uint32_t ProcessTicksService::Get() {
-    if (!ticks.empty()) {
-        auto current_tick = (uint32_t)xTaskGetTickCount();
-        int timespan;
-        do {
-            auto next_tick = ticks.front();
-            ticks.pop_front();
-            timespan = next_tick - current_tick;
-        } while (!ticks.empty() && timespan < 0);
+    if (ticks.empty()) {
+        ESP_LOGI(TAG_ProcessTicksService, "Get def:%d", default_delay);
+        return default_delay;
+    }
 
-        if (timespan >= 0) {
-            ESP_LOGI(TAG_ProcessTicksService, "Get:%d", timespan);
-            return (uint32_t)timespan;
+    int timespan = RemoveExpired();
+
+    ESP_LOGI(TAG_ProcessTicksService,
+             "Get:%d, tick:%u, size:%u",
+             timespan,
+             (uint32_t)xTaskGetTickCount(),
+             (uint32_t)std::distance(ticks.begin(), ticks.end()));
+    if (timespan < 0) {
+        return 0;
+    }
+    return (uint32_t)timespan;
+}
+
+int ProcessTicksService::RemoveExpired() {
+    auto current_tick = (uint32_t)xTaskGetTickCount();
+    int timespan = default_delay;
+    while (!ticks.empty()) {
+        auto next_tick = ticks.front();
+        timespan = next_tick - current_tick;
+        bool expired = timespan < 0;
+        if (expired) {
+            ticks.pop_front();
         } else {
-            return 0;
+            break;
         }
     }
-    ESP_LOGI(TAG_ProcessTicksService, "Get def:%d", default_delay);
-    return default_delay;
+    return timespan;
 }
