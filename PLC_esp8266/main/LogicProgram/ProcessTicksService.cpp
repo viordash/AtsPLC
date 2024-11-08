@@ -16,10 +16,6 @@ int32_t ProcessTicksService::GetTimespan(uint32_t from, uint32_t to) {
 
 void ProcessTicksService::Request(uint32_t delay_ms) {
     auto current_tick = (uint32_t)xTaskGetTickCount();
-    ESP_LOGI(TAG_ProcessTicksService,
-             "Request:%u, tick:%u",
-             ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
-             current_tick);
 
     auto next_tick = current_tick + ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS);
 
@@ -49,6 +45,13 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
         it++;
     }
     ticks.insert_after(it_prev, next_tick);
+
+    ESP_LOGD(TAG_ProcessTicksService,
+             "Request:%u, tick:%u, size:%u, systick:%u",
+             ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
+             current_tick,
+             (uint32_t)std::distance(ticks.begin(), ticks.end()),
+             current_tick);
 }
 
 uint32_t ProcessTicksService::Get() {
@@ -78,9 +81,14 @@ int ProcessTicksService::RemoveExpired() {
     while (!ticks.empty()) {
         auto next_tick = ticks.front();
         timespan = next_tick - current_tick;
-        bool expired = timespan < 0;
+        bool expired = timespan <= 0;
         if (expired) {
             ticks.pop_front();
+            ESP_LOGD(TAG_ProcessTicksService,
+                     "RemoveExpired:%d, size:%u, systick:%u",
+                     timespan,
+                     (uint32_t)std::distance(ticks.begin(), ticks.end()),
+                     current_tick);
         } else {
             break;
         }

@@ -173,40 +173,31 @@ TEST(ProcessTicksServiceTestsGroup, Request_zero) {
     CHECK_EQUAL(0, ticksToWait);
 }
 
-TEST(ProcessTicksServiceTestsGroup, Get_skips_expired_ticks) {
+TEST(ProcessTicksServiceTestsGroup, RemoveExpired) {
     volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(11, "xTaskGetTickCount")
+        .expectNCalls(13, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessTicksService testable;
 
     testable.Request(100);
     testable.Request(200);
-    testable.Request(300);
-    testable.Request(400);
-    testable.Request(500);
-    testable.Request(600);
-    testable.Request(700);
     testable.println();
-
-    auto ticksToWait = testable.Get();
-    CHECK_EQUAL(10, ticksToWait);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
 
     ticks += 5;
+    testable.RemoveExpired();
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    testable.println();
 
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(15, ticksToWait);
-
-    ticks += 35;
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(0, ticksToWait);
+    ticks += 5;
+    testable.RemoveExpired();
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
 
     ticks += 100;
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(0, ticksToWait);
+    testable.RemoveExpired();
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_ticks_size());
 }
 
 TEST(ProcessTicksServiceTestsGroup, GetTimespan) {
