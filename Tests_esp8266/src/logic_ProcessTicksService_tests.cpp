@@ -92,50 +92,31 @@ TEST(ProcessTicksServiceTestsGroup, Requests_remove_expired_ticks) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
 }
 
-TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick_or_default) {
+TEST(ProcessTicksServiceTestsGroup, Get_returns_early_tick) {
     volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(16, "xTaskGetTickCount")
+        .expectNCalls(8, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessTicksService testable;
 
     testable.Request(200);
-    testable.Request(220);
     testable.Request(1000);
-    testable.Request(2000);
-    testable.Request(2010);
     testable.Request(300);
     testable.Request(40);
+    testable.Request(400);
 
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(4, ticksToWait);
+}
 
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(20, ticksToWait);
+TEST(ProcessTicksServiceTestsGroup, Get_returns_default_when_empty) {
+    mock().expectNoCall("xTaskGetTickCount");
 
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(22, ticksToWait);
+    TestableProcessTicksService testable;
 
-    testable.Request(30);
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(3, ticksToWait);
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(30, ticksToWait);
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(100, ticksToWait);
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(200, ticksToWait);
-
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(201, ticksToWait);
-
+    auto ticksToWait = testable.Get();
     const uint32_t default_delay_ticks = -1;
-    ticksToWait = testable.Get();
     CHECK_EQUAL(default_delay_ticks, ticksToWait);
 }
 
@@ -147,29 +128,35 @@ TEST(ProcessTicksServiceTestsGroup, Requested_ticks_rounds_to_up) {
 
     TestableProcessTicksService testable;
 
-    testable.Request(200);
+    testable.Request(211);
     auto ticksToWait = testable.Get();
-    CHECK_EQUAL(20, ticksToWait);
-
-    testable.Request(201);
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(21, ticksToWait);
-
-    testable.Request(205);
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(21, ticksToWait);
-
-    testable.Request(209);
-    ticksToWait = testable.Get();
-    CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(22, ticksToWait);
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
 
     testable.Request(210);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
 
-    testable.Request(211);
+    testable.Request(209);
     ticksToWait = testable.Get();
-    CHECK_EQUAL(22, ticksToWait);
+    CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+
+    testable.Request(205);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+
+    testable.Request(201);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+
+    testable.Request(200);
+    ticksToWait = testable.Get();
+    CHECK_EQUAL(20, ticksToWait);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
 }
 
 TEST(ProcessTicksServiceTestsGroup, Request_zero) {

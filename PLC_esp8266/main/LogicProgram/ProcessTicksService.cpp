@@ -53,17 +53,19 @@ void ProcessTicksService::Request(uint32_t delay_ms) {
 
 uint32_t ProcessTicksService::Get() {
     if (ticks.empty()) {
-        ESP_LOGI(TAG_ProcessTicksService, "Get def:%d", default_delay);
+        ESP_LOGD(TAG_ProcessTicksService, "Get def:%d", default_delay);
         return default_delay;
     }
 
-    int timespan = RemoveExpired();
+    auto current_tick = (uint32_t)xTaskGetTickCount();
+    auto next_tick = ticks.front();
+    int timespan = next_tick - current_tick;
 
-    ESP_LOGI(TAG_ProcessTicksService,
-             "Get:%d, tick:%u, size:%u",
+    ESP_LOGD(TAG_ProcessTicksService,
+             "Get:%d, size:%u, systick:%u",
              timespan,
-             (uint32_t)xTaskGetTickCount(),
-             (uint32_t)std::distance(ticks.begin(), ticks.end()));
+             (uint32_t)std::distance(ticks.begin(), ticks.end()),
+             current_tick);
     if (timespan < 0) {
         return 0;
     }
