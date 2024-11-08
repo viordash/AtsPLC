@@ -293,10 +293,11 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
     mock()
         .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     os_us = 10 * portTICK_PERIOD_MS * 1000;
@@ -310,10 +311,11 @@ TEST(LogicCommonTimerTestsGroup, DoAction_timer_completed_when_leftime_is_less_t
     mock()
         .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     os_us = (10 * portTICK_PERIOD_MS * 1000) - (portTICK_PERIOD_MS * 1000) / 2;
@@ -325,10 +327,12 @@ TEST(LogicCommonTimerTestsGroup, DoAction_timer_completed_when_leftime_is_less_t
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
     volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(3, "esp_timer_get_time")
+        .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
     os_us = 10 * portTICK_PERIOD_MS * 1000;
 
@@ -346,7 +350,6 @@ TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_r
     mock()
         .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
     mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
