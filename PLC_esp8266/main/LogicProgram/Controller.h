@@ -71,5 +71,5 @@ class Controller {
     static void SetV3RelativeValue(uint8_t value);
     static void SetV4RelativeValue(uint8_t value);
 
-    static void RequestWakeupMs(uint32_t delay_ms);
+    static void RequestWakeupMs(void *id, uint32_t delay_ms);
 };

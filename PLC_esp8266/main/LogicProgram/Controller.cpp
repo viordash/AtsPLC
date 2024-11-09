@@ -90,7 +90,7 @@ void Controller::ProcessTask(void *parm) {
                         : ESP_OK);
 
     const uint32_t first_iteration_delay = 0;
-    processWakeupService->Request(first_iteration_delay);
+    processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
         ESP_LOGD(TAG_Controller, ">");
@@ -140,7 +140,7 @@ void Controller::ProcessTask(void *parm) {
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
-            Controller::RequestWakeupMs(0);
+            Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
         }
         need_render |= force_render;
         if (need_render) {
@@ -272,8 +272,8 @@ uint8_t Controller::GetAIRelativeValue() {
     uint8_t percent04 = Controller::cached_io_values.AI;
     ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
 
-    const int read_adc_max_period_ms = 1000;
-    processWakeupService->Request(read_adc_max_period_ms);
+    const int read_adc_max_period_ms = 500;
+    Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue, read_adc_max_period_ms);
 
     return percent04;
 }
@@ -320,6 +320,6 @@ void Controller::SetV4RelativeValue(uint8_t value) {
     Controller::var4 = value;
 }
 
-void Controller::RequestWakeupMs(uint32_t delay_ms) {
-    processWakeupService->Request(delay_ms);
+void Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
+    processWakeupService->Request(id, delay_ms);
 }
