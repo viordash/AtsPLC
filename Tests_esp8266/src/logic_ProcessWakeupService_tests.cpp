@@ -67,6 +67,21 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_by_id) {
     CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
 }
 
+TEST(ProcessWakeupServiceTestsGroup, Requests_returns_true_if_successfully_added) {
+    volatile uint32_t ticks = 10000;
+    mock()
+        .expectNCalls(2, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    TestableProcessWakeupService testable;
+
+    CHECK_TRUE(testable.Request((void *)1, 10));
+    CHECK_FALSE(testable.Request((void *)1, 11));
+    CHECK_TRUE(testable.Request((void *)2, 10));
+    CHECK_FALSE(testable.Request((void *)2, 11));
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
+}
+
 TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     volatile uint32_t ticks = 10000;
     mock()

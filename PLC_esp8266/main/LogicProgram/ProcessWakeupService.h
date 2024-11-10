@@ -41,7 +41,7 @@ class ProcessWakeupService {
     std::unordered_set<void *> ids;
 
   public:
-    void Request(void *id, uint32_t delay_ms);
+    bool Request(void *id, uint32_t delay_ms);
     void RemoveRequest(void *id);
     uint32_t Get();
     int RemoveExpired();

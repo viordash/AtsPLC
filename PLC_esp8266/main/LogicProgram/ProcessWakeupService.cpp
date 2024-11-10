@@ -9,7 +9,7 @@
 
 static const char *TAG_ProcessWakeupService = "ProcessWakeupService";
 
-void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
+bool ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
     bool request_already_in = ids.find(id) != ids.end();
     if (request_already_in) {
         ESP_LOGD(TAG_ProcessWakeupService,
@@ -17,7 +17,7 @@ void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
                  ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
                  id,
                  (uint32_t)std::distance(requests.begin(), requests.end()));
-        return;
+        return false;
     }
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
@@ -32,6 +32,7 @@ void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
              id,
              (uint32_t)std::distance(requests.begin(), requests.end()),
              current_tick);
+    return true;
 }
 
 void ProcessWakeupService::RemoveRequest(void *id) {
