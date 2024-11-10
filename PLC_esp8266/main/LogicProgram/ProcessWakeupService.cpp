@@ -40,11 +40,6 @@ void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
             continue;
         }
 
-        bool filter_unique = req.next_tick == next_tick;
-        if (filter_unique) {
-            return;
-        }
-
         int timespan = GetTimespan(next_tick, req.next_tick);
         bool further_large_values = timespan > 0;
         if (further_large_values) {
