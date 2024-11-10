@@ -323,3 +323,7 @@ void Controller::SetV4RelativeValue(uint8_t value) {
 void Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
     processWakeupService->Request(id, delay_ms);
 }
+
+void Controller::RemoveRequestWakeupMs(void *id) {
+    processWakeupService->RemoveRequest(id);
+}

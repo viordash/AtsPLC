@@ -30,8 +30,16 @@ namespace {
             std::cout << "]\n";
         }
 
-        size_t PublicMorozov_Get_ticks_size() {
+        size_t PublicMorozov_Get_requests_size() {
             return std::distance(requests.begin(), requests.end());
+        }
+        ProcessWakeupRequestData PublicMorozov_Get_request(int index) {
+            auto it = std::next(requests.begin(), index);
+            return *it;
+        }
+        void *PublicMorozov_Get_id(int index) {
+            auto it = std::next(ids.begin(), index);
+            return *it;
         }
         int32_t PublicMorozov_GetTimespan(uint32_t from, uint32_t to) {
             return GetTimespan(from, to);
@@ -48,23 +56,23 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_in_range_of_portTICK_PE
     TestableProcessWakeupService testable;
 
     testable.Request((void *)1, 10);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)2, 20);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)3, 10);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)4, 20);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)5, 21);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)6, 25);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)7, 28);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)8, 29);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     testable.Request((void *)9, 30);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Requests_remove_expired_ticks) {
@@ -78,18 +86,68 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_remove_expired_ticks) {
     testable.Request((void *)1, 10);
     testable.Request((void *)2, 20);
     testable.Request((void *)3, 30);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     ticks += 3;
 
     testable.Request((void *)4, 40);
     testable.Request((void *)5, 50);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 
     testable.println();
     ticks = INT32_MAX;
     testable.Request((void *)6, 0);
     testable.println();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
+}
+
+TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
+    volatile uint32_t ticks = 10000;
+    mock()
+        .expectNCalls(3, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    TestableProcessWakeupService testable;
+
+    testable.Request((void *)1, 10);
+    testable.Request((void *)2, 20);
+    testable.Request((void *)3, 30);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(1).id);
+    CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(2).id);
+    
+
+    testable.RemoveRequest((void *)3);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(1).id);
+
+    testable.RemoveRequest((void *)2);
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(0).id);
+
+    testable.RemoveRequest((void *)1);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests_size());
+}
+
+TEST(ProcessWakeupServiceTestsGroup, Remove_not_exists_request) {
+    volatile uint32_t ticks = 10000;
+    mock()
+        .expectNCalls(3, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+
+    TestableProcessWakeupService testable;
+
+    testable.Request((void *)1, 10);
+    testable.Request((void *)2, 20);
+    testable.Request((void *)3, 30);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
+
+    testable.RemoveRequest((void *)4);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
+
+    testable.RemoveRequest((void *)5);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Get_returns_early_tick) {
@@ -131,32 +189,32 @@ TEST(ProcessWakeupServiceTestsGroup, Requested_ticks_rounds_to_up) {
     testable.Request((void *)1, 211);
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(22, ticksToWait);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)2, 210);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)3, 209);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)4, 205);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)5, 201);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)6, 200);
     ticksToWait = testable.Get();
     CHECK_EQUAL(20, ticksToWait);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Request_zero) {
@@ -184,20 +242,20 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
     testable.Request((void *)1, 100);
     testable.Request((void *)2, 200);
     testable.println();
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
     ticks += 5;
     testable.RemoveExpired();
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     testable.println();
 
     ticks += 5;
     testable.RemoveExpired();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
     ticks += 100;
     testable.RemoveExpired();
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_ticks_size());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests_size());
 }
 
 TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
