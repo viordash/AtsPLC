@@ -41,9 +41,6 @@ namespace {
             auto it = std::next(ids.begin(), index);
             return *it;
         }
-        int32_t PublicMorozov_GetTimespan(uint32_t from, uint32_t to) {
-            return GetTimespan(from, to);
-        }
     };
 } // namespace
 
@@ -70,29 +67,50 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_by_id) {
     CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
 }
 
-TEST(ProcessWakeupServiceTestsGroup, Requests_remove_expired_ticks) {
+TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(6, "xTaskGetTickCount")
+        .expectNCalls(8, "xTaskGetTickCount")
         .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 10);
-    testable.Request((void *)2, 20);
-    testable.Request((void *)3, 30);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
-    ticks += 3;
+    testable.Request((void *)2, 2000);
+    testable.Request((void *)3, 100);
+    testable.Request((void *)1, 1000);
+    testable.Request((void *)4, 1000);
 
-    testable.Request((void *)4, 40);
+    CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(1).id);
+    CHECK_EQUAL((void *)4, testable.PublicMorozov_Get_request(2).id);
+    CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(3).id);
+
+    ticks = (uint32_t)INT32_MAX + 1000;
     testable.Request((void *)5, 50);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 
-    testable.println();
-    ticks = INT32_MAX;
-    testable.Request((void *)6, 0);
-    testable.println();
+    CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(1).id);
+    CHECK_EQUAL((void *)4, testable.PublicMorozov_Get_request(2).id);
+    CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(3).id);
+    CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(4).id);
+
+    testable.RemoveExpired();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
+
+    ticks = UINT32_MAX;
+    testable.Request((void *)6, 10);
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
+
+    ticks = 999;
+    testable.Request((void *)7, 10);
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
+    CHECK_EQUAL((void *)7, testable.PublicMorozov_Get_request(2).id);
 }
 
 TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
@@ -110,7 +128,6 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
     CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(0).id);
     CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(1).id);
     CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(2).id);
-    
 
     testable.RemoveRequest((void *)3);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
@@ -256,39 +273,39 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
 TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
     TestableProcessWakeupService testable;
 
-    auto timespan = testable.PublicMorozov_GetTimespan(100, 400);
+    auto timespan = ProcessWakeupRequestDataCmp::GetTimespan(100, 400);
     CHECK_EQUAL(300, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(400, 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(400, 100);
     CHECK_EQUAL(-300, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 100, 0);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 100, 0);
     CHECK_EQUAL(101, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(0, UINT32_MAX - 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT32_MAX - 100);
     CHECK_EQUAL(-101, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 100, UINT32_MAX);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 100, UINT32_MAX);
     CHECK_EQUAL(100, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX, UINT32_MAX - 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX, UINT32_MAX - 100);
     CHECK_EQUAL(-100, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(0, INT32_MAX);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, INT32_MAX);
     CHECK_EQUAL(INT32_MAX, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(INT32_MAX, 0);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT32_MAX, 0);
     CHECK_EQUAL(-INT32_MAX, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(INT32_MAX - 100, UINT32_MAX - 101);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT32_MAX - 100, UINT32_MAX - 101);
     CHECK_EQUAL(INT32_MAX, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX - 101, INT32_MAX - 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 101, INT32_MAX - 100);
     CHECK_EQUAL(-INT32_MAX, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(UINT32_MAX, 0);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX, 0);
     CHECK_EQUAL(1, timespan);
 
-    timespan = testable.PublicMorozov_GetTimespan(0, UINT32_MAX);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT32_MAX);
     CHECK_EQUAL(-1, timespan);
 }

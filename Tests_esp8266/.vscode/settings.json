@@ -80,6 +80,7 @@
         "thread": "cpp",
         "set": "cpp",
         "forward_list": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "unordered_set": "cpp"
     }
 }

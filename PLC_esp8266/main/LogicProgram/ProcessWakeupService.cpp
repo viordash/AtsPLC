@@ -9,11 +9,6 @@
 
 static const char *TAG_ProcessWakeupService = "ProcessWakeupService";
 
-int32_t ProcessWakeupService::GetTimespan(uint32_t from, uint32_t to) {
-    uint32_t timespan = to - from;
-    return (int32_t)timespan;
-}
-
 void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
     bool request_already_in = ids.find(id) != ids.end();
     if (request_already_in) {
@@ -28,27 +23,7 @@ void ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
     auto current_tick = (uint32_t)xTaskGetTickCount();
     auto next_tick = current_tick + ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS);
 
-    auto it = requests.begin();
-    auto it_prev = requests.before_begin();
-    while (it != requests.end()) {
-        auto req = *it;
-
-        int32_t timespan_from_current = GetTimespan(current_tick, req.next_tick);
-        bool expired = timespan_from_current < 0;
-        if (expired) {
-            it = requests.erase_after(it_prev);
-            continue;
-        }
-
-        int timespan = GetTimespan(next_tick, req.next_tick);
-        bool further_large_values = timespan > 0;
-        if (further_large_values) {
-            break;
-        }
-        it_prev = it;
-        it++;
-    }
-    requests.insert_after(it_prev, { id, next_tick });
+    requests.insert({ id, next_tick });
     ids.insert(id);
 
     ESP_LOGD(TAG_ProcessWakeupService,
@@ -67,17 +42,13 @@ void ProcessWakeupService::RemoveRequest(void *id) {
     }
     ids.erase(id_it);
 
-    auto it = requests.begin();
-    auto it_prev = requests.before_begin();
-    while (it != requests.end()) {
+    for (auto it = requests.begin(); it != requests.end(); it++) {
         auto req = *it;
 
         if (req.id == id) {
-            requests.erase_after(it_prev);
+            requests.erase(it);
             break;
         }
-        it_prev = it;
-        it++;
     }
 
     ESP_LOGD(TAG_ProcessWakeupService,
@@ -87,6 +58,18 @@ void ProcessWakeupService::RemoveRequest(void *id) {
              (uint32_t)xTaskGetTickCount());
 }
 
+static char *println(std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &requests) {
+    static char buffer[512];
+    int pos = sprintf(buffer, "[");
+    bool first{ true };
+    for (auto x : requests) {
+        pos += sprintf(&buffer[pos], "%s", (first ? first = false, "" : ", "));
+        pos += sprintf(&buffer[pos], "%p|%u", x.id, x.next_tick);
+    }
+    pos += sprintf(&buffer[pos], "]");
+    return buffer;
+}
+
 uint32_t ProcessWakeupService::Get() {
     if (requests.empty()) {
         ESP_LOGD(TAG_ProcessWakeupService, "Get def:%d", default_delay);
@@ -94,15 +77,17 @@ uint32_t ProcessWakeupService::Get() {
     }
 
     auto current_tick = (uint32_t)xTaskGetTickCount();
-    auto req = requests.front();
+    auto req_it = requests.begin();
+    auto req = *req_it;
     int timespan = req.next_tick - current_tick;
 
     ESP_LOGD(TAG_ProcessWakeupService,
-             "Get:%d, %p, size:%u, systick:%u",
+             "Get:%d, %p, size:%u, systick:%u, %s",
              timespan,
              req.id,
              (uint32_t)std::distance(requests.begin(), requests.end()),
-             current_tick);
+             current_tick,
+             println(requests));
     if (timespan < 0) {
         return 0;
     }
@@ -113,12 +98,13 @@ int ProcessWakeupService::RemoveExpired() {
     auto current_tick = (uint32_t)xTaskGetTickCount();
     int timespan = default_delay;
     while (!requests.empty()) {
-        auto req = requests.front();
+        auto req_it = requests.begin();
+        auto req = *req_it;
         timespan = req.next_tick - current_tick;
         bool expired = timespan <= 0;
         if (expired) {
             ids.erase(req.id);
-            requests.pop_front();
+            requests.erase(req_it);
             ESP_LOGD(TAG_ProcessWakeupService,
                      "RemoveExpired: %p, size:%u, systick:%u",
                      req.id,
