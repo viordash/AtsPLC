@@ -59,7 +59,7 @@ void ProcessWakeupService::RemoveRequest(void *id) {
              (uint32_t)xTaskGetTickCount());
 }
 
-static char *println(std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &requests) {
+static char *println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &requests) {
     static char buffer[512];
     int pos = sprintf(buffer, "[");
     bool first{ true };

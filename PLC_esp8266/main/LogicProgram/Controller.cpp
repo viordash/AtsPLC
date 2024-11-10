@@ -93,6 +93,8 @@ void Controller::ProcessTask(void *parm) {
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
+        uint64_t loop_sleep_time = esp_timer_get_time();
+
         ESP_LOGD(TAG_Controller, ">");
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
@@ -102,7 +104,9 @@ void Controller::ProcessTask(void *parm) {
             true,
             false,
             processWakeupService->Get());
-        ESP_LOGD(TAG_Controller, "< %04X", uxBits);
+
+        int timespan = (esp_timer_get_time() - loop_sleep_time) / 1000;
+        ESP_LOGI(TAG_Controller, "< %04X, time:%d", uxBits, timespan);
         processWakeupService->RemoveExpired();
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
@@ -227,25 +231,50 @@ void Controller::RenderTask(void *parm) {
 
 bool Controller::SampleIOValues() {
     bool val_1bit;
-    uint16_t val_10bit;
     uint8_t percent04;
-    ControllerIOValues io_values;
+    ControllerIOValues io_values = Controller::cached_io_values;
 
-    val_10bit = get_analog_value();
-    percent04 = val_10bit / 4;
-    io_values.AI = percent04;
+    const int read_adc_max_period_ms = 1000;
+    if (io_values.AI.required
+        && Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue,
+                                       read_adc_max_period_ms)) {
 
-    val_1bit = get_digital_input_value();
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.DI = percent04;
 
-    val_1bit = get_digital_value(gpio_output::OUTPUT_0);
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.O1 = percent04;
+        uint16_t val_10bit = get_analog_value();
+        percent04 = val_10bit / 4;
 
-    val_1bit = get_digital_value(gpio_output::OUTPUT_1);
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.O2 = percent04;
+        // static uint64_t adc_time = 0;
+        // uint64_t curr_time = esp_timer_get_time();
+        // ESP_LOGI(TAG_Controller,
+        //          "adc percent04:%u, %d",
+        //          percent04,
+        //          (int)((curr_time - adc_time) / 1000));
+        // adc_time = curr_time;
+
+        io_values.AI.value = percent04;
+        io_values.AI.required = false;
+    }
+
+    if (io_values.DI.required) {
+        val_1bit = get_digital_input_value();
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.DI.value = percent04;
+        io_values.DI.required = false;
+    }
+
+    if (io_values.O1.required) {
+        val_1bit = get_digital_value(gpio_output::OUTPUT_0);
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.O1.value = percent04;
+        io_values.O1.required = false;
+    }
+
+    if (io_values.O2.required) {
+        val_1bit = get_digital_value(gpio_output::OUTPUT_1);
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.O2.value = percent04;
+        io_values.O2.required = false;
+    }
 
     io_values.V1 = Controller::var1;
 
@@ -269,24 +298,22 @@ ControllerIOValues &Controller::GetIOValues() {
 }
 
 uint8_t Controller::GetAIRelativeValue() {
-    uint8_t percent04 = Controller::cached_io_values.AI;
-    ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
-
-    const int read_adc_max_period_ms = 500;
-    Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue, read_adc_max_period_ms);
-
-    return percent04;
+    Controller::cached_io_values.AI.required = true;
+    return Controller::cached_io_values.AI.value;
 }
 
 uint8_t Controller::GetDIRelativeValue() {
-    return Controller::cached_io_values.DI;
+    Controller::cached_io_values.DI.required = true;
+    return Controller::cached_io_values.DI.value;
 }
 
 uint8_t Controller::GetO1RelativeValue() {
-    return Controller::cached_io_values.O1;
+    Controller::cached_io_values.O1.required = true;
+    return Controller::cached_io_values.O1.value;
 }
 uint8_t Controller::GetO2RelativeValue() {
-    return Controller::cached_io_values.O2;
+    Controller::cached_io_values.O2.required = true;
+    return Controller::cached_io_values.O2.value;
 }
 uint8_t Controller::GetV1RelativeValue() {
     return Controller::cached_io_values.V1;
@@ -320,8 +347,8 @@ void Controller::SetV4RelativeValue(uint8_t value) {
     Controller::var4 = value;
 }
 
-void Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
-    processWakeupService->Request(id, delay_ms);
+bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
+    return processWakeupService->Request(id, delay_ms);
 }
 
 void Controller::RemoveRequestWakeupMs(void *id) {

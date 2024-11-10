@@ -153,10 +153,10 @@ TEST(LogicControllerTestsGroup, GetIOValues) {
 
     ControllerIOValues io_values = Controller::GetIOValues();
 
-    CHECK_COMPARE(io_values.AI, !=, 19);
-    CHECK_COMPARE(io_values.DI, !=, LogicElement::MaxValue);
-    CHECK_COMPARE(io_values.O1, !=, LogicElement::MaxValue);
-    CHECK_COMPARE(io_values.O2, !=, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.AI.value, !=, 19);
+    CHECK_COMPARE(io_values.DI.value, !=, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.O1.value, !=, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.O2.value, !=, LogicElement::MaxValue);
     CHECK_COMPARE(io_values.V1, !=, 1);
     CHECK_COMPARE(io_values.V2, !=, 2);
     CHECK_COMPARE(io_values.V3, !=, 3);
@@ -164,10 +164,10 @@ TEST(LogicControllerTestsGroup, GetIOValues) {
     CHECK_TRUE(Controller::SampleIOValues());
 
     io_values = Controller::GetIOValues();
-    CHECK_COMPARE(io_values.AI, ==, (uint8_t)(19 / 0.4));
-    CHECK_COMPARE(io_values.DI, ==, LogicElement::MaxValue);
-    CHECK_COMPARE(io_values.O1, ==, LogicElement::MaxValue);
-    CHECK_COMPARE(io_values.O2, ==, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.AI.value, ==, (uint8_t)(19 / 0.4));
+    CHECK_COMPARE(io_values.DI.value, ==, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.O1.value, ==, LogicElement::MaxValue);
+    CHECK_COMPARE(io_values.O2.value, ==, LogicElement::MaxValue);
     CHECK_COMPARE(io_values.V1, ==, 1);
     CHECK_COMPARE(io_values.V2, ==, 2);
     CHECK_COMPARE(io_values.V3, ==, 3);

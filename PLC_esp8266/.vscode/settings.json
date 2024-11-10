@@ -112,6 +112,8 @@
         "portmacro.h": "c",
         "xtensa_rtos.h": "c",
         "xtensa_timer.h": "c",
-        "freertosconfig.h": "c"
+        "freertosconfig.h": "c",
+        "forward_list": "cpp",
+        "unordered_set": "cpp"
     }
 }
