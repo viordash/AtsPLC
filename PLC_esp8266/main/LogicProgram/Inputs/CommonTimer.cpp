@@ -12,26 +12,10 @@
 static const char *TAG_CommonTimer = "CommonTimer";
 
 CommonTimer::CommonTimer() : LogicElement() {
-    this->start_time_us = esp_timer_get_time();
     this->delay_time_us = 0;
 }
 
 CommonTimer::~CommonTimer() {
-}
-
-uint64_t CommonTimer::GetLeftTime() {
-    uint64_t curr_time = esp_timer_get_time();
-    int64_t elapsed = curr_time - start_time_us;
-    if (elapsed < 0) {
-        return 0;
-    }
-
-    if (elapsed > (int64_t)delay_time_us) {
-        return 0;
-    }
-
-    uint64_t left_time = delay_time_us - elapsed;
-    return left_time;
 }
 
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
@@ -39,9 +23,9 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         return false;
     }
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
-        start_time_us = esp_timer_get_time();
         Controller::RemoveRequestWakeupMs(this);
         Controller::RequestWakeupMs(this, delay_time_us / 1000LL);
+        // start_time = esp_timer_get_time();
     }
 
     bool any_changes = false;
@@ -51,9 +35,19 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     if (prev_elem_state != LogicItemState::lisActive) {
         state = LogicItemState::lisPassive;
     } else if (state != LogicItemState::lisActive) {
-        uint64_t left_time = GetLeftTime();
-        if (left_time <= portTICK_PERIOD_MS * 1000) {
+        bool timer_completed = Controller::RequestWakeupMs(this, delay_time_us / 1000LL);
+        if (timer_completed) {
             state = LogicItemState::lisActive;
+
+            
+            // uint64_t curr_time = esp_timer_get_time();
+            // ESP_LOGI(TAG_CommonTimer,
+            //          "%p  DoAction:%u, delay_time:%u, systick:%u",
+            //          this,
+            //          (int)((curr_time - start_time) / 1000L),
+            //          (uint32_t)(delay_time_us / 1000L),
+            //          (uint32_t)xTaskGetTickCount());
+            // start_time = curr_time;
         }
     }
 

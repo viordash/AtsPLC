@@ -78,4 +78,5 @@ class Controller {
 
     static bool RequestWakeupMs(void *id, uint32_t delay_ms);
     static void RemoveRequestWakeupMs(void *id);
+    static void RemoveExpiredWakeupRequests();
 };

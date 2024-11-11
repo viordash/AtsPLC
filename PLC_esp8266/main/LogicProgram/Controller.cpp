@@ -239,7 +239,6 @@ bool Controller::SampleIOValues() {
         && Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue,
                                        read_adc_max_period_ms)) {
 
-
         uint16_t val_10bit = get_analog_value();
         percent04 = val_10bit / 4;
 
@@ -285,8 +284,14 @@ bool Controller::SampleIOValues() {
     io_values.V4 = Controller::var4;
     {
         std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-        bool has_changes =
-            memcmp(&io_values, &Controller::cached_io_values, sizeof(io_values)) != 0;
+        bool has_changes = io_values.AI.value != Controller::cached_io_values.AI.value
+                        || io_values.DI.value != Controller::cached_io_values.DI.value
+                        || io_values.O1.value != Controller::cached_io_values.O1.value
+                        || io_values.O2.value != Controller::cached_io_values.O2.value
+                        || io_values.V1 != Controller::cached_io_values.V1
+                        || io_values.V2 != Controller::cached_io_values.V2
+                        || io_values.V3 != Controller::cached_io_values.V3
+                        || io_values.V4 != Controller::cached_io_values.V4;
         Controller::cached_io_values = io_values;
         return has_changes;
     }
@@ -353,4 +358,8 @@ bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
 
 void Controller::RemoveRequestWakeupMs(void *id) {
     processWakeupService->RemoveRequest(id);
+}
+
+void Controller::RemoveExpiredWakeupRequests() {
+    processWakeupService->RemoveExpired();
 }

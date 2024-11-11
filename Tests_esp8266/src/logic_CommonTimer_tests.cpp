@@ -67,13 +67,6 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        uint64_t PublicMorozov_GetLeftTime() {
-            return GetLeftTime();
-        }
-        uint64_t PublicMorozov_start_time_us() {
-            return start_time_us;
-        }
-
         size_t Serialize(uint8_t *buffer, size_t buffer_size) override {
             (void)buffer;
             (void)buffer_size;
@@ -104,8 +97,6 @@ namespace {
 } // namespace
 
 TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
@@ -113,157 +104,13 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
 }
 
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
-TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_no_overflowed) {
-    volatile uint64_t os_us = 2;
-    mock()
-        .expectNCalls(7, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableCommonTimer testable_0(10);
-    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(10, left_time);
-
-    os_us = 10;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(2, left_time);
-
-    os_us = 12 - 1;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(1, left_time);
-
-    os_us = 12;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = 12 + 1;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = UINT64_MAX - 1LL;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-}
-
-TEST(LogicCommonTimerTestsGroup, GetLeftTime_when_is_overflowed) {
-    volatile uint64_t os_us = UINT64_MAX - 7;
-    mock()
-        .expectNCalls(9, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableCommonTimer testable_0(10);
-    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(10, left_time);
-
-    os_us = UINT64_MAX - 4;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(7, left_time);
-
-    os_us = UINT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(3, left_time);
-
-    os_us = 0;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(3 - 1, left_time);
-
-    os_us = 3 - 2;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(1, left_time);
-
-    os_us = 3 - 1;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = INT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = UINT64_MAX - 8;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-}
-
-TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(8, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableCommonTimer testable_0(INT64_MAX);
-    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX, left_time);
-
-    os_us = 100;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX - 100, left_time);
-
-    os_us = INT64_MAX - 1;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(1, left_time);
-
-    os_us = INT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = (uint64_t)INT64_MAX + 100;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = UINT64_MAX - 1;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = UINT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-}
-
-TEST(LogicCommonTimerTestsGroup, GetLeftTime_for_max_delay_with_time_overflow) {
-    volatile uint64_t os_us = UINT64_MAX - 7;
-    mock()
-        .expectNCalls(8, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableCommonTimer testable_0(INT64_MAX);
-    uint64_t left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX, left_time);
-
-    os_us = UINT64_MAX - 5;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX - 2, left_time);
-
-    os_us = UINT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX - 7, left_time);
-
-    os_us = 0;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(INT64_MAX - 8, left_time);
-
-    os_us = (uint64_t)INT64_MAX - 9;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(1, left_time);
-
-    os_us = (uint64_t)INT64_MAX - 8;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-
-    os_us = (uint64_t)INT64_MAX;
-    left_time = testable_0.PublicMorozov_GetLeftTime();
-    CHECK_EQUAL(0, left_time);
-}
-
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-
     TestableCommonTimer testable(10);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
@@ -271,8 +118,6 @@ TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
-
     TestableCommonTimer testable(10);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
@@ -289,93 +134,78 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
-    volatile uint64_t os_us = 0;
+    volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(4, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
+        .expectNCalls(4, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
 
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    os_us = 10 * portTICK_PERIOD_MS * 1000;
+    ticks += 9;
+    Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
-}
-
-TEST(LogicCommonTimerTestsGroup, DoAction_timer_completed_when_leftime_is_less_than_systick) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(4, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
-
-    TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
-
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    os_us = (10 * portTICK_PERIOD_MS * 1000) - (portTICK_PERIOD_MS * 1000) / 2;
+    ticks += 1;
+    Controller::RemoveExpiredWakeupRequests();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
-    volatile uint64_t os_us = 0;
+    volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(4, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
+        .expectNCalls(4, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
+    TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
-    os_us = 10 * portTICK_PERIOD_MS * 1000;
+    ticks += 20;
+    Controller::RemoveExpiredWakeupRequests();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    os_us = 5 * portTICK_PERIOD_MS * 1000; //total counter overflow
+    ticks = 9000; //total counter overflow;
+    Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_resets_start_time) {
-    volatile uint64_t os_us = 42 * portTICK_PERIOD_MS * 1000;
+    volatile uint32_t ticks = 10000;
     mock()
-        .expectNCalls(4, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
+        .expectNCalls(5, "xTaskGetTickCount")
+        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
 
-    TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
+    TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
 
-    os_us += 19 * portTICK_PERIOD_MS * 1000;
-    CHECK_EQUAL(42 * portTICK_PERIOD_MS * 1000, testable.PublicMorozov_start_time_us());
+    ticks += 100;
+    Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
-    CHECK_EQUAL(42 * portTICK_PERIOD_MS * 1000 + 19 * portTICK_PERIOD_MS * 1000,
-                testable.PublicMorozov_start_time_us());
-}
+    ticks += 19;
+    Controller::RemoveExpiredWakeupRequests();
 
-TEST(LogicCommonTimerTestsGroup, set_start_time_in_ctor) {
-    volatile uint64_t os_us = 42;
-    mock()
-        .expectOneCall("esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
 
-    TestableCommonTimer testable(10);
+    ticks += 1;
+    Controller::RemoveExpiredWakeupRequests();
+
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
 }
 
 TEST(LogicCommonTimerTestsGroup, TryToCast) {
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
     InputNC inputNC;
     CHECK_TRUE(CommonTimer::TryToCast(&inputNC) == NULL);
 
