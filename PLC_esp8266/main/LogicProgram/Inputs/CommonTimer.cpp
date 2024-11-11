@@ -25,7 +25,6 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
         Controller::RequestWakeupMs(this, delay_time_us / 1000LL);
-        // start_time = esp_timer_get_time();
     }
 
     bool any_changes = false;
@@ -38,16 +37,6 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         bool timer_completed = Controller::RequestWakeupMs(this, delay_time_us / 1000LL);
         if (timer_completed) {
             state = LogicItemState::lisActive;
-
-            
-            // uint64_t curr_time = esp_timer_get_time();
-            // ESP_LOGI(TAG_CommonTimer,
-            //          "%p  DoAction:%u, delay_time:%u, systick:%u",
-            //          this,
-            //          (int)((curr_time - start_time) / 1000L),
-            //          (uint32_t)(delay_time_us / 1000L),
-            //          (uint32_t)xTaskGetTickCount());
-            // start_time = curr_time;
         }
     }
 

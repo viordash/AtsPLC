@@ -93,9 +93,6 @@ void Controller::ProcessTask(void *parm) {
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
-        uint64_t loop_sleep_time = esp_timer_get_time();
-
-        ESP_LOGD(TAG_Controller, ">");
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
@@ -105,8 +102,6 @@ void Controller::ProcessTask(void *parm) {
             false,
             processWakeupService->Get());
 
-        int timespan = (esp_timer_get_time() - loop_sleep_time) / 1000;
-        ESP_LOGI(TAG_Controller, "< %04X, time:%d", uxBits, timespan);
         processWakeupService->RemoveExpired();
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
@@ -241,15 +236,6 @@ bool Controller::SampleIOValues() {
 
         uint16_t val_10bit = get_analog_value();
         percent04 = val_10bit / 4;
-
-        // static uint64_t adc_time = 0;
-        // uint64_t curr_time = esp_timer_get_time();
-        // ESP_LOGI(TAG_Controller,
-        //          "adc percent04:%u, %d",
-        //          percent04,
-        //          (int)((curr_time - adc_time) / 1000));
-        // adc_time = curr_time;
-
         io_values.AI.value = percent04;
         io_values.AI.required = false;
     }

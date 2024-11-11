@@ -16,7 +16,6 @@ class CommonTimer : public LogicElement {
     uint64_t delay_time_us;
     char str_time[16];
     int str_size;
-    // uint64_t start_time;
 
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
