@@ -80,7 +80,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
     testable.SetIoAdr(MapIO::V1);
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());
@@ -96,7 +96,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
     TestableSetOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());

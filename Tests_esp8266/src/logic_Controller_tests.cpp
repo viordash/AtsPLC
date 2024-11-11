@@ -26,9 +26,6 @@ TEST_TEARDOWN() {
 
 TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     volatile uint16_t adc = 100 / 0.1;
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
     mock()
         .expectNCalls(1, "adc_read")
@@ -41,9 +38,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
 
 TEST(LogicControllerTestsGroup, SampleIOValues_DI) {
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
 
     CHECK_EQUAL(LogicElement::MinValue, Controller::GetDIRelativeValue());
     CHECK_TRUE(Controller::SampleIOValues());
@@ -51,10 +45,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_DI) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_O1) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
 
     CHECK_EQUAL(LogicElement::MinValue, Controller::GetO1RelativeValue());
     CHECK_TRUE(Controller::SampleIOValues());
@@ -62,10 +53,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O1) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(0);
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
 
     CHECK_EQUAL(LogicElement::MinValue, Controller::GetO2RelativeValue());
     CHECK_TRUE(Controller::SampleIOValues());
@@ -73,11 +61,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_V1) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
-
     CHECK_EQUAL(0, Controller::GetV1RelativeValue());
     Controller::SetV1RelativeValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
@@ -85,11 +68,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V1) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_V2) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
-
     CHECK_EQUAL(0, Controller::GetV2RelativeValue());
     Controller::SetV2RelativeValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
@@ -97,11 +75,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V2) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_V3) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
-
     CHECK_EQUAL(0, Controller::GetV3RelativeValue());
     Controller::SetV3RelativeValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
@@ -109,11 +82,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V3) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_V4) {
-    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
-
     CHECK_EQUAL(0, Controller::GetV4RelativeValue());
     Controller::SetV4RelativeValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
@@ -121,11 +89,6 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V4) {
 }
 
 TEST(LogicControllerTestsGroup, SampleIOValues_returns_status_of_value_change) {
-    mock("0").expectNCalls(6, "gpio_get_level").ignoreOtherParameters();
-    mock("2").expectNCalls(6, "gpio_get_level").ignoreOtherParameters();
-    mock("15").expectNCalls(6, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(6, "adc_read").ignoreOtherParameters();
-
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
     Controller::SetV4RelativeValue(42);
@@ -141,6 +104,7 @@ TEST(LogicControllerTestsGroup, GetIOValues) {
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
+    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
     volatile uint16_t adc = 19 / 0.1;
     mock()
         .expectNCalls(1, "adc_read")
@@ -161,6 +125,12 @@ TEST(LogicControllerTestsGroup, GetIOValues) {
     CHECK_COMPARE(io_values.V2, !=, 2);
     CHECK_COMPARE(io_values.V3, !=, 3);
     CHECK_COMPARE(io_values.V4, !=, 4);
+
+    Controller::GetAIRelativeValue();
+    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::GetDIRelativeValue();
+    Controller::GetO1RelativeValue();
+    Controller::GetO2RelativeValue();
     CHECK_TRUE(Controller::SampleIOValues());
 
     io_values = Controller::GetIOValues();
