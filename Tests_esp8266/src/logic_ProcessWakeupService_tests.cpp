@@ -25,7 +25,8 @@ namespace {
             std::cout << '[';
             bool first{ true };
             for (auto x : requests) {
-                std::cout << (first ? first = false, "" : ", ") << x.id << "|" << x.next_tick;
+                std::cout << (first ? first = false, "" : ", ") << x.id << "|"
+                          << (x.next_time / 1000);
             }
             std::cout << "]\n";
         }
@@ -45,10 +46,10 @@ namespace {
 } // namespace
 
 TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_by_id) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(4, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(4, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -68,10 +69,10 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_by_id) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Requests_returns_true_if_successfully_added) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -83,10 +84,10 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_returns_true_if_successfully_added
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(8, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(8, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -101,7 +102,7 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     CHECK_EQUAL((void *)4, testable.PublicMorozov_Get_request(2).id);
     CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(3).id);
 
-    ticks = (uint32_t)INT32_MAX + 1000;
+    os_us = (uint32_t)INT32_MAX + 1000;
     testable.Request((void *)5, 50);
 
     CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
@@ -114,13 +115,13 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     testable.RemoveExpired();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
-    ticks = UINT32_MAX;
+    os_us = UINT32_MAX;
     testable.Request((void *)6, 10);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
     CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
 
-    ticks = 999;
+    os_us = 999;
     testable.Request((void *)7, 10);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
@@ -129,10 +130,10 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(3, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -158,10 +159,10 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Remove_not_exists_request) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(3, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -178,10 +179,10 @@ TEST(ProcessWakeupServiceTestsGroup, Remove_not_exists_request) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Get_returns_early_tick) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(6, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(6, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -196,7 +197,7 @@ TEST(ProcessWakeupServiceTestsGroup, Get_returns_early_tick) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Get_returns_default_when_empty) {
-    mock().expectNoCall("xTaskGetTickCount");
+    mock().expectNoCall("esp_timer_get_time");
 
     TestableProcessWakeupService testable;
 
@@ -206,14 +207,14 @@ TEST(ProcessWakeupServiceTestsGroup, Get_returns_default_when_empty) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Requested_round_ticks_to_up) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(12, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(12, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 211);
+    testable.Request((void *)1, 215);
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(22, ticksToWait);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
@@ -235,7 +236,7 @@ TEST(ProcessWakeupServiceTestsGroup, Requested_round_ticks_to_up) {
 
     testable.Request((void *)5, 201);
     ticksToWait = testable.Get();
-    CHECK_EQUAL(21, ticksToWait);
+    CHECK_EQUAL(20, ticksToWait);
     CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
 
     testable.Request((void *)6, 200);
@@ -245,24 +246,24 @@ TEST(ProcessWakeupServiceTestsGroup, Requested_round_ticks_to_up) {
 }
 
 TEST(ProcessWakeupServiceTestsGroup, Request_zero) {
-    volatile uint32_t ticks = 51615;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(2, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
     testable.Request(NULL, 0);
-    ticks = 51616;
+    os_us = 51616;
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(0, ticksToWait);
 }
 
 TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000;
     mock()
-        .expectNCalls(5, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(5, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
@@ -271,16 +272,16 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
     testable.println();
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
-    ticks += 5;
+    os_us += 50 * 1000;
     testable.RemoveExpired();
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     testable.println();
 
-    ticks += 5;
+    os_us += 50 * 1000;
     testable.RemoveExpired();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
-    ticks += 100;
+    os_us += 1000 * 1000;
     testable.RemoveExpired();
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests_size());
 }
@@ -294,33 +295,33 @@ TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
     timespan = ProcessWakeupRequestDataCmp::GetTimespan(400, 100);
     CHECK_EQUAL(-300, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 100, 0);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT64_MAX - 100, 0);
     CHECK_EQUAL(101, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT32_MAX - 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT64_MAX - 100);
     CHECK_EQUAL(-101, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 100, UINT32_MAX);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT64_MAX - 100, UINT64_MAX);
     CHECK_EQUAL(100, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX, UINT32_MAX - 100);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT64_MAX, UINT64_MAX - 100);
     CHECK_EQUAL(-100, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, INT32_MAX);
-    CHECK_EQUAL(INT32_MAX, timespan);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, INT64_MAX);
+    CHECK_EQUAL(INT64_MAX, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT32_MAX, 0);
-    CHECK_EQUAL(-INT32_MAX, timespan);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT64_MAX, 0);
+    CHECK_EQUAL(-INT64_MAX, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT32_MAX - 100, UINT32_MAX - 101);
-    CHECK_EQUAL(INT32_MAX, timespan);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(INT64_MAX - 100, UINT64_MAX - 101);
+    CHECK_EQUAL(INT64_MAX, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX - 101, INT32_MAX - 100);
-    CHECK_EQUAL(-INT32_MAX, timespan);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT64_MAX - 101, INT64_MAX - 100);
+    CHECK_EQUAL(-INT64_MAX, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT32_MAX, 0);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(UINT64_MAX, 0);
     CHECK_EQUAL(1, timespan);
 
-    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT32_MAX);
+    timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT64_MAX);
     CHECK_EQUAL(-1, timespan);
 }

@@ -20,6 +20,7 @@ CommonTimer::~CommonTimer() {
 
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        Controller::RemoveRequestWakeupMs(this);
         return false;
     }
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {

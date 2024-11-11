@@ -134,23 +134,23 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(4, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(6, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
 
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    ticks += 9;
+    os_us += 9 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    ticks += 1;
+    os_us += 1 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -158,21 +158,21 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
 }
 
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(4, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(6, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
-    ticks += 20;
+    os_us += 20 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    ticks = 9000; //total counter overflow;
+    os_us = 9000 * portTICK_PERIOD_MS * 1000; //total counter overflow;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
@@ -180,26 +180,26 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_resets_start_time) {
-    volatile uint32_t ticks = 10000;
+    volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(5, "xTaskGetTickCount")
-        .withOutputParameterReturning("ticks", (const void *)&ticks, sizeof(ticks));
+        .expectNCalls(7, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
 
-    ticks += 100;
+    os_us += 100 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
 
-    ticks += 19;
+    os_us += 19 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
 
-    ticks += 1;
+    os_us += 1 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));

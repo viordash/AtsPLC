@@ -10,24 +10,24 @@
 
 struct ProcessWakeupRequestData {
     void *id;
-    uint32_t next_tick;
+    uint64_t next_time;
 };
 
 struct ProcessWakeupRequestDataCmp {
-    static int32_t GetTimespan(uint32_t from, uint32_t to) {
-        uint32_t timespan = to - from;
-        return (int32_t)timespan;
+    static int64_t GetTimespan(uint64_t from, uint64_t to) {
+        uint64_t timespan = to - from;
+        return (int64_t)timespan;
     }
 
     bool operator()(const ProcessWakeupRequestData &fk1,
                     const ProcessWakeupRequestData &fk2) const {
 
-        int timespan = GetTimespan(fk1.next_tick, fk2.next_tick);
+        int timespan = GetTimespan(fk1.next_time, fk2.next_time);
         bool further_large_values = timespan > 0;
         if (further_large_values) {
             return true;
         }
-        if (fk1.next_tick > fk2.next_tick) {
+        if (fk1.next_time > fk2.next_time) {
             return false;
         }
         return fk1.id < fk2.id;

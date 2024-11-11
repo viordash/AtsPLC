@@ -26,7 +26,7 @@ TEST_TEARDOWN() {
 
 TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     volatile uint16_t adc = 100 / 0.1;
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
@@ -104,7 +104,7 @@ TEST(LogicControllerTestsGroup, GetIOValues) {
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
-    mock().expectNCalls(1, "xTaskGetTickCount").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     volatile uint16_t adc = 19 / 0.1;
     mock()
         .expectNCalls(1, "adc_read")

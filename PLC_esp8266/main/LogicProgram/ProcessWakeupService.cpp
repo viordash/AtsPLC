@@ -3,6 +3,7 @@
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,24 +15,24 @@ bool ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
     if (request_already_in) {
         ESP_LOGD(TAG_ProcessWakeupService,
                  "Request already in:%u, %p, size:%u",
-                 ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
+                 delay_ms,
                  id,
                  (uint32_t)std::distance(requests.begin(), requests.end()));
         return false;
     }
 
-    auto current_tick = (uint32_t)xTaskGetTickCount();
-    auto next_tick = current_tick + ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS);
+    auto current_time = (uint64_t)esp_timer_get_time();
+    auto next_time = current_time + (delay_ms * 1000);
 
-    requests.insert({ id, next_tick });
+    requests.insert({ id, next_time });
     ids.insert(id);
 
     ESP_LOGD(TAG_ProcessWakeupService,
-             "Request:%u, %p, size:%u, systick:%u",
-             ((delay_ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS),
+             "Request:%u, %p, size:%u, time:%u",
+             delay_ms,
              id,
              (uint32_t)std::distance(requests.begin(), requests.end()),
-             current_tick);
+             (uint32_t)(current_time / 1000));
     return true;
 }
 
@@ -56,16 +57,17 @@ void ProcessWakeupService::RemoveRequest(void *id) {
              "RemoveRequest: %p, size:%u, systick:%u",
              id,
              (uint32_t)std::distance(requests.begin(), requests.end()),
-             (uint32_t)xTaskGetTickCount());
+             (uint32_t)esp_timer_get_time());
 }
 
-static char *println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &requests) {
+static char *
+println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &requests) {
     static char buffer[512];
     int pos = sprintf(buffer, "[");
     bool first{ true };
     for (auto x : requests) {
         pos += sprintf(&buffer[pos], "%s", (first ? first = false, "" : ", "));
-        pos += sprintf(&buffer[pos], "%p|%u", x.id, x.next_tick);
+        pos += sprintf(&buffer[pos], "%p|%u", x.id, (uint32_t)(x.next_time / 1000));
     }
     pos += sprintf(&buffer[pos], "]");
     return buffer;
@@ -77,31 +79,34 @@ uint32_t ProcessWakeupService::Get() {
         return default_delay;
     }
 
-    auto current_tick = (uint32_t)xTaskGetTickCount();
+    auto current_time = (uint64_t)esp_timer_get_time();
     auto req_it = requests.begin();
     auto req = *req_it;
-    int timespan = req.next_tick - current_tick;
+    int64_t timespan = req.next_time - current_time;
+
+    uint32_t wait_ticks =
+        ((timespan / 1000) + (portTICK_PERIOD_MS - portTICK_PERIOD_MS / 2)) / portTICK_PERIOD_MS;
 
     ESP_LOGD(TAG_ProcessWakeupService,
-             "Get:%d, %p, size:%u, systick:%u, %s",
-             timespan,
+             "Get:%d, %p, size:%u, time:%u, %s",
+             wait_ticks,
              req.id,
              (uint32_t)std::distance(requests.begin(), requests.end()),
-             current_tick,
+             (uint32_t)(current_time / 1000),
              println(requests));
     if (timespan < 0) {
         return 0;
     }
-    return (uint32_t)timespan;
+    return wait_ticks;
 }
 
 int ProcessWakeupService::RemoveExpired() {
-    auto current_tick = (uint32_t)xTaskGetTickCount();
-    int timespan = default_delay;
+    auto current_time = (uint64_t)esp_timer_get_time();
+    int64_t timespan = default_delay;
     while (!requests.empty()) {
         auto req_it = requests.begin();
         auto req = *req_it;
-        timespan = req.next_tick - current_tick;
+        timespan = req.next_time - current_time;
         bool expired = timespan <= 0;
         if (expired) {
             ids.erase(req.id);
@@ -110,10 +115,10 @@ int ProcessWakeupService::RemoveExpired() {
                      "RemoveExpired: %p, size:%u, systick:%u",
                      req.id,
                      (uint32_t)std::distance(requests.begin(), requests.end()),
-                     current_tick);
+                     (uint32_t)(current_time / 1000));
         } else {
             break;
         }
     }
-    return timespan;
+    return (int)timespan;
 }

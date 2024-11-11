@@ -86,7 +86,7 @@ TEST(LogicComparatorGETestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicComparatorGETestsGroup, DoAction_change_state_to_active) {
     volatile uint16_t adc = 49 / 0.1;
-    mock().expectNCalls(3, "xTaskGetTickCount").ignoreOtherParameters();
+    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
     mock()
         .expectNCalls(3, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
@@ -115,7 +115,7 @@ TEST(LogicComparatorGETestsGroup, DoAction_change_state_to_active) {
 
 TEST(LogicComparatorGETestsGroup, DoAction_change_state_to_passive) {
     volatile uint16_t adc = 50 / 0.1;
-    mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
