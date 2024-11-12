@@ -136,7 +136,7 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_
 TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_raised) {
     volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(6, "esp_timer_get_time")
+        .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
@@ -160,7 +160,7 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
 TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
     volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(6, "esp_timer_get_time")
+        .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
@@ -182,7 +182,7 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
 TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_resets_start_time) {
     volatile uint64_t os_us = 10000 * portTICK_PERIOD_MS * 1000;
     mock()
-        .expectNCalls(7, "esp_timer_get_time")
+        .expectNCalls(5, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
