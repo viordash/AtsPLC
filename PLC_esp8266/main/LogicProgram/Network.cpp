@@ -329,13 +329,21 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
     bool hide_output_elements = HasOutputElement();
     ElementsBox elementBox(fill_wire, new_element, hide_output_elements);
     new_element->EndEditing();
-    bool res = elementBox.size() > 0;
+    bool not_enough =
+        elementBox.size() == 0
+        || (elementBox.size() == 1
+            && elementBox.GetSelectedElement()->GetElementType() == TvElementType::et_Wire);
     delete elementBox.GetSelectedElement();
-    return res;
+    return !not_enough;
 }
 
 void Network::AddSpaceForNewElement() {
     auto wire = new Wire();
+    uint8_t wire_width = fill_wire / 2 + 1;
+    if (wire_width > WIRE_STANDART_WIDTH) {
+        wire_width = WIRE_STANDART_WIDTH;
+    }
+    wire->SetWidth(wire_width);
     if (EnoughSpaceForNewElement(wire)) {
         ESP_LOGI(TAG_Network, "insert wire element");
 
@@ -349,11 +357,6 @@ void Network::AddSpaceForNewElement() {
             }
             it++;
         }
-        uint8_t wire_width = fill_wire / 2 + 1;
-        if (wire_width > WIRE_STANDART_WIDTH) {
-            wire_width = WIRE_STANDART_WIDTH;
-        }
-        wire->SetWidth(wire_width);
         insert(it, wire);
 
     } else {
