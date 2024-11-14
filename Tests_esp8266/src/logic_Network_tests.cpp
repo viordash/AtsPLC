@@ -376,6 +376,8 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+    delete elementBox->GetSelectedElement();
 }
 
 TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
@@ -526,7 +528,7 @@ TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
     CHECK(selectedElement != expectedElementBox);
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
 
-    testable.SelectPrior(); 
+    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNO, expectedElementBox->GetElementType());
 
     testable.Change();

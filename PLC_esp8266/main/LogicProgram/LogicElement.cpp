@@ -11,3 +11,7 @@ LogicElement::LogicElement() : EditableElement() {
 
 LogicElement::~LogicElement() {
 }
+
+LogicItemState LogicElement::GetState() {
+    return state;
+}

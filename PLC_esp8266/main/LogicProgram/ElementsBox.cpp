@@ -22,7 +22,6 @@ static const char *TAG_ElementsBox = "ElementsBox";
 ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements)
     : LogicElement() {
     this->place_width = CalcEntirePlaceWidth(fill_wire, source_element);
-    // this->source_element = source_element;
     source_element->BeginEditing();
     selected_index = 0;
     force_do_action_result = false;
@@ -30,14 +29,8 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool h
 }
 
 ElementsBox::~ElementsBox() {
-    /* if (Editing()) {
-         delete source_element;
-     } else  if (GetSelectedElement() != source_element)*/
-    {
-        auto selected_it = std::find(begin(), end(), GetSelectedElement());
-        erase(selected_it);
-        // delete source_element;
-    }
+    auto selected_it = std::find(begin(), end(), GetSelectedElement());
+    erase(selected_it);
 
     while (!empty()) {
         auto it = begin();
@@ -241,9 +234,6 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
-    // if (selected_index < 0) {
-    //     return source_element;
-    // }
     return (*this)[selected_index];
 }
 

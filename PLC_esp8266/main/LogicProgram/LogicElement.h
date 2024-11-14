@@ -27,6 +27,8 @@ class LogicElement : public EditableElement {
     LogicElement();
     virtual ~LogicElement();
 
+    LogicItemState GetState();
+    
     virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;
     virtual bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) = 0;
 
