@@ -362,8 +362,8 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
 TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_ElementBox) {
     Network testable(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq());
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
 
     testable.SelectNext();
 
@@ -381,8 +381,8 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
 TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
     Network testable(LogicItemState::lisActive);
 
-    testable.Append(new TestableInputNC);
-    testable.Append(new TestableComparatorEq());
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
 
     testable.SelectNext();
 
@@ -505,4 +505,34 @@ TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
     testable.Change();
     CHECK_EQUAL(2, testable.size());
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[0]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new ComparatorEq(1, MapIO::AI));
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK(selectedElement != expectedElementBox);
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+
+    testable.SelectPrior(); 
+    CHECK_EQUAL(TvElementType::et_InputNO, expectedElementBox->GetElementType());
+
+    testable.Change();
+    CHECK_TRUE(elementBox->GetSelectedElement()->Editing());
+
+    testable.Change();
+
+    CHECK_EQUAL(-1, testable.GetSelectedElement());
 }

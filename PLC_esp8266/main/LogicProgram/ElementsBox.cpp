@@ -19,23 +19,24 @@
 
 static const char *TAG_ElementsBox = "ElementsBox";
 
-ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *stored_element, bool hide_output_elements)
+ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements)
     : LogicElement() {
-    this->place_width = CalcEntirePlaceWidth(fill_wire, stored_element);
-    this->stored_element = stored_element;
-    stored_element->BeginEditing();
-    selected_index = -1;
+    this->place_width = CalcEntirePlaceWidth(fill_wire, source_element);
+    // this->source_element = source_element;
+    source_element->BeginEditing();
+    selected_index = 0;
     force_do_action_result = false;
-    Fill(hide_output_elements);
+    Fill(source_element, hide_output_elements);
 }
 
 ElementsBox::~ElementsBox() {
-    if (Editing()) {
-        delete stored_element;
-    } else if (GetSelectedElement() != stored_element) {
+    /* if (Editing()) {
+         delete source_element;
+     } else  if (GetSelectedElement() != source_element)*/
+    {
         auto selected_it = std::find(begin(), end(), GetSelectedElement());
         erase(selected_it);
-        delete stored_element;
+        // delete source_element;
     }
 
     while (!empty()) {
@@ -47,45 +48,45 @@ ElementsBox::~ElementsBox() {
     }
 }
 
-uint8_t ElementsBox::CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element) {
+uint8_t ElementsBox::CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *source_element) {
     uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
     Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
-    if (stored_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        bool calc_reverse_for_output = CommonOutput::TryToCast(stored_element) != NULL;
+    if (source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
+        bool calc_reverse_for_output = CommonOutput::TryToCast(source_element) != NULL;
         if (calc_reverse_for_output) {
-            stored_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
+            source_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
         } else {
-            stored_element_width = start_point.x - (DISPLAY_WIDTH / 2);
+            source_element_width = start_point.x - (DISPLAY_WIDTH / 2);
         }
     }
     delete[] frame_buffer;
-    return stored_element_width + fill_wire;
+    return source_element_width + fill_wire;
 }
 
-bool ElementsBox::MatchedToStoredElement(TvElementType element_type) {
-    if (IsInputElement(element_type) && IsOutputElement(stored_element->GetElementType())) {
+bool ElementsBox::MatchedToStoredElement(LogicElement *source_element, TvElementType element_type) {
+    if (IsInputElement(element_type) && IsOutputElement(source_element->GetElementType())) {
         return false;
     }
 
-    if (IsOutputElement(element_type) && IsInputElement(stored_element->GetElementType())) {
+    if (IsOutputElement(element_type) && IsInputElement(source_element->GetElementType())) {
         return false;
     }
     return true;
 }
 
-bool ElementsBox::CopyParamsToCommonInput(CommonInput *common_input) {
+bool ElementsBox::CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input) {
     if (common_input == NULL) {
         return false;
     }
     MapIO io_adr = MapIO::AI;
 
-    auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
-    if (stored_element_as_commonInput != NULL) {
-        io_adr = stored_element_as_commonInput->GetIoAdr();
+    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
+    if (source_element_as_commonInput != NULL) {
+        io_adr = source_element_as_commonInput->GetIoAdr();
     } else {
-        auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
-        if (stored_element_as_commonOutput != NULL) {
-            io_adr = stored_element_as_commonOutput->GetIoAdr();
+        auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
+        if (source_element_as_commonOutput != NULL) {
+            io_adr = source_element_as_commonOutput->GetIoAdr();
         }
     }
 
@@ -93,12 +94,12 @@ bool ElementsBox::CopyParamsToCommonInput(CommonInput *common_input) {
     if (new_element_as_commonComparator != NULL) {
         uint8_t ref_percent04 = 0;
 
-        if (stored_element_as_commonInput != NULL) {
-            auto *stored_element_as_commonComparator =
-                CommonComparator::TryToCast(stored_element_as_commonInput);
+        if (source_element_as_commonInput != NULL) {
+            auto *source_element_as_commonComparator =
+                CommonComparator::TryToCast(source_element_as_commonInput);
 
-            if (stored_element_as_commonComparator != NULL) {
-                ref_percent04 = stored_element_as_commonComparator->GetReference();
+            if (source_element_as_commonComparator != NULL) {
+                ref_percent04 = source_element_as_commonComparator->GetReference();
             }
         }
         new_element_as_commonComparator->SetReference(ref_percent04);
@@ -107,22 +108,22 @@ bool ElementsBox::CopyParamsToCommonInput(CommonInput *common_input) {
     return true;
 }
 
-bool ElementsBox::CopyParamsToCommonTimer(CommonTimer *common_timer) {
+bool ElementsBox::CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer) {
     if (common_timer == NULL) {
         return false;
     }
 
     uint64_t time_us = 0;
-    auto *stored_element_as_commonTimer = CommonTimer::TryToCast(stored_element);
-    if (stored_element_as_commonTimer != NULL) {
-        auto *stored_element_as_timerSecs = TimerSecs::TryToCast(stored_element_as_commonTimer);
-        if (stored_element_as_timerSecs != NULL) {
-            time_us = stored_element_as_timerSecs->GetTimeUs();
+    auto *source_element_as_commonTimer = CommonTimer::TryToCast(source_element);
+    if (source_element_as_commonTimer != NULL) {
+        auto *source_element_as_timerSecs = TimerSecs::TryToCast(source_element_as_commonTimer);
+        if (source_element_as_timerSecs != NULL) {
+            time_us = source_element_as_timerSecs->GetTimeUs();
         } else {
-            auto *stored_element_as_timerMSecs =
-                TimerMSecs::TryToCast(stored_element_as_commonTimer);
-            if (stored_element_as_timerMSecs != NULL) {
-                time_us = stored_element_as_timerMSecs->GetTimeUs();
+            auto *source_element_as_timerMSecs =
+                TimerMSecs::TryToCast(source_element_as_commonTimer);
+            if (source_element_as_timerMSecs != NULL) {
+                time_us = source_element_as_timerMSecs->GetTimeUs();
             }
         }
     }
@@ -139,47 +140,51 @@ bool ElementsBox::CopyParamsToCommonTimer(CommonTimer *common_timer) {
     return true;
 }
 
-bool ElementsBox::CopyParamsToCommonOutput(CommonOutput *common_output) {
+bool ElementsBox::CopyParamsToCommonOutput(LogicElement *source_element,
+                                           CommonOutput *common_output) {
     if (common_output == NULL) {
         return false;
     }
 
     MapIO io_adr = MapIO::V1;
-    auto *stored_element_as_commonInput = CommonInput::TryToCast(stored_element);
-    if (stored_element_as_commonInput != NULL) {
-        io_adr = stored_element_as_commonInput->GetIoAdr();
+    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
+    if (source_element_as_commonInput != NULL) {
+        io_adr = source_element_as_commonInput->GetIoAdr();
     } else {
-        auto *stored_element_as_commonOutput = CommonOutput::TryToCast(stored_element);
-        if (stored_element_as_commonOutput != NULL) {
-            io_adr = stored_element_as_commonOutput->GetIoAdr();
+        auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
+        if (source_element_as_commonOutput != NULL) {
+            io_adr = source_element_as_commonOutput->GetIoAdr();
         }
     }
     common_output->SetIoAdr(io_adr);
     return true;
 }
 
-void ElementsBox::TakeParamsFromStoredElement(LogicElement *new_element) {
-    if (CopyParamsToCommonInput(CommonInput::TryToCast(new_element))) {
+void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
+                                              LogicElement *new_element) {
+    if (CopyParamsToCommonInput(source_element, CommonInput::TryToCast(new_element))) {
         return;
     }
-    if (CopyParamsToCommonTimer(CommonTimer::TryToCast(new_element))) {
+    if (CopyParamsToCommonTimer(source_element, CommonTimer::TryToCast(new_element))) {
         return;
     }
-    if (CopyParamsToCommonOutput(CommonOutput::TryToCast(new_element))) {
+    if (CopyParamsToCommonOutput(source_element, CommonOutput::TryToCast(new_element))) {
         return;
     }
     auto as_wire = Wire::TryToCast(new_element);
     if (as_wire != NULL) {
-        as_wire->SetWidth(stored_element_width);
+        as_wire->SetWidth(source_element_width);
     }
 }
 
-void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer) {
-    if (stored_element->GetElementType() == element_type) {
-        return;
+void ElementsBox::AppendStandartElement(LogicElement *source_element,
+                                        TvElementType element_type,
+                                        uint8_t *frame_buffer) {
+    if (source_element->GetElementType() == element_type) {
+        selected_index = size();
     }
 
-    if (!MatchedToStoredElement(element_type)) {
+    if (!MatchedToStoredElement(source_element, element_type)) {
         return;
     }
 
@@ -187,7 +192,7 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
     if (new_element == NULL) {
         return;
     }
-    TakeParamsFromStoredElement(new_element);
+    TakeParamsFromStoredElement(source_element, new_element);
 
     Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
     if (!new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
@@ -211,34 +216,34 @@ void ElementsBox::AppendStandartElement(TvElementType element_type, uint8_t *fra
     push_back(new_element);
 }
 
-void ElementsBox::Fill(bool hide_output_elements) {
+void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) {
     uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
-    AppendStandartElement(TvElementType::et_InputNC, frame_buffer);
-    AppendStandartElement(TvElementType::et_InputNO, frame_buffer);
-    AppendStandartElement(TvElementType::et_TimerSecs, frame_buffer);
-    AppendStandartElement(TvElementType::et_TimerMSecs, frame_buffer);
-    AppendStandartElement(TvElementType::et_ComparatorEq, frame_buffer);
-    AppendStandartElement(TvElementType::et_ComparatorGE, frame_buffer);
-    AppendStandartElement(TvElementType::et_ComparatorGr, frame_buffer);
-    AppendStandartElement(TvElementType::et_ComparatorLE, frame_buffer);
-    AppendStandartElement(TvElementType::et_ComparatorLs, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_InputNC, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_InputNO, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_TimerSecs, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_TimerMSecs, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorEq, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorGE, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorGr, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorLE, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorLs, frame_buffer);
     if (!hide_output_elements) {
-        AppendStandartElement(TvElementType::et_DirectOutput, frame_buffer);
-        AppendStandartElement(TvElementType::et_SetOutput, frame_buffer);
-        AppendStandartElement(TvElementType::et_ResetOutput, frame_buffer);
-        AppendStandartElement(TvElementType::et_IncOutput, frame_buffer);
-        AppendStandartElement(TvElementType::et_DecOutput, frame_buffer);
+        AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
+        AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);
+        AppendStandartElement(source_element, TvElementType::et_ResetOutput, frame_buffer);
+        AppendStandartElement(source_element, TvElementType::et_IncOutput, frame_buffer);
+        AppendStandartElement(source_element, TvElementType::et_DecOutput, frame_buffer);
     }
-    AppendStandartElement(TvElementType::et_Wire, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
-    if (selected_index < 0) {
-        return stored_element;
-    }
+    // if (selected_index < 0) {
+    //     return source_element;
+    // }
     return (*this)[selected_index];
 }
 
@@ -283,7 +288,7 @@ void ElementsBox::SelectPrior() {
     }
     selected_index++;
     if (selected_index >= (int)size()) {
-        selected_index = -1;
+        selected_index = 0;
     }
     force_do_action_result = true;
 }
@@ -304,7 +309,7 @@ void ElementsBox::SelectNext() {
 
     selected_index--;
 
-    if (selected_index < -1) {
+    if (selected_index < 0) {
         selected_index = size() - 1;
     }
     force_do_action_result = true;
