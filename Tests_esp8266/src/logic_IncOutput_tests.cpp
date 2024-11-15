@@ -75,8 +75,18 @@ TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive__due_incoming_sw
                      "no changes are expected to be detected");
 }
 
+TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_active_and_increment_value) {
+    TestableIncOutput testable;
+    testable.SetIoAdr(MapIO::V1);
+
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_EQUAL(1, Controller::GetV1RelativeValue());
+}
+
 TEST(LogicIncOutputTestsGroup,
-     DoAction_change_state_to_active__and_second_call_does_not_decrement) {
+     DoAction_change_state_to_active__and_second_call_does_not_increment) {
     TestableIncOutput testable;
     testable.SetIoAdr(MapIO::V1);
 

@@ -37,13 +37,13 @@ bool IncOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
             uint8_t prev_val = GetValue();
-            if (prev_val > LogicElement::MinValue) {
+            if (prev_val < LogicElement::MaxValue) {
                 prev_val++;
             }
             SetValue(prev_val);
         }
         any_changes = true;
-        ESP_LOGD(TAG_IncOutput, ".");
+        ESP_LOGD(TAG_IncOutput, ". %u", GetValue());
     }
 
     return any_changes;

@@ -43,7 +43,7 @@ bool DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
             SetValue(prev_val);
         }
         any_changes = true;
-        ESP_LOGD(TAG_DecOutput, ".");
+        ESP_LOGD(TAG_DecOutput, ". %u", GetValue());
     }
 
     return any_changes;
