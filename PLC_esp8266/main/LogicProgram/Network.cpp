@@ -302,7 +302,7 @@ void Network::Change() {
 
     if ((*this)[selected_element]->Selected()) {
         auto source_element = (*this)[selected_element];
-        bool hide_output_elements = HasOutputElement();
+        bool hide_output_elements = HasOutputElement() && CommonOutput::TryToCast(source_element) == NULL;
         ESP_LOGI(TAG_Network, "hide_output_elements:%u", hide_output_elements);
         auto elementBox = new ElementsBox(fill_wire, source_element, hide_output_elements);
         elementBox->BeginEditing();

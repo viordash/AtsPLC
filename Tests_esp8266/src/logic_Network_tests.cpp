@@ -380,6 +380,61 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
     delete elementBox->GetSelectedElement();
 }
 
+TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBox) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
+    CHECK_TRUE(expectedElementBox->Editing());
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+    CHECK_EQUAL(10, elementBox->size());
+
+    testable.SelectNext();
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, expectedElementBox->GetElementType());
+
+    delete elementBox->GetSelectedElement();
+}
+
+TEST(LogicNetworkTestsGroup,
+     Begin_Editing_not_hide_output_elements_in_ElementBox_if_selected_element_is_output) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new InputNC(MapIO::DI));
+    testable.Append(new DirectOutput(MapIO::O1));
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    testable.SelectNext();
+    testable.SelectNext();
+
+    auto selectedElement = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_DirectOutput, selectedElement->GetElementType());
+
+    testable.Change();
+
+    auto expectedElementBox = testable[testable.GetSelectedElement()];
+    CHECK_EQUAL(TvElementType::et_DirectOutput, expectedElementBox->GetElementType());
+    CHECK_TRUE(expectedElementBox->Editing());
+    auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
+    CHECK_EQUAL(6, elementBox->size());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_SetOutput, expectedElementBox->GetElementType());
+
+    delete elementBox->GetSelectedElement();
+}
+
 TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
     Network testable(LogicItemState::lisActive);
 
