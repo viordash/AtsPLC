@@ -19,7 +19,8 @@ enum TvElementType : uint8_t {
     et_SetOutput,
     et_ResetOutput,
     et_IncOutput,
-    et_DecOutput
+    et_DecOutput,
+    et_Indicator
 };
 
 struct __attribute__((packed)) TvElement {

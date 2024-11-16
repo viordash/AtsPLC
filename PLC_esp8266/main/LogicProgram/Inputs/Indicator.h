@@ -1,0 +1,42 @@
+#pragma once
+
+#include "Display/LabeledLogicItem.h"
+#include "Display/display.h"
+#include "LogicProgram/InputElement.h"
+#include "LogicProgram/LogicElement.h"
+#include <stdint.h>
+#include <unistd.h>
+
+class Indicator : public LogicElement, public InputElement, public LabeledLogicItem {
+  public:
+    typedef enum { //
+        ciepi_None = EditableElement::EditingPropertyId::cepi_None,
+        ciepi_ConfigureInputAdr
+    } EditingPropertyId;
+
+  protected:
+    const AllowedIO GetAllowedInputs();
+
+  public:
+    const uint8_t LeftPadding = 4;
+    const uint8_t Width = 64;
+    const uint8_t Height = 24;
+    explicit Indicator();
+    virtual ~Indicator();
+
+    void SetIoAdr(const MapIO io_adr) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
+    TvElementType GetElementType() override final;
+
+    static Indicator *TryToCast(LogicElement *logic_element);
+
+    void SelectPrior() override;
+    void SelectNext() override;
+    void PageUp() override;
+    void PageDown() override;
+    void Change() override;
+};

@@ -6,6 +6,7 @@
 #include "LogicProgram/Inputs/ComparatorGr.h"
 #include "LogicProgram/Inputs/ComparatorLE.h"
 #include "LogicProgram/Inputs/ComparatorLs.h"
+#include "LogicProgram/Inputs/Indicator.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
