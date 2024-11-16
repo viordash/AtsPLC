@@ -51,3 +51,22 @@ TEST(TvElementTypeTestsGroup, IsOutputElement) {
     CHECK_TRUE(IsOutputElement(TvElementType::et_IncOutput));
     CHECK_TRUE(IsOutputElement(TvElementType::et_DecOutput));
 }
+
+TEST(TvElementTypeTestsGroup, IsIndicatorElement) {
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_Undef));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_InputNC));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_InputNO));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_TimerSecs));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_TimerMSecs));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ComparatorEq));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ComparatorGE));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ComparatorGr));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ComparatorLE));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ComparatorLs));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_DirectOutput));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_SetOutput));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_ResetOutput));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_IncOutput));
+    CHECK_FALSE(IsIndicatorElement(TvElementType::et_DecOutput));
+    CHECK_TRUE(IsIndicatorElement(TvElementType::et_Indicator));
+}

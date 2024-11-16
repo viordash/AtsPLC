@@ -69,3 +69,12 @@ static inline bool IsOutputElement(TvElementType element_type) {
             return false;
     }
 }
+
+static inline bool IsIndicatorElement(TvElementType element_type) {
+    switch (element_type) {
+        case et_Indicator:
+            return true;
+        default:
+            return false;
+    }
+}

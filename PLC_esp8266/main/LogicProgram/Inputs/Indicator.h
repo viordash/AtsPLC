@@ -22,6 +22,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     const uint8_t Width = 64;
     const uint8_t Height = 24;
     explicit Indicator();
+    explicit Indicator(const MapIO io_adr);
     virtual ~Indicator();
 
     void SetIoAdr(const MapIO io_adr) override final;

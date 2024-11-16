@@ -20,6 +20,10 @@ static const char *TAG_Indicator = "Indicator";
 Indicator::Indicator() : LogicElement(), InputElement() {
 }
 
+Indicator::Indicator(const MapIO io_adr) : Indicator() {
+    SetIoAdr(io_adr);
+}
+
 Indicator::~Indicator() {
 }
 

@@ -56,7 +56,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(32, start_point.x);
+    CHECK_EQUAL(80, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, Render_when_passive) {
@@ -74,7 +74,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(32, start_point.x);
+    CHECK_EQUAL(80, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, TryToCast) {
@@ -103,6 +103,10 @@ TEST(LogicIndicatorTestsGroup, SelectNext_changing_IoAdr) {
     testable.SelectNext();
     CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
     testable.SelectNext();
+    CHECK_EQUAL(MapIO::O1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
+    testable.SelectNext();
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }
 
@@ -110,6 +114,10 @@ TEST(LogicIndicatorTestsGroup, SelectPrior_changing_IoAdr) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
     testable.BeginEditing();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::O1, testable.GetIoAdr());
     testable.SelectPrior();
     CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
     testable.SelectPrior();
