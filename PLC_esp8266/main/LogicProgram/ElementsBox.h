@@ -1,27 +1,32 @@
 #pragma once
 
-#include "LogicProgram/Inputs/CommonInput.h"
-#include "LogicProgram/Inputs/CommonTimer.h"
 #include "LogicProgram/LogicElement.h"
-#include "LogicProgram/Outputs/CommonOutput.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
 
+class CommonInput;
+class CommonTimer;
+class CommonOutput;
+class Indicator;
+
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
     uint8_t place_width;
-    uint8_t source_element_width;    
+    uint8_t source_element_width;
     int selected_index;
     bool force_do_action_result;
 
-    uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *source_element);
+    void CalcEntirePlaceWidth(LogicElement *source_element);
     void Fill(LogicElement *source_element, bool hide_output_elements);
-    void AppendStandartElement(LogicElement *source_element, TvElementType element_type, uint8_t *frame_buffer);
-    bool MatchedToStoredElement(LogicElement *source_element, TvElementType element_type);
+    void AppendStandartElement(LogicElement *source_element,
+                               TvElementType element_type,
+                               uint8_t *frame_buffer);
+    bool MatchedToStoredElement(TvElementType source_element_type, TvElementType element_type);
     bool CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input);
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
     bool CopyParamsToCommonOutput(LogicElement *source_element, CommonOutput *common_output);
+    bool CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator);
     void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:
