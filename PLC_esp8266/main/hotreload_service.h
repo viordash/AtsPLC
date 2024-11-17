@@ -8,6 +8,7 @@ typedef struct {
     bool is_hotstart;
     uint32_t restart_count;
     int16_t view_top_index;
+    int16_t selected_network;
 } hotreload_data;
 
 extern hotreload_data *hotreload;

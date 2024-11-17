@@ -26,6 +26,7 @@ void init_hotreload() {
     hotreload->is_hotstart = false;
     hotreload->restart_count = 0;
     hotreload->view_top_index = 0;
+    hotreload->selected_network = -1;
 }
 
 void load_hotreload() {
