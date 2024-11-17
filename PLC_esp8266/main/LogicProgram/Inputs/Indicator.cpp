@@ -68,8 +68,8 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
                                      == Indicator::EditingPropertyId::ciepi_None
                               && Blinking_50();
     if (!blink_body_on_editing) {
-        Point top_left = { start_point->x, (uint8_t)(start_point->y - Height / 2) };
-        Point bottom_left = { start_point->x, (uint8_t)(start_point->y + Height / 2) };
+        Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
+        Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
         Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
         res = draw_horz_line(fb, top_left.x, top_left.y, Width);

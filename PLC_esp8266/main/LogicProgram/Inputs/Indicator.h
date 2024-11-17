@@ -19,8 +19,9 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
 
   public:
     const uint8_t LeftPadding = 4;
-    const uint8_t Width = 64;
-    const uint8_t Height = 24;
+    const uint8_t Width = 88;
+    const uint8_t Top = -13;
+    const uint8_t Height = 22;
     explicit Indicator();
     explicit Indicator(const MapIO io_adr);
     virtual ~Indicator();

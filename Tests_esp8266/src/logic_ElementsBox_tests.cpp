@@ -260,7 +260,7 @@ TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
     delete testable.GetSelectedElement();
 }
 
-TEST(LogicElementsBoxTestsGroup, takes_params_from_indicator_element) {
+TEST(LogicElementsBoxTestsGroup, takes_params_for_indicator_element) {
     Indicator stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(2, testable.size());

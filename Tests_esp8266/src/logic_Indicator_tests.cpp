@@ -45,7 +45,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
 
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    Point start_point = { 0, INCOME_RAIL_TOP };
+    Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
@@ -56,14 +56,14 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(80, start_point.x);
+    CHECK_EQUAL(82, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, Render_when_passive) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
 
-    Point start_point = { 0, INCOME_RAIL_TOP };
+    Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
@@ -74,7 +74,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(80, start_point.x);
+    CHECK_EQUAL(82, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, TryToCast) {
