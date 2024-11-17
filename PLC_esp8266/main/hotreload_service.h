@@ -1,14 +1,13 @@
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
 
 typedef struct {
-    bool is_hotstart;
+    int32_t is_hotstart;
     uint32_t restart_count;
-    int16_t view_top_index;
-    int16_t selected_network;
+    int32_t view_top_index;
+    int32_t selected_network;
 } hotreload_data;
 
 extern hotreload_data *hotreload;
