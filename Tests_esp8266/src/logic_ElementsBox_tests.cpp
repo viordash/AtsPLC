@@ -72,7 +72,7 @@ TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
 
 TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
     IncOutput stored_element(MapIO::O1);
-    ElementsBox testable(100, &stored_element, false);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, false);
     CHECK_EQUAL(6, testable.size());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, testable[1]->GetElementType());
@@ -85,7 +85,7 @@ TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
 
 TEST(LogicElementsBoxTestsGroup, box_for_wire) {
     Wire stored_element;
-    ElementsBox testable(100, &stored_element, false);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, false);
     CHECK_EQUAL(16, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
@@ -116,7 +116,7 @@ TEST(LogicElementsBoxTestsGroup, box_for_indicator_element) {
 
 TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     Wire stored_element;
-    ElementsBox testable(100, &stored_element, true);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, true);
     CHECK_EQUAL(11, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
