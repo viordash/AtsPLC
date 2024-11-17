@@ -42,7 +42,19 @@ namespace {
 
     class TestableLadder : public Ladder {
       public:
-        int *PublicMorozov_Get_view_top_index() {
+        static int16_t hotreload_view_top_index;
+        static int16_t hotreload_selected_network;
+
+        TestableLadder()
+            : Ladder([](int16_t view_top_index, int16_t selected_network) {
+                  TestableLadder::hotreload_view_top_index = view_top_index;
+                  TestableLadder::hotreload_selected_network = selected_network;
+              }) {
+            TestableLadder::hotreload_view_top_index = 0;
+            TestableLadder::hotreload_selected_network = 0;
+        }
+
+        int16_t *PublicMorozov_Get_view_top_index() {
             return &view_top_index;
         }
         int PublicMorozov_GetSelectedNetwork() {
@@ -55,6 +67,10 @@ namespace {
             return RemoveNetworkIfEmpty(network_id);
         }
     };
+
+    int16_t TestableLadder::hotreload_view_top_index = 0;
+    int16_t TestableLadder::hotreload_selected_network = 0;
+
     class TestableNetwork : public Network {
       public:
         TestableNetwork(LogicItemState state) : Network(state) {
@@ -347,7 +363,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
 
     testable.HandleButtonSelect();
 
-    Ladder ladder_load;
+    Ladder ladder_load([](int16_t, int16_t) {});
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());

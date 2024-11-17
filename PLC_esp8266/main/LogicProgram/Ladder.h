@@ -10,11 +10,15 @@
 
 #define TAG_Ladder "Ladder"
 
+typedef void (*f_UIStateChanged)(int16_t view_top_index, int16_t selected_network);
+
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
 class Ladder : public std::vector<Network *> {
   protected:
-    int view_top_index;
+    int16_t view_top_index;
+
+    f_UIStateChanged cb_UI_state_changed;
 
     void InitialLoad();
 
@@ -32,7 +36,7 @@ class Ladder : public std::vector<Network *> {
     const size_t MaxNetworksCount = 42;
     const size_t MaxViewPortCount = 2;
 
-    Ladder();
+    explicit Ladder(f_UIStateChanged cb_UI_state_changed);
     ~Ladder();
 
     bool DoAction();
@@ -51,4 +55,7 @@ class Ladder : public std::vector<Network *> {
 
     void Load();
     void Store();
+
+    void SetViewTopIndex(int16_t index);
+    void SetSelectedNetworkIndex(int16_t index);
 };

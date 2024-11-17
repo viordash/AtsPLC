@@ -57,6 +57,7 @@ void Ladder::HandleButtonUp() {
         case EditableElement::ElementState::des_Regular:
             if (view_top_index > 0) {
                 view_top_index--;
+                cb_UI_state_changed(view_top_index, selected_network);
             }
             break;
 
@@ -66,9 +67,11 @@ void Ladder::HandleButtonUp() {
 
             if (selected_network > view_top_index) {
                 selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
             } else if (view_top_index > 0) {
                 view_top_index--;
                 selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
             }
             if (size() > 0) {
                 (*this)[selected_network]->Select();
@@ -115,6 +118,7 @@ void Ladder::HandleButtonDown() {
         case EditableElement::ElementState::des_Regular:
             if (view_top_index + Ladder::MaxViewPortCount < size()) {
                 view_top_index++;
+                cb_UI_state_changed(view_top_index, selected_network);
             }
             break;
 
@@ -124,9 +128,11 @@ void Ladder::HandleButtonDown() {
             if (!RemoveNetworkIfEmpty(selected_network)) {
                 if (selected_network == view_top_index) {
                     selected_network++;
+                    cb_UI_state_changed(view_top_index, selected_network);
                 } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
                     view_top_index++;
                     selected_network++;
+                    cb_UI_state_changed(view_top_index, selected_network);
                 }
             }
 
@@ -183,10 +189,13 @@ void Ladder::HandleButtonSelect() {
                 Append(new_network);
             }
             (*this)[view_top_index]->Select();
+
+            cb_UI_state_changed(view_top_index, view_top_index);
             break;
 
         case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->BeginEditing();
+            cb_UI_state_changed(view_top_index, selected_network);
             break;
 
         case EditableElement::ElementState::des_Editing:
@@ -194,6 +203,7 @@ void Ladder::HandleButtonSelect() {
             if (!(*this)[selected_network]->Editing()) {
                 RemoveNetworkIfEmpty(selected_network);
                 Store();
+                cb_UI_state_changed(view_top_index, -1);
             }
             return;
 
