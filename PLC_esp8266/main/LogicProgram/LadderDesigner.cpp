@@ -3,17 +3,21 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+extern "C" {
+#include "hotreload_service.h"
+}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 bool Ladder::CanScrollAuto() {
-    return (size_t)view_top_index == size() - Ladder::MaxViewPortCount;
+    return (size_t)hotreload->view_top_index == size() - Ladder::MaxViewPortCount;
 }
 
 void Ladder::AutoScroll() {
     if (size() > Ladder::MaxViewPortCount) {
-        view_top_index = size() - Ladder::MaxViewPortCount;
+        hotreload->view_top_index = size() - Ladder::MaxViewPortCount;
+        store_hotreload();
     }
 }
 
@@ -50,13 +54,14 @@ void Ladder::HandleButtonUp() {
     ESP_LOGD(TAG_Ladder,
              "HandleButtonUp, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
-             view_top_index,
+             hotreload->view_top_index,
              selected_network);
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
-            if (view_top_index > 0) {
-                view_top_index--;
+            if (hotreload->view_top_index > 0) {
+                hotreload->view_top_index--;
+                store_hotreload();
             }
             break;
 
@@ -64,10 +69,11 @@ void Ladder::HandleButtonUp() {
             (*this)[selected_network]->CancelSelection();
             RemoveNetworkIfEmpty(selected_network);
 
-            if (selected_network > view_top_index) {
+            if (selected_network > hotreload->view_top_index) {
                 selected_network--;
-            } else if (view_top_index > 0) {
-                view_top_index--;
+            } else if (hotreload->view_top_index > 0) {
+                hotreload->view_top_index--;
+                store_hotreload();
                 selected_network--;
             }
             if (size() > 0) {
@@ -88,7 +94,7 @@ void Ladder::HandleButtonPageUp() {
     ESP_LOGI(TAG_Ladder,
              "HandleButtonPageUp, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
-             view_top_index,
+             hotreload->view_top_index,
              selected_network);
 
     switch (design_state) {
@@ -108,13 +114,14 @@ void Ladder::HandleButtonDown() {
     ESP_LOGD(TAG_Ladder,
              "HandleButtonDown, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
-             view_top_index,
+             hotreload->view_top_index,
              selected_network);
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
-            if (view_top_index + Ladder::MaxViewPortCount < size()) {
-                view_top_index++;
+            if (hotreload->view_top_index + Ladder::MaxViewPortCount < size()) {
+                hotreload->view_top_index++;
+                store_hotreload();
             }
             break;
 
@@ -122,10 +129,11 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
-                if (selected_network == view_top_index) {
+                if (selected_network == hotreload->view_top_index) {
                     selected_network++;
-                } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
-                    view_top_index++;
+                } else if (hotreload->view_top_index + Ladder::MaxViewPortCount <= size()) {
+                    hotreload->view_top_index++;
+                    store_hotreload();
                     selected_network++;
                 }
             }
@@ -153,7 +161,7 @@ void Ladder::HandleButtonPageDown() {
     ESP_LOGI(TAG_Ladder,
              "HandleButtonPageDown, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
-             view_top_index,
+             hotreload->view_top_index,
              selected_network);
 
     switch (design_state) {
@@ -173,7 +181,7 @@ void Ladder::HandleButtonSelect() {
     ESP_LOGD(TAG_Ladder,
              "HandleButtonSelect, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
-             (unsigned)view_top_index,
+             (unsigned)hotreload->view_top_index,
              selected_network);
 
     switch (design_state) {
@@ -182,7 +190,7 @@ void Ladder::HandleButtonSelect() {
                 auto new_network = new Network(LogicItemState::lisActive);
                 Append(new_network);
             }
-            (*this)[view_top_index]->Select();
+            (*this)[hotreload->view_top_index]->Select();
             break;
 
         case EditableElement::ElementState::des_Selected:

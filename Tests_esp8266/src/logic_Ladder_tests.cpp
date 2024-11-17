@@ -11,7 +11,9 @@
 
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
-
+extern "C" {
+#include "main/hotreload_service.h"
+}
 #include "tests_utils.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
@@ -21,6 +23,7 @@ TEST_GROUP(LogicLadderTestsGroup){ //
 memset(frame_buffer, 0, sizeof(frame_buffer));
 create_storage_0();
 create_storage_1();
+hotreload->view_top_index = 0;
 }
 
 TEST_TEARDOWN() {
