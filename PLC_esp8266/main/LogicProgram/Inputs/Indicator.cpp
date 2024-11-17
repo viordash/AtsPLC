@@ -52,26 +52,15 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
 
     start_point->x += LeftPadding;
 
-    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                               && (Indicator::EditingPropertyId)editing_property_id
-                                      == Indicator::EditingPropertyId::ciepi_ConfigureInputAdr
-                               && Blinking_50();
-    res = blink_label_on_editing
-       || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
-    if (!res) {
-        return res;
-    }
+    Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
+    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
+    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
-    start_point->x += LabeledLogicItem::width;
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (Indicator::EditingPropertyId)editing_property_id
                                      == Indicator::EditingPropertyId::ciepi_None
                               && Blinking_50();
     if (!blink_body_on_editing) {
-        Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-        Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-        Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
-
         res = draw_horz_line(fb, top_left.x, top_left.y, Width);
         if (!res) {
             return res;
@@ -88,6 +77,20 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
         if (!res) {
             return res;
         }
+    }
+
+    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (Indicator::EditingPropertyId)editing_property_id
+                                      == Indicator::EditingPropertyId::ciepi_ConfigureInputAdr
+                               && Blinking_50();
+    res = blink_label_on_editing || draw_text_f8X14(fb, start_point->x + 4, top_left.y + 4, label);
+    if (!res) {
+        return res;
+    }
+    top_left.x += 23;
+    res = draw_vert_line(fb, top_left.x, top_left.y, Height);
+    if (!res) {
+        return res;
     }
 
     start_point->x += Width;

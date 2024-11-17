@@ -102,6 +102,18 @@ IRAM_ATTR bool draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *te
          > 0;
 }
 
+IRAM_ATTR bool draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
+    return ssd1306_draw_string(&display.dev,
+                               fb,
+                               display.font_8X14,
+                               x,
+                               y,
+                               text,
+                               OLED_COLOR_WHITE,
+                               OLED_COLOR_BLACK)
+         > 0;
+}
+
 IRAM_ATTR bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
     int err = 0;
     if (w > 0) {
