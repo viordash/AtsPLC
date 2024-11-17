@@ -14,6 +14,8 @@
 
 class Ladder : public std::vector<Network *> {
   protected:
+    int view_top_index;
+
     void InitialLoad();
 
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);

@@ -11,9 +11,6 @@
 
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
-extern "C" {
-#include "main/hotreload_service.h"
-}
 
 #include "tests_utils.h"
 
@@ -24,7 +21,6 @@ TEST_GROUP(LogicLadderDesignerTestsGroup){ //
 memset(frame_buffer, 0, sizeof(frame_buffer));
 create_storage_0();
 create_storage_1();
-hotreload->view_top_index = 0;
 }
 
 TEST_TEARDOWN() {
@@ -46,8 +42,8 @@ namespace {
 
     class TestableLadder : public Ladder {
       public:
-        int16_t *PublicMorozov_Get_view_top_index() {
-            return &hotreload->view_top_index;
+        int *PublicMorozov_Get_view_top_index() {
+            return &view_top_index;
         }
         int PublicMorozov_GetSelectedNetwork() {
             return GetSelectedNetwork();
