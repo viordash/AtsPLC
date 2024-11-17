@@ -50,6 +50,6 @@ IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
 }
 
 void Ladder::Append(Network *network) {
-    ESP_LOGI(TAG_Ladder, "append network: %p", network);
+    ESP_LOGD(TAG_Ladder, "append network: %p", network);
     push_back(network);
 }

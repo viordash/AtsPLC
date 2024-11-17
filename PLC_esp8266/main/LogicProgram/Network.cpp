@@ -128,7 +128,7 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
 }
 
 void Network::Append(LogicElement *element) {
-    ESP_LOGI(TAG_Network, "append elem: %p", element);
+    ESP_LOGD(TAG_Network, "append elem: %p", element);
     push_back(element);
 }
 
@@ -302,7 +302,8 @@ void Network::Change() {
 
     if ((*this)[selected_element]->Selected()) {
         auto source_element = (*this)[selected_element];
-        bool hide_output_elements = HasOutputElement() && CommonOutput::TryToCast(source_element) == NULL;
+        bool hide_output_elements =
+            HasOutputElement() && CommonOutput::TryToCast(source_element) == NULL;
         ESP_LOGI(TAG_Network, "hide_output_elements:%u", hide_output_elements);
         auto elementBox = new ElementsBox(fill_wire, source_element, hide_output_elements);
         elementBox->BeginEditing();
