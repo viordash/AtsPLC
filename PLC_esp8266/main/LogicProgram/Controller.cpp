@@ -13,6 +13,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+extern "C" {
+#include "hotreload_service.h"
+}
 
 static const char *TAG_Controller = "controller";
 
@@ -47,7 +50,12 @@ void Controller::Start(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_Controller, "start");
 
     processWakeupService = new ProcessWakeupService();
-    ladder = new Ladder();
+    ladder = new Ladder([](int16_t view_top_index, int16_t selected_network) {
+        hotreload->view_top_index = view_top_index;
+        hotreload->selected_network = selected_network;
+        store_hotreload();
+    });
+
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
                                 "ctrl_actions_task",
@@ -77,6 +85,10 @@ void Controller::ProcessTask(void *parm) {
     ESP_LOGI(TAG_Controller, "start process task");
 
     ladder->Load();
+    if (hotreload->is_hotstart) {
+        ladder->SetViewTopIndex(hotreload->view_top_index);
+        ladder->SetSelectedNetworkIndex(hotreload->selected_network);
+    }
 
     TaskHandle_t render_task_handle;
     ESP_ERROR_CHECK(xTaskCreate(RenderTask,
