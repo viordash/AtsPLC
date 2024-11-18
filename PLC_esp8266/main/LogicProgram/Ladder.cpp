@@ -64,7 +64,6 @@ void Ladder::SetViewTopIndex(int16_t index) {
 }
 
 void Ladder::SetSelectedNetworkIndex(int16_t index) {
-
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -74,7 +73,7 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
              (unsigned)view_top_index,
              selected_network,
              index);
-    if (index < 0 && index >= size()) {
+    if (index < 0 || index >= (int)size()) {
         return;
     }
 

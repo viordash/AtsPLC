@@ -374,3 +374,96 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
     CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[1]->GetElementType());
     CHECK_EQUAL(MapIO::O1, ((DirectOutput *)(*network_load)[1])->GetIoAdr());
 }
+
+TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex_do_nothing_when_incorrect_index) {
+    TestableLadder testable;
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.SetViewTopIndex(-1);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.SetViewTopIndex(3);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.SetViewTopIndex(4);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex) {
+    TestableLadder testable;
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.SetViewTopIndex(0);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.SetViewTopIndex(1);
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.SetViewTopIndex(2);
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_do_nothing_when_incorrect_index) {
+    TestableLadder testable;
+    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(LogicItemState::lisActive));
+    auto selected_network = new Network();
+    testable.Append(selected_network);
+    selected_network->Select();
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    testable.SetSelectedNetworkIndex(-1);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetSelectedNetwork());
+
+    testable.SetSelectedNetworkIndex(5);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetSelectedNetwork());
+}
+
+TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_when_no_preselected) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    auto network3 = new Network(LogicItemState::lisActive);
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+    testable.Append(network3);
+
+    testable.SetSelectedNetworkIndex(1);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(network1->Selected());
+
+    testable.SetSelectedNetworkIndex(3);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_FALSE(network1->Selected());
+    CHECK_TRUE(network3->Selected());
+}
+
+TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_if_network_is_editing_then_do_nothing) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    auto network3 = new Network(LogicItemState::lisActive);
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+    testable.Append(network3);
+
+    testable.SetSelectedNetworkIndex(1);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(network1->Selected());
+    network1->BeginEditing();
+
+    testable.SetSelectedNetworkIndex(3);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(network1->Editing());
+    CHECK_FALSE(network3->Selected());
+}
