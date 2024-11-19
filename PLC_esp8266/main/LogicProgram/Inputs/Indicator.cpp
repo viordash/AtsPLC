@@ -18,6 +18,8 @@
 static const char *TAG_Indicator = "Indicator";
 
 Indicator::Indicator() : LogicElement(), InputElement() {
+    value = LogicElement::MinValue;
+    PrintOutValue();
 }
 
 Indicator::Indicator(const MapIO io_adr) : Indicator() {
@@ -27,14 +29,41 @@ Indicator::Indicator(const MapIO io_adr) : Indicator() {
 Indicator::~Indicator() {
 }
 
+void Indicator::PrintOutValue() {
+    sprintf(str_value, "%u%%", value);
+}
+
 void Indicator::SetIoAdr(const MapIO io_adr) {
     InputElement::SetIoAdr(io_adr);
     SetLabel(MapIONames[io_adr]);
 }
 
 bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    state = prev_elem_state;
-    return prev_elem_changed;
+    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        return false;
+    }
+
+    bool any_changes = false;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    LogicItemState prev_state = state;
+
+    if (prev_elem_state == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+        auto val = GetValue();
+        if (value != val) {
+            any_changes = true;
+            value = val;
+            PrintOutValue();
+        }
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        any_changes = true;
+        ESP_LOGD(TAG_Indicator, ".");
+    }
+    return any_changes;
 }
 
 IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
@@ -83,12 +112,22 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
                                && (Indicator::EditingPropertyId)editing_property_id
                                       == Indicator::EditingPropertyId::ciepi_ConfigureInputAdr
                                && Blinking_50();
-    res = blink_label_on_editing || draw_text_f8X14(fb, start_point->x + 4, top_left.y + 4, label);
+    res = blink_label_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label);
     if (!res) {
         return res;
     }
     top_left.x += 23;
     res = draw_vert_line(fb, top_left.x, top_left.y, Height);
+    if (!res) {
+        return res;
+    }
+
+    top_left.x += 4;
+    bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (Indicator::EditingPropertyId)editing_property_id
+                                      == Indicator::EditingPropertyId::ciepi_ConfigureMultiplier
+                               && Blinking_50();
+    res = blink_value_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
     if (!res) {
         return res;
     }

@@ -11,11 +11,15 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
   public:
     typedef enum { //
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
-        ciepi_ConfigureInputAdr
+        ciepi_ConfigureInputAdr,
+        ciepi_ConfigureMultiplier
     } EditingPropertyId;
 
   protected:
+    uint8_t value;
+    char str_value[8];
     const AllowedIO GetAllowedInputs();
+    void PrintOutValue();
 
   public:
     const uint8_t LeftPadding = 12;
