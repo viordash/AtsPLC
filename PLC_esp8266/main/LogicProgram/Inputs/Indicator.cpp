@@ -113,7 +113,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (Indicator::EditingPropertyId)editing_property_id
-                                      == Indicator::EditingPropertyId::ciepi_ConfigureInputAdr
+                                      == Indicator::EditingPropertyId::ciepi_ConfigureIOAdr
                                && Blinking_50();
     res = blink_label_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label);
     if (!res) {
@@ -128,7 +128,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
     top_left.x += 4;
     bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (Indicator::EditingPropertyId)editing_property_id
-                                      == Indicator::EditingPropertyId::ciepi_ConfigureMultiplier
+                                      == Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0
                                && Blinking_50();
     res = blink_value_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
     if (!res) {
@@ -184,43 +184,85 @@ Indicator *Indicator::TryToCast(LogicElement *logic_element) {
 void Indicator::SelectPrior() {
     ESP_LOGI(TAG_Indicator, "SelectPrior");
 
-    auto allowed_inputs = GetAllowedInputs();
-    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-    io_adr--;
-    if (io_adr < 0) {
-        io_adr = allowed_inputs.count - 1;
+    switch (editing_property_id) {
+        case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr: {
+            auto allowed_inputs = GetAllowedInputs();
+            auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
+            io_adr--;
+            if (io_adr < 0) {
+                io_adr = allowed_inputs.count - 1;
+            }
+            SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
+            break;
+        }
+
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0:
+            break;
+
+        default:
+            break;
     }
-    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 
 void Indicator::SelectNext() {
     ESP_LOGI(TAG_Indicator, "SelectNext");
 
-    auto allowed_inputs = GetAllowedInputs();
-    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-    io_adr++;
-    if (io_adr >= (int)allowed_inputs.count) {
-        io_adr = 0;
+    switch (editing_property_id) {
+        case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr: {
+            auto allowed_inputs = GetAllowedInputs();
+            auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
+            io_adr++;
+            if (io_adr >= (int)allowed_inputs.count) {
+                io_adr = 0;
+            }
+            SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
+            break;
+        }
+
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0:
+            break;
+
+        default:
+            break;
     }
-    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
 }
 
 void Indicator::PageUp() {
+    this->SelectPrior();
 }
 
 void Indicator::PageDown() {
+    this->SelectNext();
 }
 
 void Indicator::Change() {
-    ESP_LOGI(TAG_Indicator, "Change");
+    ESP_LOGI(TAG_Indicator, "Change editing_property_id:%d", editing_property_id);
     switch (editing_property_id) {
-        case Indicator::EditingPropertyId::ciepi_None:
-            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureInputAdr;
+        case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_1;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_1:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_2;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_2:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_3;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_3:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_4;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_4:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_5;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_5:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_6;
             break;
 
         default:
             EndEditing();
-            break;
+            return;
     }
 }
 

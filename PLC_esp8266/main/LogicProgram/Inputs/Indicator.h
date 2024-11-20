@@ -11,14 +11,20 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
   public:
     typedef enum { //
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
-        ciepi_ConfigureInputAdr,
-        ciepi_ConfigureMultiplier
+        ciepi_ConfigureIOAdr,
+        ciepi_ConfigureMultiplier_0,
+        ciepi_ConfigureMultiplier_1,
+        ciepi_ConfigureMultiplier_2,
+        ciepi_ConfigureMultiplier_3,
+        ciepi_ConfigureMultiplier_4,
+        ciepi_ConfigureMultiplier_5,
+        ciepi_ConfigureMultiplier_6
     } EditingPropertyId;
 
   protected:
     uint8_t value;
-    int16_t low_scale_x100;
-    int16_t high_scale_x100;
+    int32_t low_scale_x100;
+    int32_t high_scale_x100;
     uint8_t decimal_point;
     char str_value[8];
     const AllowedIO GetAllowedInputs();
