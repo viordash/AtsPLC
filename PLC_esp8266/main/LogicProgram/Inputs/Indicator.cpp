@@ -19,6 +19,9 @@ static const char *TAG_Indicator = "Indicator";
 
 Indicator::Indicator() : LogicElement(), InputElement() {
     value = LogicElement::MinValue;
+    low_scale_x100 = 0;
+    high_scale_x100 = 10000;
+    decimal_point = 2;
     PrintOutValue();
 }
 

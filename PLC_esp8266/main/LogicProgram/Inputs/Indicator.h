@@ -17,6 +17,9 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
 
   protected:
     uint8_t value;
+    int16_t low_scale_x100;
+    int16_t high_scale_x100;
+    uint8_t decimal_point;
     char str_value[8];
     const AllowedIO GetAllowedInputs();
     void PrintOutValue();
