@@ -38,6 +38,24 @@ namespace {
         f_GetValue PublicMorozov_GetValue() {
             return GetValue;
         }
+        void PublicMorozov_PrintOutValue() {
+            PrintOutValue();
+        }
+        int32_t *PublicMorozov_Get_high_scale() {
+            return &high_scale;
+        }
+        int32_t *PublicMorozov_Get_low_scale() {
+            return &low_scale;
+        }
+        uint8_t *PublicMorozov_Get_decimal_point() {
+            return &decimal_point;
+        }
+        char *PublicMorozov_Get_str_value() {
+            return str_value;
+        }
+        uint8_t *PublicMorozov_Get_value() {
+            return &value;
+        }
     };
 } // namespace
 
@@ -158,6 +176,8 @@ TEST(LogicIndicatorTestsGroup, Change_calls_end_editing) {
     testable.Change();
     CHECK_TRUE(testable.Editing());
     testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
     CHECK_FALSE(testable.Editing());
 }
 
@@ -239,4 +259,16 @@ TEST(LogicIndicatorTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 TEST(LogicIndicatorTestsGroup, GetElementType) {
     TestableIndicator testable;
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
+}
+
+TEST(LogicIndicatorTestsGroup, PrintOutValue) {
+    TestableIndicator testable;
+
+    *testable.PublicMorozov_Get_high_scale() = 10000;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    *testable.PublicMorozov_Get_value() = 100;
+
+    testable.PublicMorozov_PrintOutValue();
+    STRCMP_EQUAL("100.00", testable.PublicMorozov_Get_str_value());
 }

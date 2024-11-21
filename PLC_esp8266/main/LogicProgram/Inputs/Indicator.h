@@ -18,15 +18,16 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
         ciepi_ConfigureMultiplier_3,
         ciepi_ConfigureMultiplier_4,
         ciepi_ConfigureMultiplier_5,
-        ciepi_ConfigureMultiplier_6
+        ciepi_ConfigureMultiplier_6,
+        ciepi_ConfigureMultiplier_7
     } EditingPropertyId;
 
   protected:
     uint8_t value;
-    int32_t low_scale_x100;
-    int32_t high_scale_x100;
+    int32_t low_scale;
+    int32_t high_scale;
     uint8_t decimal_point;
-    char str_value[8];
+    char str_value[16];
     const AllowedIO GetAllowedInputs();
     void PrintOutValue();
 

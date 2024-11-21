@@ -19,8 +19,8 @@ static const char *TAG_Indicator = "Indicator";
 
 Indicator::Indicator() : LogicElement(), InputElement() {
     value = LogicElement::MinValue;
-    low_scale_x100 = 0;
-    high_scale_x100 = 10000;
+    low_scale = 0;
+    high_scale = 10000;
     decimal_point = 2;
     PrintOutValue();
 }
@@ -33,7 +33,24 @@ Indicator::~Indicator() {
 }
 
 void Indicator::PrintOutValue() {
-    sprintf(str_value, "%u%%", value);
+    float range = high_scale - low_scale;
+    float ratio = range / (LogicElement::MaxValue - LogicElement::MinValue);
+    float fl = (float)value * ratio;
+    int int_val = fl;
+
+    if (decimal_point > 0) {
+        int mult = 1;
+        for (size_t i = 0; i < decimal_point; i++) {
+            mult = mult * 10;
+        }
+
+        fl = fl - int_val;
+        int decim_val = fl * mult;
+
+        sprintf(str_value, "%d.%d", int_val, decim_val);
+    } else {
+        sprintf(str_value, "%d", int_val);
+    }
 }
 
 void Indicator::SetIoAdr(const MapIO io_adr) {
@@ -261,6 +278,9 @@ void Indicator::Change() {
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_5:
             editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_6;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_6:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_7;
             break;
 
         default:
