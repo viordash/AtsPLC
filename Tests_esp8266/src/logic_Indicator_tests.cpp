@@ -94,6 +94,7 @@ TEST(LogicIndicatorTestsGroup, SelectNext_changing_IoAdr) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
     testable.BeginEditing();
+    testable.Change();
     testable.SelectNext();
     CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
     testable.SelectNext();
@@ -116,6 +117,7 @@ TEST(LogicIndicatorTestsGroup, SelectPrior_changing_IoAdr) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
     testable.BeginEditing();
+    testable.Change();
     testable.SelectPrior();
     CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
     testable.SelectPrior();
@@ -134,10 +136,24 @@ TEST(LogicIndicatorTestsGroup, SelectPrior_changing_IoAdr) {
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
 }
 
-TEST(LogicIndicatorTestsGroup, second_Change_calls_end_editing) {
+TEST(LogicIndicatorTestsGroup, Change_calls_end_editing) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::O1);
     testable.BeginEditing();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
     CHECK_TRUE(testable.Editing());
     testable.Change();
     CHECK_TRUE(testable.Editing());

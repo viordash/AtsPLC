@@ -238,6 +238,9 @@ void Indicator::PageDown() {
 void Indicator::Change() {
     ESP_LOGI(TAG_Indicator, "Change editing_property_id:%d", editing_property_id);
     switch (editing_property_id) {
+        case Indicator::EditingPropertyId::ciepi_None:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+            break;
         case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr:
             editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureMultiplier_0;
             break;
