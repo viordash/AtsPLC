@@ -38,13 +38,16 @@ namespace {
         f_GetValue PublicMorozov_GetValue() {
             return GetValue;
         }
-        void PublicMorozov_PrintOutValue() {
-            PrintOutValue();
+        void PublicMorozov_UpdateScale() {
+            UpdateScale();
         }
-        int32_t *PublicMorozov_Get_high_scale() {
+        void PublicMorozov_PrintOutValue(uint8_t eng_value) {
+            PrintOutValue(eng_value);
+        }
+        float *PublicMorozov_Get_high_scale() {
             return &high_scale;
         }
-        int32_t *PublicMorozov_Get_low_scale() {
+        float *PublicMorozov_Get_low_scale() {
             return &low_scale;
         }
         uint8_t *PublicMorozov_Get_decimal_point() {
@@ -52,9 +55,6 @@ namespace {
         }
         char *PublicMorozov_Get_str_value() {
             return str_value;
-        }
-        uint8_t *PublicMorozov_Get_value() {
-            return &value;
         }
     };
 } // namespace
@@ -261,14 +261,123 @@ TEST(LogicIndicatorTestsGroup, GetElementType) {
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
 }
 
-TEST(LogicIndicatorTestsGroup, PrintOutValue) {
+TEST(LogicIndicatorTestsGroup, PrintOutValue_positive_values) {
     TestableIndicator testable;
 
-    *testable.PublicMorozov_Get_high_scale() = 10000;
+    *testable.PublicMorozov_Get_high_scale() = 2.55;
     *testable.PublicMorozov_Get_low_scale() = 0;
     *testable.PublicMorozov_Get_decimal_point() = 2;
-    *testable.PublicMorozov_Get_value() = 100;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("    2.55", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("    1.27", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("    0.01", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("    0.00", testable.PublicMorozov_Get_str_value());
 
-    testable.PublicMorozov_PrintOutValue();
-    STRCMP_EQUAL("100.00", testable.PublicMorozov_Get_str_value());
+    *testable.PublicMorozov_Get_high_scale() = 255;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("     255", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("     127", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(64);
+    STRCMP_EQUAL("      64", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("       1", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("       0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = 12345678;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("12345678", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL(" 6148632", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("   48414", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("       0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = 1;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 4;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("  1.0000", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("  0.4980", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("  0.0039", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("  0.0000", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, PrintOutValue_negative_values) {
+    TestableIndicator testable;
+
+    *testable.PublicMorozov_Get_high_scale() = 10;
+    *testable.PublicMorozov_Get_low_scale() = -10;
+    *testable.PublicMorozov_Get_decimal_point() = 1;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("    10.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("    -0.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("    -9.9", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("   -10.0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = -255;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("    -255", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("    -127", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(64);
+    STRCMP_EQUAL("     -64", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("      -1", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("       0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = -9999999;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("       0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("-5019607", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("-9960783", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("-9999999", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, PrintOutValue_overflow_values_will_restricted_by_buffer_size) {
+    TestableIndicator testable;
+
+    *testable.PublicMorozov_Get_high_scale() = 10000000.0f;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("10000000", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("4980392.", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("39215.69", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("    0.00", testable.PublicMorozov_Get_str_value());
+
 }

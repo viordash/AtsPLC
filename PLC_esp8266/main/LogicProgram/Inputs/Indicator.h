@@ -23,13 +23,15 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     } EditingPropertyId;
 
   protected:
-    uint8_t value;
-    int32_t low_scale;
-    int32_t high_scale;
+    static const uint8_t max_symbols_count = 8;
+    float low_scale;
+    float high_scale;
     uint8_t decimal_point;
-    char str_value[16];
+    char str_value[max_symbols_count + 1];
+    char str_format[max_symbols_count];
     const AllowedIO GetAllowedInputs();
-    void PrintOutValue();
+    void UpdateScale();
+    void PrintOutValue(uint8_t eng_value);
 
   public:
     const uint8_t LeftPadding = 12;

@@ -18,11 +18,11 @@
 static const char *TAG_Indicator = "Indicator";
 
 Indicator::Indicator() : LogicElement(), InputElement() {
-    value = LogicElement::MinValue;
-    low_scale = 0;
-    high_scale = 10000;
+    high_scale = 100.0f;
+    low_scale = 0.0f;
     decimal_point = 2;
-    PrintOutValue();
+    UpdateScale();
+    PrintOutValue(0);
 }
 
 Indicator::Indicator(const MapIO io_adr) : Indicator() {
@@ -32,25 +32,16 @@ Indicator::Indicator(const MapIO io_adr) : Indicator() {
 Indicator::~Indicator() {
 }
 
-void Indicator::PrintOutValue() {
-    float range = high_scale - low_scale;
-    float ratio = range / (LogicElement::MaxValue - LogicElement::MinValue);
-    float fl = (float)value * ratio;
-    int int_val = fl;
+void Indicator::UpdateScale() {
+    sprintf(str_format, "%%%u.%uf", max_symbols_count, decimal_point);
+}
 
-    if (decimal_point > 0) {
-        int mult = 1;
-        for (size_t i = 0; i < decimal_point; i++) {
-            mult = mult * 10;
-        }
-
-        fl = fl - int_val;
-        int decim_val = fl * mult;
-
-        sprintf(str_value, "%d.%d", int_val, decim_val);
-    } else {
-        sprintf(str_value, "%d", int_val);
-    }
+void Indicator::PrintOutValue(uint8_t eng_value) {
+    int32_t eng_range = LogicElement::MaxValue - LogicElement::MinValue;
+    float real_range = high_scale - low_scale;
+    float ratio = (float)real_range / (float)eng_range;
+    float scaled_val = low_scale + (eng_value * ratio);
+    snprintf(str_value, sizeof(str_value), str_format, scaled_val);
 }
 
 void Indicator::SetIoAdr(const MapIO io_adr) {
