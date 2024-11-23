@@ -34,11 +34,13 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void PrintOutValue(uint8_t eng_value);
 
   public:
-    const uint8_t LeftPadding = 12;
-    const uint8_t RightPadding = 12;
-    const uint8_t Width = OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
-    const uint8_t Top = -13;
-    const uint8_t Height = 22;
+    static const int update_period_ms = 1000;
+    static const uint8_t LeftPadding = 12;
+    static const uint8_t RightPadding = 12;
+    static const uint8_t Width =
+        OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
+    static const uint8_t Top = -13;
+    static const uint8_t Height = 22;
     explicit Indicator();
     explicit Indicator(const MapIO io_adr);
     virtual ~Indicator();

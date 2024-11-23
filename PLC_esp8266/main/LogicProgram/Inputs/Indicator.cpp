@@ -60,11 +60,9 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
     if (prev_elem_state == LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        auto val = GetValue();
-        if (value != val) {
+        if (Controller::RequestWakeupMs(this, update_period_ms)) {
             any_changes = true;
-            value = val;
-            PrintOutValue();
+            PrintOutValue(GetValue());
         }
     } else {
         state = LogicItemState::lisPassive;
