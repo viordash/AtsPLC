@@ -39,7 +39,7 @@ void Indicator::UpdateScale() {
 void Indicator::PrintOutValue(uint8_t eng_value) {
     int32_t eng_range = LogicElement::MaxValue - LogicElement::MinValue;
     float real_range = high_scale - low_scale;
-    float ratio = (float)real_range / (float)eng_range;
+    float ratio = real_range / eng_range;
     float scaled_val = low_scale + (eng_value * ratio);
     snprintf(str_value, sizeof(str_value), str_format, scaled_val);
 }

@@ -317,6 +317,21 @@ TEST(LogicIndicatorTestsGroup, PrintOutValue_positive_values) {
     STRCMP_EQUAL("  0.0039", testable.PublicMorozov_Get_str_value());
     testable.PublicMorozov_PrintOutValue(0);
     STRCMP_EQUAL("  0.0000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = 1000;
+    *testable.PublicMorozov_Get_low_scale() = 500;
+    *testable.PublicMorozov_Get_decimal_point() = 1;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("  1000.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("   749.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(64);
+    STRCMP_EQUAL("   625.5", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("   502.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL("   500.0", testable.PublicMorozov_Get_str_value());
 }
 
 TEST(LogicIndicatorTestsGroup, PrintOutValue_negative_values) {
@@ -362,6 +377,21 @@ TEST(LogicIndicatorTestsGroup, PrintOutValue_negative_values) {
     STRCMP_EQUAL("-9960783", testable.PublicMorozov_Get_str_value());
     testable.PublicMorozov_PrintOutValue(0);
     STRCMP_EQUAL("-9999999", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = -500;
+    *testable.PublicMorozov_Get_low_scale() = -1000;
+    *testable.PublicMorozov_Get_decimal_point() = 1;
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(255);
+    STRCMP_EQUAL("  -500.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(127);
+    STRCMP_EQUAL("  -751.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(64);
+    STRCMP_EQUAL("  -874.5", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(1);
+    STRCMP_EQUAL("  -998.0", testable.PublicMorozov_Get_str_value());
+    testable.PublicMorozov_PrintOutValue(0);
+    STRCMP_EQUAL(" -1000.0", testable.PublicMorozov_Get_str_value());
 }
 
 TEST(LogicIndicatorTestsGroup, PrintOutValue_overflow_values_will_restricted_by_buffer_size) {
