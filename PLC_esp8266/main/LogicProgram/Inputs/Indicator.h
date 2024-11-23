@@ -12,14 +12,22 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     typedef enum { //
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
         ciepi_ConfigureIOAdr,
-        ciepi_ConfigureMultiplier_0,
-        ciepi_ConfigureMultiplier_1,
-        ciepi_ConfigureMultiplier_2,
-        ciepi_ConfigureMultiplier_3,
-        ciepi_ConfigureMultiplier_4,
-        ciepi_ConfigureMultiplier_5,
-        ciepi_ConfigureMultiplier_6,
-        ciepi_ConfigureMultiplier_7
+        ciepi_ConfigureLowScale_0,
+        ciepi_ConfigureLowScale_1,
+        ciepi_ConfigureLowScale_2,
+        ciepi_ConfigureLowScale_3,
+        ciepi_ConfigureLowScale_4,
+        ciepi_ConfigureLowScale_5,
+        ciepi_ConfigureLowScale_6,
+        ciepi_ConfigureLowScale_7,
+        ciepi_ConfigureHighScale_0,
+        ciepi_ConfigureHighScale_1,
+        ciepi_ConfigureHighScale_2,
+        ciepi_ConfigureHighScale_3,
+        ciepi_ConfigureHighScale_4,
+        ciepi_ConfigureHighScale_5,
+        ciepi_ConfigureHighScale_6,
+        ciepi_ConfigureHighScale_7
     } EditingPropertyId;
 
   protected:
@@ -32,6 +40,12 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     const AllowedIO GetAllowedInputs();
     void UpdateScale();
     void PrintOutValue(uint8_t eng_value);
+    void PrintLowScale();
+    void AcceptLowScale();
+    void PrintHighScale();
+    void AcceptHighScale();
+    void SelectPriorSymbol(char * symbol);
+    void SelectNextSymbol(char * symbol);
 
   public:
     static const int update_period_ms = 1000;

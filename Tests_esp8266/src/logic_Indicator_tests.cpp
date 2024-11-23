@@ -56,6 +56,9 @@ namespace {
         char *PublicMorozov_Get_str_value() {
             return str_value;
         }
+        int *PublicMorozov_Get_editing_property_id() {
+            return &editing_property_id;
+        }
     };
 } // namespace
 
@@ -152,33 +155,6 @@ TEST(LogicIndicatorTestsGroup, SelectPrior_changing_IoAdr) {
     CHECK_EQUAL(MapIO::AI, testable.GetIoAdr());
     testable.SelectPrior();
     CHECK_EQUAL(MapIO::DI, testable.GetIoAdr());
-}
-
-TEST(LogicIndicatorTestsGroup, Change_calls_end_editing) {
-    TestableIndicator testable;
-    testable.SetIoAdr(MapIO::O1);
-    testable.BeginEditing();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_TRUE(testable.Editing());
-    testable.Change();
-    CHECK_FALSE(testable.Editing());
 }
 
 TEST(LogicIndicatorTestsGroup, Serialize) {
@@ -409,5 +385,96 @@ TEST(LogicIndicatorTestsGroup, PrintOutValue_overflow_values_will_restricted_by_
     STRCMP_EQUAL("39215.69", testable.PublicMorozov_Get_str_value());
     testable.PublicMorozov_PrintOutValue(0);
     STRCMP_EQUAL("    0.00", testable.PublicMorozov_Get_str_value());
+}
 
+TEST(LogicIndicatorTestsGroup, Change__switching__editing_property_id) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureIOAdr,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7,
+                *testable.PublicMorozov_Get_editing_property_id());
+}
+
+TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.SelectPrior();
 }
