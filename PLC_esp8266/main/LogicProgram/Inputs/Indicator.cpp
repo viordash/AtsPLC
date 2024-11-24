@@ -162,7 +162,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
 
     if (show_scales) {
         top_left.x += 4;
-        res = RenderScales(fb, prev_elem_state, &top_left);
+        res = RenderScales(fb, &top_left);
     } else {
         top_left.x += 4;
         res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
@@ -177,7 +177,44 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
     return res;
 }
 
-bool Indicator::RenderScales(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+bool Indicator::RenderScales(uint8_t *fb, Point *start_point) {
+    switch (editing_property_id) {
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
+            return draw_text_f6X12(fb, start_point->x, start_point->y + 8, str_value);
+
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
+            break;
+
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
+            break;
+    }
+    return false;
 }
 
 size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {
