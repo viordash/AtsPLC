@@ -7,6 +7,5 @@
 
 void LabeledLogicItem::SetLabel(const char *label) {
     this->label = label;
-    this->width = 6 * strlen(label);
-    this->height = 12;
+    this->label_width = 0;
 }

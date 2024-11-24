@@ -17,6 +17,7 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
     } EditingPropertyId;
 
   protected:
+    static const uint8_t label_max_width = 12;
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
     virtual const AllowedIO GetAllowedOutputs() = 0;
 

@@ -24,7 +24,8 @@ IRAM_ATTR bool MapIOIndicator::Render(uint8_t *fb, Point *start_point, uint8_t p
     res &= draw_text_f5X7(fb,
                           start_point->x + margin,
                           start_point->y + margin + HORZ_PROGRESS_BAR_HEIGHT,
-                          name);
+                          name)
+         > 0;
 
     start_point->x += (text_width * name_size) + margin + margin;
     return res;

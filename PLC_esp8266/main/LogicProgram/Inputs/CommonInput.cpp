@@ -32,37 +32,40 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
+    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (CommonInput::EditingPropertyId)editing_property_id
+                                      == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
+                               && Blinking_50() && label_width > 0;
+    if (!blink_label_on_editing) {
+        label_width = draw_text_f6X12(fb,
+                           start_point->x + LeftPadding,
+                           start_point->y - get_text_f6X12_height(),
+                           label);
+        res = label_width > 0;
+    }
+    if (!res) {
+        return res;
+    }
+
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
         res = draw_active_network(fb,
                                   start_point->x,
                                   start_point->y,
-                                  LabeledLogicItem::width + LeftPadding);
+                                  label_width + LeftPadding);
     } else {
         res = draw_passive_network(fb,
                                    start_point->x,
                                    start_point->y,
-                                   LabeledLogicItem::width + LeftPadding,
+                                   label_width + LeftPadding,
                                    false);
     }
     if (!res) {
         return res;
     }
+    start_point->x += LeftPadding + label_width;
 
-    start_point->x += LeftPadding;
-
-    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                               && (CommonInput::EditingPropertyId)editing_property_id
-                                      == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
-                               && Blinking_50();
-    res = blink_label_on_editing
-       || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
-    if (!res) {
-        return res;
-    }
-
-    start_point->x += LabeledLogicItem::width;
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonInput::EditingPropertyId)editing_property_id
                                        == CommonInput::EditingPropertyId::ciepi_None

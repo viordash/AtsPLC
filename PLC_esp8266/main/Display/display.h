@@ -35,10 +35,16 @@ void display_init();
 
 uint8_t *begin_render();
 void end_render(uint8_t *fb);
-bool draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-bool draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-bool draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-bool draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+
+int get_text_f4X7_height();
+int get_text_f5X7_height();
+int get_text_f6X12_height();
+int get_text_f8X14_height();
+
 bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
 bool draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash);
 bool draw_active_income_rail(uint8_t *fb, uint8_t x, uint8_t y);
