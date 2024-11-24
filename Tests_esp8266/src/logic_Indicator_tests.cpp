@@ -169,29 +169,41 @@ TEST(LogicIndicatorTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::V2);
+    *testable.PublicMorozov_Get_high_scale() = 1234.5;
+    *testable.PublicMorozov_Get_low_scale() = 0.01;
+    *testable.PublicMorozov_Get_decimal_point() = 2;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(2, writed);
+    CHECK_EQUAL(11, writed);
 
     CHECK_EQUAL(TvElementType::et_Indicator, *((TvElementType *)&buffer[0]));
     CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
+    DOUBLES_EQUAL(0.01, *((float *)&buffer[2]), 0.0001);
+    DOUBLES_EQUAL(1234.5, *((float *)&buffer[6]), 0.0001);
+    CHECK_EQUAL(2, *((uint8_t *)&buffer[10]));
 }
 
 TEST(LogicIndicatorTestsGroup, Serialize_just_for_obtain_size) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 1234.5;
+    *testable.PublicMorozov_Get_low_scale() = 0.01;
+    *testable.PublicMorozov_Get_decimal_point() = 2;
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
-    CHECK_EQUAL(2, writed);
+    CHECK_EQUAL(11, writed);
 
     writed = testable.Serialize(NULL, 0);
-    CHECK_EQUAL(2, writed);
+    CHECK_EQUAL(11, writed);
 }
 
 TEST(LogicIndicatorTestsGroup, Serialize_to_small_buffer_return_zero) {
-    uint8_t buffer[1] = {};
+    uint8_t buffer[10] = {};
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 1234.5;
+    *testable.PublicMorozov_Get_low_scale() = 0.01;
+    *testable.PublicMorozov_Get_decimal_point() = 2;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -201,19 +213,28 @@ TEST(LogicIndicatorTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
     *((MapIO *)&buffer[1]) = MapIO::V3;
+    *((float *)&buffer[2]) = 0.01;
+    *((float *)&buffer[6]) = 1234.5;
+    *((uint8_t *)&buffer[10]) = 3;
 
     TestableIndicator testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(1, readed);
+    CHECK_EQUAL(10, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
     CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    DOUBLES_EQUAL(0.01, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+    DOUBLES_EQUAL(1234.5, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_decimal_point());
 }
 
 TEST(LogicIndicatorTestsGroup, Deserialize_with_small_buffer_return_zero) {
-    uint8_t buffer[0] = {};
+    uint8_t buffer[10] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    *((float *)&buffer[2]) = 0.01;
+    *((float *)&buffer[6]) = 1234.5;
 
     TestableIndicator testable;
 
@@ -224,6 +245,9 @@ TEST(LogicIndicatorTestsGroup, Deserialize_with_small_buffer_return_zero) {
 TEST(LogicIndicatorTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
+    *((float *)&buffer[2]) = 0.01;
+    *((float *)&buffer[6]) = 1234.5;
+    *((uint8_t *)&buffer[10]) = 3;
 
     TestableIndicator testable;
 
@@ -237,7 +261,85 @@ TEST(LogicIndicatorTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 
     *((MapIO *)&buffer[1]) = MapIO::DI;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(1, readed);
+    CHECK_EQUAL(10, readed);
+}
+
+TEST(LogicIndicatorTestsGroup, Deserialize_with_limit_low_scale) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    *((float *)&buffer[6]) = 1234.5;
+    *((uint8_t *)&buffer[10]) = 3;
+
+    TestableIndicator testable;
+
+    *((float *)&buffer[2]) = -9999999.0f - 10.0f;
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((float *)&buffer[2]) = 99999999.0f + 10.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((float *)&buffer[2]) = -9999999.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
+
+    *((float *)&buffer[2]) = 99999999.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
+}
+
+TEST(LogicIndicatorTestsGroup, Deserialize_with_limit_high_scale) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    *((float *)&buffer[2]) = 999.0f;
+    *((uint8_t *)&buffer[10]) = 3;
+
+    TestableIndicator testable;
+
+    *((float *)&buffer[6]) = -9999999.0f - 10.0f;
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((float *)&buffer[6]) = 99999999.0f + 10.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((float *)&buffer[6]) = -9999999.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
+
+    *((float *)&buffer[6]) = 99999999.0f;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
+}
+
+TEST(LogicIndicatorTestsGroup, Deserialize_with_incorrect_decimal_point) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_Indicator;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    *((float *)&buffer[2]) = 999.0f;
+    *((float *)&buffer[6]) = 1234.5;
+
+    TestableIndicator testable;
+
+    *((uint8_t *)&buffer[10]) = 8;
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((uint8_t *)&buffer[10]) = 7;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((uint8_t *)&buffer[10]) = 6;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
+
+    *((uint8_t *)&buffer[10]) = 0;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(10, readed);
 }
 
 TEST(LogicIndicatorTestsGroup, GetElementType) {

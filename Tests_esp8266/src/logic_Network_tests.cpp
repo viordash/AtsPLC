@@ -284,13 +284,16 @@ TEST(LogicNetworkTestsGroup, Serialize_Indicator) {
     testable.Append(indicator);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(5, writed);
+    CHECK_EQUAL(14, writed);
 
     CHECK_EQUAL(LogicItemState::lisActive, *((LogicItemState *)&buffer[0]));
     CHECK_EQUAL(1, *((uint16_t *)&buffer[1]));
 
     CHECK_EQUAL(TvElementType::et_Indicator, *((TvElementType *)&buffer[3]));
     CHECK_EQUAL(MapIO::AI, *((MapIO *)&buffer[4]));
+    DOUBLES_EQUAL(0.0, *((float *)&buffer[5]), 0.0001);
+    DOUBLES_EQUAL(100.0, *((float *)&buffer[9]), 0.0001);
+    CHECK_EQUAL(2, *((uint8_t *)&buffer[13]));
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {

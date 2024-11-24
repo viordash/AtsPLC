@@ -258,19 +258,52 @@ size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }
+    if (!Record::Write(&low_scale, sizeof(low_scale), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!Record::Write(&high_scale, sizeof(high_scale), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!Record::Write(&decimal_point, sizeof(decimal_point), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
 size_t Indicator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
     MapIO _io_adr;
+    float _low_scale;
+    float _high_scale;
+    uint8_t _decimal_point;
     if (!Record::Read(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (!ValidateMapIO(_io_adr)) {
         return 0;
     }
+    if (!Record::Read(&_low_scale, sizeof(_low_scale), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (_low_scale < -9999999.0f || _low_scale > 99999999.0f) {
+        return 0;
+    }
+    if (!Record::Read(&_high_scale, sizeof(_high_scale), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (_high_scale < -9999999.0f || _high_scale > 99999999.0f) {
+        return 0;
+    }
+    if (!Record::Read(&_decimal_point, sizeof(_decimal_point), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (_decimal_point >= max_symbols_count - 1) {
+        return 0;
+    }
     SetIoAdr(_io_adr);
+    low_scale = _low_scale;
+    high_scale = _high_scale;
+    decimal_point = _decimal_point;
     return readed;
 }
 
