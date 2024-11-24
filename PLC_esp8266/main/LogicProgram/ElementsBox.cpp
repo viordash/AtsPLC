@@ -180,17 +180,28 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
         return false;
     }
 
-    MapIO io_adr = MapIO::V1;
     auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
     if (source_element_as_commonInput != NULL) {
-        io_adr = source_element_as_commonInput->GetIoAdr();
-    } else {
-        auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
-        if (source_element_as_commonOutput != NULL) {
-            io_adr = source_element_as_commonOutput->GetIoAdr();
-        }
+        auto io_adr = source_element_as_commonInput->GetIoAdr();
+        indicator->SetIoAdr(io_adr);
+        return true;
     }
-    indicator->SetIoAdr(io_adr);
+
+    auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
+    if (source_element_as_commonOutput != NULL) {
+        auto io_adr = source_element_as_commonOutput->GetIoAdr();
+        indicator->SetIoAdr(io_adr);
+        return true;
+    }
+
+    auto *source_element_as_indicator = Indicator::TryToCast(source_element);
+    if (source_element_as_indicator != NULL) {
+        auto io_adr = source_element_as_indicator->GetIoAdr();
+        indicator->SetIoAdr(io_adr);
+        return true;
+    }
+
+    indicator->SetIoAdr(MapIO::V1);
     return true;
 }
 

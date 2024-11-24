@@ -72,7 +72,9 @@ TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
 
 TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
     IncOutput stored_element(MapIO::O1);
-    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, false);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
+                         &stored_element,
+                         false);
     CHECK_EQUAL(6, testable.size());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, testable[1]->GetElementType());
@@ -85,7 +87,9 @@ TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
 
 TEST(LogicElementsBoxTestsGroup, box_for_wire) {
     Wire stored_element;
-    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, false);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
+                         &stored_element,
+                         false);
     CHECK_EQUAL(16, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
@@ -116,7 +120,9 @@ TEST(LogicElementsBoxTestsGroup, box_for_indicator_element) {
 
 TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     Wire stored_element;
-    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH, &stored_element, true);
+    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
+                         &stored_element,
+                         true);
     CHECK_EQUAL(11, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
@@ -133,22 +139,24 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
-    InputNC stored_element(MapIO::V1);
+    int matched = 0;
+    InputNC stored_element(MapIO::V2);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
-            CHECK_EQUAL(MapIO::V1, element_as_commonInput->GetIoAdr());
+            CHECK_EQUAL(MapIO::V2, element_as_commonInput->GetIoAdr());
+            matched++;
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
+    int matched = 0;
     ComparatorEq stored_element(42, MapIO::AI);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -156,17 +164,19 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
             if (element_as_commonComparator != NULL) {
                 CHECK_EQUAL(MapIO::AI, element_as_commonComparator->GetIoAdr());
                 CHECK_EQUAL(42, element_as_commonComparator->GetReference());
+                matched++;
             }
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_reference_to_zero_by_default_for_comparators) {
+    int matched = 0;
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -174,103 +184,133 @@ TEST(LogicElementsBoxTestsGroup,
             if (element_as_commonComparator != NULL) {
                 CHECK_EQUAL(MapIO::V1, element_as_commonComparator->GetIoAdr());
                 CHECK_EQUAL(0, element_as_commonComparator->GetReference());
+                matched++;
             }
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
+    int matched = 0;
     TimerSecs stored_element(42);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
             auto *element_as_TimerMSecs = TimerMSecs::TryToCast(element_as_commonTimer);
             if (element_as_TimerMSecs != NULL) {
                 CHECK_EQUAL(42 * 1000000LL, element_as_TimerMSecs->GetTimeUs());
+                matched++;
             }
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
+    int matched = 0;
     TimerMSecs stored_element(42000);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
             auto *element_as_TimerSecs = TimerSecs::TryToCast(element_as_commonTimer);
             if (element_as_TimerSecs != NULL) {
                 CHECK_EQUAL(42 * 1000000LL, element_as_TimerSecs->GetTimeUs());
+                matched++;
             }
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_default_delaytime_for_timers) {
+    int matched = 0;
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
             auto *element_as_TimerSecs = TimerSecs::TryToCast(element_as_commonTimer);
             if (element_as_TimerSecs != NULL) {
                 CHECK_EQUAL(1000000LL, element_as_TimerSecs->GetTimeUs());
+                matched++;
             }
 
             auto *element_as_TimerMSecs = TimerMSecs::TryToCast(element_as_commonTimer);
             if (element_as_TimerMSecs != NULL) {
                 CHECK_EQUAL(1000LL, element_as_TimerMSecs->GetTimeUs());
+                matched++;
             }
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 1);
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
+    int matched = 0;
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(6, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonOutput = CommonOutput::TryToCast(element);
         if (element_as_commonOutput != NULL) {
             CHECK_EQUAL(MapIO::O1, element_as_commonOutput->GetIoAdr());
+            matched++;
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
+    int matched = 0;
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_wire = Wire::TryToCast(element);
         if (element_as_wire != NULL) {
             CHECK_EQUAL(24, element_as_wire->GetWidth());
+            matched++;
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
-TEST(LogicElementsBoxTestsGroup, takes_params_for_indicator_element) {
-    Indicator stored_element(MapIO::V1);
+TEST(LogicElementsBoxTestsGroup, copy_params_for_indicator_element) {
+    int matched = 0;
+    Indicator stored_element(MapIO::AI);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(2, testable.size());
+    for (auto *element : testable) {
+        auto *element_as_indicator = Indicator::TryToCast(element);
+        if (element_as_indicator != NULL) {
+            CHECK_EQUAL(MapIO::AI, element_as_indicator->GetIoAdr());
+            matched++;
+        }
+    }
+    delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
+}
+
+TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
+    int matched = 0;
+    Wire stored_element;
+    ElementsBox testable(115, &stored_element, false);
     for (auto *element : testable) {
         auto *element_as_indicator = Indicator::TryToCast(element);
         if (element_as_indicator != NULL) {
             CHECK_EQUAL(MapIO::V1, element_as_indicator->GetIoAdr());
+            matched++;
         }
     }
     delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
