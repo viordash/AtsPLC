@@ -617,6 +617,8 @@ TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_0) {
     STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
 
     testable.SelectPrior();
+    STRCMP_EQUAL("-0000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
     STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
     testable.SelectPrior();
     STRCMP_EQUAL("80000000", testable.PublicMorozov_Get_str_value());
@@ -637,7 +639,7 @@ TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_0) {
     testable.SelectPrior();
     STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
     testable.SelectPrior();
-    STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
+    STRCMP_EQUAL("-0000000", testable.PublicMorozov_Get_str_value());
 
     testable.SelectNext();
     STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
@@ -659,6 +661,8 @@ TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_0) {
     STRCMP_EQUAL("80000000", testable.PublicMorozov_Get_str_value());
     testable.SelectNext();
     STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("-0000000", testable.PublicMorozov_Get_str_value());
     testable.SelectNext();
     STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
 }

@@ -349,7 +349,7 @@ void Indicator::SelectPrior() {
 
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
-            SelectPriorSymbol(&str_value[0], '9');
+            SelectPriorSymbol(&str_value[0], '-');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
@@ -399,7 +399,7 @@ void Indicator::SelectNext() {
 
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
-            SelectNextSymbol(&str_value[0], '0');
+            SelectNextSymbol(&str_value[0], '-');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
