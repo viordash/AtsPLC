@@ -463,6 +463,136 @@ TEST(LogicIndicatorTestsGroup, Change__switching__editing_property_id) {
     CHECK_TRUE(testable.Editing());
     CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7,
                 *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+}
+
+TEST(LogicIndicatorTestsGroup, Show_low_scale_when_editing) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 1;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("000000.0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("00000.00", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 3;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("0000.000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 4;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("000.0000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 5;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("00.00000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 6;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("0.000000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    *testable.PublicMorozov_Get_low_scale() = 12345.678f;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("12345.68", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 4;
+    *testable.PublicMorozov_Get_low_scale() = 0.1575f;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+    testable.Change();
+    STRCMP_EQUAL("000.1575", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 100;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.BeginEditing();
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("00000100", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 1;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("000100.0", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("00100.00", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 3;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("0100.000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 4;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("100.0000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_high_scale() = 1;
+    *testable.PublicMorozov_Get_decimal_point() = 5;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("01.00000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 6;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("1.000000", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 2;
+    *testable.PublicMorozov_Get_high_scale() = 12345.678f;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("12345.68", testable.PublicMorozov_Get_str_value());
+
+    *testable.PublicMorozov_Get_decimal_point() = 4;
+    *testable.PublicMorozov_Get_high_scale() = 0.1575f;
+    *testable.PublicMorozov_Get_editing_property_id() =
+        Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
+    testable.Change();
+    STRCMP_EQUAL("000.1575", testable.PublicMorozov_Get_str_value());
 }
 
 TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
@@ -470,6 +600,7 @@ TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
     testable.SetIoAdr(MapIO::DI);
     *testable.PublicMorozov_Get_high_scale() = 0;
     *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
     testable.BeginEditing();
     testable.Change();
     testable.Change();
@@ -477,4 +608,5 @@ TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.SelectPrior();
+    STRCMP_EQUAL("00000.00", testable.PublicMorozov_Get_str_value());
 }

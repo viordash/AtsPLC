@@ -45,6 +45,7 @@ void Indicator::PrintOutValue(uint8_t eng_value) {
 }
 
 void Indicator::PrintLowScale() {
+    sprintf(str_format, "%%0%u.%uf", max_symbols_count, decimal_point);
     snprintf(str_value, sizeof(str_value), str_format, low_scale);
 }
 
@@ -52,6 +53,7 @@ void Indicator::AcceptLowScale() {
 }
 
 void Indicator::PrintHighScale() {
+    sprintf(str_format, "%%0%u.%uf", max_symbols_count, decimal_point);
     snprintf(str_value, sizeof(str_value), str_format, high_scale);
 }
 
@@ -379,7 +381,6 @@ void Indicator::Change() {
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr:
             editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0;
-            UpdateScale();
             PrintLowScale();
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
@@ -406,7 +407,6 @@ void Indicator::Change() {
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
             editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0;
             AcceptLowScale();
-            UpdateScale();
             PrintHighScale();
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
@@ -429,13 +429,13 @@ void Indicator::Change() {
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
             editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7;
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_None;
             AcceptHighScale();
             UpdateScale();
-            break;
-
-        default:
             EndEditing();
-            return;
+            break;
     }
 }
 
