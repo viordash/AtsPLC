@@ -75,15 +75,15 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
     switch (str_size) {
         case 1:
             res = blink_label_on_editing
-               || draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
+               || (draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference) > 0);
             break;
         case 2:
             res = blink_label_on_editing
-               || draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
+               || (draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference) > 0);
             break;
         default:
             res = blink_label_on_editing
-               || draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
+               || (draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference) > 0);
             break;
     }
 

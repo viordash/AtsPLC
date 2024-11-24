@@ -82,23 +82,23 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     switch (str_size) {
         case 1:
             res = blink_value_on_editing
-               || draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time);
+               || (draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time) > 0);
             break;
         case 2:
             res = blink_value_on_editing
-               || draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time);
+               || (draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time) > 0);
             break;
         case 3:
             res = blink_value_on_editing
-               || draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time);
+               || (draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time) > 0);
             break;
         case 4:
             res = blink_value_on_editing
-               || draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time);
+               || (draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time) > 0);
             break;
         default:
             res = blink_value_on_editing
-               || draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time);
+               || (draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time) > 0);
             break;
     }
 

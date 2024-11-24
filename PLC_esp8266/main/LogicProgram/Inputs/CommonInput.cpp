@@ -57,7 +57,8 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
                                       == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
                                && Blinking_50();
     res = blink_label_on_editing
-       || draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label);
+       || (draw_text_f6X12(fb, start_point->x, start_point->y - LabeledLogicItem::height, label)
+           > 0);
     if (!res) {
         return res;
     }
