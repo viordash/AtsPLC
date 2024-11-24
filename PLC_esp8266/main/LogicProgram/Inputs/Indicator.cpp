@@ -154,12 +154,19 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
         return res;
     }
 
-    top_left.x += 4;
-    bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                               && (Indicator::EditingPropertyId)editing_property_id
-                                      == Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0
-                               && Blinking_50();
-    res = blink_value_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
+    bool show_scales = editable_state == EditableElement::ElementState::des_Editing
+                    && (Indicator::EditingPropertyId)editing_property_id
+                           != Indicator::EditingPropertyId::ciepi_None
+                    && (Indicator::EditingPropertyId)editing_property_id
+                           != Indicator::EditingPropertyId::ciepi_ConfigureIOAdr;
+
+    if (show_scales) {
+        top_left.x += 4;
+        res = RenderScales(fb, prev_elem_state, &top_left);
+    } else {
+        top_left.x += 4;
+        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
+    }
     if (!res) {
         return res;
     }
@@ -168,6 +175,9 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
 
     res = EditableElement::Render(fb, start_point);
     return res;
+}
+
+bool Indicator::RenderScales(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
 }
 
 size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {
