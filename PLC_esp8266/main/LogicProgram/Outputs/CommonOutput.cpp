@@ -34,18 +34,18 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
 
     auto bitmap = GetCurrentBitmap(state);
 
-    start_point->x -= LabeledLogicItem::width;
+    start_point->x -= label_max_width;
 
     res = EditableElement::Render(fb, start_point);
 
     if (res) {
         if (state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point->x, start_point->y, LabeledLogicItem::width);
+            res = draw_active_network(fb, start_point->x, start_point->y, label_max_width);
         } else {
             res = draw_passive_network(fb,
                                        start_point->x,
                                        start_point->y,
-                                       LabeledLogicItem::width,
+                                       label_max_width,
                                        true);
         }
     }

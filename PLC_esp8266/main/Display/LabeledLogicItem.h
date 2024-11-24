@@ -7,7 +7,7 @@
 class LabeledLogicItem {
   protected:
     const char *label;
-    uint8_t width;
+    uint8_t label_width;
 
     void SetLabel(const char *label);
 
