@@ -595,7 +595,7 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
     STRCMP_EQUAL("000.1575", testable.PublicMorozov_Get_str_value());
 }
 
-TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
+TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_0) {
     TestableIndicator testable;
     testable.SetIoAdr(MapIO::DI);
     *testable.PublicMorozov_Get_high_scale() = 0;
@@ -606,7 +606,251 @@ TEST(LogicIndicatorTestsGroup, SelectPriorSymbol_0) {
     testable.Change();
     CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0,
                 *testable.PublicMorozov_Get_editing_property_id());
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
 
     testable.SelectPrior();
-    STRCMP_EQUAL("00000.00", testable.PublicMorozov_Get_str_value());
+    STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("80000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("70000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("60000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("50000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("40000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("30000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("20000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("10000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("10000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("20000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("30000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("40000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("50000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("60000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("70000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("80000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("90000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_1) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1,
+                *testable.PublicMorozov_Get_editing_property_id());
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectPrior();
+    STRCMP_EQUAL("0.000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("09000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("08000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("07000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("06000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("05000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("04000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("03000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("02000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("01000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("0.000000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("01000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("02000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("03000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("04000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("05000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("06000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("07000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("08000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("09000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("0.000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_4) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4,
+                *testable.PublicMorozov_Get_editing_property_id());
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectPrior();
+    STRCMP_EQUAL("0000.000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00009000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00008000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00007000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00006000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00005000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00004000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00003000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00002000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00001000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("0000.000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00001000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00002000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00003000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00004000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00005000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00006000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00007000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00008000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00009000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("0000.000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_7) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_Get_high_scale() = 0;
+    *testable.PublicMorozov_Get_low_scale() = 0;
+    *testable.PublicMorozov_Get_decimal_point() = 0;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7,
+                *testable.PublicMorozov_Get_editing_property_id());
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000009", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000008", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000007", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000006", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000005", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000004", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000003", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000002", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000001", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectPrior();
+    STRCMP_EQUAL("00000009", testable.PublicMorozov_Get_str_value());
+
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000001", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000002", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000003", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000004", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000005", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000006", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000007", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000008", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000009", testable.PublicMorozov_Get_str_value());
+    testable.SelectNext();
+    STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
 }

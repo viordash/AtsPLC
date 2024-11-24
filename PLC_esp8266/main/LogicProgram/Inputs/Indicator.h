@@ -44,8 +44,8 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void AcceptLowScale();
     void PrintHighScale();
     void AcceptHighScale();
-    void SelectPriorSymbol(char * symbol);
-    void SelectNextSymbol(char * symbol);
+    void SelectPriorSymbol(char *symbol, char extra);
+    void SelectNextSymbol(char *symbol, char extra);
 
   public:
     static const int update_period_ms = 1000;

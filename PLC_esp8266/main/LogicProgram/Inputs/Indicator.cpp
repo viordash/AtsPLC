@@ -210,20 +210,21 @@ Indicator *Indicator::TryToCast(LogicElement *logic_element) {
     }
 }
 
-void Indicator::SelectPriorSymbol(char *symbol) {
+void Indicator::SelectPriorSymbol(char *symbol, char extra) {
     switch (*symbol) {
         case '1':
         case '2':
         case '3':
         case '4':
         case '5':
+        case '6':
         case '7':
         case '8':
         case '9':
             *symbol = *symbol - 1;
             break;
         case '0':
-            *symbol = '.';
+            *symbol = extra;
             break;
         default:
             *symbol = '9';
@@ -231,7 +232,7 @@ void Indicator::SelectPriorSymbol(char *symbol) {
     }
 }
 
-void Indicator::SelectNextSymbol(char *symbol) {
+void Indicator::SelectNextSymbol(char *symbol, char extra) {
     switch (*symbol) {
         case '0':
         case '1':
@@ -239,12 +240,13 @@ void Indicator::SelectNextSymbol(char *symbol) {
         case '3':
         case '4':
         case '5':
+        case '6':
         case '7':
         case '8':
             *symbol = *symbol + 1;
             break;
         case '9':
-            *symbol = '.';
+            *symbol = extra;
             break;
         default:
             *symbol = '0';
@@ -269,35 +271,35 @@ void Indicator::SelectPrior() {
 
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
-            SelectPriorSymbol(&str_value[0]);
+            SelectPriorSymbol(&str_value[0], '9');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
-            SelectPriorSymbol(&str_value[1]);
+            SelectPriorSymbol(&str_value[1], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2:
-            SelectPriorSymbol(&str_value[2]);
+            SelectPriorSymbol(&str_value[2], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3:
-            SelectPriorSymbol(&str_value[3]);
+            SelectPriorSymbol(&str_value[3], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4:
-            SelectPriorSymbol(&str_value[4]);
+            SelectPriorSymbol(&str_value[4], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5:
-            SelectPriorSymbol(&str_value[5]);
+            SelectPriorSymbol(&str_value[5], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
-            SelectPriorSymbol(&str_value[6]);
+            SelectPriorSymbol(&str_value[6], '.');
             break;
         case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
         case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
-            SelectPriorSymbol(&str_value[7]);
+            SelectPriorSymbol(&str_value[7], '9');
             break;
     }
 }
@@ -317,51 +319,38 @@ void Indicator::SelectNext() {
             break;
         }
 
-            switch (editing_property_id) {
-                case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr: {
-                    auto allowed_inputs = GetAllowedInputs();
-                    auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-                    io_adr--;
-                    if (io_adr < 0) {
-                        io_adr = allowed_inputs.count - 1;
-                    }
-                    SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
-                    break;
-                }
-
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
-                    SelectNextSymbol(&str_value[0]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
-                    SelectNextSymbol(&str_value[1]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2:
-                    SelectNextSymbol(&str_value[2]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3:
-                    SelectNextSymbol(&str_value[3]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4:
-                    SelectNextSymbol(&str_value[4]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5:
-                    SelectNextSymbol(&str_value[5]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
-                    SelectNextSymbol(&str_value[6]);
-                    break;
-                case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
-                case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
-                    SelectNextSymbol(&str_value[7]);
-                    break;
-            }
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
+            SelectNextSymbol(&str_value[0], '0');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
+            SelectNextSymbol(&str_value[1], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2:
+            SelectNextSymbol(&str_value[2], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3:
+            SelectNextSymbol(&str_value[3], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4:
+            SelectNextSymbol(&str_value[4], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5:
+            SelectNextSymbol(&str_value[5], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
+            SelectNextSymbol(&str_value[6], '.');
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
+            SelectNextSymbol(&str_value[7], '0');
+            break;
     }
 }
 
