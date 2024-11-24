@@ -35,14 +35,12 @@ TEST(LogicElementFactoryTestsGroup, Create_InputNO) {
 }
 
 TEST(LogicElementFactoryTestsGroup, Create_TimerSecs) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     auto element = LogicElementFactory::Create(TvElementType::et_TimerSecs);
     CHECK(element != NULL);
     delete element;
 }
 
 TEST(LogicElementFactoryTestsGroup, Create_TimerMSecs) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     auto element = LogicElementFactory::Create(TvElementType::et_TimerMSecs);
     CHECK(element != NULL);
     delete element;

@@ -30,13 +30,6 @@ namespace {
         }
         virtual ~TestableTimerSecs() {
         }
-
-        uint8_t PublicMorozov_GetProgress(LogicItemState prev_elem_state) {
-            return GetProgress(prev_elem_state);
-        }
-        uint8_t PublicMorozov_ProgressHasChanges(LogicItemState prev_elem_state) {
-            return ProgressHasChanges(prev_elem_state);
-        }
         const char *PublicMorozov_Get_str_time() {
             return str_time;
         }
@@ -44,8 +37,6 @@ namespace {
 } // namespace
 
 TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
-    mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
-
     TestableTimerSecs testable_0;
     testable_0.SetTime(0);
     CHECK_EQUAL(1 * 1000000LL, testable_0.GetTimeUs());
@@ -63,60 +54,7 @@ TEST(LogicTimerSecsTestsGroup, Reference_in_limit_1_to_99999) {
     CHECK_EQUAL(99999 * 1000000LL, testable_100000.GetTimeUs());
 }
 
-TEST(LogicTimerSecsTestsGroup, ProgressHasChanges_true_every_one_sec) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(11, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableTimerSecs testable;
-    testable.SetTime(10);
-    testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive);
-
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 500000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 1000000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 1200000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 2000000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 2500000;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = UINT64_MAX - 900000;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 100000 - 2;
-    CHECK_FALSE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-
-    os_us = 100000 - 1;
-    CHECK_TRUE(testable.PublicMorozov_ProgressHasChanges(LogicItemState::lisActive));
-}
-
-TEST(LogicTimerSecsTestsGroup, success_render_with_zero_progress) {
-    volatile uint64_t os_us = 0;
-    mock()
-        .expectNCalls(3, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    TestableTimerSecs testable;
-    testable.SetTime(10);
-
-    uint8_t percent04 = testable.PublicMorozov_GetProgress(LogicItemState::lisActive);
-    CHECK_EQUAL(0, percent04);
-    Point start_point = { 0, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
-}
-
 TEST(LogicTimerSecsTestsGroup, Serialize) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     TestableTimerSecs testable;
     testable.SetTime(12345);
@@ -129,7 +67,6 @@ TEST(LogicTimerSecsTestsGroup, Serialize) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Serialize_just_for_obtain_size) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TestableTimerSecs testable;
     testable.SetTime(12345);
 
@@ -141,7 +78,6 @@ TEST(LogicTimerSecsTestsGroup, Serialize_just_for_obtain_size) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[1] = {};
     TestableTimerSecs testable;
     testable.SetTime(12345);
@@ -151,7 +87,6 @@ TEST(LogicTimerSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 123456789;
@@ -166,7 +101,6 @@ TEST(LogicTimerSecsTestsGroup, Deserialize) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
 
@@ -177,7 +111,6 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize_with_less_value_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 0;
@@ -189,7 +122,6 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_less_value_return_zero) {
 }
 
 TEST(LogicTimerSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerSecs;
     *((uint64_t *)&buffer[1]) = 99999 * 1000000LL + 1;
@@ -201,13 +133,11 @@ TEST(LogicTimerSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
 }
 
 TEST(LogicTimerSecsTestsGroup, GetElementType) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TestableTimerSecs testable;
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
 }
 
 TEST(LogicTimerSecsTestsGroup, TryToCast) {
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
 
     TimerMSecs timerMSecs;
     CHECK_TRUE(TimerSecs::TryToCast(&timerMSecs) == NULL);
@@ -217,7 +147,6 @@ TEST(LogicTimerSecsTestsGroup, TryToCast) {
 }
 
 TEST(LogicTimerSecsTestsGroup, SelectPrior_changing_delay_time) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(1);
     testable.BeginEditing();
     testable.SelectPrior();
@@ -235,7 +164,6 @@ TEST(LogicTimerSecsTestsGroup, SelectPrior_changing_delay_time) {
 }
 
 TEST(LogicTimerSecsTestsGroup, SelectNext_changing_IoAdr) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(3);
     testable.BeginEditing();
     testable.SelectNext();
@@ -255,7 +183,6 @@ TEST(LogicTimerSecsTestsGroup, SelectNext_changing_IoAdr) {
 }
 
 TEST(LogicTimerSecsTestsGroup, PageUp_changing_delay_time) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(1);
     testable.BeginEditing();
     testable.PageUp();
@@ -273,7 +200,6 @@ TEST(LogicTimerSecsTestsGroup, PageUp_changing_delay_time) {
 }
 
 TEST(LogicTimerSecsTestsGroup, PageDown_changing_IoAdr) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerSecs testable(15);
     testable.BeginEditing();
     testable.PageDown();

@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include "LogicProgram/Ladder.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -20,10 +21,15 @@ extern "C" {
 #include <string.h>
 
 typedef struct {
-    uint8_t AI;
-    uint8_t DI;
-    uint8_t O1;
-    uint8_t O2;
+    uint8_t value;
+    bool required;
+} ControllerIOValue;
+
+typedef struct {
+    ControllerIOValue AI;
+    ControllerIOValue DI;
+    ControllerIOValue O1;
+    ControllerIOValue O2;
     uint8_t V1;
     uint8_t V2;
     uint8_t V3;
@@ -40,6 +46,7 @@ class Controller {
     static uint8_t var3;
     static uint8_t var4;
     static Ladder *ladder;
+    static ProcessWakeupService *processWakeupService;
 
     static std::recursive_mutex lock_io_values_mutex;
     static ControllerIOValues cached_io_values;
@@ -68,4 +75,8 @@ class Controller {
     static void SetV2RelativeValue(uint8_t value);
     static void SetV3RelativeValue(uint8_t value);
     static void SetV4RelativeValue(uint8_t value);
+
+    static bool RequestWakeupMs(void *id, uint32_t delay_ms);
+    static void RemoveRequestWakeupMs(void *id);
+    static void RemoveExpiredWakeupRequests();
 };

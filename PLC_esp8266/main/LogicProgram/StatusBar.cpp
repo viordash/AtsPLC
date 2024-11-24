@@ -39,16 +39,16 @@ IRAM_ATTR bool StatusBar::Render(uint8_t *fb) {
 
     ControllerIOValues io_values = Controller::GetIOValues();
 
-    res &= indicator_AI->Render(fb, &point, io_values.AI);
+    res &= indicator_AI->Render(fb, &point, io_values.AI.value);
     point.x += separator_width;
 
-    res &= indicator_DI->Render(fb, &point, io_values.DI);
+    res &= indicator_DI->Render(fb, &point, io_values.DI.value);
     point.x += separator_width;
 
-    res &= indicator_O1->Render(fb, &point, io_values.O1);
+    res &= indicator_O1->Render(fb, &point, io_values.O1.value);
     point.x += separator_width;
 
-    res &= indicator_O2->Render(fb, &point, io_values.O2);
+    res &= indicator_O2->Render(fb, &point, io_values.O2.value);
     point.x += separator_width;
 
     res &= indicator_V1->Render(fb, &point, io_values.V1);

@@ -1,6 +1,7 @@
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "Display/bitmaps/timer_msec_active.h"
 #include "Display/bitmaps/timer_msec_passive.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"

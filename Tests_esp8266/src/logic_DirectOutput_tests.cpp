@@ -17,10 +17,11 @@
 
 TEST_GROUP(LogicDirectOutputTestsGroup){ //
                                          TEST_SETUP(){ mock().disable();
-Controller::Stop();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }
@@ -81,7 +82,7 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
 
     Controller::SetV1RelativeValue(LogicElement::MinValue);
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());

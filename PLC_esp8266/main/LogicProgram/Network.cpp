@@ -36,11 +36,13 @@ Network::~Network() {
 
 void Network::ChangeState(LogicItemState state) {
     this->state = state;
+    state_changed = true;
 }
 
 bool Network::DoAction() {
     bool any_changes = false;
-    bool prev_elem_changed = true;
+    bool prev_elem_changed = state_changed;
+    state_changed = false;
     LogicItemState prev_elem_state = state;
 
     for (auto it = begin(); it != end(); ++it) {

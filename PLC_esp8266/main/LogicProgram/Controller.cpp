@@ -1,7 +1,6 @@
 
 
 #include "LogicProgram/Controller.h"
-
 #include "Display/Common.h"
 #include "Display/display.h"
 #include "LogicProgram/LogicProgram.h"
@@ -37,6 +36,7 @@ uint8_t Controller::var3 = LogicElement::MinValue;
 uint8_t Controller::var4 = LogicElement::MinValue;
 
 Ladder *Controller::ladder = NULL;
+ProcessWakeupService *Controller::processWakeupService = NULL;
 
 std::recursive_mutex Controller::lock_io_values_mutex;
 ControllerIOValues Controller::cached_io_values = {};
@@ -45,6 +45,8 @@ void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
 
     ESP_LOGI(TAG_Controller, "start");
+
+    processWakeupService = new ProcessWakeupService();
     ladder = new Ladder();
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
@@ -66,10 +68,12 @@ void Controller::Stop() {
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
     Controller::cached_io_values = {};
     delete ladder;
+    delete processWakeupService;
 }
 
 void Controller::ProcessTask(void *parm) {
     (void)parm;
+
     ESP_LOGI(TAG_Controller, "start process task");
 
     ladder->Load();
@@ -85,9 +89,10 @@ void Controller::ProcessTask(void *parm) {
                         ? ESP_FAIL
                         : ESP_OK);
 
+    const uint32_t first_iteration_delay = 0;
+    processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
-        const int read_adc_max_period_ms = 100;
         EventBits_t uxBits = xEventGroupWaitBits(
             Controller::gpio_events,
             BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
@@ -95,10 +100,13 @@ void Controller::ProcessTask(void *parm) {
                 | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
             true,
             false,
-            read_adc_max_period_ms / portTICK_PERIOD_MS);
+            processWakeupService->Get());
+
+        processWakeupService->RemoveExpired();
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
+        bool force_render = uxBits == 0;
 
         if (buttons_changed) {
             ButtonsPressType pressed_button = handle_buttons(uxBits);
@@ -122,12 +130,18 @@ void Controller::ProcessTask(void *parm) {
                 default:
                     break;
             }
-            continue;
         }
 
         need_render |= inputs_changed;
         need_render |= SampleIOValues();
-        need_render |= ladder->DoAction();
+
+        bool any_changes_in_actions = ladder->DoAction();
+        need_render |= any_changes_in_actions;
+        if (any_changes_in_actions) {
+            ESP_LOGD(TAG_Controller, "any_changes_in_actions");
+            Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
+        }
+        need_render |= force_render;
         if (need_render) {
             need_render = false;
             xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
@@ -148,19 +162,22 @@ void Controller::RenderTask(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
+        bool force_render = ladder->ForcePeriodicRendering();
+
         BaseType_t xResult =
             xTaskNotifyWait(0,
                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
                                 | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
                             &ulNotifiedValue,
-                            200 / portTICK_PERIOD_MS);
+                            force_render //
+                                ? 200 / portTICK_PERIOD_MS
+                                : portMAX_DELAY);
 
-        if (xResult != pdPASS) {
-            ulNotifiedValue |= DO_RENDERING;
-            // ulNotifiedValue = {};
-            // ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
-            // vTaskDelay(500 / portTICK_PERIOD_MS);
-            // continue;
+        if (!force_render && xResult != pdPASS) {
+            ulNotifiedValue = {};
+            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            continue;
         }
 
         if (ulNotifiedValue & DO_SCROLL_UP) {
@@ -193,7 +210,7 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
-        if (ulNotifiedValue & DO_RENDERING) {
+        if (force_render || (ulNotifiedValue & DO_RENDERING)) {
             int64_t now_time = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
@@ -209,25 +226,40 @@ void Controller::RenderTask(void *parm) {
 
 bool Controller::SampleIOValues() {
     bool val_1bit;
-    uint16_t val_10bit;
     uint8_t percent04;
-    ControllerIOValues io_values;
+    ControllerIOValues io_values = Controller::cached_io_values;
 
-    val_10bit = get_analog_value();
-    percent04 = val_10bit / 4;
-    io_values.AI = percent04;
+    const int read_adc_max_period_ms = 1000;
+    if (io_values.AI.required
+        && Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue,
+                                       read_adc_max_period_ms)) {
 
-    val_1bit = get_digital_input_value();
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.DI = percent04;
+        uint16_t val_10bit = get_analog_value();
+        percent04 = val_10bit / 4;
+        io_values.AI.value = percent04;
+        io_values.AI.required = false;
+    }
 
-    val_1bit = get_digital_value(gpio_output::OUTPUT_0);
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.O1 = percent04;
+    if (io_values.DI.required) {
+        val_1bit = get_digital_input_value();
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.DI.value = percent04;
+        io_values.DI.required = false;
+    }
 
-    val_1bit = get_digital_value(gpio_output::OUTPUT_1);
-    percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    io_values.O2 = percent04;
+    if (io_values.O1.required) {
+        val_1bit = get_digital_value(gpio_output::OUTPUT_0);
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.O1.value = percent04;
+        io_values.O1.required = false;
+    }
+
+    if (io_values.O2.required) {
+        val_1bit = get_digital_value(gpio_output::OUTPUT_1);
+        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
+        io_values.O2.value = percent04;
+        io_values.O2.required = false;
+    }
 
     io_values.V1 = Controller::var1;
 
@@ -238,8 +270,14 @@ bool Controller::SampleIOValues() {
     io_values.V4 = Controller::var4;
     {
         std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-        bool has_changes =
-            memcmp(&io_values, &Controller::cached_io_values, sizeof(io_values)) != 0;
+        bool has_changes = io_values.AI.value != Controller::cached_io_values.AI.value
+                        || io_values.DI.value != Controller::cached_io_values.DI.value
+                        || io_values.O1.value != Controller::cached_io_values.O1.value
+                        || io_values.O2.value != Controller::cached_io_values.O2.value
+                        || io_values.V1 != Controller::cached_io_values.V1
+                        || io_values.V2 != Controller::cached_io_values.V2
+                        || io_values.V3 != Controller::cached_io_values.V3
+                        || io_values.V4 != Controller::cached_io_values.V4;
         Controller::cached_io_values = io_values;
         return has_changes;
     }
@@ -251,20 +289,22 @@ ControllerIOValues &Controller::GetIOValues() {
 }
 
 uint8_t Controller::GetAIRelativeValue() {
-    uint8_t percent04 = Controller::cached_io_values.AI;
-    ESP_LOGD(TAG_Controller, "adc percent04:%u", percent04);
-    return percent04;
+    Controller::cached_io_values.AI.required = true;
+    return Controller::cached_io_values.AI.value;
 }
 
 uint8_t Controller::GetDIRelativeValue() {
-    return Controller::cached_io_values.DI;
+    Controller::cached_io_values.DI.required = true;
+    return Controller::cached_io_values.DI.value;
 }
 
 uint8_t Controller::GetO1RelativeValue() {
-    return Controller::cached_io_values.O1;
+    Controller::cached_io_values.O1.required = true;
+    return Controller::cached_io_values.O1.value;
 }
 uint8_t Controller::GetO2RelativeValue() {
-    return Controller::cached_io_values.O2;
+    Controller::cached_io_values.O2.required = true;
+    return Controller::cached_io_values.O2.value;
 }
 uint8_t Controller::GetV1RelativeValue() {
     return Controller::cached_io_values.V1;
@@ -296,4 +336,16 @@ void Controller::SetV3RelativeValue(uint8_t value) {
 }
 void Controller::SetV4RelativeValue(uint8_t value) {
     Controller::var4 = value;
+}
+
+bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
+    return processWakeupService->Request(id, delay_ms);
+}
+
+void Controller::RemoveRequestWakeupMs(void *id) {
+    processWakeupService->RemoveRequest(id);
+}
+
+void Controller::RemoveExpiredWakeupRequests() {
+    processWakeupService->RemoveExpired();
 }

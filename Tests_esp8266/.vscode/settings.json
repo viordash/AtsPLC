@@ -77,6 +77,10 @@
         "ratio": "cpp",
         "semaphore": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "set": "cpp",
+        "forward_list": "cpp",
+        "cinttypes": "cpp",
+        "unordered_set": "cpp"
     }
 }

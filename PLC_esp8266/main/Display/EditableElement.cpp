@@ -4,6 +4,7 @@
 #include "Display/bitmaps/element_cursor_2.h"
 #include "Display/display.h"
 #include "EditableElement.h"
+#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -14,6 +15,7 @@
 
 EditableElement::EditableElement() {
     editable_state = EditableElement::ElementState::des_Regular;
+    editing_property_id = EditingPropertyId::cepi_None;
 }
 
 EditableElement::~EditableElement() {
@@ -72,6 +74,6 @@ bool EditableElement::InEditingProperty() {
 }
 
 bool EditableElement::Blinking_50() {
-    const int blink_timer = 0x80000;
-    return (esp_timer_get_time() & blink_timer) == blink_timer;
+    const int blink_timer_us = 0x80000;
+    return (esp_timer_get_time() & blink_timer_us) == blink_timer_us;
 }

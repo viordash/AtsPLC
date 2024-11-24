@@ -45,6 +45,9 @@ namespace {
         uint8_t PublicMorozov_Get_fill_wire() {
             return fill_wire;
         }
+        bool PublicMorozov_Get_state_changed() {
+            return state_changed;
+        }
     };
 
     class TestableInputNC : public InputNC, public MonitorLogicElement {
@@ -409,6 +412,20 @@ TEST(LogicNetworkTestsGroup, SwitchState) {
 
     testable.SwitchState();
     CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_state());
+}
+
+TEST(LogicNetworkTestsGroup, ChangeState_updates_state_in_child_elements) {
+    TestableNetwork testable(LogicItemState::lisActive);
+
+    testable.ChangeState(LogicItemState::lisPassive);
+    CHECK_TRUE(testable.PublicMorozov_Get_state_changed());
+    testable.DoAction();
+    CHECK_FALSE(testable.PublicMorozov_Get_state_changed());
+
+    testable.ChangeState(LogicItemState::lisActive);
+    CHECK_TRUE(testable.PublicMorozov_Get_state_changed());
+    testable.DoAction();
+    CHECK_FALSE(testable.PublicMorozov_Get_state_changed());
 }
 
 TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {

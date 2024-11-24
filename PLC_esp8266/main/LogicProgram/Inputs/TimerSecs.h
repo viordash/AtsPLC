@@ -20,8 +20,6 @@ class TimerSecs : public CommonTimer {
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   protected:
-    bool ProgressHasChanges(LogicItemState prev_elem_state);
-
   public:
     explicit TimerSecs();
     TimerSecs(uint32_t delay_time_s);
@@ -29,9 +27,6 @@ class TimerSecs : public CommonTimer {
 
     void SetTime(uint32_t delay_time_s);
     uint64_t GetTimeUs();
-
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;

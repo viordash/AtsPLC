@@ -1,6 +1,7 @@
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "Display/bitmaps/timer_sec_active.h"
 #include "Display/bitmaps/timer_sec_passive.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -48,58 +49,6 @@ const Bitmap *TimerSecs::GetCurrentBitmap(LogicItemState state) {
         default:
             return &TimerSecs::bitmap_passive;
     }
-}
-
-bool TimerSecs::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    bool any_changes = CommonTimer::DoAction(prev_elem_changed, prev_elem_state);
-
-    if (!any_changes) {
-        any_changes = ProgressHasChanges(prev_elem_state);
-    }
-    return any_changes;
-}
-
-IRAM_ATTR bool TimerSecs::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    uint8_t x_pos = start_point->x + LeftPadding - VERT_PROGRESS_BAR_WIDTH;
-
-    res = CommonTimer::Render(fb, prev_elem_state, start_point);
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        uint8_t percent = GetProgress(prev_elem_state);
-        res = draw_vert_progress_bar(fb,
-                                     x_pos,
-                                     start_point->y - (VERT_PROGRESS_BAR_HEIGHT + 1),
-                                     percent);
-        ESP_LOGD(TAG_TimerSecs,
-                 "Render, percent:%u, delay:%u",
-                 percent,
-                 (uint32_t)(delay_time_us / 1000000LL));
-    }
-
-    return res;
-}
-
-bool TimerSecs::ProgressHasChanges(LogicItemState prev_elem_state) {
-    if (prev_elem_state != LogicItemState::lisActive) {
-        return false;
-    }
-    if (state == LogicItemState::lisActive) {
-        return false;
-    }
-
-    uint64_t curr_time = esp_timer_get_time();
-    int64_t elapsed = curr_time - force_render_time_us;
-    if (elapsed >= 0 && elapsed < (int64_t)force_render_period_us) {
-        return false;
-    }
-    if (elapsed < 0 && elapsed > (int64_t)-force_render_period_us) {
-        return false;
-    }
-    force_render_time_us = curr_time;
-    return true;
 }
 
 size_t TimerSecs::Serialize(uint8_t *buffer, size_t buffer_size) {

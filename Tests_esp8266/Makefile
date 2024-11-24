@@ -55,9 +55,9 @@ RM = rm -f
 MD	:= mkdir -p
 endif
 
-INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) $(SOURCE_PROJECT_DIR) \
-	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorMallocMacros.h \
-	-include $(CPPUTEST_INCLUDE_DIR)/CppUTest/MemoryLeakDetectorNewMacros.h
+INCLUDES	:= $(patsubst %,-I%, $(SOURCEDIRS)) $(patsubst %,-I%, $(INCLUDEDIRS)) -I$(CPPUTEST_INCLUDE_DIR) $(SOURCE_PROJECT_DIR)
+
+INCLUDES_CXX	:= $(INCLUDES) -include $(SRC)/MemoryLeakDetector_and_stl.h
 
 # define the C libs
 LIBS		:= -Llib
@@ -90,7 +90,7 @@ $(OUTPUT):
 	$(MD) $(OUTPUT)
 
 $(MAIN): libCppUTest.a $(CXX_OBJECTS) $(C_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(OUTPUTMAIN) $(CXX_OBJECTS) $(C_OBJECTS) $(LIBS) $(LFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES_CXX) -o $(OUTPUTMAIN) $(CXX_OBJECTS) $(C_OBJECTS) $(LIBS) $(LFLAGS)
 
 # include all .d files
 -include $(DEPS)
@@ -101,7 +101,7 @@ $(MAIN): libCppUTest.a $(CXX_OBJECTS) $(C_OBJECTS)
 # -MMD generates dependency output files same name as the .o file
 # (see the gnu make manual section about automatic variables)
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -MMD $<  -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES_CXX) -c -MMD $<  -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c -MMD $<  -o $@	

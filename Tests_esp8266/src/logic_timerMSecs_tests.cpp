@@ -28,8 +28,6 @@ namespace {
 } // namespace
 
 TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
-    mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
-
     TimerMSecs testable_0;
     testable_0.SetTime(0);
     CHECK_EQUAL(1 * 1000LL, testable_0.GetTimeUs());
@@ -48,7 +46,6 @@ TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Serialize) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     TimerMSecs testable;
     testable.SetTime(12345);
@@ -61,7 +58,6 @@ TEST(LogicTimerMSecsTestsGroup, Serialize) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Serialize_just_for_obtain_size) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable;
     testable.SetTime(12345);
 
@@ -73,7 +69,6 @@ TEST(LogicTimerMSecsTestsGroup, Serialize_just_for_obtain_size) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[1] = {};
     TimerMSecs testable;
     testable.SetTime(12345);
@@ -83,7 +78,6 @@ TEST(LogicTimerMSecsTestsGroup, Serialize_to_small_buffer_return_zero) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 123456;
@@ -98,7 +92,6 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[0] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
 
@@ -109,7 +102,6 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_less_value_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 0;
@@ -121,7 +113,6 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_less_value_return_zero) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
     *((uint64_t *)&buffer[1]) = 99999 * 1000LL + 1;
@@ -133,14 +124,11 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, GetElementType) {
-    mock().expectOneCall("esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable;
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
 }
 
 TEST(LogicTimerMSecsTestsGroup, TryToCast) {
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
-
     TimerMSecs timerMSecs;
     CHECK_TRUE(TimerMSecs::TryToCast(&timerMSecs) == &timerMSecs);
 
@@ -149,7 +137,6 @@ TEST(LogicTimerMSecsTestsGroup, TryToCast) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable(1);
     testable.BeginEditing();
     testable.SelectPrior();
@@ -167,7 +154,6 @@ TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable(150);
     testable.BeginEditing();
     testable.SelectNext();
@@ -189,7 +175,6 @@ TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, PageUp_changing_delay_time) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable(1);
     testable.BeginEditing();
     testable.PageUp();
@@ -207,7 +192,6 @@ TEST(LogicTimerMSecsTestsGroup, PageUp_changing_delay_time) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, PageDown_changing_IoAdr) {
-    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     TimerMSecs testable(350);
     testable.BeginEditing();
     testable.PageDown();
