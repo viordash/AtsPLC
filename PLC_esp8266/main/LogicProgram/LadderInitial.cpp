@@ -16,14 +16,14 @@ void Ladder::InitialLoad() {
     auto incomeRail3 = new Network(LogicItemState::lisActive);
     Append(incomeRail3);
 
-    incomeRail0->Append(new InputNO(MapIO::DI));
+    incomeRail0->Append(new InputNC(MapIO::DI));
     incomeRail0->Append(new InputNC(MapIO::V1));
-    incomeRail0->Append(new TimerSecs(1));
+    incomeRail0->Append(new TimerMSecs(500));
     incomeRail0->Append(new SetOutput(MapIO::V1));
 
-    incomeRail1->Append(new InputNO(MapIO::DI));
+    incomeRail1->Append(new InputNC(MapIO::DI));
     incomeRail1->Append(new InputNO(MapIO::V1));
-    incomeRail1->Append(new TimerSecs(1));
+    incomeRail1->Append(new TimerMSecs(500));
     incomeRail1->Append(new ResetOutput(MapIO::V1));
 
     incomeRail2->Append(new InputNO(MapIO::V1));
@@ -34,17 +34,13 @@ void Ladder::InitialLoad() {
     incomeRail3->Append(new DirectOutput(MapIO::O2));
 
     auto incomeRail4 = new Network(LogicItemState::lisActive);
-    incomeRail4->Append(new TimerSecs(4));
-    incomeRail4->Append(new DirectOutput(MapIO::V2));
+    incomeRail4->Append(new InputNO(MapIO::V1));
+    incomeRail4->Append(new IncOutput(MapIO::V3));
     Append(incomeRail4);
 
     auto incomeRail5 = new Network(LogicItemState::lisActive);
-    incomeRail5->Append(new TimerSecs(5));
-    incomeRail5->Append(new DirectOutput(MapIO::V3));
+    incomeRail5->Append(new ComparatorGE(254, MapIO::V3));
+    incomeRail5->Append(new TimerSecs(3));
+    incomeRail5->Append(new ResetOutput(MapIO::V3));
     Append(incomeRail5);
-
-    auto incomeRail6 = new Network(LogicItemState::lisActive);
-    incomeRail6->Append(new TimerSecs(6));
-    incomeRail6->Append(new DirectOutput(MapIO::V4));
-    Append(incomeRail6);
 }

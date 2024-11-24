@@ -240,20 +240,20 @@ TEST(LogicLadderTestsGroup, initial_load_when_empty_storage) {
     Ladder ladder_load([](int16_t, int16_t) {});
     ladder_load.Load();
 
-    CHECK_EQUAL(7, ladder_load.size());
+    CHECK_EQUAL(6, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network0)[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, (*network0)[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network0)[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, (*network0)[3]->GetElementType());
 
     auto network1 = ladder_load[1];
     CHECK_EQUAL(4, network1->size());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNC, (*network1)[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, (*network1)[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network1)[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ResetOutput, (*network1)[3]->GetElementType());
 }
 
@@ -272,20 +272,20 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 
     Ladder ladder_load([](int16_t, int16_t) {});
     ladder_load.Load();
-    CHECK_EQUAL(7, ladder_load.size());
+    CHECK_EQUAL(6, ladder_load.size());
 
     auto network0 = ladder_load[0];
     CHECK_EQUAL(4, network0->size());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network0)[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, (*network0)[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network0)[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, (*network0)[3]->GetElementType());
 
     auto network1 = ladder_load[1];
     CHECK_EQUAL(4, network1->size());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNC, (*network1)[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, (*network1)[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network1)[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ResetOutput, (*network1)[3]->GetElementType());
 }
 
