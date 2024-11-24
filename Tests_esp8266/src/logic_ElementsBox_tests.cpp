@@ -21,9 +21,11 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }
@@ -54,33 +56,37 @@ namespace {
 TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
-    CHECK_EQUAL(TvElementType::et_InputNO, testable[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[4]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[5]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[6]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[7]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[8]->GetElementType());
+    CHECK_EQUAL(10, testable.size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[3]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[5]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[6]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[9]->GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(5, testable.size());
+    CHECK_EQUAL(6, testable.size());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ResetOutput, testable[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[3]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[5]->GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, box_for_wire) {
     Wire stored_element;
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(14, testable.size());
+    CHECK_EQUAL(15, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -95,12 +101,13 @@ TEST(LogicElementsBoxTestsGroup, box_for_wire) {
     CHECK_EQUAL(TvElementType::et_ResetOutput, testable[11]->GetElementType());
     CHECK_EQUAL(TvElementType::et_IncOutput, testable[12]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DecOutput, testable[13]->GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     Wire stored_element;
     ElementsBox testable(100, &stored_element, true);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -110,24 +117,26 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[6]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
             CHECK_EQUAL(MapIO::V1, element_as_commonInput->GetIoAdr());
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
     ComparatorEq stored_element(42, MapIO::AI);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -138,13 +147,14 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
             }
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_reference_to_zero_by_default_for_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonInput = CommonInput::TryToCast(element);
         if (element_as_commonInput != NULL) {
@@ -155,12 +165,13 @@ TEST(LogicElementsBoxTestsGroup,
             }
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
     TimerSecs stored_element(42);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -170,12 +181,13 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
             }
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
     TimerMSecs stored_element(42000);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -185,13 +197,14 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
             }
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup,
      takes_params_from_stored_element__set_default_delaytime_for_timers) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonTimer = CommonTimer::TryToCast(element);
         if (element_as_commonTimer != NULL) {
@@ -206,59 +219,86 @@ TEST(LogicElementsBoxTestsGroup,
             }
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
     IncOutput stored_element(MapIO::O1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(5, testable.size());
+    CHECK_EQUAL(6, testable.size());
     for (auto *element : testable) {
         auto *element_as_commonOutput = CommonOutput::TryToCast(element);
         if (element_as_commonOutput != NULL) {
             CHECK_EQUAL(MapIO::O1, element_as_commonOutput->GetIoAdr());
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(9, testable.size());
+    CHECK_EQUAL(10, testable.size());
     for (auto *element : testable) {
         auto *element_as_wire = Wire::TryToCast(element);
         if (element_as_wire != NULL) {
             CHECK_EQUAL(24, element_as_wire->GetWidth());
         }
     }
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element, false);
-    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(3, testable.size());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, use_GetElementType_from_selected) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
-    TestableComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
-    testable.DoAction(false, LogicItemState::lisActive);
+    mock().enable();
+    volatile uint16_t adc = 42 / 0.1;
+    mock().expectNCalls(1, "vTaskDelay").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+    mock()
+        .expectNCalls(1, "adc_read")
+        .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
+    Controller::GetIOValues().AI.value = LogicElement::MinValue;
+    Controller::GetIOValues().AI.required = true;
+    CHECK_TRUE(Controller::SampleIOValues());
 
-    CHECK_TRUE(stored_element.DoAction_called);
+    TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);
+    ElementsBox testable(100, &fake_doaction_element, false);
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetSelectedElement()->GetState());
+
+    CHECK_FALSE(fake_doaction_element.DoAction_called);
+    delete testable.GetSelectedElement();
 }
 
-TEST(LogicElementsBoxTestsGroup, use_Render_from_selected) {
-    TestableComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
-    Point start_point = {};
+TEST(LogicElementsBoxTestsGroup, Render_calls_a_function_on_the_inner_element) {
+    TestableComparatorEq fake_rendering_element(42, MapIO::AI);
+    ElementsBox testable(100, &fake_rendering_element, false);
+    Point start_point = { 0, INCOME_RAIL_TOP };
     testable.Render(frame_buffer, LogicItemState::lisActive, &start_point);
+    delete testable.GetSelectedElement();
 
-    CHECK_TRUE(stored_element.Render_called);
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+    CHECK_EQUAL(32, start_point.x);
 }
 
 TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward) {
@@ -266,6 +306,14 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
@@ -276,21 +324,21 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectNext();
@@ -302,32 +350,13 @@ TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) 
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
     testable.SelectPrior();
@@ -339,9 +368,15 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+    testable.SelectPrior();
+
     delete testable.GetSelectedElement();
 }
 
@@ -352,36 +387,39 @@ TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.Change();
     CHECK_TRUE(stored_element.Editing());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, No_memleak_if_selection_changes) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, No_memleak_if_no_selection_changes) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.BeginEditing();
     testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
+    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) {
-    auto stored_element = new ComparatorEq(42, MapIO::AI);
-    ElementsBox testable(100, stored_element, false);
+    ComparatorEq stored_element(42, MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.BeginEditing();
+    delete testable.GetSelectedElement();
 }

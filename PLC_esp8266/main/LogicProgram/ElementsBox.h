@@ -11,22 +11,21 @@
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
     uint8_t place_width;
-    uint8_t stored_element_width;
-    LogicElement *stored_element;
+    uint8_t source_element_width;    
     int selected_index;
     bool force_do_action_result;
 
-    uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *stored_element);
-    void Fill(bool hide_output_elements);
-    void AppendStandartElement(TvElementType element_type, uint8_t *frame_buffer);
-    bool MatchedToStoredElement(TvElementType element_type);
-    bool CopyParamsToCommonInput(CommonInput *common_input);
-    bool CopyParamsToCommonTimer(CommonTimer *common_timer);
-    bool CopyParamsToCommonOutput(CommonOutput *common_output);
-    void TakeParamsFromStoredElement(LogicElement *new_element);
+    uint8_t CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *source_element);
+    void Fill(LogicElement *source_element, bool hide_output_elements);
+    void AppendStandartElement(LogicElement *source_element, TvElementType element_type, uint8_t *frame_buffer);
+    bool MatchedToStoredElement(LogicElement *source_element, TvElementType element_type);
+    bool CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input);
+    bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
+    bool CopyParamsToCommonOutput(LogicElement *source_element, CommonOutput *common_output);
+    void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:
-    ElementsBox(uint8_t fill_wire, LogicElement *stored_element, bool hide_output_elements);
+    ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements);
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();
