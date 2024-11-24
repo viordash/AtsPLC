@@ -44,11 +44,11 @@ namespace {
         void PublicMorozov_PrintOutValue(uint8_t eng_value) {
             PrintOutValue(eng_value);
         }
-        float *PublicMorozov_Get_high_scale() {
-            return &high_scale;
-        }
         float *PublicMorozov_Get_low_scale() {
             return &low_scale;
+        }
+        float *PublicMorozov_Get_high_scale() {
+            return &high_scale;
         }
         uint8_t *PublicMorozov_Get_decimal_point() {
             return &decimal_point;
@@ -58,6 +58,14 @@ namespace {
         }
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
+        }
+
+        void PublicMorozov_AcceptLowScale() {
+            AcceptLowScale();
+        }
+
+        void PublicMorozov_AcceptHighScale() {
+            AcceptHighScale();
         }
     };
 } // namespace
@@ -853,4 +861,78 @@ TEST(LogicIndicatorTestsGroup, Editing_scale_symbol_7) {
     STRCMP_EQUAL("00000009", testable.PublicMorozov_Get_str_value());
     testable.SelectNext();
     STRCMP_EQUAL("00000000", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, AcceptLowScale) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000000");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(0, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000001");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(1, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00100.01");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(100.01, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "99999990");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(99999990, *testable.PublicMorozov_Get_low_scale(), 2);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "12.45.78");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(12.45, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00.0..78");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(0, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "-9999990");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(-9999990, *testable.PublicMorozov_Get_low_scale(), 2);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "-0100.01");
+    testable.PublicMorozov_AcceptLowScale();
+    DOUBLES_EQUAL(-100.01, *testable.PublicMorozov_Get_low_scale(), 0.0001);
+}
+
+TEST(LogicIndicatorTestsGroup, AcceptHighScale) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000000");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(0, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000001");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(1, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00100.01");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(100.01, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "99999990");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(99999990, *testable.PublicMorozov_Get_high_scale(), 2);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "12.45.78");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(12.45, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00.0..78");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(0, *testable.PublicMorozov_Get_high_scale(), 0.0001);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "-9999990");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(-9999990, *testable.PublicMorozov_Get_high_scale(), 2);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "-0100.01");
+    testable.PublicMorozov_AcceptHighScale();
+    DOUBLES_EQUAL(-100.01, *testable.PublicMorozov_Get_high_scale(), 0.0001);
 }

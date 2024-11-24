@@ -50,6 +50,7 @@ void Indicator::PrintLowScale() {
 }
 
 void Indicator::AcceptLowScale() {
+    low_scale = atof(str_value);
 }
 
 void Indicator::PrintHighScale() {
@@ -58,6 +59,7 @@ void Indicator::PrintHighScale() {
 }
 
 void Indicator::AcceptHighScale() {
+    high_scale = atof(str_value);
 }
 
 void Indicator::SetIoAdr(const MapIO io_adr) {
