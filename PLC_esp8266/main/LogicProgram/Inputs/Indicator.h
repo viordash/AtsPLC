@@ -47,7 +47,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void SelectPriorSymbol(char *symbol, char extra);
     void SelectNextSymbol(char *symbol, char extra);
 
-    bool RenderScales(uint8_t *fb, Point *start_point);
+    bool RenderScales(uint8_t *fb, uint8_t x, uint8_t y);
 
   public:
     static const int update_period_ms = 1000;
