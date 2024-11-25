@@ -76,4 +76,13 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+
+    float GetLowScale();
+    void SetLowScale(float scale);
+
+    float GetHighScale();
+    void SetHighScale(float scale);
+
+    uint8_t GetDecimalPoint();
+    void SetDecimalPoint(uint8_t point);
 };

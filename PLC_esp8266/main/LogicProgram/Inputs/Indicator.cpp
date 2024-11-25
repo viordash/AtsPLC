@@ -546,3 +546,24 @@ const AllowedIO Indicator::GetAllowedInputs() {
                                  MapIO::V3, MapIO::V4, MapIO::O1, MapIO::O2 };
     return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
 }
+
+float Indicator::GetLowScale() {
+    return low_scale;
+}
+void Indicator::SetLowScale(float scale) {
+    low_scale = scale;
+}
+
+float Indicator::GetHighScale() {
+    return high_scale;
+}
+void Indicator::SetHighScale(float scale) {
+    high_scale = scale;
+}
+
+uint8_t Indicator::GetDecimalPoint() {
+    return decimal_point;
+}
+void Indicator::SetDecimalPoint(uint8_t point) {
+    decimal_point = point;
+}
