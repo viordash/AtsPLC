@@ -246,11 +246,17 @@ TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
 TEST(LogicElementsBoxTestsGroup, copy_params_for_indicator_element) {
     int matched = 0;
     Indicator stored_element(MapIO::AI);
+    stored_element.SetHighScale(42);
+    stored_element.SetLowScale(19);
+    stored_element.SetDecimalPoint(2);
     ElementsBox testable(100, &stored_element, false);
     for (auto *element : testable) {
         auto *element_as_indicator = Indicator::TryToCast(element);
         if (element_as_indicator != NULL) {
             CHECK_EQUAL(MapIO::AI, element_as_indicator->GetIoAdr());
+            CHECK_EQUAL(42, element_as_indicator->GetHighScale());
+            CHECK_EQUAL(19, element_as_indicator->GetLowScale());
+            CHECK_EQUAL(2, element_as_indicator->GetDecimalPoint());
             matched++;
         }
     }

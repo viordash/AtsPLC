@@ -170,8 +170,10 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
 
     auto *source_element_as_indicator = Indicator::TryToCast(source_element);
     if (source_element_as_indicator != NULL) {
-        auto io_adr = source_element_as_indicator->GetIoAdr();
-        indicator->SetIoAdr(io_adr);
+        indicator->SetIoAdr(source_element_as_indicator->GetIoAdr());
+        indicator->SetLowScale(source_element_as_indicator->GetLowScale());
+        indicator->SetHighScale(source_element_as_indicator->GetHighScale());
+        indicator->SetDecimalPoint(source_element_as_indicator->GetDecimalPoint());
         return true;
     }
 
