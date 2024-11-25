@@ -51,6 +51,7 @@ void Indicator::PrintLowScale() {
 
 void Indicator::AcceptLowScale() {
     low_scale = atof(str_value);
+    decimal_point = GetDecimalPointFromScale();
 }
 
 void Indicator::PrintHighScale() {
@@ -60,6 +61,16 @@ void Indicator::PrintHighScale() {
 
 void Indicator::AcceptHighScale() {
     high_scale = atof(str_value);
+    decimal_point = GetDecimalPointFromScale();
+}
+
+uint8_t Indicator::GetDecimalPointFromScale() {
+    uint8_t point = 1;
+    char ch;
+    while ((ch = str_value[point]) != 0 && ch != '.' && point < max_symbols_count - 1) {
+        point++;
+    }
+    return max_symbols_count - 1 - point;
 }
 
 void Indicator::SetIoAdr(const MapIO io_adr) {

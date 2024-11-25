@@ -44,6 +44,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void AcceptLowScale();
     void PrintHighScale();
     void AcceptHighScale();
+    uint8_t GetDecimalPointFromScale();
     void SelectPriorSymbol(char *symbol, char extra);
     void SelectNextSymbol(char *symbol, char extra);
 

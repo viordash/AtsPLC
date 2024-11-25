@@ -58,6 +58,10 @@ namespace {
         void PublicMorozov_AcceptHighScale() {
             AcceptHighScale();
         }
+
+        uint8_t PublicMorozov_GetDecimalPointFromScale() {
+            return GetDecimalPointFromScale();
+        }
     };
 } // namespace
 
@@ -638,6 +642,8 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
     testable.SetHighScale(100);
     testable.SetLowScale(0);
     testable.SetDecimalPoint(0);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     testable.BeginEditing();
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
@@ -645,24 +651,32 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
     STRCMP_EQUAL("00000100", testable.PublicMorozov_Get_str_value());
 
     testable.SetDecimalPoint(1);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
     STRCMP_EQUAL("000100.0", testable.PublicMorozov_Get_str_value());
 
     testable.SetDecimalPoint(2);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
     STRCMP_EQUAL("00100.00", testable.PublicMorozov_Get_str_value());
 
     testable.SetDecimalPoint(3);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
     STRCMP_EQUAL("0100.000", testable.PublicMorozov_Get_str_value());
 
     testable.SetDecimalPoint(4);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
@@ -670,12 +684,16 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
 
     testable.SetHighScale(1);
     testable.SetDecimalPoint(5);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
     STRCMP_EQUAL("01.00000", testable.PublicMorozov_Get_str_value());
 
     testable.SetDecimalPoint(6);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
@@ -683,6 +701,8 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
 
     testable.SetDecimalPoint(2);
     testable.SetHighScale(12345.678f);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
@@ -690,6 +710,8 @@ TEST(LogicIndicatorTestsGroup, Show_high_scale_when_editing) {
 
     testable.SetDecimalPoint(4);
     testable.SetHighScale(0.1575f);
+    testable.PublicMorozov_UpdateScale();
+    testable.PublicMorozov_PrintOutValue(0);
     *testable.PublicMorozov_Get_editing_property_id() =
         Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7;
     testable.Change();
@@ -1032,4 +1054,36 @@ TEST(LogicIndicatorTestsGroup, AcceptHighScale) {
     strcpy(testable.PublicMorozov_Get_str_value(), "-0100.01");
     testable.PublicMorozov_AcceptHighScale();
     DOUBLES_EQUAL(-100.01, testable.GetHighScale(), 0.0001);
+}
+
+TEST(LogicIndicatorTestsGroup, GetDecimalPointFromScale) {
+    TestableIndicator testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000000");
+    CHECK_EQUAL(0, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), ".0000000");
+    CHECK_EQUAL(0, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "0000000.");
+    CHECK_EQUAL(0, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "0.000000");
+    CHECK_EQUAL(6, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00.00000");
+    CHECK_EQUAL(5, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "000.0000");
+    CHECK_EQUAL(4, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "0000.000");
+    CHECK_EQUAL(3, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "00000.00");
+    CHECK_EQUAL(2, testable.PublicMorozov_GetDecimalPointFromScale());
+
+    strcpy(testable.PublicMorozov_Get_str_value(), "000000.0");
+    CHECK_EQUAL(1, testable.PublicMorozov_GetDecimalPointFromScale());
 }
