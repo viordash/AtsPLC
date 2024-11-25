@@ -151,9 +151,11 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
         return res;
     }
     top_left.x += 23;
-    res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-    if (!res) {
-        return res;
+    if (!blink_body_on_editing) {
+        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
+        if (!res) {
+            return res;
+        }
     }
 
     bool show_scales = editable_state == EditableElement::ElementState::des_Editing
