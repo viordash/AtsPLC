@@ -63,32 +63,6 @@ void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
     delete[] frame_buffer;
 }
 
-bool ElementsBox::MatchedToStoredElement(TvElementType source_element_type,
-                                         TvElementType element_type) {
-    if (IsInputElement(element_type) && IsOutputElement(source_element_type)) {
-        return false;
-    }
-    if (IsInputElement(element_type) && IsIndicatorElement(source_element_type)) {
-        return false;
-    }
-
-    if (IsOutputElement(element_type) && IsInputElement(source_element_type)) {
-        return false;
-    }
-    if (IsOutputElement(element_type) && IsIndicatorElement(source_element_type)) {
-        return false;
-    }
-
-    if (IsIndicatorElement(element_type) && IsInputElement(source_element_type)) {
-        return false;
-    }
-    if (IsIndicatorElement(element_type) && IsOutputElement(source_element_type)) {
-        return false;
-    }
-
-    return true;
-}
-
 bool ElementsBox::CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input) {
     if (common_input == NULL) {
         return false;
@@ -232,10 +206,6 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         uint8_t *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
         selected_index = size();
-    }
-
-    if (!MatchedToStoredElement(source_element->GetElementType(), element_type)) {
-        return;
     }
 
     auto new_element = LogicElementFactory::Create(element_type);

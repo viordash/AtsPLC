@@ -53,40 +53,8 @@ namespace {
 
 } // namespace
 
-TEST(LogicElementsBoxTestsGroup, box_for_inputs_elements) {
+TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     InputNC stored_element(MapIO::V1);
-    ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(10, testable.size());
-    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[4]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[5]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[6]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[9]->GetElementType());
-    delete testable.GetSelectedElement();
-}
-
-TEST(LogicElementsBoxTestsGroup, box_for_outputs_elements) {
-    IncOutput stored_element(MapIO::O1);
-    ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
-                         &stored_element,
-                         false);
-    CHECK_EQUAL(6, testable.size());
-    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, testable[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_IncOutput, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[4]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[5]->GetElementType());
-    delete testable.GetSelectedElement();
-}
-
-TEST(LogicElementsBoxTestsGroup, box_for_wire) {
-    Wire stored_element;
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          false);
@@ -106,15 +74,7 @@ TEST(LogicElementsBoxTestsGroup, box_for_wire) {
     CHECK_EQUAL(TvElementType::et_ResetOutput, testable[12]->GetElementType());
     CHECK_EQUAL(TvElementType::et_IncOutput, testable[13]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DecOutput, testable[14]->GetElementType());
-    delete testable.GetSelectedElement();
-}
-
-TEST(LogicElementsBoxTestsGroup, box_for_indicator_element) {
-    Indicator stored_element(MapIO::O1);
-    ElementsBox testable(20, &stored_element, false);
-    CHECK_EQUAL(2, testable.size());
-    CHECK_EQUAL(TvElementType::et_Indicator, testable[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[15]->GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -316,7 +276,7 @@ TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element, false);
-    CHECK_EQUAL(3, testable.size());
+    CHECK_EQUAL(6, testable.size());
     delete testable.GetSelectedElement();
 }
 
@@ -381,31 +341,17 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable.GetElementType());
     testable.SelectNext();
-    delete testable.GetSelectedElement();
-}
-
-TEST(LogicElementsBoxTestsGroup, SelectNext_selecting_elements_in_reverse_loop) {
-    ComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNO, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
     testable.SelectNext();
@@ -430,6 +376,18 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_Wire, testable.GetElementType());
     testable.SelectPrior();

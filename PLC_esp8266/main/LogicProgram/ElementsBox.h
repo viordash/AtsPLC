@@ -19,10 +19,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
 
     void CalcEntirePlaceWidth(LogicElement *source_element);
     void Fill(LogicElement *source_element, bool hide_output_elements);
-    void AppendStandartElement(LogicElement *source_element,
-                               TvElementType element_type,
-                               uint8_t *frame_buffer);
-    bool MatchedToStoredElement(TvElementType source_element_type, TvElementType element_type);
+    void AppendStandartElement(LogicElement *source_element, TvElementType element_type, uint8_t *frame_buffer);
     bool CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input);
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
     bool CopyParamsToCommonOutput(LogicElement *source_element, CommonOutput *common_output);

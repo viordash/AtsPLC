@@ -444,7 +444,7 @@ TEST(LogicNetworkTestsGroup,
     CHECK_EQUAL(TvElementType::et_DirectOutput, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
-    CHECK_EQUAL(6, elementBox->size());
+    CHECK_EQUAL(15, elementBox->size());
 
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_SetOutput, expectedElementBox->GetElementType());
