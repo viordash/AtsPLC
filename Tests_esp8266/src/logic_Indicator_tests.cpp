@@ -217,7 +217,6 @@ TEST(LogicIndicatorTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 
-
     testable.PublicMorozov_PrintOutValue(255);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
@@ -284,7 +283,7 @@ TEST(LogicIndicatorTestsGroup, Deserialize_with_limit_low_scale) {
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 
-    *((float *)&buffer[2]) = 99999999.0f;
+    *((float *)&buffer[2]) = 99999990.0f;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 }
@@ -310,7 +309,7 @@ TEST(LogicIndicatorTestsGroup, Deserialize_with_limit_high_scale) {
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 
-    *((float *)&buffer[6]) = 99999999.0f;
+    *((float *)&buffer[6]) = 99999990.0f;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 }
@@ -494,6 +493,22 @@ TEST(LogicIndicatorTestsGroup, PrintOutValue_overflow_values_will_restricted_by_
     STRCMP_EQUAL("39215.69", testable.PublicMorozov_Get_str_value());
     testable.PublicMorozov_PrintOutValue(0);
     STRCMP_EQUAL("    0.00", testable.PublicMorozov_Get_str_value());
+}
+
+TEST(LogicIndicatorTestsGroup, Trim_scales_values) {
+    TestableIndicator testable;
+
+    testable.SetHighScale(100000000.0f);
+    DOUBLES_EQUAL(99999990.0f, testable.GetHighScale(), 1);
+
+    testable.SetHighScale(-10000000.0f);
+    DOUBLES_EQUAL(-9999999.0f, testable.GetHighScale(), 1);
+
+    testable.SetLowScale(100000000.0f);
+    DOUBLES_EQUAL(99999990.0f, testable.GetLowScale(), 1);
+
+    testable.SetLowScale(-10000000.0f);
+    DOUBLES_EQUAL(-9999999.0f, testable.GetLowScale(), 1);
 }
 
 TEST(LogicIndicatorTestsGroup, Change__switching__editing_property_id) {

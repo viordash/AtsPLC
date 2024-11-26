@@ -36,7 +36,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     float high_scale;
     uint8_t decimal_point;
     char str_value[max_symbols_count + 1];
-    char str_format[max_symbols_count];
+    char str_format[max_symbols_count + 1];
     const AllowedIO GetAllowedInputs();
     void UpdateScale();
     void PrintOutValue(uint8_t eng_value);
@@ -58,6 +58,9 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
         OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
     static const uint8_t Top = -13;
     static const uint8_t Height = 22;
+    const float MinScale = -9999999.0f;
+    const float MaxScale = 99999990.0f;
+
     explicit Indicator();
     explicit Indicator(const MapIO io_adr);
     virtual ~Indicator();

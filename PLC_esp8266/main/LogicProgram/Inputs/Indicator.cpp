@@ -298,13 +298,13 @@ size_t Indicator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_low_scale, sizeof(_low_scale), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (_low_scale < -9999999.0f || _low_scale > 99999999.0f) {
+    if (_low_scale < MinScale || _low_scale > MaxScale) {
         return 0;
     }
     if (!Record::Read(&_high_scale, sizeof(_high_scale), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (_high_scale < -9999999.0f || _high_scale > 99999999.0f) {
+    if (_high_scale < MinScale || _high_scale > MaxScale) {
         return 0;
     }
     if (!Record::Read(&_decimal_point, sizeof(_decimal_point), buffer, buffer_size, &readed)) {
@@ -314,8 +314,8 @@ size_t Indicator::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     SetIoAdr(_io_adr);
-    low_scale = _low_scale;
-    high_scale = _high_scale;
+    SetHighScale(_high_scale);
+    SetLowScale(_low_scale);
     decimal_point = _decimal_point;
     UpdateScale();
     return readed;
@@ -563,6 +563,12 @@ float Indicator::GetLowScale() {
     return low_scale;
 }
 void Indicator::SetLowScale(float scale) {
+    if (scale < -9999999.0f) {
+        scale = -9999999.0f;
+    }
+    if (scale >= 99999990.0f) {
+        scale = 99999990.0f;
+    }
     low_scale = scale;
 }
 
@@ -570,6 +576,12 @@ float Indicator::GetHighScale() {
     return high_scale;
 }
 void Indicator::SetHighScale(float scale) {
+    if (scale < MinScale) {
+        scale = MinScale;
+    }
+    if (scale >= MaxScale) {
+        scale = MaxScale;
+    }
     high_scale = scale;
 }
 
