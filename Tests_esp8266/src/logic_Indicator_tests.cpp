@@ -217,11 +217,15 @@ TEST(LogicIndicatorTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(10, readed);
 
+
+    testable.PublicMorozov_PrintOutValue(255);
+
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
     CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
     DOUBLES_EQUAL(0.01, testable.GetLowScale(), 0.0001);
     DOUBLES_EQUAL(1234.5, testable.GetHighScale(), 0.0001);
     CHECK_EQUAL(3, testable.GetDecimalPoint());
+    STRCMP_EQUAL("1234.500", testable.PublicMorozov_Get_str_value());
 }
 
 TEST(LogicIndicatorTestsGroup, Deserialize_with_small_buffer_return_zero) {

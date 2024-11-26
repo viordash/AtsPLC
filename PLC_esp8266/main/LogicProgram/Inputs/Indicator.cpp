@@ -317,6 +317,7 @@ size_t Indicator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     low_scale = _low_scale;
     high_scale = _high_scale;
     decimal_point = _decimal_point;
+    UpdateScale();
     return readed;
 }
 
