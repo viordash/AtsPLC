@@ -66,31 +66,34 @@ CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *sta
 
     bool res;
 
-    uint8_t x_pos = start_point->x + LeftPadding + LabeledLogicItem::width + 2;
+    uint8_t x_pos = start_point->x + LeftPadding + 2;
+
+    res = CommonInput::Render(fb, prev_elem_state, start_point);
+    if (!res) {
+        return res;
+    }
+
     bool blink_label_on_editing =
         editable_state == EditableElement::ElementState::des_Editing
         && (CommonComparator::EditingPropertyId)editing_property_id
                == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
-        && Blinking_50();
+        && Blinking_50() && label_width > 0;
     switch (str_size) {
         case 1:
             res = blink_label_on_editing
-               || draw_text_f5X7(fb, x_pos + 3, start_point->y + 2, str_reference);
+               || (draw_text_f5X7(fb, x_pos + 3 + label_width, start_point->y + 2, str_reference)
+                   > 0);
             break;
         case 2:
             res = blink_label_on_editing
-               || draw_text_f5X7(fb, x_pos + 0, start_point->y + 2, str_reference);
+               || (draw_text_f5X7(fb, x_pos + 0 + label_width, start_point->y + 2, str_reference)
+                   > 0);
             break;
         default:
             res = blink_label_on_editing
-               || draw_text_f4X7(fb, x_pos, start_point->y + 3, str_reference);
+               || (draw_text_f4X7(fb, x_pos + label_width, start_point->y + 3, str_reference) > 0);
             break;
     }
-
-    if (!res) {
-        return res;
-    }
-    res = CommonInput::Render(fb, prev_elem_state, start_point);
 
     return res;
 }
