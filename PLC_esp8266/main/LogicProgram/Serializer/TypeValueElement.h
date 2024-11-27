@@ -20,7 +20,8 @@ enum TvElementType : uint8_t {
     et_ResetOutput,
     et_IncOutput,
     et_DecOutput,
-    et_Indicator
+    et_Indicator,
+    et_WiFiInput
 };
 
 struct __attribute__((packed)) TvElement {

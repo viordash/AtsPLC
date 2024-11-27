@@ -9,6 +9,7 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
+#include "LogicProgram/Inputs/WiFiInput.h"
 #include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
 #include "LogicProgram/Outputs/IncOutput.h"
@@ -76,6 +77,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_Indicator:
             element = new Indicator();
+            break;
+        case et_WiFiInput:
+            element = new WiFiInput();
             break;
         default:
             break;
