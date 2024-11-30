@@ -69,7 +69,7 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiInput, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable[11]->GetElementType());
     CHECK_EQUAL(TvElementType::et_SetOutput, testable[12]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ResetOutput, testable[13]->GetElementType());
@@ -95,7 +95,7 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiInput, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Wire, testable[11]->GetElementType());
     delete testable.GetSelectedElement();
 }
@@ -359,7 +359,7 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_WiFiInput, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
     testable.SelectNext();
@@ -389,7 +389,7 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
     testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_WiFiInput, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectPrior();
