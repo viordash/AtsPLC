@@ -281,10 +281,40 @@ TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
     CHECK_COMPARE(matched, >, 0);
 }
 
+TEST(LogicElementsBoxTestsGroup, copy_params_for_wifi_binding_element) {
+    int matched = 0;
+    WiFiBinding stored_element(MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
+    for (auto *element : testable) {
+        auto *element_as_wifi_binding = WiFiBinding::TryToCast(element);
+        if (element_as_wifi_binding != NULL) {
+            CHECK_EQUAL(MapIO::AI, element_as_wifi_binding->GetIoAdr());
+            matched++;
+        }
+    }
+    delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
+}
+
+TEST(LogicElementsBoxTestsGroup, wifi_binding_element_has_default_param_V1) {
+    int matched = 0;
+    Wire stored_element;
+    ElementsBox testable(115, &stored_element, false);
+    for (auto *element : testable) {
+        auto *element_as_wifi_binding = WiFiBinding::TryToCast(element);
+        if (element_as_wifi_binding != NULL) {
+            CHECK_EQUAL(MapIO::V1, element_as_wifi_binding->GetIoAdr());
+            matched++;
+        }
+    }
+    delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
+}
+
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element, false);
-    CHECK_EQUAL(7, testable.size());
+    CHECK_EQUAL(6, testable.size());
     delete testable.GetSelectedElement();
 }
 

@@ -2,6 +2,7 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
@@ -181,6 +182,41 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
     return true;
 }
 
+bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBinding *binding) {
+    if (binding == NULL) {
+        return false;
+    }
+
+    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
+    if (source_element_as_commonInput != NULL) {
+        auto io_adr = source_element_as_commonInput->GetIoAdr();
+        binding->SetIoAdr(io_adr);
+        return true;
+    }
+
+    auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
+    if (source_element_as_commonOutput != NULL) {
+        auto io_adr = source_element_as_commonOutput->GetIoAdr();
+        binding->SetIoAdr(io_adr);
+        return true;
+    }
+
+    auto *source_element_as_indicator = Indicator::TryToCast(source_element);
+    if (source_element_as_indicator != NULL) {
+        binding->SetIoAdr(source_element_as_indicator->GetIoAdr());
+        return true;
+    }
+
+    auto *source_element_as_wifi_binding = WiFiBinding::TryToCast(source_element);
+    if (source_element_as_wifi_binding != NULL) {
+        binding->SetIoAdr(source_element_as_wifi_binding->GetIoAdr());
+        return true;
+    }
+
+    binding->SetIoAdr(MapIO::V1);
+    return true;
+}
+
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
     if (CopyParamsToCommonInput(source_element, CommonInput::TryToCast(new_element))) {
@@ -193,6 +229,9 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
         return;
     }
     if (CopyParamsToIndicator(source_element, Indicator::TryToCast(new_element))) {
+        return;
+    }
+    if (CopyParamsToWiFiBinding(source_element, WiFiBinding::TryToCast(new_element))) {
         return;
     }
 

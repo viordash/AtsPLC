@@ -9,6 +9,7 @@ class CommonInput;
 class CommonTimer;
 class CommonOutput;
 class Indicator;
+class WiFiBinding;
 
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
@@ -19,11 +20,14 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
 
     void CalcEntirePlaceWidth(LogicElement *source_element);
     void Fill(LogicElement *source_element, bool hide_output_elements);
-    void AppendStandartElement(LogicElement *source_element, TvElementType element_type, uint8_t *frame_buffer);
+    void AppendStandartElement(LogicElement *source_element,
+                               TvElementType element_type,
+                               uint8_t *frame_buffer);
     bool CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input);
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
     bool CopyParamsToCommonOutput(LogicElement *source_element, CommonOutput *common_output);
     bool CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator);
+    bool CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBinding *binding);
     void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:
