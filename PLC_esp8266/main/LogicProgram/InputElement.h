@@ -18,4 +18,6 @@ class InputElement {
     InputElement();
     virtual void SetIoAdr(const MapIO io_adr);
     MapIO GetIoAdr();
+
+    static InputElement *TryToCast(LogicElement *logic_element);
 };
