@@ -283,12 +283,13 @@ TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
 
 TEST(LogicElementsBoxTestsGroup, copy_params_for_wifi_binding_element) {
     int matched = 0;
-    WiFiBinding stored_element(MapIO::AI);
+    WiFiBinding stored_element(MapIO::AI, "wifi_test");
     ElementsBox testable(100, &stored_element, false);
     for (auto *element : testable) {
         auto *element_as_wifi_binding = WiFiBinding::TryToCast(element);
         if (element_as_wifi_binding != NULL) {
             CHECK_EQUAL(MapIO::AI, element_as_wifi_binding->GetIoAdr());
+            STRCMP_EQUAL("wifi_test", element_as_wifi_binding->GetSsid());
             matched++;
         }
     }

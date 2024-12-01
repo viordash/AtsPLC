@@ -24,6 +24,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     void SelectNextSymbol(char *symbol, char extra);
 
     bool RenderSsid(uint8_t *fb, uint8_t x, uint8_t y);
+
   public:
     static const uint8_t LeftPadding = 12;
     static const uint8_t RightPadding = 12;

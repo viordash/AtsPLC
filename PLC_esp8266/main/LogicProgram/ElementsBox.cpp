@@ -142,7 +142,6 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
 
     auto *source_element_as_indicator = Indicator::TryToCast(source_element);
     if (source_element_as_indicator != NULL) {
-        indicator->SetIoAdr(source_element_as_indicator->GetIoAdr());
         indicator->SetLowScale(source_element_as_indicator->GetLowScale());
         indicator->SetHighScale(source_element_as_indicator->GetHighScale());
         indicator->SetDecimalPoint(source_element_as_indicator->GetDecimalPoint());
@@ -157,33 +156,12 @@ bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBind
         return false;
     }
 
-    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
-    if (source_element_as_commonInput != NULL) {
-        auto io_adr = source_element_as_commonInput->GetIoAdr();
-        binding->SetIoAdr(io_adr);
-        return true;
-    }
-
-    auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
-    if (source_element_as_commonOutput != NULL) {
-        auto io_adr = source_element_as_commonOutput->GetIoAdr();
-        binding->SetIoAdr(io_adr);
-        return true;
-    }
-
-    auto *source_element_as_indicator = Indicator::TryToCast(source_element);
-    if (source_element_as_indicator != NULL) {
-        binding->SetIoAdr(source_element_as_indicator->GetIoAdr());
-        return true;
-    }
-
     auto *source_element_as_wifi_binding = WiFiBinding::TryToCast(source_element);
     if (source_element_as_wifi_binding != NULL) {
-        binding->SetIoAdr(source_element_as_wifi_binding->GetIoAdr());
+        binding->SetSsid(source_element_as_wifi_binding->GetSsid());
         return true;
     }
-
-    binding->SetIoAdr(MapIO::V1);
+    binding->SetSsid("???");
     return true;
 }
 
