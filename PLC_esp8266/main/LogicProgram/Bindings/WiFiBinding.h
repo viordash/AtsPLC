@@ -16,6 +16,10 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
         wbepi_Ssid_1
     } EditingPropertyId;
 
+  private:
+    const static Bitmap bitmap_active;
+    const static Bitmap bitmap_passive;
+
   protected:
     static const uint8_t max_ssid_size = 16;
     char ssid[max_ssid_size + 1];

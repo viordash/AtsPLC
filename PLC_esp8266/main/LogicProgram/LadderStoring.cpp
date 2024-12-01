@@ -9,6 +9,7 @@
 
 void Ladder::Load() {
     RemoveAll();
+    return;
     redundant_storage storage = redundant_storage_load(storage_0_partition,
                                                        storage_0_path,
                                                        storage_1_partition,

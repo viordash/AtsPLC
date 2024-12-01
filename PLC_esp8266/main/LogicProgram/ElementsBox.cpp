@@ -161,7 +161,7 @@ bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBind
         binding->SetSsid(source_element_as_wifi_binding->GetSsid());
         return true;
     }
-    binding->SetSsid("???");
+    binding->SetSsid("ordash");
     return true;
 }
 
