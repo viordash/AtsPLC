@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "main/LogicProgram/ElementsBox.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Network.h"
@@ -123,6 +124,60 @@ namespace {
             return MonitorLogicElement::Render();
         }
     };
+
+    class TestableWire : public Wire, public MonitorLogicElement {
+      public:
+        explicit TestableWire() : Wire() {
+        }
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+            (void)prev_changed;
+            (void)prev_elem_state;
+            return MonitorLogicElement::DoAction();
+        }
+
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+            (void)fb;
+            (void)prev_elem_state;
+            (void)start_point;
+            return MonitorLogicElement::Render();
+        }
+    };
+
+    class TestableIndicator : public Indicator, public MonitorLogicElement {
+      public:
+        explicit TestableIndicator() : Indicator() {
+        }
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+            (void)prev_changed;
+            (void)prev_elem_state;
+            return MonitorLogicElement::DoAction();
+        }
+
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+            (void)fb;
+            (void)prev_elem_state;
+            (void)start_point;
+            return MonitorLogicElement::Render();
+        }
+    };
+
+    class TestableWiFiBinding : public WiFiBinding, public MonitorLogicElement {
+      public:
+        explicit TestableWiFiBinding() : WiFiBinding() {
+        }
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+            (void)prev_changed;
+            (void)prev_elem_state;
+            return MonitorLogicElement::DoAction();
+        }
+
+        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+            (void)fb;
+            (void)prev_elem_state;
+            (void)start_point;
+            return MonitorLogicElement::Render();
+        }
+    };
 } // namespace
 
 TEST(LogicNetworkTestsGroup, append_elements) {
@@ -180,6 +235,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
+    testable.Append(new TestableIndicator);
 
     CHECK_TRUE(testable.Render(frame_buffer, 0));
 
@@ -196,6 +252,57 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);
     CHECK_TRUE(static_cast<TestableTimerMSecs *>(testable[2])->Render_called);
     CHECK_TRUE(static_cast<TestableDirectOutput *>(testable[3])->Render_called);
+}
+
+TEST(LogicNetworkTestsGroup, Render_with_Indicator_element) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableIndicator);
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+    CHECK_TRUE(static_cast<TestableIndicator *>(testable[0])->Render_called);
+}
+
+TEST(LogicNetworkTestsGroup, Render_with_Wire_element) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableWire);
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+    CHECK_TRUE(static_cast<TestableWire *>(testable[0])->Render_called);
+}
+
+TEST(LogicNetworkTestsGroup, Render_with_WiFiBinding_element) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableWiFiBinding);
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+    CHECK_TRUE(static_cast<TestableWiFiBinding *>(testable[0])->Render_called);
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
