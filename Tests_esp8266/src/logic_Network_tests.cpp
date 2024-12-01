@@ -277,6 +277,25 @@ TEST(LogicNetworkTestsGroup, Serialize) {
     CHECK_EQUAL(MapIO::O1, *((MapIO *)&buffer[18]));
 }
 
+TEST(LogicNetworkTestsGroup, Serialize_Indicator) {
+    uint8_t buffer[256] = {};
+    Network testable(LogicItemState::lisActive);
+    auto indicator = new Indicator(MapIO::AI);
+    testable.Append(indicator);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(14, writed);
+
+    CHECK_EQUAL(LogicItemState::lisActive, *((LogicItemState *)&buffer[0]));
+    CHECK_EQUAL(1, *((uint16_t *)&buffer[1]));
+
+    CHECK_EQUAL(TvElementType::et_Indicator, *((TvElementType *)&buffer[3]));
+    CHECK_EQUAL(MapIO::AI, *((MapIO *)&buffer[4]));
+    DOUBLES_EQUAL(0.0, *((float *)&buffer[5]), 0.0001);
+    DOUBLES_EQUAL(100.0, *((float *)&buffer[9]), 0.0001);
+    CHECK_EQUAL(2, *((uint8_t *)&buffer[13]));
+}
+
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
     Network testable(LogicItemState::lisActive);
     testable.Append(new TestableInputNC);
@@ -306,8 +325,6 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_zero) {
     uint8_t buffer[256] = {};
     Network testable(LogicItemState::lisActive);
-
-    testable.Append(new TestableInputNC);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);

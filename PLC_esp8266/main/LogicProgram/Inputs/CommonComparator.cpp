@@ -27,7 +27,7 @@ CommonComparator::~CommonComparator() {
 }
 
 void CommonComparator::SetReference(uint8_t ref_percent04) {
-    if (ref_percent04 > LogicElement::MaxValue) {
+    if ((int)ref_percent04 > (int)LogicElement::MaxValue) {
         ref_percent04 = LogicElement::MaxValue;
     }
     this->ref_percent04 = ref_percent04;
@@ -120,7 +120,7 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_ref_percent04, sizeof(_ref_percent04), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (_ref_percent04 > LogicElement::MaxValue) {
+    if ((int)_ref_percent04 > (int)LogicElement::MaxValue) {
         return 0;
     }
 

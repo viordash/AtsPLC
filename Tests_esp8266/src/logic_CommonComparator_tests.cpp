@@ -80,24 +80,6 @@ namespace {
     };
 } // namespace
 
-TEST(LogicCommonComparatorTestsGroup, Reference_in_limit_0_to_250) {
-    TestableCommonComparator testable_0;
-    testable_0.SetReference(0);
-    CHECK_EQUAL(0, testable_0.GetReference());
-
-    TestableCommonComparator testable_100;
-    testable_100.SetReference(100);
-    CHECK_EQUAL(100, testable_100.GetReference());
-
-    TestableCommonComparator testable_250;
-    testable_250.SetReference(250);
-    CHECK_EQUAL(250, testable_250.GetReference());
-
-    TestableCommonComparator testable_251;
-    testable_251.SetReference(251);
-    CHECK_EQUAL(250, testable_251.GetReference());
-}
-
 TEST(LogicCommonComparatorTestsGroup, Render) {
     TestableCommonComparator testable;
     testable.SetIoAdr(MapIO::AI);
@@ -201,23 +183,6 @@ TEST(LogicCommonComparatorTestsGroup, Deserialize_with_wrong_io_adr_return_zero)
     CHECK_EQUAL(2, readed);
 }
 
-TEST(LogicCommonComparatorTestsGroup, Deserialize_with_large_reference_return_zero) {
-    uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_ComparatorLs;
-    *((MapIO *)&buffer[2]) = MapIO::V3;
-
-    TestableCommonComparator testable;
-    testable.SetIoAdr(MapIO::V2);
-
-    *((uint8_t *)&buffer[1]) = LogicElement::MaxValue + 1;
-    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
-
-    *((uint8_t *)&buffer[1]) = LogicElement::MaxValue;
-    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(2, readed);
-}
-
 TEST(LogicCommonComparatorTestsGroup,
      DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
 
@@ -291,13 +256,13 @@ TEST(LogicCommonComparatorTestsGroup, SelectPrior_changing_References) {
     testable.SelectPrior();
     CHECK_EQUAL(2, testable.GetReference());
 
-    testable.SetReference(248);
+    testable.SetReference(253);
     testable.SelectPrior();
-    CHECK_EQUAL(249, testable.GetReference());
+    CHECK_EQUAL(254, testable.GetReference());
     testable.SelectPrior();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(255, testable.GetReference());
     testable.SelectPrior();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(255, testable.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, SelectNext_changing_IoAdr) {
@@ -358,9 +323,9 @@ TEST(LogicCommonComparatorTestsGroup, PageUp_changing_References) {
     testable.PageUp();
     CHECK_EQUAL(249, testable.GetReference());
     testable.PageUp();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(255, testable.GetReference());
     testable.PageUp();
-    CHECK_EQUAL(250, testable.GetReference());
+    CHECK_EQUAL(255, testable.GetReference());
 }
 
 TEST(LogicCommonComparatorTestsGroup, PageDown_changing_References) {

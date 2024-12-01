@@ -9,7 +9,7 @@
 
 class button {
   private:
-    const static uint32_t pressed_time_ms = 30;
+    const static uint32_t pressed_time_ms = 20;
     const static uint32_t long_pressed_time_ms = 500;
 
     uint64_t down_time;

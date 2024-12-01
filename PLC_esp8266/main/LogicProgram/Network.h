@@ -18,7 +18,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     bool HasOutputElement();
 
   public:
-    const static size_t MinElementsCount = 2;
+    const static size_t MinElementsCount = 1;
     const static size_t MaxElementsCount = 5;
     explicit Network();
     explicit Network(LogicItemState state);

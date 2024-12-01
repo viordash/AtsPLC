@@ -22,13 +22,13 @@ class LogicElement : public EditableElement {
 
   public:
     static const uint8_t MinValue = 0;
-    static const uint8_t MaxValue = 250;
+    static const uint8_t MaxValue = 255;
 
     LogicElement();
     virtual ~LogicElement();
 
     LogicItemState GetState();
-    
+
     virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;
     virtual bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) = 0;
 

@@ -19,7 +19,8 @@ enum TvElementType : uint8_t {
     et_SetOutput,
     et_ResetOutput,
     et_IncOutput,
-    et_DecOutput
+    et_DecOutput,
+    et_Indicator
 };
 
 struct __attribute__((packed)) TvElement {
@@ -63,6 +64,15 @@ static inline bool IsOutputElement(TvElementType element_type) {
         case et_IncOutput:
             return true;
         case et_DecOutput:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static inline bool IsIndicatorElement(TvElementType element_type) {
+    switch (element_type) {
+        case et_Indicator:
             return true;
         default:
             return false;

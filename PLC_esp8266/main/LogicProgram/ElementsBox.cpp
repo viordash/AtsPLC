@@ -3,11 +3,14 @@
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
+#include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
+#include "LogicProgram/Inputs/Indicator.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
+#include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Wire.h"
 #include "esp_err.h"
@@ -21,10 +24,13 @@ static const char *TAG_ElementsBox = "ElementsBox";
 
 ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements)
     : LogicElement() {
-    this->place_width = CalcEntirePlaceWidth(fill_wire, source_element);
+    source_element_width = 0;
     source_element->BeginEditing();
     selected_index = 0;
     force_do_action_result = false;
+
+    CalcEntirePlaceWidth(source_element);
+    place_width = source_element_width + fill_wire;
     Fill(source_element, hide_output_elements);
 }
 
@@ -41,19 +47,20 @@ ElementsBox::~ElementsBox() {
     }
 }
 
-uint8_t ElementsBox::CalcEntirePlaceWidth(uint8_t fill_wire, LogicElement *source_element) {
+void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
     uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
-    Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
+    uint8_t start_point_x = IsOutputElement(source_element->GetElementType()) //
+                              ? DISPLAY_WIDTH / 2
+                              : INCOME_RAIL_WIDTH;
+    Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
     if (source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        bool calc_reverse_for_output = CommonOutput::TryToCast(source_element) != NULL;
-        if (calc_reverse_for_output) {
-            source_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
+        if (IsOutputElement(source_element->GetElementType())) {
+            source_element_width = start_point_x - start_point.x;
         } else {
-            source_element_width = start_point.x - (DISPLAY_WIDTH / 2);
+            source_element_width = start_point.x - start_point_x;
         }
     }
     delete[] frame_buffer;
-    return source_element_width + fill_wire;
 }
 
 bool ElementsBox::CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input) {
@@ -142,6 +149,38 @@ bool ElementsBox::CopyParamsToCommonOutput(LogicElement *source_element,
     return true;
 }
 
+bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator) {
+    if (indicator == NULL) {
+        return false;
+    }
+
+    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
+    if (source_element_as_commonInput != NULL) {
+        auto io_adr = source_element_as_commonInput->GetIoAdr();
+        indicator->SetIoAdr(io_adr);
+        return true;
+    }
+
+    auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
+    if (source_element_as_commonOutput != NULL) {
+        auto io_adr = source_element_as_commonOutput->GetIoAdr();
+        indicator->SetIoAdr(io_adr);
+        return true;
+    }
+
+    auto *source_element_as_indicator = Indicator::TryToCast(source_element);
+    if (source_element_as_indicator != NULL) {
+        indicator->SetIoAdr(source_element_as_indicator->GetIoAdr());
+        indicator->SetLowScale(source_element_as_indicator->GetLowScale());
+        indicator->SetHighScale(source_element_as_indicator->GetHighScale());
+        indicator->SetDecimalPoint(source_element_as_indicator->GetDecimalPoint());
+        return true;
+    }
+
+    indicator->SetIoAdr(MapIO::V1);
+    return true;
+}
+
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
     if (CopyParamsToCommonInput(source_element, CommonInput::TryToCast(new_element))) {
@@ -153,9 +192,14 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
     if (CopyParamsToCommonOutput(source_element, CommonOutput::TryToCast(new_element))) {
         return;
     }
+    if (CopyParamsToIndicator(source_element, Indicator::TryToCast(new_element))) {
+        return;
+    }
+
     auto as_wire = Wire::TryToCast(new_element);
     if (as_wire != NULL) {
         as_wire->SetWidth(source_element_width);
+        return;
     }
 }
 
@@ -172,17 +216,19 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     }
     TakeParamsFromStoredElement(source_element, new_element);
 
-    Point start_point = { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 };
+    uint8_t start_point_x = IsOutputElement(element_type) //
+                              ? DISPLAY_WIDTH / 2
+                              : INCOME_RAIL_WIDTH;
+    Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
     if (!new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
         delete new_element;
         return;
     }
     uint8_t new_element_width = 0;
-    bool calc_reverse_for_output = CommonOutput::TryToCast(new_element) != NULL;
-    if (calc_reverse_for_output) {
-        new_element_width = (DISPLAY_WIDTH / 2) - start_point.x;
+    if (IsOutputElement(element_type)) {
+        new_element_width = start_point_x - start_point.x;
     } else {
-        new_element_width = start_point.x - (DISPLAY_WIDTH / 2);
+        new_element_width = start_point.x - start_point_x;
     }
     bool element_not_fit = new_element_width > place_width;
     ESP_LOGD(TAG_ElementsBox, "new_element_width: %u", new_element_width);
@@ -206,6 +252,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_ComparatorGr, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorLE, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorLs, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_Indicator, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);
