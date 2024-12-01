@@ -37,7 +37,7 @@ class CommonComparator : public CommonInput {
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
 
-    static CommonComparator *TryToCast(CommonInput *common_input);
+    static CommonComparator *TryToCast(LogicElement *logic_element);
 
     void SelectPrior() override;
     void SelectNext() override;
