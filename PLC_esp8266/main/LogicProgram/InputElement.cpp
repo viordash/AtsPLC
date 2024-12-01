@@ -1,4 +1,5 @@
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
@@ -68,6 +69,9 @@ InputElement *InputElement::TryToCast(LogicElement *logic_element) {
 
         case TvElementType::et_Indicator:
             return static_cast<Indicator *>(logic_element);
+
+        case TvElementType::et_WiFiBinding:
+            return static_cast<WiFiBinding *>(logic_element);
 
         case TvElementType::et_DirectOutput:
         case TvElementType::et_SetOutput:

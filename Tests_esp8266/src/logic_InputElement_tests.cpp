@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "main/LogicProgram/Inputs/CommonInput.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
@@ -72,4 +73,7 @@ TEST(LogicInputElementTestsGroup, TryToCast) {
 
     DecOutput decOutput;
     CHECK_TRUE(InputElement::TryToCast(&decOutput) == &decOutput);
+
+    WiFiBinding wiFiBinding;
+    CHECK_TRUE(InputElement::TryToCast(&wiFiBinding) == &wiFiBinding);
 }
