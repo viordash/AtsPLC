@@ -20,8 +20,9 @@ static const char *TAG_WiFiBinding = "WiFiBinding";
 WiFiBinding::WiFiBinding() : LogicElement(), InputElement() {
 }
 
-WiFiBinding::WiFiBinding(const MapIO io_adr) : WiFiBinding() {
+WiFiBinding::WiFiBinding(const MapIO io_adr, const char *ssid) : WiFiBinding() {
     SetIoAdr(io_adr);
+    SetSsid(ssid);
 }
 
 WiFiBinding::~WiFiBinding() {
@@ -333,4 +334,12 @@ const AllowedIO WiFiBinding::GetAllowedInputs() {
     static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1, MapIO::V2,
                                  MapIO::V3, MapIO::V4, MapIO::O1, MapIO::O2 };
     return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
+}
+
+const char *WiFiBinding::GetSsid() {
+    return ssid;
+}
+
+void WiFiBinding::SetSsid(const char *ssid) {
+    strncpy(this->ssid, ssid, sizeof(this->ssid));
 }

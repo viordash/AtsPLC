@@ -8,18 +8,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Bindings/WiFiBinding.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
 #include "main/LogicProgram/Inputs/ComparatorGr.h"
 #include "main/LogicProgram/Inputs/ComparatorLE.h"
 #include "main/LogicProgram/Inputs/ComparatorLs.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
-#include "main/LogicProgram/Bindings/WiFiBinding.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 TEST_GROUP(LogicWiFiBindingTestsGroup){ //
-                                      TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                        TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().disable();
 Controller::Start(NULL);
@@ -58,4 +58,14 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+}
+
+TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
+    TestableWiFiBinding testable;
+
+    testable.SetSsid("test");
+    STRCMP_EQUAL("test", testable.GetSsid());
+
+    testable.SetSsid("test1");
+    STRCMP_EQUAL("test1", testable.GetSsid());
 }

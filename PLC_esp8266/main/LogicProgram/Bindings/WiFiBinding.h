@@ -33,7 +33,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     static const uint8_t Height = 22;
 
     explicit WiFiBinding();
-    explicit WiFiBinding(const MapIO io_adr);
+    explicit WiFiBinding(const MapIO io_adr, const char *ssid);
     virtual ~WiFiBinding();
 
     void SetIoAdr(const MapIO io_adr) override final;
@@ -51,4 +51,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+
+    const char *GetSsid();
+    void SetSsid(const char *ssid);
 };
