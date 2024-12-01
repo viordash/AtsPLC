@@ -157,7 +157,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
                                && (Indicator::EditingPropertyId)editing_property_id
                                       == Indicator::EditingPropertyId::ciepi_ConfigureIOAdr
                                && Blinking_50();
-    res = blink_label_on_editing || draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label);
+    res = blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     if (!res) {
         return res;
     }
@@ -180,7 +180,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
         res = RenderScales(fb, top_left.x + 4, top_left.y);
     } else {
         top_left.x += 4;
-        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value);
+        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value) > 0;
     }
     if (!res) {
         return res;
