@@ -2,6 +2,7 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
+#include "LogicProgram/InputElement.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
@@ -63,26 +64,31 @@ void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
     delete[] frame_buffer;
 }
 
-bool ElementsBox::CopyParamsToCommonInput(LogicElement *source_element, CommonInput *common_input) {
-    if (common_input == NULL) {
+void ElementsBox::CopyParamsToInputElement(LogicElement *source_element, InputElement *input) {
+    if (input == NULL) {
+        return;
+    }
+    MapIO io_adr = MapIO::V1;
+
+    auto *source_element_as_input = InputElement::TryToCast(source_element);
+    if (source_element_as_input != NULL) {
+        io_adr = source_element_as_input->GetIoAdr();
+    }
+
+    input->SetIoAdr(io_adr);
+}
+
+bool ElementsBox::CopyParamsToCommonComparator(LogicElement *source_element,
+                                               CommonComparator *common_comparator) {
+    if (common_comparator == NULL) {
         return false;
     }
-    MapIO io_adr = MapIO::AI;
 
-    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
-    if (source_element_as_commonInput != NULL) {
-        io_adr = source_element_as_commonInput->GetIoAdr();
-    } else {
-        auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
-        if (source_element_as_commonOutput != NULL) {
-            io_adr = source_element_as_commonOutput->GetIoAdr();
-        }
-    }
-
-    auto *new_element_as_commonComparator = CommonComparator::TryToCast(common_input);
+    auto *new_element_as_commonComparator = CommonComparator::TryToCast(common_comparator);
     if (new_element_as_commonComparator != NULL) {
         uint8_t ref_percent04 = 0;
 
+        auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
         if (source_element_as_commonInput != NULL) {
             auto *source_element_as_commonComparator =
                 CommonComparator::TryToCast(source_element_as_commonInput);
@@ -93,7 +99,6 @@ bool ElementsBox::CopyParamsToCommonInput(LogicElement *source_element, CommonIn
         }
         new_element_as_commonComparator->SetReference(ref_percent04);
     }
-    common_input->SetIoAdr(io_adr);
     return true;
 }
 
@@ -129,43 +134,9 @@ bool ElementsBox::CopyParamsToCommonTimer(LogicElement *source_element, CommonTi
     return true;
 }
 
-bool ElementsBox::CopyParamsToCommonOutput(LogicElement *source_element,
-                                           CommonOutput *common_output) {
-    if (common_output == NULL) {
-        return false;
-    }
-
-    MapIO io_adr = MapIO::V1;
-    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
-    if (source_element_as_commonInput != NULL) {
-        io_adr = source_element_as_commonInput->GetIoAdr();
-    } else {
-        auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
-        if (source_element_as_commonOutput != NULL) {
-            io_adr = source_element_as_commonOutput->GetIoAdr();
-        }
-    }
-    common_output->SetIoAdr(io_adr);
-    return true;
-}
-
 bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator) {
     if (indicator == NULL) {
         return false;
-    }
-
-    auto *source_element_as_commonInput = CommonInput::TryToCast(source_element);
-    if (source_element_as_commonInput != NULL) {
-        auto io_adr = source_element_as_commonInput->GetIoAdr();
-        indicator->SetIoAdr(io_adr);
-        return true;
-    }
-
-    auto *source_element_as_commonOutput = CommonOutput::TryToCast(source_element);
-    if (source_element_as_commonOutput != NULL) {
-        auto io_adr = source_element_as_commonOutput->GetIoAdr();
-        indicator->SetIoAdr(io_adr);
-        return true;
     }
 
     auto *source_element_as_indicator = Indicator::TryToCast(source_element);
@@ -177,19 +148,18 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
         return true;
     }
 
-    indicator->SetIoAdr(MapIO::V1);
     return true;
 }
-
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
-    if (CopyParamsToCommonInput(source_element, CommonInput::TryToCast(new_element))) {
+
+    CopyParamsToInputElement(source_element, InputElement::TryToCast(new_element));
+
+    if (CopyParamsToCommonComparator(source_element, CommonComparator::TryToCast(new_element))) {
         return;
     }
+
     if (CopyParamsToCommonTimer(source_element, CommonTimer::TryToCast(new_element))) {
-        return;
-    }
-    if (CopyParamsToCommonOutput(source_element, CommonOutput::TryToCast(new_element))) {
         return;
     }
     if (CopyParamsToIndicator(source_element, Indicator::TryToCast(new_element))) {
