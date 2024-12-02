@@ -1,6 +1,5 @@
 #include "LogicProgram/Bindings/WiFiBinding.h"
-#include "Display/bitmaps/wifi_binding_active.h"
-#include "Display/bitmaps/wifi_binding_inactive.h"
+#include "Display/bitmaps/wifi_binding.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -112,11 +111,7 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     }
     top_left.x += 23;
     if (!blink_body_on_editing) {
-        if (prev_elem_state == LogicItemState::lisActive) {
-            draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap_active);
-        } else {
-            draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap_passive);
-        }
+        draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap);
     }
     top_left.x += 18;
 

@@ -17,8 +17,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     } EditingPropertyId;
 
   private:
-    const static Bitmap bitmap_active;
-    const static Bitmap bitmap_passive;
+    const static Bitmap bitmap;
 
   protected:
     static const uint8_t max_ssid_size = 16;
