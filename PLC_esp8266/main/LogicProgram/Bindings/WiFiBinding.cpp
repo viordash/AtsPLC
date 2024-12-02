@@ -126,8 +126,17 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
         res = RenderSsid(fb, top_left.x + 4, top_left.y);
     } else {
         top_left.x += 4;
-        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+        if (ssid_size <= 6) {
+            res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+        } else if (ssid_size <= 8) {
+            res = draw_text_f6X12(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+        } else if (ssid_size <= 10) {
+            res = draw_text_f5X7(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+        } else {
+            res = draw_text_f4X7(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+        }
     }
+
     if (!res) {
         return res;
     }
@@ -141,20 +150,28 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 bool WiFiBinding::RenderSsid(uint8_t *fb, uint8_t x, uint8_t y) {
     char blink_ssid[sizeof(ssid)];
 
-    switch (editing_property_id) {
-        case WiFiBinding::EditingPropertyId::wbepi_Ssid_0:
-        case WiFiBinding::EditingPropertyId::wbepi_Ssid_1:
-            snprintf(blink_ssid, sizeof(blink_ssid), "%s", ssid);
-            break;
-    }
+    snprintf(blink_ssid, sizeof(blink_ssid), "%s", ssid);
 
     if (Blinking_50()) {
         switch (editing_property_id) {
             case WiFiBinding::EditingPropertyId::wbepi_Ssid_0:
-                blink_ssid[0] = ' ';
-                break;
             case WiFiBinding::EditingPropertyId::wbepi_Ssid_1:
-                blink_ssid[1] = ' ';
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_2:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_3:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_4:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_5:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_6:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_7:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_8:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_9:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_10:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_11:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_12:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_13:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_14:
+            case WiFiBinding::EditingPropertyId::wbepi_Ssid_15:
+                blink_ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_0] =
+                    ' ';
                 break;
         }
     }
@@ -215,7 +232,7 @@ WiFiBinding *WiFiBinding::TryToCast(LogicElement *logic_element) {
     }
 }
 
-void WiFiBinding::SelectPriorSymbol(char *symbol, char extra) {
+void WiFiBinding::SelectPriorSymbol(char *symbol) {
     switch (*symbol) {
         case '1':
         case '2':
@@ -228,16 +245,13 @@ void WiFiBinding::SelectPriorSymbol(char *symbol, char extra) {
         case '9':
             *symbol = *symbol - 1;
             break;
-        case '0':
-            *symbol = extra;
-            break;
         default:
             *symbol = '9';
             break;
     }
 }
 
-void WiFiBinding::SelectNextSymbol(char *symbol, char extra) {
+void WiFiBinding::SelectNextSymbol(char *symbol) {
     switch (*symbol) {
         case '0':
         case '1':
@@ -249,9 +263,6 @@ void WiFiBinding::SelectNextSymbol(char *symbol, char extra) {
         case '7':
         case '8':
             *symbol = *symbol + 1;
-            break;
-        case '9':
-            *symbol = extra;
             break;
         default:
             *symbol = '0';
@@ -275,10 +286,23 @@ void WiFiBinding::SelectPrior() {
         }
 
         case WiFiBinding::EditingPropertyId::wbepi_Ssid_0:
-            SelectPriorSymbol(&ssid[0], '-');
-            break;
         case WiFiBinding::EditingPropertyId::wbepi_Ssid_1:
-            SelectPriorSymbol(&ssid[1], '.');
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_2:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_3:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_4:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_5:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_6:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_7:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_8:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_9:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_10:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_11:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_12:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_13:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_14:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_15:
+            SelectPriorSymbol(
+                &ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_0]);
             break;
     }
 }
@@ -299,10 +323,23 @@ void WiFiBinding::SelectNext() {
         }
 
         case WiFiBinding::EditingPropertyId::wbepi_Ssid_0:
-            SelectNextSymbol(&ssid[0], '-');
-            break;
         case WiFiBinding::EditingPropertyId::wbepi_Ssid_1:
-            SelectNextSymbol(&ssid[1], '.');
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_2:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_3:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_4:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_5:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_6:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_7:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_8:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_9:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_10:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_11:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_12:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_13:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_14:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_15:
+            SelectNextSymbol(
+                &ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_0]);
             break;
     }
 }
@@ -324,15 +361,33 @@ void WiFiBinding::Change() {
         case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
             editing_property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_0;
             break;
+
         case WiFiBinding::EditingPropertyId::wbepi_Ssid_0:
-            editing_property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_1;
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_1:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_2:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_3:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_4:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_5:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_6:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_7:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_8:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_9:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_10:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_11:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_12:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_13:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_14:
+            editing_property_id++;
+            break;
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_15:
+            editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
+            EndEditing();
             break;
     }
 }
 
 const AllowedIO WiFiBinding::GetAllowedInputs() {
-    static MapIO allowedIO[] = { MapIO::DI, MapIO::AI, MapIO::V1, MapIO::V2,
-                                 MapIO::V3, MapIO::V4, MapIO::O1, MapIO::O2 };
+    static MapIO allowedIO[] = { MapIO::V1, MapIO::V2, MapIO::V3, MapIO::V4 };
     return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
 }
 
@@ -342,4 +397,5 @@ const char *WiFiBinding::GetSsid() {
 
 void WiFiBinding::SetSsid(const char *ssid) {
     strncpy(this->ssid, ssid, sizeof(this->ssid));
+    ssid_size = strlen(this->ssid);
 }

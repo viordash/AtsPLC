@@ -13,7 +13,21 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
         wbepi_None = EditableElement::EditingPropertyId::cepi_None,
         wbepi_ConfigureIOAdr,
         wbepi_Ssid_0,
-        wbepi_Ssid_1
+        wbepi_Ssid_1,
+        wbepi_Ssid_2,
+        wbepi_Ssid_3,
+        wbepi_Ssid_4,
+        wbepi_Ssid_5,
+        wbepi_Ssid_6,
+        wbepi_Ssid_7,
+        wbepi_Ssid_8,
+        wbepi_Ssid_9,
+        wbepi_Ssid_10,
+        wbepi_Ssid_11,
+        wbepi_Ssid_12,
+        wbepi_Ssid_13,
+        wbepi_Ssid_14,
+        wbepi_Ssid_15
     } EditingPropertyId;
 
   private:
@@ -22,9 +36,10 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
   protected:
     static const uint8_t max_ssid_size = 16;
     char ssid[max_ssid_size + 1];
+    uint8_t ssid_size;
     const AllowedIO GetAllowedInputs();
-    void SelectPriorSymbol(char *symbol, char extra);
-    void SelectNextSymbol(char *symbol, char extra);
+    void SelectPriorSymbol(char *symbol);
+    void SelectNextSymbol(char *symbol);
 
     bool RenderSsid(uint8_t *fb, uint8_t x, uint8_t y);
 
