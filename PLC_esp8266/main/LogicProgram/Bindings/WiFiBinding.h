@@ -8,42 +8,28 @@
 #include <unistd.h>
 
 class WiFiBinding : public LogicElement, public InputElement, public LabeledLogicItem {
-  public:
-    typedef enum { //
-        wbepi_None = EditableElement::EditingPropertyId::cepi_None,
-        wbepi_ConfigureIOAdr,
-        wbepi_Ssid_0,
-        wbepi_Ssid_1,
-        wbepi_Ssid_2,
-        wbepi_Ssid_3,
-        wbepi_Ssid_4,
-        wbepi_Ssid_5,
-        wbepi_Ssid_6,
-        wbepi_Ssid_7,
-        wbepi_Ssid_8,
-        wbepi_Ssid_9,
-        wbepi_Ssid_10,
-        wbepi_Ssid_11,
-        wbepi_Ssid_12,
-        wbepi_Ssid_13,
-        wbepi_Ssid_14,
-        wbepi_Ssid_15
-    } EditingPropertyId;
-
-  private:
-    const static Bitmap bitmap;
-
   protected:
-    static const uint8_t max_ssid_size = 16;
+    static const char place_new_char = 0x02;
+    static const uint8_t max_ssid_size = 24;
     char ssid[max_ssid_size + 1];
     uint8_t ssid_size;
+    const static Bitmap bitmap;
+
     const AllowedIO GetAllowedInputs();
     void SelectPriorSymbol(char *symbol);
     void SelectNextSymbol(char *symbol);
 
     bool RenderSsid(uint8_t *fb, uint8_t x, uint8_t y);
+    bool IsLastSsidChar();
 
   public:
+    typedef enum { //
+        wbepi_None = EditableElement::EditingPropertyId::cepi_None,
+        wbepi_ConfigureIOAdr,
+        wbepi_Ssid_First_Char,
+        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size
+    } EditingPropertyId;
+
     static const uint8_t LeftPadding = 12;
     static const uint8_t RightPadding = 12;
     static const uint8_t Width =
@@ -65,6 +51,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
 
     static WiFiBinding *TryToCast(LogicElement *logic_element);
 
+    void EndEditing() override;
     void SelectPrior() override;
     void SelectNext() override;
     void PageUp() override;
