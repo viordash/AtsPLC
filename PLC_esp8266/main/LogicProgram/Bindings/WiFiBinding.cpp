@@ -339,7 +339,7 @@ void WiFiBinding::Change() {
     }
 }
 void WiFiBinding::EndEditing() {
-    ssid_size = strlen(ssid);
+    ssid_size = strnlen(ssid, sizeof(ssid));
     if (ssid[ssid_size - 1] == place_new_char) {
         ssid[ssid_size - 1] = 0;
         ssid_size--;

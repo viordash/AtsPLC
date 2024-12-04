@@ -46,8 +46,8 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
+        int *PublicMorozov_Get_editing_property_id() {
+            return &editing_property_id;
         }
     };
 } // namespace
@@ -68,4 +68,42 @@ TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
 
     testable.SetSsid("test1");
     STRCMP_EQUAL("test1", testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, Change__switching__editing_property_id) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("ssid_with_size_of_24_chs");
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding ::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (int i = 1; i < 24; i++) {
+        testable.Change();
+        CHECK_TRUE(testable.Editing());
+        CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + i,
+                    *testable.PublicMorozov_Get_editing_property_id());
+    }
+
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL(24, strlen(testable.GetSsid()));
 }
