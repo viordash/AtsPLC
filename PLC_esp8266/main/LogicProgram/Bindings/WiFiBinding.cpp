@@ -109,11 +109,11 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     if (!res) {
         return res;
     }
-    top_left.x += 23;
+    top_left.x += 22;
     if (!blink_body_on_editing) {
         draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap);
     }
-    top_left.x += 18;
+    top_left.x += bitmap.size.width + 1;
 
     bool show_scales = editable_state == EditableElement::ElementState::des_Editing
                     && (WiFiBinding::EditingPropertyId)editing_property_id
@@ -122,18 +122,14 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
                            != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
     if (show_scales) {
-        top_left.x += 4;
-        res = RenderSsid(fb, top_left.x + 4, top_left.y + 4);
+        res = RenderSsid(fb, top_left.x, top_left.y + 4);
     } else {
-        top_left.x += 4;
         if (ssid_size <= 6) {
-            res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+            res = draw_text_f8X14(fb, top_left.x, top_left.y + 4, ssid) > 0;
         } else if (ssid_size <= 8) {
-            res = draw_text_f6X12(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, ssid) > 0;
         } else if (ssid_size <= 10) {
-            res = draw_text_f5X7(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
-        } else {
-            res = draw_text_f4X7(fb, top_left.x + 4, top_left.y + 4, ssid) > 0;
+            res = RenderSsidWithElipsis(fb, top_left.x, top_left.y + 6, 3);
         }
     }
 
@@ -145,6 +141,19 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 
     res = EditableElement::Render(fb, start_point);
     return res;
+}
+bool WiFiBinding::RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage) {
+    char elipsis = ssid[leverage];
+    ssid[leverage] = 0;
+    int width = draw_text_f6X12(fb, x, y, ssid);
+    ssid[leverage] = elipsis;
+    if (width <= 0) {
+        return false;
+    }
+    x += width;
+    width = draw_text_f4X7(fb, x, y + 4, "...");
+    x += width;
+    return draw_text_f6X12(fb, x, y, &ssid[ssid_size - leverage]) > 0;
 }
 
 bool WiFiBinding::RenderSsid(uint8_t *fb, uint8_t x, uint8_t y) {

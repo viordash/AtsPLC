@@ -19,6 +19,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     void SelectPriorSymbol(char *symbol);
     void SelectNextSymbol(char *symbol);
 
+    bool RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage);
     bool RenderSsid(uint8_t *fb, uint8_t x, uint8_t y);
     bool IsLastSsidChar();
 
