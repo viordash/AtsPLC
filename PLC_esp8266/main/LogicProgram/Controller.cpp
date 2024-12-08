@@ -133,6 +133,9 @@ void Controller::ProcessTask(void *parm) {
                 case ButtonsPressType::DOWN_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
                     break;
+                case ButtonsPressType::DOWN_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
+                    break;
                 case ButtonsPressType::SELECT_PRESSED:
                     xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
                     break;
