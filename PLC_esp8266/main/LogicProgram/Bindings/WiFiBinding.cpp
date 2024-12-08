@@ -366,6 +366,7 @@ const char *WiFiBinding::GetSsid() {
 }
 
 void WiFiBinding::SetSsid(const char *ssid) {
-    strncpy(this->ssid, ssid, sizeof(this->ssid));
+    strncpy(this->ssid, ssid, sizeof(this->ssid) - 1);
+    this->ssid[sizeof(this->ssid) - 1] = 0;
     ssid_size = strlen(this->ssid);
 }

@@ -49,6 +49,9 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
+        uint8_t *PublicMorozov_Get_ssid_size() {
+            return &ssid_size;
+        }
     };
 } // namespace
 
@@ -65,9 +68,15 @@ TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
 
     testable.SetSsid("test");
     STRCMP_EQUAL("test", testable.GetSsid());
+    CHECK_EQUAL(4, *testable.PublicMorozov_Get_ssid_size());
 
-    testable.SetSsid("test1");
-    STRCMP_EQUAL("test1", testable.GetSsid());
+    testable.SetSsid("ssid_with_size_of_24_chs");
+    STRCMP_EQUAL("ssid_with_size_of_24_chs", testable.GetSsid());
+    CHECK_EQUAL(24, *testable.PublicMorozov_Get_ssid_size());
+
+    testable.SetSsid("ssid_with_size_of_25_chs0");
+    STRCMP_EQUAL("ssid_with_size_of_25_chs", testable.GetSsid());
+    CHECK_EQUAL(24, *testable.PublicMorozov_Get_ssid_size());
 }
 
 TEST(LogicWiFiBindingTestsGroup, Change__switching__editing_property_id) {
