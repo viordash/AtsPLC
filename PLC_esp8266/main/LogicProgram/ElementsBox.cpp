@@ -161,7 +161,7 @@ bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBind
         binding->SetSsid(source_element_as_wifi_binding->GetSsid());
         return true;
     }
-    binding->SetSsid("ordash");
+    binding->SetSsid("AtsPLC");
     return true;
 }
 
@@ -341,7 +341,6 @@ void ElementsBox::PageUp() {
 void ElementsBox::PageDown() {
     bool selected_in_editing_property =
         GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
-
     ESP_LOGI(TAG_ElementsBox,
              "PageDown, selected_index:%d, in_editing:%d",
              selected_index,

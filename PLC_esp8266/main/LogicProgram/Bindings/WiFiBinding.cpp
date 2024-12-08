@@ -227,40 +227,22 @@ WiFiBinding *WiFiBinding::TryToCast(LogicElement *logic_element) {
 }
 
 void WiFiBinding::SelectPriorSymbol(char *symbol) {
-    switch (*symbol) {
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            *symbol = *symbol - 1;
-            break;
-        default:
-            *symbol = '9';
-            break;
+    if (*symbol > '!' && *symbol <= '~') {
+        *symbol = *symbol - 1;
+    } else if (*symbol != place_new_char) {
+        *symbol = place_new_char;
+    } else {
+        *symbol = '~';
     }
 }
 
 void WiFiBinding::SelectNextSymbol(char *symbol) {
-    switch (*symbol) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-            *symbol = *symbol + 1;
-            break;
-        default:
-            *symbol = '0';
-            break;
+    if (*symbol >= '!' && *symbol < '~') {
+        *symbol = *symbol + 1;
+    } else if (*symbol != place_new_char) {
+        *symbol = place_new_char;
+    } else {
+        *symbol = '!';
     }
 }
 
@@ -313,11 +295,33 @@ void WiFiBinding::SelectNext() {
 }
 
 void WiFiBinding::PageUp() {
-    this->SelectPrior();
+    switch (editing_property_id) {
+        case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            this->SelectPrior();
+            break;
+
+        default:
+            ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+                place_new_char;
+            break;
+    }
 }
 
 void WiFiBinding::PageDown() {
-    this->SelectNext();
+    switch (editing_property_id) {
+        case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+        case WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            this->SelectNext();
+            break;
+
+        default:
+            ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+                place_new_char;
+            break;
+    }
 }
 
 bool WiFiBinding::IsLastSsidChar() {
@@ -352,11 +356,11 @@ void WiFiBinding::Change() {
     }
 }
 void WiFiBinding::EndEditing() {
-    ssid_size = strnlen(ssid, sizeof(ssid));
-    if (ssid[ssid_size - 1] == place_new_char) {
-        ssid[ssid_size - 1] = 0;
-        ssid_size--;
+    ssid_size = 0;
+    while (ssid_size < sizeof(ssid) && ssid[ssid_size] != 0 && ssid[ssid_size] != place_new_char) {
+        ssid_size++;
     }
+    ssid[ssid_size] = 0;
     EditableElement::EndEditing();
 }
 

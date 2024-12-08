@@ -139,3 +139,162 @@ TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
                                                     INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP));
     }
 }
+
+TEST(LogicWiFiBindingTestsGroup, SelectNext_changing_IoAdr) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+}
+
+TEST(LogicWiFiBindingTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+}
+
+TEST(LogicWiFiBindingTestsGroup, SelectNext_ssid_0) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("!");
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (char ch = '!'; ch <= '~'; ch++) {
+        CHECK_EQUAL(ch, testable.GetSsid()[0]);
+        CHECK_EQUAL(0, testable.GetSsid()[1]);
+        testable.SelectNext();
+    }
+    const char *place_new_char = "\x02";
+    STRCMP_EQUAL(place_new_char, testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, SelectPrior_ssid_0) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("~");
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (char ch = '~'; ch >= '!'; ch--) {
+        CHECK_EQUAL(ch, testable.GetSsid()[0]);
+        CHECK_EQUAL(0, testable.GetSsid()[1]);
+        testable.SelectPrior();
+    }
+    const char *place_new_char = "\x02";
+    STRCMP_EQUAL(place_new_char, testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, PageUp_change_first_ssid_symbol_to_prior_char) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.PageUp();
+    STRCMP_EQUAL("sest", testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, PageUp_change_ssid_symbol_to__new_char) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.PageUp();
+    const char *place_new_char = "t\x02st";
+    STRCMP_EQUAL(place_new_char, testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, PageDown_change_first_ssid_symbol_to_next_char) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.PageDown();
+    STRCMP_EQUAL("uest", testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, PageDown_change_ssid_symbol_to__new_char) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.PageDown();
+    const char *place_new_char = "t\x02st";
+    STRCMP_EQUAL(place_new_char, testable.GetSsid());
+}
+
+
+
+TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("ssid_with_size_of_24_chs");
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding ::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 3,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+
+    testable.PageDown();
+    const char *place_new_char = "ssi\x02_with_size_of_24_chs";
+    STRCMP_EQUAL(place_new_char, testable.GetSsid());
+
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL(3, strlen(testable.GetSsid()));
+}
