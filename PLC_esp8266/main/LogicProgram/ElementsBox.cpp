@@ -335,6 +335,8 @@ void ElementsBox::PageUp() {
 
     if (selected_in_editing_property) {
         GetSelectedElement()->PageUp();
+    } else {
+        SelectPrior();
     }
 }
 
@@ -348,6 +350,8 @@ void ElementsBox::PageDown() {
 
     if (selected_in_editing_property) {
         GetSelectedElement()->PageDown();
+    } else {
+        SelectNext();
     }
 }
 
