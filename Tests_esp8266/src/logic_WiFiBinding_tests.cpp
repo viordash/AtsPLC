@@ -21,13 +21,13 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicWiFiBindingTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
-mock().disable();
+mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
-    mock().enable();
 }
 }
 ;
@@ -48,6 +48,9 @@ namespace {
         }
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
+        }
+        bool PublicMorozov_RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
+            return RenderEditedSsid(fb, x, y);
         }
         uint8_t *PublicMorozov_Get_ssid_size() {
             return &ssid_size;
@@ -115,4 +118,24 @@ TEST(LogicWiFiBindingTestsGroup, Change__switching__editing_property_id) {
                 *testable.PublicMorozov_Get_editing_property_id());
 
     CHECK_EQUAL(24, strlen(testable.GetSsid()));
+}
+
+TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
+    volatile uint64_t os_us = 0x80000;
+    mock()
+        .expectNCalls(24, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("ssid_with_size_of_24_chs");
+
+    int property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
+    for (size_t i = 0; i < 24; i++) {
+        *testable.PublicMorozov_Get_editing_property_id() = property_id++;
+        CHECK_TRUE(
+            testable.PublicMorozov_RenderEditedSsid(frame_buffer,
+                                                    INCOME_RAIL_WIDTH,
+                                                    INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP));
+    }
 }

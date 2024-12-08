@@ -122,13 +122,11 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
                            != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
     if (show_scales) {
-        res = RenderSsid(fb, top_left.x, top_left.y + 4);
+        res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
     } else {
-        if (ssid_size <= 6) {
-            res = draw_text_f8X14(fb, top_left.x, top_left.y + 4, ssid) > 0;
-        } else if (ssid_size <= 8) {
+        if (ssid_size <= 8) {
             res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, ssid) > 0;
-        } else if (ssid_size <= 10) {
+        } else {
             res = RenderSsidWithElipsis(fb, top_left.x, top_left.y + 6, 3);
         }
     }
@@ -156,17 +154,23 @@ bool WiFiBinding::RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int l
     return draw_text_f6X12(fb, x, y, &ssid[ssid_size - leverage]) > 0;
 }
 
-bool WiFiBinding::RenderSsid(uint8_t *fb, uint8_t x, uint8_t y) {
-    char blink_ssid[sizeof(ssid)];
+bool WiFiBinding::RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
+    char blink_ssid[displayed_ssid_max_size + 1];
+    int char_pos = editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
 
-    snprintf(blink_ssid, sizeof(blink_ssid), "%s", ssid);
+    if (char_pos < displayed_ssid_max_size) {
+        strncpy(blink_ssid, ssid, sizeof(blink_ssid));
+    } else {
+        strncpy(blink_ssid, &ssid[char_pos - (displayed_ssid_max_size - 1)], sizeof(blink_ssid));
+        char_pos = displayed_ssid_max_size - 1;
+    }
+    blink_ssid[sizeof(blink_ssid) - 1] = 0;
 
     if (Blinking_50()) {
-        blink_ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
-            ' ';
+        blink_ssid[char_pos] = ' ';
     }
 
-    return draw_text_f6X12(fb, x, y, blink_ssid) > 0;
+    return draw_text_f6X12(fb, x, y + 2, blink_ssid) > 0;
 }
 
 size_t WiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {

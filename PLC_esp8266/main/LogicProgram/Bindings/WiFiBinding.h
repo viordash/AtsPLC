@@ -11,6 +11,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
   protected:
     static const char place_new_char = 0x02;
     static const uint8_t max_ssid_size = 24;
+    static const uint8_t displayed_ssid_max_size = 8;
     char ssid[max_ssid_size + 1];
     uint8_t ssid_size;
     const static Bitmap bitmap;
@@ -20,7 +21,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     void SelectNextSymbol(char *symbol);
 
     bool RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage);
-    bool RenderSsid(uint8_t *fb, uint8_t x, uint8_t y);
+    bool RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y);
     bool IsLastSsidChar();
 
   public:
