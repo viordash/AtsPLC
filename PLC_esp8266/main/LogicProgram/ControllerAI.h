@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
-class ControllerDI : public ControllerBaseInput {
+class ControllerAI : public ControllerBaseInput {
   protected:
   public:
+    const int read_adc_max_period_ms = 1000;
     bool SampleValue() override;
 };

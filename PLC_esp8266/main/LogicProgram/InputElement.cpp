@@ -1,4 +1,5 @@
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/ControllerAI.h"
 #include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
@@ -21,10 +22,10 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
     delete Input;
     switch (io_adr) {
         case MapIO::DI:
-            Input = new ControllerDI();
+            Input = &Controller::DI;
             break;
         case MapIO::AI:
-            GetValue = Controller::GetAIRelativeValue;
+            Input = &Controller::AI;
             break;
         case MapIO::V1:
             GetValue = Controller::GetV1RelativeValue;

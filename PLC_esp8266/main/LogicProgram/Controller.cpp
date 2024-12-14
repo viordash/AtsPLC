@@ -45,6 +45,7 @@ std::recursive_mutex Controller::lock_io_values_mutex;
 ControllerIOValues Controller::cached_io_values = {};
 
 ControllerDI Controller::DI;
+ControllerAI Controller::AI;
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
@@ -243,24 +244,6 @@ bool Controller::SampleIOValues() {
     uint8_t percent04;
     ControllerIOValues io_values = Controller::cached_io_values;
 
-    const int read_adc_max_period_ms = 1000;
-    if (io_values.AI.required
-        && Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue,
-                                       read_adc_max_period_ms)) {
-
-        uint16_t val_10bit = get_analog_value();
-        percent04 = val_10bit / 4;
-        io_values.AI.value = percent04;
-        io_values.AI.required = false;
-    }
-
-    if (io_values.DI.required) {
-        val_1bit = get_digital_input_value();
-        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-        io_values.DI.value = percent04;
-        io_values.DI.required = false;
-    }
-
     if (io_values.O1.required) {
         val_1bit = get_digital_value(gpio_output::OUTPUT_0);
         percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
@@ -284,8 +267,7 @@ bool Controller::SampleIOValues() {
     io_values.V4 = Controller::var4;
     {
         std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-        bool has_changes = io_values.AI.value != Controller::cached_io_values.AI.value
-                        || io_values.DI.value != Controller::cached_io_values.DI.value
+        bool has_changes = Controller::DI.SampleValue() || Controller::AI.SampleValue()
                         || io_values.O1.value != Controller::cached_io_values.O1.value
                         || io_values.O2.value != Controller::cached_io_values.O2.value
                         || io_values.V1 != Controller::cached_io_values.V1
@@ -301,16 +283,6 @@ ControllerIOValues &Controller::GetIOValues() {
     std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
     return Controller::cached_io_values;
 }
-
-uint8_t Controller::GetAIRelativeValue() {
-    Controller::cached_io_values.AI.required = true;
-    return Controller::cached_io_values.AI.value;
-}
-
-// uint8_t Controller::GetDIRelativeValue() {
-//     Controller::cached_io_values.DI.required = true;
-//     return Controller::cached_io_values.DI.value;
-// }
 
 uint8_t Controller::GetO1RelativeValue() {
     Controller::cached_io_values.O1.required = true;
