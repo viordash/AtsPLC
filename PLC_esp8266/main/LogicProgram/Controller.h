@@ -14,6 +14,7 @@ extern "C" {
 
 #include "LogicProgram/ControllerAI.h"
 #include "LogicProgram/ControllerDI.h"
+#include "LogicProgram/ControllerDO.h"
 #include "LogicProgram/ControllerVariable.h"
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
@@ -61,16 +62,12 @@ class Controller {
 
     static ControllerDI DI;
     static ControllerAI AI;
+    static ControllerDO O1;
+    static ControllerDO O2;
     static ControllerVariable V1;
     static ControllerVariable V2;
     static ControllerVariable V3;
     static ControllerVariable V4;
-
-    static uint8_t GetO1RelativeValue();
-    static uint8_t GetO2RelativeValue();
-
-    static void SetO1RelativeValue(uint8_t value);
-    static void SetO2RelativeValue(uint8_t value);
 
     static bool RequestWakeupMs(void *id, uint32_t delay_ms);
     static void RemoveRequestWakeupMs(void *id);

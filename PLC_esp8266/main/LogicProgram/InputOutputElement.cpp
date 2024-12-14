@@ -7,6 +7,7 @@
 
 InputOutputElement::InputOutputElement() : InputElement() {
     SetValue = NULL;
+    Output = NULL;
 }
 
 InputOutputElement::~InputOutputElement() {
@@ -14,12 +15,13 @@ InputOutputElement::~InputOutputElement() {
 
 void InputOutputElement::SetIoAdr(const MapIO io_adr) {
     InputElement::SetIoAdr(io_adr);
+    delete Output;
     switch (io_adr) {
         case MapIO::O1:
-            SetValue = Controller::SetO1RelativeValue;
+            Output = &Controller::O1;
             break;
         case MapIO::O2:
-            SetValue = Controller::SetO2RelativeValue;
+            Output = &Controller::O2;
             break;
         case MapIO::V1:
             Output = &Controller::V1;

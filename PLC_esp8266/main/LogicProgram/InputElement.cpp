@@ -41,10 +41,10 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
             break;
 
         case MapIO::O1:
-            GetValue = Controller::GetO1RelativeValue;
+            Input = &Controller::O1;
             break;
         case MapIO::O2:
-            GetValue = Controller::GetO2RelativeValue;
+            Input = &Controller::O2;
             break;
 
         default:

@@ -6,7 +6,6 @@
 
 class ControllerBaseOutput {
   protected:
-    uint8_t out_value;
 
   public:
     virtual ~ControllerBaseOutput();

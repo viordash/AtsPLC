@@ -1,12 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "freertos/FreeRTOS.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/LogicElement.h"
 #include "sys_gpio.h"
