@@ -42,11 +42,7 @@ CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_p
         if (state == LogicItemState::lisActive) {
             res = draw_active_network(fb, start_point->x, start_point->y, label_max_width);
         } else {
-            res = draw_passive_network(fb,
-                                       start_point->x,
-                                       start_point->y,
-                                       label_max_width,
-                                       true);
+            res = draw_passive_network(fb, start_point->x, start_point->y, label_max_width, true);
         }
     }
 
@@ -82,6 +78,7 @@ size_t CommonOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
+    auto io_adr = GetIoAdr();
     if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }

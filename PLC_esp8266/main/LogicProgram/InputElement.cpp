@@ -13,12 +13,10 @@
 #include <string.h>
 
 InputElement::InputElement() {
-    GetValue = NULL;
     Input = NULL;
 }
 
 void InputElement::SetIoAdr(const MapIO io_adr) {
-    this->io_adr = io_adr;
     delete Input;
     switch (io_adr) {
         case MapIO::DI:
@@ -48,13 +46,37 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
             break;
 
         default:
-            GetValue = NULL;
+            Input = NULL;
             break;
     }
 }
 
 MapIO InputElement::GetIoAdr() {
-    return this->io_adr;
+    if (Input == &Controller::DI) {
+        return MapIO::DI;
+    }
+    if (Input == &Controller::AI) {
+        return MapIO::AI;
+    }
+    if (Input == &Controller::V1) {
+        return MapIO::V1;
+    }
+    if (Input == &Controller::V2) {
+        return MapIO::V2;
+    }
+    if (Input == &Controller::V3) {
+        return MapIO::V3;
+    }
+    if (Input == &Controller::V4) {
+        return MapIO::V4;
+    }
+    if (Input == &Controller::O1) {
+        return MapIO::O1;
+    }
+    if (Input == &Controller::O2) {
+        return MapIO::O2;
+    }
+    return MapIO::DI;
 }
 
 InputElement *InputElement::TryToCast(LogicElement *logic_element) {

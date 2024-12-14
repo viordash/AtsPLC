@@ -6,7 +6,6 @@
 #include <string.h>
 
 InputOutputElement::InputOutputElement() : InputElement() {
-    SetValue = NULL;
     Output = NULL;
 }
 
@@ -37,7 +36,7 @@ void InputOutputElement::SetIoAdr(const MapIO io_adr) {
             break;
 
         default:
-            SetValue = NULL;
+            Output = NULL;
             break;
     }
 }

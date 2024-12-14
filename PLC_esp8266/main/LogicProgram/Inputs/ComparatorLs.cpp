@@ -25,7 +25,7 @@ const Bitmap *ComparatorLs::GetCurrentBitmap(LogicItemState state) {
 }
 
 bool ComparatorLs::CompareFunction() {
-    return GetValue() < ref_percent04;
+    return Input->GetValue() < ref_percent04;
 }
 
 TvElementType ComparatorLs::GetElementType() {

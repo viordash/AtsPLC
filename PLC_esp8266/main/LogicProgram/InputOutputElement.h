@@ -9,11 +9,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
-typedef void (*f_SetValue)(uint8_t);
 class InputOutputElement : public InputElement {
   protected:
-    f_SetValue SetValue = NULL;
-
   public:
     explicit InputOutputElement();
     virtual ~InputOutputElement();

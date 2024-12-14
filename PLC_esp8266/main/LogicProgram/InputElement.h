@@ -8,13 +8,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
-typedef uint8_t (*f_GetValue)(void);
-
 class InputElement {
   protected:
-    MapIO io_adr;
-    f_GetValue GetValue;
-
   public:
     InputElement();
     virtual void SetIoAdr(const MapIO io_adr);
