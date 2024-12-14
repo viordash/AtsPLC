@@ -44,6 +44,8 @@ ProcessWakeupService *Controller::processWakeupService = NULL;
 std::recursive_mutex Controller::lock_io_values_mutex;
 ControllerIOValues Controller::cached_io_values = {};
 
+ControllerDI Controller::DI;
+
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
 
@@ -305,10 +307,10 @@ uint8_t Controller::GetAIRelativeValue() {
     return Controller::cached_io_values.AI.value;
 }
 
-uint8_t Controller::GetDIRelativeValue() {
-    Controller::cached_io_values.DI.required = true;
-    return Controller::cached_io_values.DI.value;
-}
+// uint8_t Controller::GetDIRelativeValue() {
+//     Controller::cached_io_values.DI.required = true;
+//     return Controller::cached_io_values.DI.value;
+// }
 
 uint8_t Controller::GetO1RelativeValue() {
     Controller::cached_io_values.O1.required = true;

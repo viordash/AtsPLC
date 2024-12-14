@@ -12,6 +12,7 @@ extern "C" {
 }
 #endif
 
+#include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
@@ -60,8 +61,10 @@ class Controller {
     static void ProcessTask(void *parm);
     static void RenderTask(void *parm);
 
+    static ControllerDI DI;
+
     static uint8_t GetAIRelativeValue();
-    static uint8_t GetDIRelativeValue();
+    // static uint8_t GetDIRelativeValue();
     static uint8_t GetO1RelativeValue();
     static uint8_t GetO2RelativeValue();
     static uint8_t GetV1RelativeValue();
