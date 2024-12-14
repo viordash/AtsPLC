@@ -48,14 +48,10 @@ class Controller {
     static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
 
-    static std::recursive_mutex lock_io_values_mutex;
-    static ControllerIOValues cached_io_values;
-
   public:
     static void Start(EventGroupHandle_t gpio_events);
     static void Stop();
     static bool SampleIOValues();
-    static ControllerIOValues &GetIOValues();
 
     static void ProcessTask(void *parm);
     static void RenderTask(void *parm);

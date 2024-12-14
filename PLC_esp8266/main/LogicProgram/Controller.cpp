@@ -36,9 +36,6 @@ TaskHandle_t Controller::process_task_handle = NULL;
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 
-std::recursive_mutex Controller::lock_io_values_mutex;
-ControllerIOValues Controller::cached_io_values = {};
-
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
 ControllerDO Controller::O1(gpio_output::OUTPUT_0);
@@ -78,7 +75,6 @@ void Controller::Stop() {
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
-    Controller::cached_io_values = {};
     delete ladder;
     delete processWakeupService;
 }
@@ -251,11 +247,6 @@ bool Controller::SampleIOValues() {
     has_changes |= Controller::V3.SampleValue();
     has_changes |= Controller::V4.SampleValue();
     return has_changes;
-}
-
-ControllerIOValues &Controller::GetIOValues() {
-    std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-    return Controller::cached_io_values;
 }
 
 bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
