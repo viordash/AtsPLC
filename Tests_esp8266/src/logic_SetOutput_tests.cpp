@@ -40,12 +40,6 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
-        }
-        f_SetValue PublicMorozov_SetValue() {
-            return SetValue;
-        }
     };
 } // namespace
 
@@ -79,19 +73,19 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
     TestableSetOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::SetV1RelativeValue(LogicElement::MinValue);
+    Controller::V1.SetValue(LogicElement::MinValue);
     CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::SetV1RelativeValue(LogicElement::MinValue);
+    Controller::V1.SetValue(LogicElement::MinValue);
 
     TestableSetOutput testable;
     testable.SetIoAdr(MapIO::V1);
@@ -99,7 +93,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
     CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicSetOutputTestsGroup, GetElementType_returns_et_SetOutput) {
@@ -130,8 +124,8 @@ TEST(LogicSetOutputTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
     CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
-    CHECK(Controller::SetO2RelativeValue == testable.PublicMorozov_SetValue());
-    CHECK(Controller::GetO2RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::O2 == testable.Output);
+    CHECK(&Controller::O2 == testable.Input);
 }
 
 TEST(LogicSetOutputTestsGroup, GetElementType) {

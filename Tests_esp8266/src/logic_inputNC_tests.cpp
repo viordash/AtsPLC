@@ -46,9 +46,6 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
-        }
     };
 } // namespace
 
@@ -65,8 +62,8 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
     TestableInputNC testable;
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    Controller::GetIOValues().DI.value = LogicElement::MaxValue;
-    Controller::GetIOValues().DI.required = true;
+    // Controller::GetIOValues().DI.value = LogicElement::MaxValue;
+    // Controller::GetIOValues().DI.required = true;
 
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
@@ -84,8 +81,8 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
 
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(1);
-    Controller::GetIOValues().DI.value = LogicElement::MaxValue;
-    Controller::GetIOValues().DI.required = true;
+    // Controller::GetIOValues().DI.value = LogicElement::MaxValue;
+    // Controller::GetIOValues().DI.required = true;
 
     TestableInputNC testable;
     testable.SetIoAdr(MapIO::DI);
@@ -97,8 +94,8 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
 
 TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
-    Controller::GetIOValues().DI.value = LogicElement::MinValue;
-    Controller::GetIOValues().DI.required = true;
+    // Controller::GetIOValues().DI.value = LogicElement::MinValue;
+    // Controller::GetIOValues().DI.required = true;
 
     TestableInputNC testable;
     testable.SetIoAdr(MapIO::DI);
@@ -152,7 +149,7 @@ TEST(LogicInputNCTestsGroup, Deserialize) {
     CHECK_EQUAL(1, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
-    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::V3 == testable.Input);
 }
 
 TEST(LogicInputNCTestsGroup, Deserialize_with_small_buffer_return_zero) {

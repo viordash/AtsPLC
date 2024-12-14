@@ -301,8 +301,8 @@ TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    Controller::GetIOValues().AI.required = true;
+    // Controller::GetIOValues().AI.value = LogicElement::MinValue;
+    // Controller::GetIOValues().AI.required = true;
     CHECK_TRUE(Controller::SampleIOValues());
 
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);

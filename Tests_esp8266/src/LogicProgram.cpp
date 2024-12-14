@@ -9,6 +9,12 @@
 #include "main/redundant_storage.cpp"
 #include "main/storage.cpp"
 
+#include "LogicProgram/ControllerAI.cpp"
+#include "LogicProgram/ControllerBaseInput.cpp"
+#include "LogicProgram/ControllerBaseOutput.cpp"
+#include "LogicProgram/ControllerDI.cpp"
+#include "LogicProgram/ControllerDO.cpp"
+#include "LogicProgram/ControllerVariable.cpp"
 #include "main/Display/EditableElement.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"

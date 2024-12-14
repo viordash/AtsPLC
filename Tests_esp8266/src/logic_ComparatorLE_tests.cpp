@@ -45,9 +45,6 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
-        }
         const char *PublicMorozov_Get_str_reference() {
             return str_reference;
         }
@@ -90,8 +87,8 @@ TEST(LogicComparatorLETestsGroup, DoAction_change_state_to_active) {
     mock()
         .expectNCalls(3, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    Controller::GetIOValues().AI.required = true;
+    // Controller::GetIOValues().AI.value = LogicElement::MinValue;
+    // Controller::GetIOValues().AI.required = true;
 
     TestableComparatorLE testable;
     testable.SetReference(50 / 0.4);
@@ -101,13 +98,13 @@ TEST(LogicComparatorLETestsGroup, DoAction_change_state_to_active) {
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     adc = 50 / 0.1;
-    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 49 / 0.1;
-    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
@@ -119,8 +116,8 @@ TEST(LogicComparatorLETestsGroup, DoAction_change_state_to_passive) {
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    Controller::GetIOValues().AI.required = true;
+    // Controller::GetIOValues().AI.value = LogicElement::MinValue;
+    // Controller::GetIOValues().AI.required = true;
 
     TestableComparatorLE testable;
     testable.SetReference(50 / 0.4);
@@ -130,7 +127,7 @@ TEST(LogicComparatorLETestsGroup, DoAction_change_state_to_passive) {
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 51 / 0.1;
-    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -166,7 +163,7 @@ TEST(LogicComparatorLETestsGroup, Deserialize) {
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
-    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::V3 == testable.Input);
     STRCMP_EQUAL("42", testable.PublicMorozov_Get_str_reference());
 }
 
