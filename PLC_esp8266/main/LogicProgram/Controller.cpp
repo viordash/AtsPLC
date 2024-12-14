@@ -33,11 +33,6 @@ bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-uint8_t Controller::var1 = LogicElement::MinValue;
-uint8_t Controller::var2 = LogicElement::MinValue;
-uint8_t Controller::var3 = LogicElement::MinValue;
-uint8_t Controller::var4 = LogicElement::MinValue;
-
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 
@@ -46,6 +41,10 @@ ControllerIOValues Controller::cached_io_values = {};
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
+ControllerVariable Controller::V1;
+ControllerVariable Controller::V2;
+ControllerVariable Controller::V3;
+ControllerVariable Controller::V4;
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
@@ -258,22 +257,13 @@ bool Controller::SampleIOValues() {
         io_values.O2.required = false;
     }
 
-    io_values.V1 = Controller::var1;
-
-    io_values.V2 = Controller::var2;
-
-    io_values.V3 = Controller::var3;
-
-    io_values.V4 = Controller::var4;
     {
         std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
         bool has_changes = Controller::DI.SampleValue() || Controller::AI.SampleValue()
                         || io_values.O1.value != Controller::cached_io_values.O1.value
                         || io_values.O2.value != Controller::cached_io_values.O2.value
-                        || io_values.V1 != Controller::cached_io_values.V1
-                        || io_values.V2 != Controller::cached_io_values.V2
-                        || io_values.V3 != Controller::cached_io_values.V3
-                        || io_values.V4 != Controller::cached_io_values.V4;
+                        || Controller::V1.SampleValue() || Controller::V2.SampleValue()
+                        || Controller::V3.SampleValue() || Controller::V4.SampleValue();
         Controller::cached_io_values = io_values;
         return has_changes;
     }
@@ -292,36 +282,12 @@ uint8_t Controller::GetO2RelativeValue() {
     Controller::cached_io_values.O2.required = true;
     return Controller::cached_io_values.O2.value;
 }
-uint8_t Controller::GetV1RelativeValue() {
-    return Controller::cached_io_values.V1;
-}
-uint8_t Controller::GetV2RelativeValue() {
-    return Controller::cached_io_values.V2;
-}
-uint8_t Controller::GetV3RelativeValue() {
-    return Controller::cached_io_values.V3;
-}
-uint8_t Controller::GetV4RelativeValue() {
-    return Controller::cached_io_values.V4;
-}
 
 void Controller::SetO1RelativeValue(uint8_t value) {
     set_digital_value(gpio_output::OUTPUT_0, value != LogicElement::MinValue);
 }
 void Controller::SetO2RelativeValue(uint8_t value) {
     set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
-}
-void Controller::SetV1RelativeValue(uint8_t value) {
-    Controller::var1 = value;
-}
-void Controller::SetV2RelativeValue(uint8_t value) {
-    Controller::var2 = value;
-}
-void Controller::SetV3RelativeValue(uint8_t value) {
-    Controller::var3 = value;
-}
-void Controller::SetV4RelativeValue(uint8_t value) {
-    Controller::var4 = value;
 }
 
 bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {

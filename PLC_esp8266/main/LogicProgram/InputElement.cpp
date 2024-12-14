@@ -28,16 +28,16 @@ void InputElement::SetIoAdr(const MapIO io_adr) {
             Input = &Controller::AI;
             break;
         case MapIO::V1:
-            GetValue = Controller::GetV1RelativeValue;
+            Input = &Controller::V1;
             break;
         case MapIO::V2:
-            GetValue = Controller::GetV2RelativeValue;
+            Input = &Controller::V2;
             break;
         case MapIO::V3:
-            GetValue = Controller::GetV3RelativeValue;
+            Input = &Controller::V3;
             break;
         case MapIO::V4:
-            GetValue = Controller::GetV4RelativeValue;
+            Input = &Controller::V4;
             break;
 
         case MapIO::O1:
