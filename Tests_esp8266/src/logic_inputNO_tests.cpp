@@ -86,9 +86,12 @@ TEST(LogicInputNOTestsGroup, DoAction_skip_when_incoming_passive) {
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     mock("0").expectNCalls(2, "gpio_get_level").andReturnValue(0);
-    // Controller::GetIOValues().DI.value = LogicElement::MinValue;
-    // Controller::GetIOValues().DI.required = true;
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
@@ -109,9 +112,12 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
-    // Controller::GetIOValues().DI.value = LogicElement::MinValue;
-    // Controller::GetIOValues().DI.required = true;
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
@@ -122,9 +128,12 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
 }
 
 TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(1);
-    // Controller::GetIOValues().DI.value = LogicElement::MaxValue;
-    // Controller::GetIOValues().DI.required = true;
 
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);

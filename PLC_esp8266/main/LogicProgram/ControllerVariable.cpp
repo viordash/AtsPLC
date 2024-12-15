@@ -15,5 +15,6 @@ bool ControllerVariable::SampleValue() {
 }
 
 void ControllerVariable::SetValue(uint8_t new_value) {
+    required = true;
     out_value = new_value;
 }

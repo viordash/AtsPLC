@@ -11,12 +11,13 @@ class ControllerBaseInput {
 
   protected:
     bool required;
-    bool UpdateValue(uint8_t new_value);
 
   public:
     virtual ~ControllerBaseInput();
 
+    void Init();
     virtual bool SampleValue() = 0;
     uint8_t GetValue();
     uint8_t PeekValue();
+    bool UpdateValue(uint8_t new_value);
 };

@@ -17,9 +17,11 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicIndicatorTestsGroup){ //
                                       TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 mock().disable();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }

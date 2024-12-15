@@ -71,12 +71,18 @@ TEST(LogicDirectOutputTestsGroup,
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
     Controller::V1.SetValue(LogicElement::MinValue);
+    Controller::SampleIOValues();
 
-    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());
@@ -84,13 +90,19 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     Controller::V1.SetValue(LogicElement::MaxValue);
+    Controller::SampleIOValues();
 
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());

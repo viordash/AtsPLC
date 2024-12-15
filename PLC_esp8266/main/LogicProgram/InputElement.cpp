@@ -16,8 +16,10 @@ InputElement::InputElement() {
     Input = NULL;
 }
 
+InputElement::~InputElement() {
+}
+
 void InputElement::SetIoAdr(const MapIO io_adr) {
-    delete Input;
     switch (io_adr) {
         case MapIO::DI:
             Input = &Controller::DI;

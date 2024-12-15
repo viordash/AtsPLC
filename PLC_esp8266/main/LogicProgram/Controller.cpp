@@ -39,7 +39,7 @@ ProcessWakeupService *Controller::processWakeupService = NULL;
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
 ControllerDO Controller::O1(gpio_output::OUTPUT_0);
-ControllerDO Controller::O2(gpio_output::OUTPUT_0);
+ControllerDO Controller::O2(gpio_output::OUTPUT_1);
 ControllerVariable Controller::V1;
 ControllerVariable Controller::V2;
 ControllerVariable Controller::V3;
@@ -47,6 +47,15 @@ ControllerVariable Controller::V4;
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
+
+    Controller::DI.Init();
+    Controller::AI.Init();
+    Controller::O1.Init();
+    Controller::O2.Init();
+    Controller::V1.Init();
+    Controller::V2.Init();
+    Controller::V3.Init();
+    Controller::V4.Init();
 
     ESP_LOGI(TAG_Controller, "start");
 

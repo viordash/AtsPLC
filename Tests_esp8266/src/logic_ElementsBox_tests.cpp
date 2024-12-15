@@ -295,14 +295,17 @@ TEST(LogicElementsBoxTestsGroup, use_GetElementType_from_selected) {
 
 TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
     mock().enable();
-    volatile uint16_t adc = 42 / 0.1;
-    mock().expectNCalls(1, "vTaskDelay").ignoreOtherParameters();
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(1, "vTaskDelay").ignoreOtherParameters();
+
+    volatile uint16_t adc = 42 / 0.1;
     mock()
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    // Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    // Controller::GetIOValues().AI.required = true;
+
     CHECK_TRUE(Controller::SampleIOValues());
 
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);

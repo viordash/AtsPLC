@@ -20,5 +20,6 @@ bool ControllerDO::SampleValue() {
 }
 
 void ControllerDO::SetValue(uint8_t new_value) {
+    required = true;
     set_digital_value(gpio, new_value != LogicElement::MinValue);
 }

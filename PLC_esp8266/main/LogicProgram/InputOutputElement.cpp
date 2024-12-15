@@ -14,7 +14,6 @@ InputOutputElement::~InputOutputElement() {
 
 void InputOutputElement::SetIoAdr(const MapIO io_adr) {
     InputElement::SetIoAdr(io_adr);
-    delete Output;
     switch (io_adr) {
         case MapIO::O1:
             Output = &Controller::O1;
