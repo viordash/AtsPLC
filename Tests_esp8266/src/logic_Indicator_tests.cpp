@@ -17,9 +17,11 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicIndicatorTestsGroup){ //
                                       TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 mock().disable();
+Controller::Start(NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }
@@ -34,9 +36,6 @@ namespace {
         }
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
-        }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
         }
         void PublicMorozov_UpdateScale() {
             UpdateScale();
@@ -220,7 +219,7 @@ TEST(LogicIndicatorTestsGroup, Deserialize) {
     testable.PublicMorozov_PrintOutValue(255);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
-    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::V3 == testable.Input);
     DOUBLES_EQUAL(0.01, testable.GetLowScale(), 0.0001);
     DOUBLES_EQUAL(1234.5, testable.GetHighScale(), 0.0001);
     CHECK_EQUAL(3, testable.GetDecimalPoint());

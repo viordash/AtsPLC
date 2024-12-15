@@ -79,3 +79,6 @@ IMPORT_TEST_GROUP(LogicElementsBoxTestsGroup);
 IMPORT_TEST_GROUP(LogicCommonOutputTestsGroup);
 IMPORT_TEST_GROUP(ProcessWakeupServiceTestsGroup);
 IMPORT_TEST_GROUP(LogicIndicatorTestsGroup);
+IMPORT_TEST_GROUP(LogicControllerVariableTestsGroup);
+IMPORT_TEST_GROUP(LogicControllerDOTestsGroup);
+IMPORT_TEST_GROUP(LogicControllerDITestsGroup);

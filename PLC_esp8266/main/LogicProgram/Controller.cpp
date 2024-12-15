@@ -33,19 +33,29 @@ bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-uint8_t Controller::var1 = LogicElement::MinValue;
-uint8_t Controller::var2 = LogicElement::MinValue;
-uint8_t Controller::var3 = LogicElement::MinValue;
-uint8_t Controller::var4 = LogicElement::MinValue;
-
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 
-std::recursive_mutex Controller::lock_io_values_mutex;
-ControllerIOValues Controller::cached_io_values = {};
+ControllerDI Controller::DI;
+ControllerAI Controller::AI;
+ControllerDO Controller::O1(gpio_output::OUTPUT_0);
+ControllerDO Controller::O2(gpio_output::OUTPUT_1);
+ControllerVariable Controller::V1;
+ControllerVariable Controller::V2;
+ControllerVariable Controller::V3;
+ControllerVariable Controller::V4;
 
 void Controller::Start(EventGroupHandle_t gpio_events) {
     Controller::gpio_events = gpio_events;
+
+    Controller::DI.Init();
+    Controller::AI.Init();
+    Controller::O1.Init();
+    Controller::O2.Init();
+    Controller::V1.Init();
+    Controller::V2.Init();
+    Controller::V3.Init();
+    Controller::V4.Init();
 
     ESP_LOGI(TAG_Controller, "start");
 
@@ -74,7 +84,6 @@ void Controller::Stop() {
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
-    Controller::cached_io_values = {};
     delete ladder;
     delete processWakeupService;
 }
@@ -237,117 +246,16 @@ void Controller::RenderTask(void *parm) {
 }
 
 bool Controller::SampleIOValues() {
-    bool val_1bit;
-    uint8_t percent04;
-    ControllerIOValues io_values = Controller::cached_io_values;
-
-    const int read_adc_max_period_ms = 1000;
-    if (io_values.AI.required
-        && Controller::RequestWakeupMs((void *)Controller::GetAIRelativeValue,
-                                       read_adc_max_period_ms)) {
-
-        uint16_t val_10bit = get_analog_value();
-        percent04 = val_10bit / 4;
-        io_values.AI.value = percent04;
-        io_values.AI.required = false;
-    }
-
-    if (io_values.DI.required) {
-        val_1bit = get_digital_input_value();
-        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-        io_values.DI.value = percent04;
-        io_values.DI.required = false;
-    }
-
-    if (io_values.O1.required) {
-        val_1bit = get_digital_value(gpio_output::OUTPUT_0);
-        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-        io_values.O1.value = percent04;
-        io_values.O1.required = false;
-    }
-
-    if (io_values.O2.required) {
-        val_1bit = get_digital_value(gpio_output::OUTPUT_1);
-        percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-        io_values.O2.value = percent04;
-        io_values.O2.required = false;
-    }
-
-    io_values.V1 = Controller::var1;
-
-    io_values.V2 = Controller::var2;
-
-    io_values.V3 = Controller::var3;
-
-    io_values.V4 = Controller::var4;
-    {
-        std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-        bool has_changes = io_values.AI.value != Controller::cached_io_values.AI.value
-                        || io_values.DI.value != Controller::cached_io_values.DI.value
-                        || io_values.O1.value != Controller::cached_io_values.O1.value
-                        || io_values.O2.value != Controller::cached_io_values.O2.value
-                        || io_values.V1 != Controller::cached_io_values.V1
-                        || io_values.V2 != Controller::cached_io_values.V2
-                        || io_values.V3 != Controller::cached_io_values.V3
-                        || io_values.V4 != Controller::cached_io_values.V4;
-        Controller::cached_io_values = io_values;
-        return has_changes;
-    }
-}
-
-ControllerIOValues &Controller::GetIOValues() {
-    std::lock_guard<std::recursive_mutex> lock(Controller::lock_io_values_mutex);
-    return Controller::cached_io_values;
-}
-
-uint8_t Controller::GetAIRelativeValue() {
-    Controller::cached_io_values.AI.required = true;
-    return Controller::cached_io_values.AI.value;
-}
-
-uint8_t Controller::GetDIRelativeValue() {
-    Controller::cached_io_values.DI.required = true;
-    return Controller::cached_io_values.DI.value;
-}
-
-uint8_t Controller::GetO1RelativeValue() {
-    Controller::cached_io_values.O1.required = true;
-    return Controller::cached_io_values.O1.value;
-}
-uint8_t Controller::GetO2RelativeValue() {
-    Controller::cached_io_values.O2.required = true;
-    return Controller::cached_io_values.O2.value;
-}
-uint8_t Controller::GetV1RelativeValue() {
-    return Controller::cached_io_values.V1;
-}
-uint8_t Controller::GetV2RelativeValue() {
-    return Controller::cached_io_values.V2;
-}
-uint8_t Controller::GetV3RelativeValue() {
-    return Controller::cached_io_values.V3;
-}
-uint8_t Controller::GetV4RelativeValue() {
-    return Controller::cached_io_values.V4;
-}
-
-void Controller::SetO1RelativeValue(uint8_t value) {
-    set_digital_value(gpio_output::OUTPUT_0, value != LogicElement::MinValue);
-}
-void Controller::SetO2RelativeValue(uint8_t value) {
-    set_digital_value(gpio_output::OUTPUT_1, value != LogicElement::MinValue);
-}
-void Controller::SetV1RelativeValue(uint8_t value) {
-    Controller::var1 = value;
-}
-void Controller::SetV2RelativeValue(uint8_t value) {
-    Controller::var2 = value;
-}
-void Controller::SetV3RelativeValue(uint8_t value) {
-    Controller::var3 = value;
-}
-void Controller::SetV4RelativeValue(uint8_t value) {
-    Controller::var4 = value;
+    bool has_changes = false;
+    has_changes |= Controller::DI.SampleValue();
+    has_changes |= Controller::AI.SampleValue();
+    has_changes |= Controller::O1.SampleValue();
+    has_changes |= Controller::O2.SampleValue();
+    has_changes |= Controller::V1.SampleValue();
+    has_changes |= Controller::V2.SampleValue();
+    has_changes |= Controller::V3.SampleValue();
+    has_changes |= Controller::V4.SampleValue();
+    return has_changes;
 }
 
 bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {

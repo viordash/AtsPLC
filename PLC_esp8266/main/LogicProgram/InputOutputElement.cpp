@@ -6,7 +6,7 @@
 #include <string.h>
 
 InputOutputElement::InputOutputElement() : InputElement() {
-    SetValue = NULL;
+    Output = NULL;
 }
 
 InputOutputElement::~InputOutputElement() {
@@ -16,26 +16,26 @@ void InputOutputElement::SetIoAdr(const MapIO io_adr) {
     InputElement::SetIoAdr(io_adr);
     switch (io_adr) {
         case MapIO::O1:
-            SetValue = Controller::SetO1RelativeValue;
+            Output = &Controller::O1;
             break;
         case MapIO::O2:
-            SetValue = Controller::SetO2RelativeValue;
+            Output = &Controller::O2;
             break;
         case MapIO::V1:
-            SetValue = Controller::SetV1RelativeValue;
+            Output = &Controller::V1;
             break;
         case MapIO::V2:
-            SetValue = Controller::SetV2RelativeValue;
+            Output = &Controller::V2;
             break;
         case MapIO::V3:
-            SetValue = Controller::SetV3RelativeValue;
+            Output = &Controller::V3;
             break;
         case MapIO::V4:
-            SetValue = Controller::SetV4RelativeValue;
+            Output = &Controller::V4;
             break;
 
         default:
-            SetValue = NULL;
+            Output = NULL;
             break;
     }
 }

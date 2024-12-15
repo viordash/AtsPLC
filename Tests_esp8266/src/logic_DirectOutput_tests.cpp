@@ -40,12 +40,6 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
-        }
-        f_SetValue PublicMorozov_SetValue() {
-            return SetValue;
-        }
     };
 } // namespace
 
@@ -77,30 +71,42 @@ TEST(LogicDirectOutputTestsGroup,
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::SetV1RelativeValue(LogicElement::MinValue);
+    Controller::V1.SetValue(LogicElement::MinValue);
+    Controller::SampleIOValues();
 
-    CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::SetV1RelativeValue(LogicElement::MaxValue);
+    mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
+    Controller::V1.SetValue(LogicElement::MaxValue);
+    Controller::SampleIOValues();
 
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MinValue, Controller::GetV1RelativeValue());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, GetElementType_returns_et_DirectOutput) {
@@ -130,8 +136,8 @@ TEST(LogicDirectOutputTestsGroup, Deserialize) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
     CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
-    CHECK(Controller::SetO2RelativeValue == testable.PublicMorozov_SetValue());
-    CHECK(Controller::GetO2RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::O2 == testable.Output);
+    CHECK(&Controller::O2 == testable.Input);
 }
 
 TEST(LogicDirectOutputTestsGroup, GetElementType) {

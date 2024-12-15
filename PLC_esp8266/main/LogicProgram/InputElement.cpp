@@ -1,4 +1,6 @@
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/ControllerAI.h"
+#include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
@@ -11,46 +13,72 @@
 #include <string.h>
 
 InputElement::InputElement() {
-    GetValue = NULL;
+    Input = NULL;
+}
+
+InputElement::~InputElement() {
 }
 
 void InputElement::SetIoAdr(const MapIO io_adr) {
-    this->io_adr = io_adr;
     switch (io_adr) {
         case MapIO::DI:
-            GetValue = Controller::GetDIRelativeValue;
+            Input = &Controller::DI;
             break;
         case MapIO::AI:
-            GetValue = Controller::GetAIRelativeValue;
+            Input = &Controller::AI;
             break;
         case MapIO::V1:
-            GetValue = Controller::GetV1RelativeValue;
+            Input = &Controller::V1;
             break;
         case MapIO::V2:
-            GetValue = Controller::GetV2RelativeValue;
+            Input = &Controller::V2;
             break;
         case MapIO::V3:
-            GetValue = Controller::GetV3RelativeValue;
+            Input = &Controller::V3;
             break;
         case MapIO::V4:
-            GetValue = Controller::GetV4RelativeValue;
+            Input = &Controller::V4;
             break;
 
         case MapIO::O1:
-            GetValue = Controller::GetO1RelativeValue;
+            Input = &Controller::O1;
             break;
         case MapIO::O2:
-            GetValue = Controller::GetO2RelativeValue;
+            Input = &Controller::O2;
             break;
 
         default:
-            GetValue = NULL;
+            Input = NULL;
             break;
     }
 }
 
 MapIO InputElement::GetIoAdr() {
-    return this->io_adr;
+    if (Input == &Controller::DI) {
+        return MapIO::DI;
+    }
+    if (Input == &Controller::AI) {
+        return MapIO::AI;
+    }
+    if (Input == &Controller::V1) {
+        return MapIO::V1;
+    }
+    if (Input == &Controller::V2) {
+        return MapIO::V2;
+    }
+    if (Input == &Controller::V3) {
+        return MapIO::V3;
+    }
+    if (Input == &Controller::V4) {
+        return MapIO::V4;
+    }
+    if (Input == &Controller::O1) {
+        return MapIO::O1;
+    }
+    if (Input == &Controller::O2) {
+        return MapIO::O2;
+    }
+    return MapIO::DI;
 }
 
 InputElement *InputElement::TryToCast(LogicElement *logic_element) {

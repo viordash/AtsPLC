@@ -36,7 +36,7 @@ bool SetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            SetValue(LogicElement::MaxValue);
+            Output->SetValue(LogicElement::MaxValue);
         }
         any_changes = true;
         ESP_LOGD(TAG_SetOutput, ".");

@@ -12,6 +12,10 @@ extern "C" {
 }
 #endif
 
+#include "LogicProgram/ControllerAI.h"
+#include "LogicProgram/ControllerDI.h"
+#include "LogicProgram/ControllerDO.h"
+#include "LogicProgram/ControllerVariable.h"
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
@@ -41,40 +45,25 @@ class Controller {
     static bool runned;
     static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
-    static uint8_t var1;
-    static uint8_t var2;
-    static uint8_t var3;
-    static uint8_t var4;
     static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
-
-    static std::recursive_mutex lock_io_values_mutex;
-    static ControllerIOValues cached_io_values;
 
   public:
     static void Start(EventGroupHandle_t gpio_events);
     static void Stop();
     static bool SampleIOValues();
-    static ControllerIOValues &GetIOValues();
 
     static void ProcessTask(void *parm);
     static void RenderTask(void *parm);
 
-    static uint8_t GetAIRelativeValue();
-    static uint8_t GetDIRelativeValue();
-    static uint8_t GetO1RelativeValue();
-    static uint8_t GetO2RelativeValue();
-    static uint8_t GetV1RelativeValue();
-    static uint8_t GetV2RelativeValue();
-    static uint8_t GetV3RelativeValue();
-    static uint8_t GetV4RelativeValue();
-
-    static void SetO1RelativeValue(uint8_t value);
-    static void SetO2RelativeValue(uint8_t value);
-    static void SetV1RelativeValue(uint8_t value);
-    static void SetV2RelativeValue(uint8_t value);
-    static void SetV3RelativeValue(uint8_t value);
-    static void SetV4RelativeValue(uint8_t value);
+    static ControllerDI DI;
+    static ControllerAI AI;
+    static ControllerDO O1;
+    static ControllerDO O2;
+    static ControllerVariable V1;
+    static ControllerVariable V2;
+    static ControllerVariable V3;
+    static ControllerVariable V4;
 
     static bool RequestWakeupMs(void *id, uint32_t delay_ms);
     static void RemoveRequestWakeupMs(void *id);

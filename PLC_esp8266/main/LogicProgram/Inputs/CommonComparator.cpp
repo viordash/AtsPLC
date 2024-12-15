@@ -108,6 +108,7 @@ size_t CommonComparator::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&ref_percent04, sizeof(ref_percent04), buffer, buffer_size, &writed)) {
         return 0;
     }
+    auto io_adr = GetIoAdr();
     if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }
