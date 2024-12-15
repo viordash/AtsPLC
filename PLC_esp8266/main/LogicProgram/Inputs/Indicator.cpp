@@ -94,7 +94,7 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
             switch (editing_property_id) {
                 case Indicator::EditingPropertyId::ciepi_None:
-                    PrintOutValue(GetValue());
+                    PrintOutValue(Input->GetValue());
                     break;
                 default:
                     break;
@@ -268,6 +268,7 @@ size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
+    auto io_adr = GetIoAdr();
     if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }

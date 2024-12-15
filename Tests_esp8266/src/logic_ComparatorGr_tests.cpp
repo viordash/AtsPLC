@@ -45,9 +45,6 @@ namespace {
         TvElementType PublicMorozov_GetElementType() {
             return GetElementType();
         }
-        f_GetValue PublicMorozov_GetValue() {
-            return GetValue;
-        }
         const char *PublicMorozov_Get_str_reference() {
             return str_reference;
         }
@@ -86,12 +83,13 @@ TEST(LogicComparatorGrTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
     volatile uint16_t adc = 51 / 0.1;
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    Controller::GetIOValues().AI.required = true;
 
     TestableComparatorGr testable;
     testable.SetReference(51 / 0.4);
@@ -101,7 +99,7 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     adc = 52 / 0.1;
-    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
@@ -109,12 +107,13 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_active) {
 
 TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
     volatile uint16_t adc = 49 / 0.1;
+    mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
+    mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
     mock()
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
-    Controller::GetIOValues().AI.value = LogicElement::MinValue;
-    Controller::GetIOValues().AI.required = true;
 
     TestableComparatorGr testable;
     testable.SetReference(48 / 0.4);
@@ -124,7 +123,7 @@ TEST(LogicComparatorGrTestsGroup, DoAction_change_state_to_passive) {
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 47 / 0.1;
-    Controller::RemoveRequestWakeupMs((void *)Controller::GetAIRelativeValue);
+    Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
@@ -160,7 +159,7 @@ TEST(LogicComparatorGrTestsGroup, Deserialize) {
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(2, readed);
-    CHECK(Controller::GetV3RelativeValue == testable.PublicMorozov_GetValue());
+    CHECK(&Controller::V3 == testable.Input);
     STRCMP_EQUAL("42", testable.PublicMorozov_Get_str_reference());
 }
 

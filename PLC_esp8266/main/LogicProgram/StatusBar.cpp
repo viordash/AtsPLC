@@ -37,31 +37,29 @@ IRAM_ATTR bool StatusBar::Render(uint8_t *fb) {
     uint8_t separator_width = 1;
     Point point = { 2, y };
 
-    ControllerIOValues io_values = Controller::GetIOValues();
-
-    res &= indicator_AI->Render(fb, &point, io_values.AI.value);
+    res &= indicator_AI->Render(fb, &point, Controller::AI.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_DI->Render(fb, &point, io_values.DI.value);
+    res &= indicator_DI->Render(fb, &point, Controller::DI.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_O1->Render(fb, &point, io_values.O1.value);
+    res &= indicator_O1->Render(fb, &point, Controller::O1.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_O2->Render(fb, &point, io_values.O2.value);
+    res &= indicator_O2->Render(fb, &point, Controller::O2.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V1->Render(fb, &point, io_values.V1);
+    res &= indicator_V1->Render(fb, &point, Controller::V1.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V2->Render(fb, &point, io_values.V2);
+    res &= indicator_V2->Render(fb, &point, Controller::V2.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V3->Render(fb, &point, io_values.V3);
+    res &= indicator_V3->Render(fb, &point, Controller::V3.PeekValue());
     point.x += separator_width;
 
     separator_width = 0;
-    res &= indicator_V4->Render(fb, &point, io_values.V4);
+    res &= indicator_V4->Render(fb, &point, Controller::V4.PeekValue());
     point.x += separator_width;
 
     res &= draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH);
