@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+ControllerVariable::ControllerVariable() {
+    Unbind();
+}
+
 bool ControllerVariable::SampleValue() {
     if (!required) {
         return false;
@@ -17,4 +21,13 @@ bool ControllerVariable::SampleValue() {
 void ControllerVariable::SetValue(uint8_t new_value) {
     required = true;
     out_value = new_value;
+}
+
+void ControllerVariable::BindToWiFi(const char *ssid) {
+    wifi = true;
+    this->ssid = ssid;
+}
+
+void ControllerVariable::Unbind() {
+    wifi = false;
 }

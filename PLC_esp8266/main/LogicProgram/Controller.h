@@ -68,4 +68,7 @@ class Controller {
     static bool RequestWakeupMs(void *id, uint32_t delay_ms);
     static void RemoveRequestWakeupMs(void *id);
     static void RemoveExpiredWakeupRequests();
+
+    static void BindVariableToWiFi(const MapIO io_adr, const char *ssid);
+    static void UnbindVariable(const MapIO io_adr);
 };

@@ -272,3 +272,42 @@ void Controller::RemoveRequestWakeupMs(void *id) {
 void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
 }
+
+void Controller::BindVariableToWiFi(const MapIO io_adr, const char *ssid) {
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToWiFi(ssid);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToWiFi(ssid);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToWiFi(ssid);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToWiFi(ssid);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::UnbindVariable(const MapIO io_adr) {
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.Unbind();
+            break;
+        case MapIO::V2:
+            Controller::V2.Unbind();
+            break;
+        case MapIO::V3:
+            Controller::V3.Unbind();
+            break;
+        case MapIO::V4:
+            Controller::V4.Unbind();
+            break;
+        default:
+            break;
+    }
+}

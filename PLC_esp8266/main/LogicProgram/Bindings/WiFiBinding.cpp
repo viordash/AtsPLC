@@ -43,11 +43,12 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
+    if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-
-    } else {
+        Controller::BindVariableToWiFi(GetIoAdr(), ssid);
+    } else if (state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
+        Controller::UnbindVariable(GetIoAdr());
     }
 
     if (state != prev_state) {
