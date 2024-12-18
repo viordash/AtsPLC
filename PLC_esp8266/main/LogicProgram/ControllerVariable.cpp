@@ -31,3 +31,7 @@ void ControllerVariable::BindToWiFi(const char *ssid) {
 void ControllerVariable::Unbind() {
     wifi = false;
 }
+
+bool ControllerVariable::BindedToWiFi() {
+    return wifi;
+}

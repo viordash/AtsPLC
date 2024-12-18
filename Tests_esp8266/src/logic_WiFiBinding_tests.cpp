@@ -66,6 +66,28 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
+TEST(LogicWiFiBindingTestsGroup,
+     DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+}
+
+TEST(LogicWiFiBindingTestsGroup,
+     DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    Controller::V1.BindToWiFi("test_ssid");
+    *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+}
+
 TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
     TestableWiFiBinding testable;
 
@@ -266,8 +288,6 @@ TEST(LogicWiFiBindingTestsGroup, PageDown_change_ssid_symbol_to__new_char) {
     STRCMP_EQUAL(place_new_char, testable.GetSsid());
 }
 
-
-
 TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::DI);
@@ -285,7 +305,6 @@ TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
     CHECK_TRUE(testable.Editing());
     CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 3,
                 *testable.PublicMorozov_Get_editing_property_id());
-
 
     testable.PageDown();
     const char *place_new_char = "ssi\x02_with_size_of_24_chs";

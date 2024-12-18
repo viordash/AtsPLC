@@ -17,4 +17,5 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
     void SetValue(uint8_t new_value) override;
     void BindToWiFi(const char *ssid);
     void Unbind();
+    bool BindedToWiFi();
 };
