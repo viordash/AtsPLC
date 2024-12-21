@@ -6,20 +6,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-std::unordered_set<WiFiService::RequestItem, WiFiService::RequestItemEqual> WiFiService::requests;
 
-std::mutex WiFiService::lock_mutex;
-
-void WiFiService::Start() {
+WiFiService::WiFiService() {
 }
 
-void WiFiService::Stop() {
+WiFiService::~WiFiService() {
 }
 
-bool WiFiService::Find(const char *ssid) {
-    return false;
+bool WiFiService::Scan(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    auto res = requests.insert({ WiFiService::RequestItemType::wqi_ScanSsid, ssid, false });
+    bool was_inserted = res.second;
+    if (was_inserted) {
+        return false;
+    }
+    return res.first->status;
 }
 
-bool WiFiService::Generate(const char *ssid) {
-    return false;
+void WiFiService::Generate(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    requests.insert({ WiFiService::RequestItemType::wqi_ScanSsid, ssid, false });
 }

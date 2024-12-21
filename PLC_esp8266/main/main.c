@@ -26,6 +26,7 @@
 #include "smartconfig_service.h"
 #include "storage.h"
 #include "sys_gpio.h"
+#include "wifi_service.h"
 #include "wifi_sta.h"
 #include <stdio.h>
 #include <string.h>
@@ -86,6 +87,9 @@ void app_main() {
     SAFETY_SETTINGS(                                        //
         has_wifi_sta_settings = settings.wifi.ssid[0] != 0; //
     );
+
+    start_wifi_service();
+
     if (has_wifi_sta_settings) {
         start_wifi_sta();
         start_http_server();
@@ -97,6 +101,7 @@ void app_main() {
 
     stop_wifi_sta();
     stop_http_server();
+    stop_wifi_service();
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);

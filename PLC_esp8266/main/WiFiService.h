@@ -21,6 +21,7 @@ extern "C" {
 #include <unordered_set>
 
 class WiFiService {
+  protected:
     enum RequestItemType { //
         wqi_Client = 0,
         wqi_ScanSsid,
@@ -30,22 +31,28 @@ class WiFiService {
     typedef struct {
         RequestItemType type;
         const char *ssid;
+        bool status;
     } RequestItem;
 
-    struct RequestItemEqual {
-        bool operator()(const RequestItem &a, const RequestItem &b) {
-            return a.type == b.type && strcmp(a.ssid, b.ssid) == 0;
+    struct RequestItemComparator {
+        bool operator()(const RequestItem &a, const RequestItem &b) const {
+            return a.type == b.type && a.ssid == b.ssid;
         }
     };
 
-  protected:
-    static std::unordered_set<RequestItem, RequestItemEqual> requests;
-    static std::mutex lock_mutex;
+    struct RequestItemHash {
+        size_t operator()(const RequestItem &e1) const {
+            return std::hash<size_t>()(((size_t)e1.ssid * 10) + (size_t)e1.type);
+        };
+    };
+
+    std::unordered_set<RequestItem, RequestItemHash, RequestItemComparator> requests;
+    std::mutex lock_mutex;
 
   public:
-    static void Start();
-    static void Stop();
+    WiFiService();
+    ~WiFiService();
 
-    static bool Find(const char *ssid);
-    static bool Generate(const char *ssid);
+    bool Scan(const char *ssid);
+    void Generate(const char *ssid);
 };
