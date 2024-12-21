@@ -35,6 +35,7 @@ namespace {
 } // namespace
 
 TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
+    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
     TestableWiFiService testable;
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
@@ -56,6 +57,8 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
+    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
+
     TestableWiFiService testable;
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
