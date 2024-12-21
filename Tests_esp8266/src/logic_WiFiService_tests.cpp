@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/WiFi/WiFiService.cpp"
 #include "main/WiFi/WiFiService.h"
 
 TEST_GROUP(LogicWiFiServiceTestsGroup){ //
@@ -29,12 +28,22 @@ namespace {
         PublicMorozov_Get_requests() {
             return &requests;
         }
+
+        EventGroupHandle_t PublicMorozov_Get_event() {
+            return event;
+        }
     };
 } // namespace
 
 TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
     mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
+
     TestableWiFiService testable;
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(3, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
@@ -58,6 +67,11 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
     mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
 
     TestableWiFiService testable;
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(3, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
