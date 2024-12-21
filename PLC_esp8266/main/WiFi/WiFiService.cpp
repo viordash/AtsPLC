@@ -94,7 +94,7 @@ void WiFiService::Generate(const char *ssid) {
     requests.insert({ WiFiService::RequestItemType::wqi_ScanSsid, ssid, false });
 }
 
-void Connect() {
+void WiFiService::Connect() {
     ESP_LOGI(TAG_WiFiService, "connect");
 
     wifi_config_t wifi_config = {};
@@ -118,7 +118,7 @@ void Connect() {
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void Disconnect() {
+void WiFiService::Disconnect() {
     ESP_LOGI(TAG_WiFiService, "disconnect");
     ESP_ERROR_CHECK(esp_wifi_disconnect());
     ESP_ERROR_CHECK(esp_wifi_stop());
@@ -188,6 +188,7 @@ void WiFiService::wifi_event_handler(void *arg,
                                      esp_event_base_t event_base,
                                      int32_t event_id,
                                      void *event_data) {
+    (void)event_data;
     auto wifi_service = static_cast<WiFiService *>(arg);
     switch (event_id) {
         case WIFI_EVENT_STA_START:

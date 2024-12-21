@@ -23,6 +23,8 @@ TickType_t xTaskGetTickCount(void) PRIVILEGED_FUNCTION;
 
 void vTaskDelay(const TickType_t xTicksToDelay) PRIVILEGED_FUNCTION;
 
+void vTaskDelayUntil( TickType_t * const pxPreviousWakeTime, const TickType_t xTimeIncrement ) PRIVILEGED_FUNCTION;
+
 BaseType_t xTaskCreate(
     TaskFunction_t pxTaskCode,
     const char *const

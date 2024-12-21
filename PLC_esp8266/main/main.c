@@ -26,7 +26,7 @@
 #include "smartconfig_service.h"
 #include "storage.h"
 #include "sys_gpio.h"
-#include "wifi_service.h"
+#include "WiFi/wifi_service.h"
 #include "wifi_sta.h"
 #include <stdio.h>
 #include <string.h>

@@ -8,8 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/WiFiService.cpp"
-#include "main/WiFiService.h"
+#include "main/WiFi/WiFiService.cpp"
+#include "main/WiFi/WiFiService.h"
 
 TEST_GROUP(LogicWiFiServiceTestsGroup){ //
                                         TEST_SETUP(){}
