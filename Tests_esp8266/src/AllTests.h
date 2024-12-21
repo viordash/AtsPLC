@@ -82,3 +82,6 @@ IMPORT_TEST_GROUP(LogicIndicatorTestsGroup);
 IMPORT_TEST_GROUP(LogicControllerVariableTestsGroup);
 IMPORT_TEST_GROUP(LogicControllerDOTestsGroup);
 IMPORT_TEST_GROUP(LogicControllerDITestsGroup);
+
+IMPORT_TEST_GROUP(LogicWiFiServiceTestsGroup);
+IMPORT_TEST_GROUP(LogicWiFiRequestItemTestsGroup);

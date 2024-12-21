@@ -81,7 +81,7 @@ bool WiFiService::Started() {
 
 bool WiFiService::Scan(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto res = requests.insert({ WiFiService::RequestItemType::wqi_ScanSsid, ssid, false });
+    auto res = requests.insert({ RequestItemType::wqi_ScanSsid, ssid, false });
     bool was_inserted = res.second;
     if (was_inserted) {
         return false;
@@ -91,7 +91,7 @@ bool WiFiService::Scan(const char *ssid) {
 
 void WiFiService::Generate(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    requests.insert({ WiFiService::RequestItemType::wqi_ScanSsid, ssid, false });
+    requests.insert({ RequestItemType::wqi_ScanSsid, ssid, false });
 }
 
 void WiFiService::Connect() {
@@ -133,7 +133,6 @@ void WiFiService::Task(void *parm) {
     int connect_retry_num = 0;
     EventBits_t uxBits;
     do {
-
         TickType_t start_loop_ticks = xTaskGetTickCount();
 
         wifi_service->Connect();
