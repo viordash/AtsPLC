@@ -8,10 +8,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/MigrateAnyData/MigrateAnyData.cpp"
-#include "main/settings.cpp"
-
 #include "tests_utils.h"
+
+#include "main/settings.h"
 
 TEST_GROUP(SettingsTestsGroup){ //
                                 TEST_SETUP(){ create_storage_0();

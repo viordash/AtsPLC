@@ -45,7 +45,7 @@ void WiFiService::Stop() {
         return;
     }
 
-    xEventGroupSetBits(event, WiFiService::STOP_BIT);
+    xEventGroupSetBits(event, STOP_BIT);
 
     EventBits_t uxBits = xEventGroupWaitBits(event, WiFiService::RUNNED_BIT, false, false, 0);
     bool runned = (uxBits & WiFiService::RUNNED_BIT) != 0;
@@ -90,7 +90,7 @@ bool WiFiService::Scan(const char *ssid) {
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
-        xEventGroupSetBits(event, WiFiService::NEW_REQUEST_BIT);
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
         return false;
     }
     return it->Payload.Scaner.status;
@@ -102,38 +102,8 @@ void WiFiService::Generate(const char *ssid) {
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
-        xEventGroupSetBits(event, WiFiService::NEW_REQUEST_BIT);
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
-}
-
-void WiFiService::Connect() {
-    ESP_LOGI(TAG_WiFiService, "connect");
-
-    wifi_config_t wifi_config = {};
-    SAFETY_SETTINGS( //
-        memcpy(wifi_config.sta.ssid, settings.wifi.ssid, sizeof(wifi_config.sta.ssid));
-        memcpy(wifi_config.sta.password,
-               settings.wifi.password,
-               sizeof(wifi_config.sta.password)); //
-    );
-
-    /* Setting a password implies station will connect to all security modes including WEP/WPA.
-     * However these modes are deprecated and not advisable to be used. Incase your Access point
-     * doesn't support WPA2, these mode can be enabled by commenting below line */
-
-    if (wifi_config.sta.password[0] != 0) {
-        wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
-    }
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-void WiFiService::Disconnect() {
-    ESP_LOGI(TAG_WiFiService, "disconnect");
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
-    ESP_ERROR_CHECK(esp_wifi_stop());
 }
 
 void WiFiService::Task(void *parm) {
@@ -142,53 +112,29 @@ void WiFiService::Task(void *parm) {
 
     xEventGroupSetBits(wifi_service->event, WiFiService::RUNNED_BIT);
 
-    int connect_retry_num = 0;
     EventBits_t uxBits;
     do {
-        TickType_t start_loop_ticks = xTaskGetTickCount();
-
-        wifi_service->Connect();
-
         uxBits = xEventGroupWaitBits(wifi_service->event,
-                                     WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                         | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT,
+                                     STOP_BIT | NEW_REQUEST_BIT,
                                      true,
                                      false,
                                      portMAX_DELAY);
 
-        ESP_LOGI(TAG_WiFiService, "process, uxBits:0x%08X", uxBits);
+        if ((uxBits & NEW_REQUEST_BIT) != 0) {
+            ESP_LOGI(TAG_WiFiService, "New request");
 
-        if ((uxBits & CONNECTED_BIT) != 0) {
-            ESP_LOGI(TAG_WiFiService, "Connected to ap");
-            connect_retry_num = 0;
-        } else if ((uxBits & WiFiService::STOP_BIT) == 0) {
-            wifi_service->Disconnect();
-        }
+            RequestItem new_request = wifi_service->PopRequest();
+            switch (new_request.type) {
+                case wqi_Station:
+                    uxBits = wifi_service->StationTask();
+                    break;
 
-        int32_t max_retry_count;
-        SAFETY_SETTINGS(                                             //
-            max_retry_count = settings.wifi.connect_max_retry_count; //
-        );
-
-        if ((uxBits & FAILED_BIT) != 0) {
-            bool retry_connect =
-                (max_retry_count == INFINITY_CONNECT_RETRY || connect_retry_num < max_retry_count);
-
-            if (retry_connect) {
-                connect_retry_num++;
-                ESP_LOGI(TAG_WiFiService,
-                         "failed. reconnect, num:%d of %d",
-                         connect_retry_num,
-                         max_retry_count);
-
-                vTaskDelayUntil(&start_loop_ticks, 1000 / portTICK_RATE_MS);
-            } else {
-                ESP_LOGI(TAG_WiFiService, "failed. unable reconnect");
-                break;
+                default:
+                    break;
             }
         }
 
-    } while (uxBits != 0 && (uxBits & WiFiService::STOP_BIT) == 0);
+    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
     ESP_LOGW(TAG_WiFiService, "Finish task");
     xEventGroupSetBits(wifi_service->event, WiFiService::STOPPED_BIT);

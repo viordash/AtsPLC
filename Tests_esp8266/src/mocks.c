@@ -166,7 +166,7 @@ void vTaskDelay(const TickType_t xTicksToDelay) {
 
 void vTaskDelayUntil(TickType_t *const pxPreviousWakeTime, const TickType_t xTimeIncrement) {
     mock_c()
-        ->actualCall("vTaskDelay")
+        ->actualCall("vTaskDelayUntil")
         ->withConstPointerParameters("pxPreviousWakeTime", pxPreviousWakeTime)
         ->withUnsignedIntParameters("xTimeIncrement", xTimeIncrement);
 }

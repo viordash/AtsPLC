@@ -30,8 +30,9 @@ class WiFiService {
 
     EventGroupHandle_t event;
 
-    void Connect();
+    void Connect(wifi_config_t *wifi_config);
     void Disconnect();
+    EventBits_t StationTask();
 
     static void Task(void *parm);
     static void
