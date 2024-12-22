@@ -24,8 +24,7 @@ namespace {
         virtual ~TestableWiFiService() {
         }
 
-        std::unordered_set<RequestItem, RequestItemHash, RequestItemComparator> *
-        PublicMorozov_Get_requests() {
+        WiFiRequests *PublicMorozov_Get_requests() {
             return &requests;
         }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <stdlib.h>
 
 enum RequestItemType { //
@@ -21,10 +22,11 @@ typedef struct {
     } Payload;
 } RequestItem;
 
-struct RequestItemComparator {
-    bool operator()(const RequestItem &a, const RequestItem &b) const;
-};
+class WiFiRequests : public std::list<RequestItem> {
+  protected:
+    bool Equals(const RequestItem *a, const RequestItem *b) const;
 
-struct RequestItemHash {
-    size_t operator()(const RequestItem &e1) const;
+  public:
+    std::list<RequestItem>::iterator AddRequest(RequestItem *new_request);
+    RequestItem PopRequest();
 };

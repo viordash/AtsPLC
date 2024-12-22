@@ -79,21 +79,28 @@ bool WiFiService::Started() {
     return uxBits & WiFiService::STARTED_BIT;
 }
 
+RequestItem WiFiService::PopRequest() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    return requests.PopRequest();
+}
+
 bool WiFiService::Scan(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto res = requests.insert({ RequestItemType::wqi_ScanSsid, ssid, false });
-    bool was_inserted = res.second;
+    RequestItem request = { RequestItemType::wqi_ScanSsid, ssid, false };
+    auto it = requests.AddRequest(&request);
+    bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, WiFiService::NEW_REQUEST_BIT);
         return false;
     }
-    return res.first->Payload.ScanSsid.status;
+    return it->Payload.ScanSsid.status;
 }
 
 void WiFiService::Generate(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto res = requests.insert({ RequestItemType::wqi_ScanSsid, ssid, false });
-    bool was_inserted = res.second;
+    RequestItem request = { RequestItemType::wqi_GenerateSsid, ssid, false };
+    auto it = requests.AddRequest(&request);
+    bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, WiFiService::NEW_REQUEST_BIT);
     }

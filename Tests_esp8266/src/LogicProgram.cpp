@@ -42,6 +42,6 @@
 #include "main/LogicProgram/Outputs/SetOutput.cpp"
 #include "main/LogicProgram/Serializer/Record.cpp"
 #include "main/LogicProgram/Wire.cpp"
-#include "main/WiFi/WiFiRequestItem.cpp"
+#include "main/WiFi/WiFiRequests.cpp"
 #include "main/WiFi/WiFiService.cpp"
 #include "main/buttons.cpp"

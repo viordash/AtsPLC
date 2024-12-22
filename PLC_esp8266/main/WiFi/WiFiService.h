@@ -12,7 +12,7 @@ extern "C" {
 }
 #endif
 
-#include "WiFiRequestItem.h"
+#include "WiFiRequests.h"
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -20,11 +20,12 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unordered_set>
 
 class WiFiService {
+  public:
   protected:
-    std::unordered_set<RequestItem, RequestItemHash, RequestItemComparator> requests;
+    RequestItem pop_request;
+    WiFiRequests requests;
     std::mutex lock_mutex;
 
     EventGroupHandle_t event;
@@ -38,6 +39,8 @@ class WiFiService {
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
+    RequestItem PopRequest();
+
   public:
     static const int STARTED_BIT = BIT0;
     static const int RUNNED_BIT = BIT1;
@@ -47,7 +50,7 @@ class WiFiService {
     static const int CONNECTED_BIT = BIT5;
     static const int NEW_REQUEST_BIT = BIT6;
 
-        WiFiService();
+    WiFiService();
     ~WiFiService();
 
     void Start();
