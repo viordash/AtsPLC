@@ -86,19 +86,19 @@ RequestItem WiFiService::PopRequest() {
 
 bool WiFiService::Scan(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    RequestItem request = { RequestItemType::wqi_ScanSsid, ssid, false };
+    RequestItem request = { RequestItemType::wqi_Scaner, ssid, false };
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, WiFiService::NEW_REQUEST_BIT);
         return false;
     }
-    return it->Payload.ScanSsid.status;
+    return it->Payload.Scaner.status;
 }
 
 void WiFiService::Generate(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    RequestItem request = { RequestItemType::wqi_GenerateSsid, ssid, false };
+    RequestItem request = { RequestItemType::wqi_AccessPoint, ssid, false };
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {

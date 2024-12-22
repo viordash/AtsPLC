@@ -4,9 +4,9 @@
 #include <stdlib.h>
 
 enum RequestItemType { //
-    wqi_Connect = 0,
-    wqi_ScanSsid,
-    wqi_GenerateSsid
+    wqi_Station = 0,
+    wqi_Scaner,
+    wqi_AccessPoint
 };
 
 typedef struct {
@@ -15,10 +15,10 @@ typedef struct {
         struct {
             const char *ssid;
             bool status;
-        } ScanSsid;
+        } Scaner;
         struct {
             const char *ssid;
-        } GenerateSsid;
+        } AccessPoint;
     } Payload;
 } RequestItem;
 
