@@ -54,7 +54,7 @@ EventBits_t WiFiService::StationTask() {
 
         bool connected = (uxBits & CONNECTED_BIT) != 0;
         if (connected) {
-            ESP_LOGI(TAG_WiFiService_Station, "Connected to ap");
+            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
             connect_retry_num = 0;
             start_http_server();
         }

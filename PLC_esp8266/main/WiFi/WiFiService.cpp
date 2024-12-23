@@ -110,7 +110,7 @@ void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    xEventGroupSetBits(wifi_service->event, WiFiService::RUNNED_BIT);
+    xEventGroupSetBits(wifi_service->event, RUNNED_BIT | NEW_REQUEST_BIT);
 
     EventBits_t uxBits;
     do {
