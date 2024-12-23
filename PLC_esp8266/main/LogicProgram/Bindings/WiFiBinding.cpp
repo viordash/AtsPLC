@@ -46,7 +46,7 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
         Controller::BindVariableToWiFi(GetIoAdr(), ssid);
-    } else if (state != LogicItemState::lisPassive) {
+    } else if (prev_elem_state != LogicItemState::lisActive && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
         Controller::UnbindVariable(GetIoAdr());
     }
