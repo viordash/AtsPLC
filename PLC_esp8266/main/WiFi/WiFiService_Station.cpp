@@ -1,3 +1,4 @@
+#include "HttpServer/http_server.h"
 #include "WiFiService.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
@@ -55,6 +56,7 @@ EventBits_t WiFiService::StationTask() {
         if (connected) {
             ESP_LOGI(TAG_WiFiService_Station, "Connected to ap");
             connect_retry_num = 0;
+            start_http_server();
         }
 
         bool any_failure = (uxBits & FAILED_BIT) != 0;
@@ -78,6 +80,7 @@ EventBits_t WiFiService::StationTask() {
 
     } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
 
+    stop_http_server();
     Disconnect();
 
     ESP_LOGW(TAG_WiFiService_Station, "finish");

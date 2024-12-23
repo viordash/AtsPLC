@@ -1,7 +1,7 @@
 #include "BaseController.h"
 #include "esp_log.h"
 
-static const char *TAG = "base_controller";
+static const char *TAG_BaseController = "base_controller";
 
 BaseController::BaseController() {
 }
@@ -23,7 +23,7 @@ esp_err_t BaseController::GetUrlQueryParamValue(httpd_req_t *req,
     buf = new char[buf_len];
     if ((res = httpd_req_get_url_query_str(req, buf, buf_len)) == ESP_OK) {
         if ((res = httpd_query_key_value(buf, key, value, valueSize)) == ESP_OK) {
-            ESP_LOGD(TAG, "Found URL query parameter => %s=%s", key, value);
+            ESP_LOGD(TAG_BaseController, "Found URL query parameter => %s=%s", key, value);
         }
     }
     delete[] buf;

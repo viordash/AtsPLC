@@ -49,3 +49,9 @@
 
 #include "main/MigrateAnyData/MigrateAnyData.cpp"
 #include "main/settings.cpp"
+
+#include "HttpServer/BaseController.cpp"
+#include "HttpServer/HttpServer.cpp"
+#include "HttpServer/MainController.cpp"
+#include "HttpServer/UpdateController.cpp"
+#include "HttpServer/http_server.cpp"

@@ -10,8 +10,8 @@
 #include "freertos/task.h"
 
 #include "Display/display.h"
-#include "HttpServer/http_server.h"
 #include "LogicProgram/process_engine.h"
+#include "WiFi/wifi_service.h"
 #include "buttons.h"
 #include "crc32.h"
 #include "driver/uart.h"
@@ -26,8 +26,6 @@
 #include "smartconfig_service.h"
 #include "storage.h"
 #include "sys_gpio.h"
-#include "WiFi/wifi_service.h"
-#include "wifi_sta.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -83,24 +81,13 @@ void app_main() {
         vTaskDelay(3000 / portTICK_PERIOD_MS);
     }
 
-    bool has_wifi_sta_settings;
-    SAFETY_SETTINGS(                                        //
-        has_wifi_sta_settings = settings.wifi.ssid[0] != 0; //
-    );
-
     start_wifi_service();
 
-    if (has_wifi_sta_settings) {
-        start_wifi_sta();
-        start_http_server();
-    }
-
     while (true) {
+        printf(".\n");
         vTaskDelay(portMAX_DELAY);
     }
 
-    stop_wifi_sta();
-    stop_http_server();
     stop_wifi_service();
     store_settings();
     printf("Restarting now.\n");

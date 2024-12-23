@@ -140,6 +140,7 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_new_request_break_loop) {
+    mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()

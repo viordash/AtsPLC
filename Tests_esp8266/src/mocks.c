@@ -2,6 +2,8 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_event_legacy.h"
+#include "esp_http_server.h"
+#include "esp_ota_ops.h"
 #include "esp_spiffs.h"
 #include "esp_wifi.h"
 #include "freertos/event_groups.h"
@@ -298,4 +300,134 @@ esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf) {
         ->withIntParameters("interface", interface)
         ->withPointerParameters("conf", conf)
         ->returnIntValueOrDefault(ESP_OK);
+}
+
+size_t httpd_req_get_url_query_len(httpd_req_t *r) {
+    return mock_c()
+        ->actualCall("httpd_req_get_url_query_len")
+        ->withPointerParameters("r", r)
+        ->returnUnsignedIntValueOrDefault(0);
+}
+
+esp_err_t httpd_req_get_url_query_str(httpd_req_t *r, char *buf, size_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_req_get_url_query_str")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_query_key_value(const char *qry, const char *key, char *val, size_t val_size) {
+    return mock_c()
+        ->actualCall("httpd_query_key_value")
+        ->withStringParameters("qry", qry)
+        ->withStringParameters("key", key)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)val, val_size)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_set_status(httpd_req_t *r, const char *status) {
+    return mock_c()
+        ->actualCall("httpd_resp_set_status")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("status", status)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_set_type(httpd_req_t *r, const char *type) {
+    return mock_c()
+        ->actualCall("httpd_resp_set_type")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("type", type)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_send(httpd_req_t *r, const char *buf, ssize_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_resp_send")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_register_uri_handler(httpd_handle_t handle, const httpd_uri_t *uri_handler) {
+    return mock_c()
+        ->actualCall("httpd_register_uri_handler")
+        ->withPointerParameters("handle", handle)
+        ->withConstPointerParameters("uri_handler", uri_handler)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_start(httpd_handle_t *handle, const httpd_config_t *config) {
+    return mock_c()
+        ->actualCall("httpd_register_uri_handler")
+        ->withPointerParameters("handle", handle)
+        ->withConstPointerParameters("config", config)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_stop(httpd_handle_t handle) {
+    return mock_c()
+        ->actualCall("httpd_stop")
+        ->withPointerParameters("handle", handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+int httpd_req_recv(httpd_req_t *r, char *buf, size_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_req_recv")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_write(esp_ota_handle_t handle, const void *data, size_t size) {
+    return mock_c()
+        ->actualCall("esp_ota_write")
+        ->withUnsignedIntParameters("handle", handle)
+        ->withMemoryBufferParameter("data", (const unsigned char *)data, size)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+const esp_partition_t *esp_ota_get_boot_partition(void) {
+    return mock_c()
+        ->actualCall("esp_ota_get_boot_partition")
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+const esp_partition_t *esp_ota_get_running_partition(void) {
+    return mock_c()
+        ->actualCall("esp_ota_get_running_partition")
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+const esp_partition_t *esp_ota_get_next_update_partition(const esp_partition_t *start_from) {
+    return mock_c()
+        ->actualCall("esp_ota_get_next_update_partition")
+        ->withConstPointerParameters("start_from", start_from)
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+esp_err_t
+esp_ota_begin(const esp_partition_t *partition, size_t image_size, esp_ota_handle_t *out_handle) {
+    return mock_c()
+        ->actualCall("esp_ota_begin")
+        ->withConstPointerParameters("partition", partition)
+        ->withUnsignedIntParameters("image_size", image_size)
+        ->withPointerParameters("out_handle", out_handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_end(esp_ota_handle_t handle) {
+    return mock_c()
+        ->actualCall("esp_ota_end")
+        ->withUnsignedIntParameters("handle", handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_set_boot_partition(const esp_partition_t *partition) {
+    return mock_c()
+        ->actualCall("esp_ota_set_boot_partition")
+        ->withConstPointerParameters("partition", partition)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
 }

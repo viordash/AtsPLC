@@ -24,7 +24,6 @@ extern "C" {
 class WiFiService {
   public:
   protected:
-    RequestItem pop_request;
     WiFiRequests requests;
     std::mutex lock_mutex;
 
