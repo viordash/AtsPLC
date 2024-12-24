@@ -82,7 +82,7 @@ bool WiFiService::Started() {
 
 RequestItem WiFiService::PopRequest() {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    return requests.PopRequest();
+    return requests.Pop();
 }
 
 bool WiFiService::TryConnectToStation() {
@@ -90,7 +90,7 @@ bool WiFiService::TryConnectToStation() {
     RequestItem request = {};
     request.type = RequestItemType::wqi_Station;
     request.Payload.Station.connected = false;
-    auto it = requests.AddRequest(&request);
+    auto it = requests.Add(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
@@ -106,7 +106,7 @@ bool WiFiService::Scan(const char *ssid) {
     request.Payload.Scanner.ssid = ssid;
     request.Payload.Scanner.status = false;
 
-    auto it = requests.AddRequest(&request);
+    auto it = requests.Add(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
@@ -121,7 +121,7 @@ void WiFiService::Generate(const char *ssid) {
     request.type = RequestItemType::wqi_AccessPoint;
     request.Payload.AccessPoint.ssid = ssid;
 
-    auto it = requests.AddRequest(&request);
+    auto it = requests.Add(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);

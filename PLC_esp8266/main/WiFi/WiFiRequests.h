@@ -30,6 +30,6 @@ class WiFiRequests : public std::list<RequestItem> {
     bool Equals(const RequestItem *a, const RequestItem *b) const;
 
   public:
-    std::list<RequestItem>::iterator AddRequest(RequestItem *new_request);
-    RequestItem PopRequest();
+    std::list<RequestItem>::iterator Add(RequestItem *new_request);
+    RequestItem Pop();
 };

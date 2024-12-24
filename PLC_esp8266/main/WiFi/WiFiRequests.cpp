@@ -20,7 +20,7 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     }
 }
 
-std::list<RequestItem>::iterator WiFiRequests::AddRequest(RequestItem *new_request) {
+std::list<RequestItem>::iterator WiFiRequests::Add(RequestItem *new_request) {
     ESP_LOGI(TAG_WiFiRequests, "Add, type:%u", new_request->type);
 
     for (auto it = begin(); it != end(); it++) {
@@ -33,7 +33,7 @@ std::list<RequestItem>::iterator WiFiRequests::AddRequest(RequestItem *new_reque
     return end();
 }
 
-RequestItem WiFiRequests::PopRequest() {
+RequestItem WiFiRequests::Pop() {
     assert(!empty());
     auto request = back();
     pop_back();
