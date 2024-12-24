@@ -34,6 +34,7 @@ void WiFiService::Start() {
     ESP_ERROR_CHECK(
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
+    TryConnectToStation();
     ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
@@ -84,9 +85,27 @@ RequestItem WiFiService::PopRequest() {
     return requests.PopRequest();
 }
 
+bool WiFiService::TryConnectToStation() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_Station;
+    request.Payload.Station.connected = false;
+    auto it = requests.AddRequest(&request);
+    bool was_inserted = it == requests.end();
+    if (was_inserted) {
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
+        return false;
+    }
+    return it->Payload.Station.connected;
+}
+
 bool WiFiService::Scan(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    RequestItem request = { RequestItemType::wqi_Scaner, ssid, false };
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_Scaner;
+    request.Payload.Scaner.ssid = ssid;
+    request.Payload.Scaner.status = false;
+
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
@@ -98,7 +117,10 @@ bool WiFiService::Scan(const char *ssid) {
 
 void WiFiService::Generate(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    RequestItem request = { RequestItemType::wqi_AccessPoint, ssid, false };
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_AccessPoint;
+    request.Payload.AccessPoint.ssid = ssid;
+
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
@@ -110,8 +132,6 @@ void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    xEventGroupSetBits(wifi_service->event, RUNNED_BIT | NEW_REQUEST_BIT);
-
     EventBits_t uxBits;
     do {
         uxBits = xEventGroupWaitBits(wifi_service->event,
@@ -121,9 +141,10 @@ void WiFiService::Task(void *parm) {
                                      portMAX_DELAY);
 
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
-            ESP_LOGI(TAG_WiFiService, "New request");
 
             RequestItem new_request = wifi_service->PopRequest();
+            ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.type);
+
             switch (new_request.type) {
                 case wqi_Station:
                     uxBits = wifi_service->StationTask();

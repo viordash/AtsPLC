@@ -57,6 +57,7 @@ class WiFiService {
     void Stop();
     bool Started();
 
+    bool TryConnectToStation();
     bool Scan(const char *ssid);
     void Generate(const char *ssid);
 };

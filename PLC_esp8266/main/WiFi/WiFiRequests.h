@@ -9,9 +9,12 @@ enum RequestItemType { //
     wqi_AccessPoint
 };
 
-typedef struct {
+struct RequestItem {
     RequestItemType type;
     union {
+        struct {
+            bool connected;
+        } Station;
         struct {
             const char *ssid;
             bool status;
@@ -20,7 +23,7 @@ typedef struct {
             const char *ssid;
         } AccessPoint;
     } Payload;
-} RequestItem;
+};
 
 class WiFiRequests : public std::list<RequestItem> {
   protected:

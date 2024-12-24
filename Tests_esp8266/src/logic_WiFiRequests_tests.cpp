@@ -114,7 +114,10 @@ TEST(LogicWiFiRequestsTestsGroup, AddRequest_are_unique) {
     CHECK_EQUAL(0, testable.size());
 
     const char *ssid = "test";
-    RequestItem request = { RequestItemType::wqi_Scaner, ssid, false };
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_Scaner;
+    request.Payload.Scaner.ssid = ssid;
+    request.Payload.Scaner.status = false;
 
     auto iter_to_end = testable.AddRequest(&request);
     CHECK(iter_to_end == testable.end());
@@ -133,7 +136,10 @@ TEST(LogicWiFiRequestsTestsGroup, AddRequest_returned_item_is_mutable) {
     CHECK_EQUAL(0, testable.size());
 
     const char *ssid = "test";
-    RequestItem request = { RequestItemType::wqi_Scaner, ssid, false };
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_Scaner;
+    request.Payload.Scaner.ssid = ssid;
+    request.Payload.Scaner.status = false;
 
     testable.AddRequest(&request);
 
@@ -150,15 +156,6 @@ TEST(LogicWiFiRequestsTestsGroup, AddRequest_returned_item_is_mutable) {
     CHECK_EQUAL(RequestItemType::wqi_Scaner, pop_request.type);
     STRCMP_EQUAL("test", pop_request.Payload.Scaner.ssid);
     CHECK_TRUE(pop_request.Payload.Scaner.status);
-}
-
-TEST(LogicWiFiRequestsTestsGroup, PopRequest_returns_Station_request_when_empty) {
-    TestableWiFiRequests testable;
-
-    CHECK_EQUAL(0, testable.size());
-
-    RequestItem request = testable.PopRequest();
-    CHECK_EQUAL(RequestItemType::wqi_Station, request.type);
 }
 
 TEST(LogicWiFiRequestsTestsGroup, PopRequest_is_FIFO_compliant) {

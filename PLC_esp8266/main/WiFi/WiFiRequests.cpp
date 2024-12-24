@@ -1,4 +1,8 @@
 #include "WiFiRequests.h"
+#include "esp_log.h"
+#include <cassert>
+
+static const char *TAG_WiFiRequests = "WiFiRequests";
 
 bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     if (a->type != b->type) {
@@ -17,6 +21,8 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
 }
 
 std::list<RequestItem>::iterator WiFiRequests::AddRequest(RequestItem *new_request) {
+    ESP_LOGI(TAG_WiFiRequests, "Add, type:%u", new_request->type);
+
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (Equals(&request, new_request)) {
@@ -28,13 +34,8 @@ std::list<RequestItem>::iterator WiFiRequests::AddRequest(RequestItem *new_reque
 }
 
 RequestItem WiFiRequests::PopRequest() {
-    if (empty()) {
-        RequestItem request = {};
-        request.type = RequestItemType::wqi_Station;
-        return request;
-    } else {
-        auto request = back();
-        pop_back();
-        return request;
-    }
+    assert(!empty());
+    auto request = back();
+    pop_back();
+    return request;
 }
