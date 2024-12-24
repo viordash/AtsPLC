@@ -9,8 +9,8 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
         return false;
     }
     switch (a->type) {
-        case wqi_Scaner:
-            return a->Payload.Scaner.ssid == b->Payload.Scaner.ssid;
+        case wqi_Scanner:
+            return a->Payload.Scanner.ssid == b->Payload.Scanner.ssid;
 
         case wqi_AccessPoint:
             return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid;

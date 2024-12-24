@@ -116,7 +116,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
 
     CHECK_FALSE(testable.Scan("ssid_0"));
 
-    testable.PublicMorozov_Get_requests()->front().Payload.Scaner.status = true;
+    testable.PublicMorozov_Get_requests()->front().Payload.Scanner.status = true;
     CHECK_TRUE(testable.Scan("ssid_0"));
 }
 

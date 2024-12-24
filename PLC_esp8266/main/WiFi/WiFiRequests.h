@@ -5,7 +5,7 @@
 
 enum RequestItemType { //
     wqi_Station = 0,
-    wqi_Scaner,
+    wqi_Scanner,
     wqi_AccessPoint
 };
 
@@ -18,7 +18,7 @@ struct RequestItem {
         struct {
             const char *ssid;
             bool status;
-        } Scaner;
+        } Scanner;
         struct {
             const char *ssid;
         } AccessPoint;

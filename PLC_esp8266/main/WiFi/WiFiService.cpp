@@ -102,9 +102,9 @@ bool WiFiService::TryConnectToStation() {
 bool WiFiService::Scan(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     RequestItem request = {};
-    request.type = RequestItemType::wqi_Scaner;
-    request.Payload.Scaner.ssid = ssid;
-    request.Payload.Scaner.status = false;
+    request.type = RequestItemType::wqi_Scanner;
+    request.Payload.Scanner.ssid = ssid;
+    request.Payload.Scanner.status = false;
 
     auto it = requests.AddRequest(&request);
     bool was_inserted = it == requests.end();
@@ -112,7 +112,7 @@ bool WiFiService::Scan(const char *ssid) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
         return false;
     }
-    return it->Payload.Scaner.status;
+    return it->Payload.Scanner.status;
 }
 
 void WiFiService::Generate(const char *ssid) {
