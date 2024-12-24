@@ -9,15 +9,16 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
         return false;
     }
     switch (a->type) {
+        case wqi_Station:
+            return true;
+
         case wqi_Scanner:
             return a->Payload.Scanner.ssid == b->Payload.Scanner.ssid;
 
         case wqi_AccessPoint:
             return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid;
-
-        default:
-            return true;
     }
+    return true;
 }
 
 std::list<RequestItem>::iterator WiFiRequests::Add(RequestItem *new_request) {
