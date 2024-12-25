@@ -34,7 +34,7 @@ void WiFiService::Start() {
     ESP_ERROR_CHECK(
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
-    TryConnectToStation();
+    ConnectToStation();
     ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, 3, NULL) != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
@@ -85,18 +85,15 @@ RequestItem WiFiService::PopRequest() {
     return requests.Pop();
 }
 
-bool WiFiService::TryConnectToStation() {
+void WiFiService::ConnectToStation() {
     std::lock_guard<std::mutex> lock(lock_mutex);
     RequestItem request = {};
     request.type = RequestItemType::wqi_Station;
-    request.Payload.Station.connected = false;
     auto it = requests.Add(&request);
     bool was_inserted = it == requests.end();
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        return false;
     }
-    return it->Payload.Station.connected;
 }
 
 bool WiFiService::Scan(const char *ssid) {

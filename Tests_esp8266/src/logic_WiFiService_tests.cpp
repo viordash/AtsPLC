@@ -49,29 +49,11 @@ TEST(LogicWiFiServiceTestsGroup, TryConnectToStation_requests_are_unique) {
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
-    testable.TryConnectToStation();
+    testable.ConnectToStation();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.TryConnectToStation();
+    testable.ConnectToStation();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
-}
-
-TEST(LogicWiFiServiceTestsGroup, TryConnectToStation_return_connection_status) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
-    TestableWiFiService testable;
-    char buffer[32];
-    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
-    mock(buffer)
-        .expectNCalls(1, "xEventGroupSetBits")
-        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
-
-    CHECK_FALSE(testable.TryConnectToStation());
-
-    CHECK_FALSE(testable.TryConnectToStation());
-
-    testable.PublicMorozov_Get_requests()->front().Payload.Station.connected = true;
-    CHECK_TRUE(testable.TryConnectToStation());
 }
 
 TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {

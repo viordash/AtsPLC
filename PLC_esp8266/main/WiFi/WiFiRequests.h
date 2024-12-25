@@ -13,9 +13,6 @@ struct RequestItem {
     RequestItemType type;
     union {
         struct {
-            bool connected;
-        } Station;
-        struct {
             const char *ssid;
             bool status;
         } Scanner;
