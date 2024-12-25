@@ -34,9 +34,43 @@ std::list<RequestItem>::iterator WiFiRequests::Add(RequestItem *new_request) {
     return end();
 }
 
+void WiFiRequests::Remove(std::list<RequestItem>::const_iterator it) {
+    erase(it);
+}
+
 RequestItem WiFiRequests::Pop() {
     assert(!empty());
     auto request = back();
-    pop_back();
     return request;
+}
+
+void WiFiRequests::StationDone() {
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (request.type == RequestItemType::wqi_Station) {
+            erase(it);
+            break;
+        }
+    }
+}
+
+void WiFiRequests::ScannerDone(const char *ssid) {
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
+            it->Payload.Scanner.status = true;
+            break;
+        }
+    }
+}
+
+void WiFiRequests::AccessPointDone(const char *ssid) {
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (request.type == RequestItemType::wqi_AccessPoint
+            && it->Payload.AccessPoint.ssid == ssid) {
+            erase(it);
+            break;
+        }
+    }
 }

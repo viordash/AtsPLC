@@ -28,5 +28,9 @@ class WiFiRequests : public std::list<RequestItem> {
 
   public:
     std::list<RequestItem>::iterator Add(RequestItem *new_request);
+    void Remove(std::list<RequestItem>::const_iterator it);
     RequestItem Pop();
+    void StationDone();
+    void ScannerDone(const char *ssid);
+    void AccessPointDone(const char *ssid);
 };

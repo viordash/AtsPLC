@@ -6,6 +6,7 @@
 #include "esp_wifi.h"
 #include "settings.h"
 #include "sys_gpio.h"
+#include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -109,7 +110,16 @@ bool WiFiService::Scan(const char *ssid) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
         return false;
     }
-    return it->Payload.Scanner.status;
+    if (!it->Payload.Scanner.status) {
+        return false;
+    }
+
+    requests.Remove(it);
+    it = requests.Add(&request);
+    was_inserted = it == requests.end();
+    assert(was_inserted);
+    xEventGroupSetBits(event, NEW_REQUEST_BIT);
+    return true;
 }
 
 void WiFiService::Generate(const char *ssid) {

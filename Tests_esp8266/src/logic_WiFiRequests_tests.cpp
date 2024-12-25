@@ -130,7 +130,7 @@ TEST(LogicWiFiRequestsTestsGroup, Add_are_unique) {
     CHECK_EQUAL(ssid, iter_to_previously_added_item->Payload.Scanner.ssid);
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Add_returned_item_is_mutable) {
+TEST(LogicWiFiRequestsTestsGroup, Add_return_iterator_to_exists_item) {
     TestableWiFiRequests testable;
 
     CHECK_EQUAL(0, testable.size());
@@ -189,16 +189,127 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     RequestItem request = testable.Pop();
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.type);
     STRCMP_EQUAL("test_0", request.Payload.Scanner.ssid);
+    testable.pop_back();
 
     request = testable.Pop();
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.type);
     STRCMP_EQUAL("test_0", request.Payload.AccessPoint.ssid);
+    testable.pop_back();
 
     request = testable.Pop();
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.type);
     STRCMP_EQUAL("test_1", request.Payload.Scanner.ssid);
+    testable.pop_back();
 
     request = testable.Pop();
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.type);
     STRCMP_EQUAL("test_1", request.Payload.AccessPoint.ssid);
+    testable.pop_back();
+}
+
+TEST(LogicWiFiRequestsTestsGroup, StationDone_removes_Station_request) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    RequestItem request_Scanner_0 = {};
+    request_Scanner_0.type = RequestItemType::wqi_Scanner;
+    request_Scanner_0.Payload.Scanner.ssid = ssid_0;
+
+    RequestItem request_AccessPoint_0 = {};
+    request_AccessPoint_0.type = RequestItemType::wqi_AccessPoint;
+    request_AccessPoint_0.Payload.AccessPoint.ssid = ssid_0;
+
+    testable.Add(&request_Scanner_0);
+    testable.Add(&request_AccessPoint_0);
+
+    RequestItem request_Station = {};
+    request_Station.type = RequestItemType::wqi_Station;
+
+    testable.Add(&request_Station);
+    CHECK_EQUAL(3, testable.size());
+
+    testable.StationDone();
+    CHECK_EQUAL(2, testable.size());
+
+    for (auto it = testable.begin(); it != testable.end(); it++) {
+        auto request = *it;
+        CHECK(request.type != RequestItemType::wqi_Station);
+    }
+}
+
+TEST(LogicWiFiRequestsTestsGroup,
+     ScannerDone_change_status_in_Scanner_request__and_not_depends_to_adding_another_requests) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    RequestItem request_Scanner_0 = {};
+    request_Scanner_0.type = RequestItemType::wqi_Scanner;
+    request_Scanner_0.Payload.Scanner.ssid = ssid_0;
+
+    RequestItem request_AccessPoint_0 = {};
+    request_AccessPoint_0.type = RequestItemType::wqi_AccessPoint;
+    request_AccessPoint_0.Payload.AccessPoint.ssid = ssid_0;
+
+    RequestItem request_Scanner_1 = {};
+    request_Scanner_1.type = RequestItemType::wqi_Scanner;
+    request_Scanner_1.Payload.Scanner.ssid = ssid_1;
+
+    RequestItem request_AccessPoint_1 = {};
+    request_AccessPoint_1.type = RequestItemType::wqi_AccessPoint;
+    request_AccessPoint_1.Payload.AccessPoint.ssid = ssid_1;
+
+    testable.Add(&request_Scanner_1);
+    testable.Add(&request_AccessPoint_1);
+
+    RequestItem request_Station = {};
+    request_Station.type = RequestItemType::wqi_Station;
+    testable.Add(&request_Station);
+
+    CHECK_EQUAL(3, testable.size());
+
+    testable.ScannerDone(ssid_1);
+
+    testable.Add(&request_AccessPoint_0);
+    testable.Add(&request_Scanner_0);
+    CHECK_EQUAL(5, testable.size());
+
+    bool changed = false;
+    for (auto it = testable.begin(); it != testable.end(); it++) {
+        auto request = *it;
+
+        changed = request.type == RequestItemType::wqi_Scanner
+               && request.Payload.Scanner.ssid == ssid_1 && request.Payload.Scanner.status;
+    }
+    CHECK_TRUE(changed);
+}
+
+TEST(LogicWiFiRequestsTestsGroup, AccessPointDone_removes_AccessPoint_request) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    RequestItem request_Scanner_0 = {};
+    request_Scanner_0.type = RequestItemType::wqi_Scanner;
+    request_Scanner_0.Payload.Scanner.ssid = ssid_0;
+
+    RequestItem request_AccessPoint_0 = {};
+    request_AccessPoint_0.type = RequestItemType::wqi_AccessPoint;
+    request_AccessPoint_0.Payload.AccessPoint.ssid = ssid_0;
+
+    testable.Add(&request_Scanner_0);
+    testable.Add(&request_AccessPoint_0);
+
+    RequestItem request_Station = {};
+    request_Station.type = RequestItemType::wqi_Station;
+
+    testable.Add(&request_Station);
+    CHECK_EQUAL(3, testable.size());
+
+    testable.AccessPointDone(ssid_0);
+    CHECK_EQUAL(2, testable.size());
+
+    for (auto it = testable.begin(); it != testable.end(); it++) {
+        auto request = *it;
+        CHECK(request.type != RequestItemType::wqi_AccessPoint);
+    }
 }
