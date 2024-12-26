@@ -16,7 +16,6 @@ extern "C" {
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +24,6 @@ class WiFiService {
   public:
   protected:
     WiFiRequests requests;
-    std::mutex lock_mutex;
 
     EventGroupHandle_t event;
 
@@ -38,8 +36,6 @@ class WiFiService {
     wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
-
-    RequestItem PopRequest();
 
   public:
     static const int STARTED_BIT = BIT0;

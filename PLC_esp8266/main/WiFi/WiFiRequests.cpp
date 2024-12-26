@@ -21,24 +21,45 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     return true;
 }
 
-std::list<RequestItem>::iterator WiFiRequests::Add(RequestItem *new_request) {
+bool WiFiRequests::Add(RequestItem *new_request) {
     ESP_LOGI(TAG_WiFiRequests, "Add, type:%u", new_request->type);
 
+    std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (Equals(&request, new_request)) {
-            return it;
+            return false;
         }
     }
     push_front(*new_request);
-    return end();
+    return true;
 }
 
-void WiFiRequests::Remove(std::list<RequestItem>::const_iterator it) {
-    erase(it);
+bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
+    ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
+
+    bool exists = false;
+    *status = false;
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (Equals(&request, new_request)) {
+            *status = it->Payload.Scanner.status;
+            if (*status) {
+                erase(it);
+            }
+            exists = true;
+            break;
+        }
+    }
+    if (!exists || *status) {
+        push_front(*new_request);
+    }
+    return !exists || *status;
 }
 
 RequestItem WiFiRequests::Pop() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     assert(!empty());
     auto request = back();
     return request;

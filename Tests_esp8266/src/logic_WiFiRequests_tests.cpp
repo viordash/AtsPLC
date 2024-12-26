@@ -108,7 +108,7 @@ TEST(LogicWiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
     CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Add_are_unique) {
+TEST(LogicWiFiRequestsTestsGroup, Add_is_unique) {
     TestableWiFiRequests testable;
 
     CHECK_EQUAL(0, testable.size());
@@ -119,18 +119,16 @@ TEST(LogicWiFiRequestsTestsGroup, Add_are_unique) {
     request.Payload.Scanner.ssid = ssid;
     request.Payload.Scanner.status = false;
 
-    auto iter_to_end = testable.Add(&request);
-    CHECK(iter_to_end == testable.end());
+    CHECK_TRUE(testable.Add(&request));
     CHECK_EQUAL(1, testable.size());
 
-    auto iter_to_previously_added_item = testable.Add(&request);
-    CHECK(iter_to_previously_added_item != testable.end());
+    CHECK_FALSE(testable.Add(&request));
     CHECK_EQUAL(1, testable.size());
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, iter_to_previously_added_item->type);
-    CHECK_EQUAL(ssid, iter_to_previously_added_item->Payload.Scanner.ssid);
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
+    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Add_return_iterator_to_exists_item) {
+TEST(LogicWiFiRequestsTestsGroup, AddOrReAddIfStatus_is_unique) {
     TestableWiFiRequests testable;
 
     CHECK_EQUAL(0, testable.size());
@@ -141,21 +139,48 @@ TEST(LogicWiFiRequestsTestsGroup, Add_return_iterator_to_exists_item) {
     request.Payload.Scanner.ssid = ssid;
     request.Payload.Scanner.status = false;
 
-    testable.Add(&request);
-
-    auto iter_to_previously_added_item = testable.Add(&request);
-    CHECK(iter_to_previously_added_item != testable.end());
+    bool status;
+    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
     CHECK_EQUAL(1, testable.size());
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, iter_to_previously_added_item->type);
-    CHECK_EQUAL(ssid, iter_to_previously_added_item->Payload.Scanner.ssid);
-    CHECK_FALSE(iter_to_previously_added_item->Payload.Scanner.status);
 
-    iter_to_previously_added_item->Payload.Scanner.status = true;
+    CHECK_FALSE(testable.AddOrReAddIfStatus(&request, &status));
+    CHECK_EQUAL(1, testable.size());
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
+    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
+}
 
-    RequestItem pop_request = testable.Pop();
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, pop_request.type);
-    STRCMP_EQUAL("test", pop_request.Payload.Scanner.ssid);
-    CHECK_TRUE(pop_request.Payload.Scanner.status);
+TEST(LogicWiFiRequestsTestsGroup,
+     AddOrReAddIfStatus_return_status_of_previously_added_Scan_request) {
+    TestableWiFiRequests testable;
+
+    CHECK_EQUAL(0, testable.size());
+
+    const char *ssid = "test";
+    RequestItem request = {};
+    request.type = RequestItemType::wqi_Scanner;
+    request.Payload.Scanner.ssid = ssid;
+    request.Payload.Scanner.status = false;
+
+    bool status;
+    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
+    CHECK_EQUAL(1, testable.size());
+    CHECK_FALSE(status);
+
+    CHECK_FALSE(testable.AddOrReAddIfStatus(&request, &status));
+    CHECK_EQUAL(1, testable.size());
+    CHECK_FALSE(status);
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
+    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
+    CHECK_FALSE(testable.back().Payload.Scanner.status);
+
+    testable.back().Payload.Scanner.status = true;
+
+    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
+    CHECK_EQUAL(1, testable.size());
+    CHECK_TRUE(status);
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
+    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
+    CHECK_FALSE(testable.back().Payload.Scanner.status);
 }
 
 TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
@@ -179,10 +204,10 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     request_AccessPoint_1.type = RequestItemType::wqi_AccessPoint;
     request_AccessPoint_1.Payload.AccessPoint.ssid = ssid_1;
 
-    CHECK(testable.Add(&request_Scanner_0) == testable.end());
-    CHECK(testable.Add(&request_AccessPoint_0) == testable.end());
-    CHECK(testable.Add(&request_Scanner_1) == testable.end());
-    CHECK(testable.Add(&request_AccessPoint_1) == testable.end());
+    CHECK_TRUE(testable.Add(&request_Scanner_0));
+    CHECK_TRUE(testable.Add(&request_AccessPoint_0));
+    CHECK_TRUE(testable.Add(&request_Scanner_1));
+    CHECK_TRUE(testable.Add(&request_AccessPoint_1));
 
     CHECK_EQUAL(4, testable.size());
 

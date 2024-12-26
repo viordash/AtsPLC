@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <mutex>
 #include <stdlib.h>
 
 enum RequestItemType { //
@@ -24,11 +25,12 @@ struct RequestItem {
 
 class WiFiRequests : public std::list<RequestItem> {
   protected:
+    std::mutex lock_mutex;
     bool Equals(const RequestItem *a, const RequestItem *b) const;
 
   public:
-    std::list<RequestItem>::iterator Add(RequestItem *new_request);
-    void Remove(std::list<RequestItem>::const_iterator it);
+    bool Add(RequestItem *new_request);
+    bool AddOrReAddIfStatus(RequestItem *new_request, bool *status);
     RequestItem Pop();
     void StationDone();
     void ScannerDone(const char *ssid);

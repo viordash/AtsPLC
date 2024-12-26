@@ -81,55 +81,35 @@ bool WiFiService::Started() {
     return uxBits & WiFiService::STARTED_BIT;
 }
 
-RequestItem WiFiService::PopRequest() {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    return requests.Pop();
-}
-
 void WiFiService::ConnectToStation() {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     RequestItem request = {};
     request.type = RequestItemType::wqi_Station;
-    auto it = requests.Add(&request);
-    bool was_inserted = it == requests.end();
+    bool was_inserted = requests.Add(&request);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
 }
 
 bool WiFiService::Scan(const char *ssid) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     RequestItem request = {};
     request.type = RequestItemType::wqi_Scanner;
     request.Payload.Scanner.ssid = ssid;
     request.Payload.Scanner.status = false;
 
-    auto it = requests.Add(&request);
-    bool was_inserted = it == requests.end();
+    bool status;
+    bool was_inserted = requests.AddOrReAddIfStatus(&request, &status);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        return false;
     }
-    if (!it->Payload.Scanner.status) {
-        return false;
-    }
-
-    requests.Remove(it);
-    it = requests.Add(&request);
-    was_inserted = it == requests.end();
-    assert(was_inserted);
-    xEventGroupSetBits(event, NEW_REQUEST_BIT);
-    return true;
+    return status;
 }
 
 void WiFiService::Generate(const char *ssid) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     RequestItem request = {};
     request.type = RequestItemType::wqi_AccessPoint;
     request.Payload.AccessPoint.ssid = ssid;
 
-    auto it = requests.Add(&request);
-    bool was_inserted = it == requests.end();
+    bool was_inserted = requests.Add(&request);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
@@ -149,7 +129,7 @@ void WiFiService::Task(void *parm) {
 
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
 
-            RequestItem new_request = wifi_service->PopRequest();
+            RequestItem new_request = wifi_service->requests.Pop();
             ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.type);
 
             switch (new_request.type) {
