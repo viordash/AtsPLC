@@ -179,7 +179,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
     CHECK_EQUAL(WiFiService::STOP_BIT, uxBits);
 }
 
-TEST(LogicWiFiServiceTestsGroup, StationTask_new_request_break_loop) {
+TEST(LogicWiFiServiceTestsGroup,
+     StationTask_new_request_break_loop_and_call_StationDone_for_requests) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectNCalls(2, "xTaskGetTickCount").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
@@ -210,6 +211,10 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_new_request_break_loop) {
         .withUnsignedIntParameter("uxBitsToWaitFor", WiFiService::STARTED_BIT)
         .ignoreOtherParameters();
 
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     mock().expectOneCall("esp_wifi_disconnect");
     mock().expectOneCall("esp_wifi_stop");
 
@@ -218,8 +223,12 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_new_request_break_loop) {
     strcpy(settings.wifi.ssid, "test_ssid");
     strcpy(settings.wifi.password, "test_pwd");
 
+    testable.ConnectToStation();
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+
     EventBits_t uxBits = testable.PublicMorozov_StationTask();
     CHECK_EQUAL(WiFiService::NEW_REQUEST_BIT, uxBits);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {

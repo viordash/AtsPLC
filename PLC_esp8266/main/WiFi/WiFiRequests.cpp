@@ -38,9 +38,9 @@ bool WiFiRequests::Add(RequestItem *new_request) {
 bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
     ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
 
+    std::lock_guard<std::mutex> lock(lock_mutex);
     bool exists = false;
     *status = false;
-    std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (Equals(&request, new_request)) {
@@ -66,6 +66,7 @@ RequestItem WiFiRequests::Pop() {
 }
 
 void WiFiRequests::StationDone() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Station) {
@@ -76,6 +77,7 @@ void WiFiRequests::StationDone() {
 }
 
 void WiFiRequests::ScannerDone(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
@@ -86,6 +88,7 @@ void WiFiRequests::ScannerDone(const char *ssid) {
 }
 
 void WiFiRequests::AccessPointDone(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_AccessPoint

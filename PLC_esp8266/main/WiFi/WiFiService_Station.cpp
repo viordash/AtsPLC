@@ -82,6 +82,7 @@ EventBits_t WiFiService::StationTask() {
 
     stop_http_server();
     Disconnect();
+    requests.StationDone();
 
     ESP_LOGW(TAG_WiFiService_Station, "finish");
     return uxBits;
