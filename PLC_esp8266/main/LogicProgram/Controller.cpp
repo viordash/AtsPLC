@@ -35,6 +35,7 @@ TaskHandle_t Controller::process_task_handle = NULL;
 
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
+WiFiService *Controller::wifi_service = NULL;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -45,8 +46,9 @@ ControllerVariable Controller::V2;
 ControllerVariable Controller::V3;
 ControllerVariable Controller::V4;
 
-void Controller::Start(EventGroupHandle_t gpio_events) {
+void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
     Controller::gpio_events = gpio_events;
+    Controller::wifi_service = (WiFiService *)wifi_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -309,5 +311,12 @@ void Controller::UnbindVariable(const MapIO io_adr) {
             break;
         default:
             break;
+    }
+
+    if (!Controller::V1.BindedToWiFi() && !Controller::V2.BindedToWiFi()
+        && !Controller::V3.BindedToWiFi() && !Controller::V4.BindedToWiFi()) {
+        if (Controller::wifi_service != NULL) {
+            Controller::wifi_service->ConnectToStation();
+        }
     }
 }

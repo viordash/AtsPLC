@@ -15,7 +15,7 @@ TEST_GROUP(LogicControllerTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {

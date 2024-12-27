@@ -17,7 +17,7 @@
 
 TEST_GROUP(LogicDirectOutputTestsGroup){ //
                                          TEST_SETUP(){ mock().disable();
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {

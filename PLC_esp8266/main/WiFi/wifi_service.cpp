@@ -7,9 +7,10 @@
 
 WiFiService *wifi_service;
 
-void start_wifi_service() {
+void *start_wifi_service() {
     wifi_service = new WiFiService();
     wifi_service->Start();
+    return wifi_service;
 }
 
 void stop_wifi_service() {

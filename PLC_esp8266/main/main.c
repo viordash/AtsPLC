@@ -38,7 +38,7 @@ static void system_init() {
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 }
 
-static void startup() {
+void app_main() {
     load_hotreload();
 
     if (hotreload->is_hotstart) {
@@ -56,11 +56,6 @@ static void startup() {
     }
 
     display_init();
-    start_process_engine(gpio_events);
-}
-
-void app_main() {
-    startup();
     hot_restart_counter();
 
     /* Print chip information */
@@ -81,13 +76,14 @@ void app_main() {
         vTaskDelay(3000 / portTICK_PERIOD_MS);
     }
 
-    start_wifi_service();
+    void *wifi_service = start_wifi_service();
+    start_process_engine(gpio_events, wifi_service);
 
     while (true) {
-        printf(".\n");
         vTaskDelay(portMAX_DELAY);
     }
 
+    stop_process_engine();
     stop_wifi_service();
     store_settings();
     printf("Restarting now.\n");

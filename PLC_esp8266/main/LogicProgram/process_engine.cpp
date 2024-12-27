@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-void start_process_engine(EventGroupHandle_t gpio_events) {
-    Controller::Start(gpio_events);
+void start_process_engine(EventGroupHandle_t gpio_events, void *wifi_service) {
+    Controller::Start(gpio_events, wifi_service);
 }
 
 void stop_process_engine() {

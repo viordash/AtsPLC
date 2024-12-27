@@ -22,7 +22,7 @@ TEST_GROUP(LogicComparatorLETestsGroup){
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {

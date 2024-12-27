@@ -18,6 +18,7 @@ extern "C" {
 #include "LogicProgram/ControllerVariable.h"
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
+#include "WiFi/WiFiService.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -31,9 +32,10 @@ class Controller {
     static TaskHandle_t process_task_handle;
     static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
+    static WiFiService *wifi_service;
 
   public:
-    static void Start(EventGroupHandle_t gpio_events);
+    static void Start(EventGroupHandle_t gpio_events, void *wifi_service);
     static void Stop();
     static bool SampleIOValues();
 

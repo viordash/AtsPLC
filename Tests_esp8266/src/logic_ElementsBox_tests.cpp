@@ -21,7 +21,7 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {
