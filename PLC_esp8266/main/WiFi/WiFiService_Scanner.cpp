@@ -1,0 +1,43 @@
+#include "HttpServer/http_server.h"
+#include "WiFiService.h"
+#include "esp_log.h"
+#include "esp_smartconfig.h"
+#include "esp_system.h"
+#include "esp_timer.h"
+#include "esp_wifi.h"
+#include "settings.h"
+#include "sys_gpio.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#define INFINITY_CONNECT_RETRY -1
+
+static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
+extern device_settings settings;
+
+EventBits_t WiFiService::ScannerTask(RequestItem *request) {
+    ESP_LOGI(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
+
+    EventBits_t uxBits = 0;
+    do {
+        uxBits = xEventGroupWaitBits(event,
+                                     STOP_BIT | NEW_REQUEST_BIT,
+                                     true,
+                                     false,
+                                     /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
+
+        ESP_LOGI(TAG_WiFiService_Scanner, "process, uxBits:0x%08X", uxBits);
+
+        bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0;
+        if (timeout) {
+            ESP_LOGI(TAG_WiFiService_Scanner, "timeout");
+            break;
+        }
+
+    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
+
+    requests.ScannerDone(request->Payload.Scanner.ssid);
+
+    ESP_LOGW(TAG_WiFiService_Scanner, "finish");
+    return uxBits;
+}

@@ -66,6 +66,7 @@ RequestItem WiFiRequests::Pop() {
 }
 
 void WiFiRequests::StationDone() {
+    ESP_LOGI(TAG_WiFiRequests, "StationDone");
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
@@ -77,6 +78,7 @@ void WiFiRequests::StationDone() {
 }
 
 void WiFiRequests::ScannerDone(const char *ssid) {
+    ESP_LOGI(TAG_WiFiRequests, "ScannerDone, ssid:%s", ssid);
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
@@ -88,6 +90,7 @@ void WiFiRequests::ScannerDone(const char *ssid) {
 }
 
 void WiFiRequests::AccessPointDone(const char *ssid) {
+    ESP_LOGI(TAG_WiFiRequests, "AccessPointDone, ssid:%s", ssid);
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;

@@ -15,23 +15,29 @@ bool ControllerVariable::SampleValue() {
     }
     required = false;
 
+    if (BindedToWiFi()) {
+        out_value = wifi_service->Scan(ssid);
+    }
     return UpdateValue(out_value);
 }
 
 void ControllerVariable::SetValue(uint8_t new_value) {
     required = true;
     out_value = new_value;
+    if (out_value && BindedToWiFi()) {
+        wifi_service->Generate(ssid);
+    }
 }
 
-void ControllerVariable::BindToWiFi(const char *ssid) {
-    wifi = true;
+void ControllerVariable::BindToWiFi(WiFiService *wifi_service, const char *ssid) {
+    this->wifi_service = wifi_service;
     this->ssid = ssid;
 }
 
 void ControllerVariable::Unbind() {
-    wifi = false;
+    this->wifi_service = NULL;
 }
 
 bool ControllerVariable::BindedToWiFi() {
-    return wifi;
+    return this->wifi_service != NULL;
 }

@@ -30,6 +30,7 @@ class WiFiService {
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
     EventBits_t StationTask();
+    EventBits_t ScannerTask(RequestItem *request);
 
     static void Task(void *parm);
     static void

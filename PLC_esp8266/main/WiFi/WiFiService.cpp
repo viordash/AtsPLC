@@ -98,6 +98,7 @@ bool WiFiService::Scan(const char *ssid) {
 
     bool status;
     bool was_inserted = requests.AddOrReAddIfStatus(&request, &status);
+    ESP_LOGI(TAG_WiFiService, "Scan, was_inserted:%d", was_inserted);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
@@ -119,28 +120,33 @@ void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    EventBits_t uxBits;
+    EventBits_t uxBits = 0;
     do {
-        uxBits = xEventGroupWaitBits(wifi_service->event,
-                                     STOP_BIT | NEW_REQUEST_BIT,
-                                     true,
-                                     false,
-                                     portMAX_DELAY);
 
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
-
             RequestItem new_request = wifi_service->requests.Pop();
             ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.type);
 
             switch (new_request.type) {
                 case wqi_Station:
                     uxBits = wifi_service->StationTask();
-                    break;
+                    continue;
+
+                case wqi_Scanner:
+                    uxBits = wifi_service->ScannerTask(&new_request);
+                    continue;
 
                 default:
                     break;
             }
+            ESP_LOGI(TAG_WiFiService, "end request, type:%u", new_request.type);
         }
+
+        uxBits = xEventGroupWaitBits(wifi_service->event,
+                                     STOP_BIT | NEW_REQUEST_BIT,
+                                     true,
+                                     false,
+                                     portMAX_DELAY);
 
     } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 

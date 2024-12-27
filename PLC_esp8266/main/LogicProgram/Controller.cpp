@@ -278,16 +278,24 @@ void Controller::RemoveExpiredWakeupRequests() {
 void Controller::BindVariableToWiFi(const MapIO io_adr, const char *ssid) {
     switch (io_adr) {
         case MapIO::V1:
-            Controller::V1.BindToWiFi(ssid);
+            if (Controller::wifi_service != NULL) {
+                Controller::V1.BindToWiFi(Controller::wifi_service, ssid);
+            }
             break;
         case MapIO::V2:
-            Controller::V2.BindToWiFi(ssid);
+            if (Controller::wifi_service != NULL) {
+                Controller::V2.BindToWiFi(Controller::wifi_service, ssid);
+            }
             break;
         case MapIO::V3:
-            Controller::V3.BindToWiFi(ssid);
+            if (Controller::wifi_service != NULL) {
+                Controller::V3.BindToWiFi(Controller::wifi_service, ssid);
+            }
             break;
         case MapIO::V4:
-            Controller::V4.BindToWiFi(ssid);
+            if (Controller::wifi_service != NULL) {
+                Controller::V4.BindToWiFi(Controller::wifi_service, ssid);
+            }
             break;
 
         default:
