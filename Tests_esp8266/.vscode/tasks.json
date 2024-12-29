@@ -19,7 +19,7 @@
                 "command": "bash",
                 "args": [
                     "-c",
-                    "make -j4"
+                    "make -j $(nproc)"
                 ]
             },
             "osx": {
@@ -44,7 +44,7 @@
                 "command": "bash",
                 "args": [
                     "-c",
-                    "'make -j4 clean;make -j4'"
+                    "'make -j $(nproc) clean;make -j $(nproc)'"
                 ]
             },
             "osx": {
