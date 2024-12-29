@@ -18,16 +18,23 @@
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
+WiFiService *wifi_service;
 TEST_GROUP(LogicWiFiBindingTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL);
+wifi_service = new WiFiService();
+Controller::Start(NULL, wifi_service);
 }
 
 TEST_TEARDOWN() {
+    Controller::V1.Unbind();
+    Controller::V2.Unbind();
+    Controller::V3.Unbind();
+    Controller::V4.Unbind();
     Controller::Stop();
+    delete wifi_service;
 }
 }
 ;
@@ -78,9 +85,13 @@ TEST(LogicWiFiBindingTestsGroup,
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
-    Controller::V1.BindToWiFi("test_ssid");
+    Controller::V1.BindToWiFi(wifi_service, "test_ssid");
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
@@ -89,6 +100,10 @@ TEST(LogicWiFiBindingTestsGroup,
 }
 
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
