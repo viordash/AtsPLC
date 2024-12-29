@@ -36,7 +36,7 @@ bool WiFiRequests::Add(RequestItem *new_request) {
 }
 
 bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
-    ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
+    ESP_LOGD(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
 
     std::lock_guard<std::mutex> lock(lock_mutex);
     bool exists = false;

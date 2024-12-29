@@ -97,7 +97,7 @@ bool WiFiService::Scan(const char *ssid) {
 
     bool status;
     bool was_inserted = requests.AddOrReAddIfStatus(&request, &status);
-    ESP_LOGI(TAG_WiFiService, "Scan, was_inserted:%d", was_inserted);
+    ESP_LOGD(TAG_WiFiService, "Scan, was_inserted:%d", was_inserted);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }

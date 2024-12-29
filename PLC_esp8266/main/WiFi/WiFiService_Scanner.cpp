@@ -1,4 +1,5 @@
-#include "HttpServer/http_server.h"
+
+#include "LogicProgram/Controller.h"
 #include "WiFiService.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
@@ -24,7 +25,7 @@ EventBits_t WiFiService::ScannerTask(RequestItem *request) {
                                      STOP_BIT | NEW_REQUEST_BIT,
                                      true,
                                      false,
-                                     /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
+                                     /*portMAX_DELAY*/ 3000 / portTICK_RATE_MS);
 
         ESP_LOGI(TAG_WiFiService_Scanner, "process, uxBits:0x%08X", uxBits);
 
@@ -36,6 +37,7 @@ EventBits_t WiFiService::ScannerTask(RequestItem *request) {
 
     } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
 
+    Controller::WakeupProcessTask();
     requests.ScannerDone(request->Payload.Scanner.ssid);
 
     ESP_LOGW(TAG_WiFiService_Scanner, "finish");
