@@ -58,6 +58,18 @@ bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
     return !exists || *status;
 }
 
+bool WiFiRequests::RemoveScanner(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
+            erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
 RequestItem WiFiRequests::Pop() {
     std::lock_guard<std::mutex> lock(lock_mutex);
     assert(!empty());

@@ -47,6 +47,7 @@ class WiFiService {
     static const int FAILED_BIT = BIT4;
     static const int CONNECTED_BIT = BIT5;
     static const int NEW_REQUEST_BIT = BIT6;
+    static const int CANCEL_REQUEST_BIT = BIT7;
 
     WiFiService();
     ~WiFiService();
@@ -57,5 +58,7 @@ class WiFiService {
 
     void ConnectToStation();
     bool Scan(const char *ssid);
+    void CancelScan(const char *ssid);
+
     void Generate(const char *ssid);
 };

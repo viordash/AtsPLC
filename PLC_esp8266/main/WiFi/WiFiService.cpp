@@ -104,6 +104,14 @@ bool WiFiService::Scan(const char *ssid) {
     return status;
 }
 
+void WiFiService::CancelScan(const char *ssid) {
+    bool removed = requests.RemoveScanner(ssid);
+    ESP_LOGI(TAG_WiFiService, "CancelScan, removed:%d", removed);
+    if (removed) {
+        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
+    }
+}
+
 void WiFiService::Generate(const char *ssid) {
     RequestItem request = {};
     request.type = RequestItemType::wqi_AccessPoint;

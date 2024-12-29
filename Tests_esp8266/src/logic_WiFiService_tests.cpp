@@ -99,6 +99,26 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status_and_re_add_scan_request) {
     CHECK_FALSE(testable.PublicMorozov_Get_requests()->front().Payload.Scanner.status);
 }
 
+TEST(LogicWiFiServiceTestsGroup, CancelScan) {
+    TestableWiFiService testable;
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    sprintf(buffer, "0x%08X", WiFiService::CANCEL_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    CHECK_FALSE(testable.Scan("ssid_0"));
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+
+    testable.CancelScan("ssid_0");
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+}
+
 TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
     TestableWiFiService testable;
     char buffer[32];
