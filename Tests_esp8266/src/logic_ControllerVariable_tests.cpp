@@ -52,9 +52,9 @@ TEST(LogicControllerVariableTestsGroup, SampleValue_return_true_if_any_changes) 
     TestableControllerVariable testable;
     testable.Init();
 
-    testable.SetValue(42);
+    testable.WriteValue(42);
     CHECK_TRUE(testable.SampleValue());
-    CHECK_EQUAL(42, testable.GetValue());
+    CHECK_EQUAL(42, testable.ReadValue());
     CHECK_FALSE(testable.SampleValue());
 }
 
@@ -74,23 +74,23 @@ TEST(LogicControllerVariableTestsGroup, UpdateValue_updated_value) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerVariableTestsGroup, GetValue_returns_value_and_set_requried) {
+TEST(LogicControllerVariableTestsGroup, ReadValue_returns_value_and_set_requried) {
     TestableControllerVariable testable;
     testable.Init();
     *(testable.PublicMorozov_Get_required()) = false;
     CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
 
-    CHECK_EQUAL(LogicElement::MaxValue, testable.GetValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
 }
 
-TEST(LogicControllerVariableTestsGroup, SetValue_changes_out_value_and_set_requried) {
+TEST(LogicControllerVariableTestsGroup, WriteValue_changes_out_value_and_set_requried) {
     TestableControllerVariable testable;
 
-    testable.SetValue(LogicElement::MaxValue);
+    testable.WriteValue(LogicElement::MaxValue);
     CHECK_EQUAL(LogicElement::MaxValue, *testable.PublicMorozov_Get_out_value());
 
-    testable.SetValue(42);
+    testable.WriteValue(42);
     CHECK_EQUAL(42, *testable.PublicMorozov_Get_out_value());
     CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
 }

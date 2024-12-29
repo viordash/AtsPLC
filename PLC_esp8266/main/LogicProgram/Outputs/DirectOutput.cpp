@@ -35,7 +35,7 @@ bool DirectOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_sta
     }
 
     if (state != prev_state) {
-        Output->SetValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
+        Output->WriteValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
                                                     : LogicElement::MinValue);
         any_changes = true;
         ESP_LOGD(TAG_DirectOutput, ".");

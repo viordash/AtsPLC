@@ -21,7 +21,7 @@ bool ControllerVariable::SampleValue() {
     return UpdateValue(out_value);
 }
 
-void ControllerVariable::SetValue(uint8_t new_value) {
+void ControllerVariable::WriteValue(uint8_t new_value) {
     required = true;
     out_value = new_value;
     if (out_value && BindedToWiFi()) {

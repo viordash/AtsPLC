@@ -55,7 +55,7 @@ TEST(LogicControllerDOTestsGroup, SampleValue_return_true_if_any_changes) {
     testable.Init();
 
     CHECK_TRUE(testable.SampleValue());
-    CHECK_EQUAL(LogicElement::MaxValue, testable.GetValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_FALSE(testable.SampleValue());
 }
 
@@ -75,21 +75,21 @@ TEST(LogicControllerDOTestsGroup, UpdateValue_updated_value) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDOTestsGroup, GetValue_returns_value_and_set_requried) {
+TEST(LogicControllerDOTestsGroup, ReadValue_returns_value_and_set_requried) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
     *(testable.PublicMorozov_Get_required()) = false;
     CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
 
-    CHECK_EQUAL(LogicElement::MaxValue, testable.GetValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
 }
 
-TEST(LogicControllerDOTestsGroup, SetValue_changes_out_and_set_requried) {
+TEST(LogicControllerDOTestsGroup, WriteValue_changes_out_and_set_requried) {
     mock("2").expectOneCall("gpio_set_level").withUnsignedIntParameter("level", 0);
     TestableControllerDO testable(gpio_output::OUTPUT_0);
 
-    testable.SetValue(LogicElement::MaxValue);
+    testable.WriteValue(LogicElement::MaxValue);
     CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
 
 }

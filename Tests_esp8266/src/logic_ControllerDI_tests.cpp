@@ -53,7 +53,7 @@ TEST(LogicControllerDITestsGroup, SampleValue_return_true_if_any_changes) {
     testable.Init();
 
     CHECK_TRUE(testable.SampleValue());
-    CHECK_EQUAL(LogicElement::MaxValue, testable.GetValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_FALSE(testable.SampleValue());
 }
 
@@ -73,12 +73,12 @@ TEST(LogicControllerDITestsGroup, UpdateValue_updated_value) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDITestsGroup, GetValue_returns_value_and_set_requried) {
+TEST(LogicControllerDITestsGroup, ReadValue_returns_value_and_set_requried) {
     TestableControllerDI testable;
     testable.Init();
     *(testable.PublicMorozov_Get_required()) = false;
     CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
 
-    CHECK_EQUAL(LogicElement::MaxValue, testable.GetValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
 }

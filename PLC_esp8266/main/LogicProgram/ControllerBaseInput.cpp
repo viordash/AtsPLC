@@ -12,7 +12,7 @@ void ControllerBaseInput::Init() {
     value = LogicElement::MinValue;
 }
 
-uint8_t ControllerBaseInput::GetValue() {
+uint8_t ControllerBaseInput::ReadValue() {
     required = true;
     return value;
 }

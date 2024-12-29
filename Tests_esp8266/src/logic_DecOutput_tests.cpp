@@ -73,9 +73,9 @@ TEST(LogicDecOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
     TestableDecOutput testable;
     testable.SetIoAdr(MapIO::V1);
-    Controller::V1.GetValue();
+    Controller::V1.ReadValue();
 
-    Controller::V1.SetValue(42);
+    Controller::V1.WriteValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_TRUE(Controller::SampleIOValues());
@@ -88,8 +88,8 @@ TEST(LogicDecOutputTestsGroup,
 }
 
 TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::V1.GetValue();
-    Controller::V1.SetValue(42);
+    Controller::V1.ReadValue();
+    Controller::V1.WriteValue(42);
 
     TestableDecOutput testable;
     testable.SetIoAdr(MapIO::V1);

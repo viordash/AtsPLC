@@ -54,7 +54,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
     CHECK_FALSE(Controller::SampleIOValues());
 
     adc = 42 / 0.1;
-    Controller::AI.GetValue();
+    Controller::AI.ReadValue();
     Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(42 / 0.4, Controller::AI.PeekValue());
@@ -72,7 +72,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_DI) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::DI.GetValue();
+    Controller::DI.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::DI.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -89,7 +89,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O1) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::O1.GetValue();
+    Controller::O1.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O1.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -106,7 +106,7 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::O2.GetValue();
+    Controller::O2.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O2.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -122,8 +122,8 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V1) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::V1.GetValue();
-    Controller::V1.SetValue(42);
+    Controller::V1.ReadValue();
+    Controller::V1.WriteValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(42, Controller::V1.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -139,8 +139,8 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V2) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::V2.GetValue();
-    Controller::V2.SetValue(42);
+    Controller::V2.ReadValue();
+    Controller::V2.WriteValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(42, Controller::V2.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -156,8 +156,8 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V3) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::V3.GetValue();
-    Controller::V3.SetValue(42);
+    Controller::V3.ReadValue();
+    Controller::V3.WriteValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(42, Controller::V3.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());
@@ -173,8 +173,8 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V4) {
     Controller::SampleIOValues();
     CHECK_FALSE(Controller::SampleIOValues());
 
-    Controller::V4.GetValue();
-    Controller::V4.SetValue(42);
+    Controller::V4.ReadValue();
+    Controller::V4.WriteValue(42);
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_EQUAL(42, Controller::V4.PeekValue());
     CHECK_FALSE(Controller::SampleIOValues());

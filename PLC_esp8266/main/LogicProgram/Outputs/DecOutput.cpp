@@ -36,14 +36,14 @@ bool DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            uint8_t prev_val = Input->GetValue();
+            uint8_t prev_val = Input->ReadValue();
             if (prev_val > LogicElement::MinValue) {
                 prev_val--;
             }
-            Output->SetValue(prev_val);
+            Output->WriteValue(prev_val);
         }
         any_changes = true;
-        ESP_LOGD(TAG_DecOutput, ". %u", Input->GetValue());
+        ESP_LOGD(TAG_DecOutput, ". %u", Input->ReadValue());
     }
 
     return any_changes;

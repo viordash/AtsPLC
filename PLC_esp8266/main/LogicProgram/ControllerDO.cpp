@@ -19,7 +19,7 @@ bool ControllerDO::SampleValue() {
     return UpdateValue(percent04);
 }
 
-void ControllerDO::SetValue(uint8_t new_value) {
+void ControllerDO::WriteValue(uint8_t new_value) {
     required = true;
     set_digital_value(gpio, new_value != LogicElement::MinValue);
 }

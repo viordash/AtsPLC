@@ -80,7 +80,7 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::V1.SetValue(LogicElement::MinValue);
+    Controller::V1.WriteValue(LogicElement::MinValue);
     Controller::SampleIOValues();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -96,7 +96,7 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
-    Controller::V1.SetValue(LogicElement::MaxValue);
+    Controller::V1.WriteValue(LogicElement::MaxValue);
     Controller::SampleIOValues();
 
     TestableDirectOutput testable;

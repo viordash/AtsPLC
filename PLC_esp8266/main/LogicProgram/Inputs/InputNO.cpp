@@ -30,7 +30,7 @@ bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     LogicItemState prev_state = state;
 
     if (prev_elem_state == LogicItemState::lisActive //
-        && Input->GetValue() != LogicElement::MinValue) {
+        && Input->ReadValue() != LogicElement::MinValue) {
         state = LogicItemState::lisActive;
     } else {
         state = LogicItemState::lisPassive;

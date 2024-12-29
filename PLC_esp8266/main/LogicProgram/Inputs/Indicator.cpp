@@ -94,7 +94,7 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
             switch (editing_property_id) {
                 case Indicator::EditingPropertyId::ciepi_None:
-                    PrintOutValue(Input->GetValue());
+                    PrintOutValue(Input->ReadValue());
                     break;
                 default:
                     break;

@@ -73,7 +73,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
     TestableSetOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::V1.SetValue(LogicElement::MinValue);
+    Controller::V1.WriteValue(LogicElement::MinValue);
     Controller::SampleIOValues();
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -86,7 +86,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
 }
 
 TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::V1.SetValue(LogicElement::MinValue);
+    Controller::V1.WriteValue(LogicElement::MinValue);
     Controller::SampleIOValues();
 
     TestableSetOutput testable;

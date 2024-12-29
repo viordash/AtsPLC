@@ -9,5 +9,5 @@ class ControllerBaseOutput {
 
   public:
     virtual ~ControllerBaseOutput();
-    virtual void SetValue(uint8_t new_value) = 0;
+    virtual void WriteValue(uint8_t new_value) = 0;
 };
