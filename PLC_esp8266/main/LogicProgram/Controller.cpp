@@ -29,6 +29,14 @@ static const char *TAG_Controller = "controller";
 #define DO_SCROLL_PAGE_UP BIT8
 #define DO_SCROLL_PAGE_DOWN BIT9
 
+#define GPIO_EVENTS_ALL_BITS                                                                       \
+    (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
+     | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE                       \
+     | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
+
+static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
+              "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
+
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
@@ -116,14 +124,11 @@ void Controller::ProcessTask(void *parm) {
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
-        EventBits_t uxBits = xEventGroupWaitBits(
-            Controller::gpio_events,
-            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
-                | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
-                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
-            true,
-            false,
-            processWakeupService->Get());
+        EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
+                                                 GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
+                                                 true,
+                                                 false,
+                                                 processWakeupService->Get());
 
         processWakeupService->RemoveExpired();
 
@@ -327,4 +332,8 @@ void Controller::UnbindVariable(const MapIO io_adr) {
             Controller::wifi_service->ConnectToStation();
         }
     }
+}
+
+void Controller::WakeupProcessTask() {
+    xEventGroupSetBits(Controller::gpio_events, WAKEUP_PROCESS_TASK);
 }

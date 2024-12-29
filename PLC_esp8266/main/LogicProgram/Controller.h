@@ -35,6 +35,8 @@ class Controller {
     static WiFiService *wifi_service;
 
   public:
+    static const int WAKEUP_PROCESS_TASK = BIT15;
+
     static void Start(EventGroupHandle_t gpio_events, void *wifi_service);
     static void Stop();
     static bool SampleIOValues();
@@ -57,4 +59,6 @@ class Controller {
 
     static void BindVariableToWiFi(const MapIO io_adr, const char *ssid);
     static void UnbindVariable(const MapIO io_adr);
+
+    static void WakeupProcessTask();
 };

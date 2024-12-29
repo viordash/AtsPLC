@@ -205,3 +205,11 @@ TEST(LogicControllerTestsGroup,
     CHECK_EQUAL(RequestItemType::wqi_Station,
                 wifi_service->PublicMorozov_Get_requests()->front().type);
 }
+
+TEST(LogicControllerTestsGroup, WakeupProcessTask) {
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    Controller::WakeupProcessTask();
+}
