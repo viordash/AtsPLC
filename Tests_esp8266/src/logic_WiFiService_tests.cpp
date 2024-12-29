@@ -38,8 +38,6 @@ namespace {
 } // namespace
 
 TEST(LogicWiFiServiceTestsGroup, TryConnectToStation_requests_are_unique) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -57,8 +55,6 @@ TEST(LogicWiFiServiceTestsGroup, TryConnectToStation_requests_are_unique) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -85,8 +81,6 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, Scan_return_status_and_re_add_scan_request) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -106,8 +100,6 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status_and_re_add_scan_request) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -134,8 +126,6 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
-    mock().expectOneCall("xEventGroupWaitBits").ignoreOtherParameters();
-
     TestableWiFiService testable;
 
     settings.wifi.ssid[0] = 0;
@@ -160,11 +150,6 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
                                       | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
         .andReturnValue(WiFiService::STOP_BIT)
-        .ignoreOtherParameters();
-
-    mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
-        .withUnsignedIntParameter("uxBitsToWaitFor", WiFiService::STARTED_BIT)
         .ignoreOtherParameters();
 
     mock().expectOneCall("esp_wifi_disconnect");
@@ -204,11 +189,6 @@ TEST(LogicWiFiServiceTestsGroup,
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
                                       | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
         .andReturnValue(WiFiService::NEW_REQUEST_BIT)
-        .ignoreOtherParameters();
-
-    mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
-        .withUnsignedIntParameter("uxBitsToWaitFor", WiFiService::STARTED_BIT)
         .ignoreOtherParameters();
 
     char buffer[32];
@@ -255,11 +235,6 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
                                       | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
         .andReturnValue(WiFiService::STOP_BIT)
-        .ignoreOtherParameters();
-
-    mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
-        .withUnsignedIntParameter("uxBitsToWaitFor", WiFiService::STARTED_BIT)
         .ignoreOtherParameters();
 
     mock().expectNCalls(2, "esp_wifi_disconnect");

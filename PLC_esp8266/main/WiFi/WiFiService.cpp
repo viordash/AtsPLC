@@ -19,7 +19,6 @@ WiFiService::WiFiService() {
 }
 
 WiFiService::~WiFiService() {
-    Stop();
 }
 
 void WiFiService::Start() {
