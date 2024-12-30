@@ -67,17 +67,17 @@ void WiFiService::Stop() {
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
 
-    xEventGroupClearBits(event, WiFiService::STARTED_BIT);
+    xEventGroupClearBits(event, STARTED_BIT);
     vEventGroupDelete(event);
 }
 
 bool WiFiService::Started() {
-    EventBits_t uxBits = xEventGroupWaitBits(event, WiFiService::STARTED_BIT, false, false, 0);
+    EventBits_t uxBits = xEventGroupWaitBits(event, STARTED_BIT, false, false, 0);
 
-    if (uxBits & WiFiService::STARTED_BIT) {
+    if (uxBits & STARTED_BIT) {
         ESP_LOGI(TAG_WiFiService, "is_runned, uxBits:0x%08X", uxBits);
     }
-    return uxBits & WiFiService::STARTED_BIT;
+    return uxBits & STARTED_BIT;
 }
 
 void WiFiService::ConnectToStation() {
