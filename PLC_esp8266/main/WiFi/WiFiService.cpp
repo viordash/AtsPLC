@@ -126,22 +126,28 @@ void WiFiService::Generate(const char *ssid) {
 void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
+    bool has_new_request;
 
     EventBits_t uxBits = 0;
     do {
-
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
             RequestItem new_request = wifi_service->requests.Pop();
             ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.type);
 
             switch (new_request.type) {
                 case wqi_Station:
-                    uxBits = wifi_service->StationTask();
-                    continue;
+                    has_new_request = wifi_service->StationTask();
+                    if (has_new_request) {
+                        continue;
+                    }
+                    break;
 
                 case wqi_Scanner:
-                    uxBits = wifi_service->ScannerTask(&new_request);
-                    continue;
+                    has_new_request = wifi_service->ScannerTask(&new_request);
+                    if (has_new_request) {
+                        continue;
+                    }
+                    break;
 
                 default:
                     break;

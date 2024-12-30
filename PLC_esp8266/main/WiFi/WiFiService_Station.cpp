@@ -15,33 +15,16 @@
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern device_settings settings;
 
-EventBits_t WiFiService::StationTask() {
-    int32_t max_retry_count;
-    wifi_config_t wifi_config = {};
-
-    SAFETY_SETTINGS(
-        memcpy(wifi_config.sta.ssid, settings.wifi.ssid, sizeof(wifi_config.sta.ssid)); //
-        memcpy(wifi_config.sta.password,
-               settings.wifi.password,
-               sizeof(wifi_config.sta.password));                //
-        max_retry_count = settings.wifi.connect_max_retry_count; //
-    );
-
-    bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
-    if (!has_wifi_sta_settings) {
-        ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
-        return 0;
-    }
-
-    ESP_LOGI(TAG_WiFiService_Station, "start");
+bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config,
+                                       bool *has_new_request,
+                                       int32_t max_retry_count) {
+    ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation");
 
     int connect_retry_num = 0;
     EventBits_t uxBits = 0;
     do {
-        TickType_t start_loop_ticks = xTaskGetTickCount();
-
         if (uxBits == 0 || (uxBits & FAILED_BIT) != 0) {
-            Connect(&wifi_config);
+            Connect(wifi_config);
         }
 
         uxBits = xEventGroupWaitBits(event,
@@ -51,13 +34,12 @@ EventBits_t WiFiService::StationTask() {
                                      false,
                                      portMAX_DELAY);
 
-        ESP_LOGI(TAG_WiFiService_Station, "process, uxBits:0x%08X", uxBits);
+        ESP_LOGI(TAG_WiFiService_Station, "process ConnectToStation, uxBits:0x%08X", uxBits);
 
         bool connected = (uxBits & CONNECTED_BIT) != 0;
         if (connected) {
             ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
-            connect_retry_num = 0;
-            start_http_server();
+            return true;
         }
 
         bool any_failure = (uxBits & FAILED_BIT) != 0;
@@ -72,21 +54,98 @@ EventBits_t WiFiService::StationTask() {
                          connect_retry_num,
                          max_retry_count);
                 Disconnect();
-                vTaskDelayUntil(&start_loop_ticks, 1000 / portTICK_RATE_MS);
+
+                const TickType_t reconnect_delay = 3000 / portTICK_RATE_MS;
+                xEventGroupWaitBits(event,
+                                    STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
+                                    false,
+                                    false,
+                                    reconnect_delay);
+
             } else {
                 ESP_LOGI(TAG_WiFiService_Station, "failed. unable reconnect");
-                break;
+                return false;
             }
         }
-
     } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
 
-    stop_http_server();
-    Disconnect();
+    if ((uxBits & NEW_REQUEST_BIT) != 0) {
+        *has_new_request = true;
+    }
+    return false;
+}
+
+bool WiFiService::StationTask() {
+    ESP_LOGI(TAG_WiFiService_Station, "start");
+
+    int32_t max_retry_count;
+    wifi_config_t wifi_config = {};
+
+    SAFETY_SETTINGS(
+        memcpy(wifi_config.sta.ssid, settings.wifi.ssid, sizeof(wifi_config.sta.ssid)); //
+        memcpy(wifi_config.sta.password,
+               settings.wifi.password,
+               sizeof(wifi_config.sta.password));                //
+        max_retry_count = settings.wifi.connect_max_retry_count; //
+    );
+
+    bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
+    if (!has_wifi_sta_settings) {
+        ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
+        return false;
+    }
+
+    bool has_new_request = false;
+    bool break_process = false;
+    while (!break_process && !has_new_request) {
+        if (!ConnectToStationTask(&wifi_config, &has_new_request, max_retry_count)) {
+            Disconnect();
+            break;
+        }
+
+        start_http_server();
+        EventBits_t uxBits =
+            xEventGroupWaitBits(event,
+                                FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
+                                true,
+                                false,
+                                portMAX_DELAY);
+        ESP_LOGI(TAG_WiFiService_Station, "on connecting, uxBits:0x%08X", uxBits);
+
+        stop_http_server();
+        Disconnect();
+
+        if ((uxBits & NEW_REQUEST_BIT) != 0) {
+            has_new_request = true;
+        }
+        if ((uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) != 0) {
+            break_process = true;
+        }
+
+        bool any_failure = (uxBits & FAILED_BIT) != 0;
+        if (!any_failure) {
+            const TickType_t wait_disconnecting_timeout = 5000 / portTICK_RATE_MS;
+            uxBits =
+                xEventGroupWaitBits(event,
+                                    FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
+                                    true,
+                                    false,
+                                    wait_disconnecting_timeout);
+
+            ESP_LOGI(TAG_WiFiService_Station, "wait disconnecting, uxBits:0x%08X", uxBits);
+            if ((uxBits & NEW_REQUEST_BIT) != 0) {
+                has_new_request = true;
+            }
+            if ((uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) != 0) {
+                break_process = true;
+            }
+        }
+    }
+
     requests.StationDone();
 
-    ESP_LOGW(TAG_WiFiService_Station, "finish, bits:0x%08X", uxBits);
-    return uxBits;
+    ESP_LOGW(TAG_WiFiService_Station, "finish, has_new_request:%u", has_new_request);
+    return has_new_request;
 }
 
 void WiFiService::Connect(wifi_config_t *wifi_config) {

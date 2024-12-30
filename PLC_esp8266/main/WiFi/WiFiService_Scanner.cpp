@@ -16,9 +16,10 @@
 static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
 extern device_settings settings;
 
-EventBits_t WiFiService::ScannerTask(RequestItem *request) {
+bool WiFiService::ScannerTask(RequestItem *request) {
     ESP_LOGI(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
 
+    bool has_new_request = false;
     EventBits_t uxBits = 0;
     bool found = false;
     do {
@@ -27,8 +28,10 @@ EventBits_t WiFiService::ScannerTask(RequestItem *request) {
                                      true,
                                      false,
                                      /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
-
         ESP_LOGI(TAG_WiFiService_Scanner, "process, uxBits:0x%08X", uxBits);
+        if ((uxBits & NEW_REQUEST_BIT) != 0) {
+            has_new_request = true;
+        }
 
         bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0;
         if (timeout) {
@@ -46,6 +49,6 @@ EventBits_t WiFiService::ScannerTask(RequestItem *request) {
         requests.RemoveScanner(request->Payload.Scanner.ssid);
     }
 
-    ESP_LOGW(TAG_WiFiService_Scanner, "finish, bits:0x%08X", uxBits);
-    return uxBits;
+    ESP_LOGW(TAG_WiFiService_Scanner, "finish, has_new_request:%u", has_new_request);
+    return has_new_request;
 }
