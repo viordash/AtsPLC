@@ -16,7 +16,7 @@ bool ControllerVariable::SampleValue() {
     required = false;
 
     if (BindedToWiFi()) {
-        out_value = wifi_service->Scan(ssid);
+        out_value = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
     }
     return UpdateValue(out_value);
 }
