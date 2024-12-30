@@ -47,11 +47,12 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive //
-        && this->CompareFunction()) {
+    state = LogicItemState::lisPassive;
+    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
+        Input->CancelReadingValue();
+    } else if (prev_elem_state == LogicItemState::lisActive //
+               && this->CompareFunction()) {
         state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
     }
 
     if (state != prev_state) {

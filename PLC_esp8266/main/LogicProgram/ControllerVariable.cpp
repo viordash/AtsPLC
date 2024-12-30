@@ -1,9 +1,13 @@
 #include "LogicProgram/ControllerVariable.h"
 #include "LogicProgram/LogicElement.h"
+#include "esp_err.h"
+#include "esp_log.h"
 #include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const char *TAG_ControllerVariable = "ControllerVariable";
 
 ControllerVariable::ControllerVariable() {
     Unbind();
@@ -40,4 +44,14 @@ void ControllerVariable::Unbind() {
 
 bool ControllerVariable::BindedToWiFi() {
     return this->wifi_service != NULL;
+}
+
+void ControllerVariable::CancelReadingValue() {
+    ESP_LOGI(TAG_ControllerVariable,
+             "CancelReadingValue, wifi:%u, required:%u",
+             BindedToWiFi(),
+             required);
+    if (BindedToWiFi()) {
+        wifi_service->CancelScan(ssid);
+    }
 }

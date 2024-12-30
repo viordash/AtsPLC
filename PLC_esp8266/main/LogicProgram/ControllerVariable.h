@@ -19,4 +19,6 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
     void BindToWiFi(WiFiService *wifi_service, const char *ssid);
     void Unbind();
     bool BindedToWiFi();
+
+    void CancelReadingValue() override;
 };

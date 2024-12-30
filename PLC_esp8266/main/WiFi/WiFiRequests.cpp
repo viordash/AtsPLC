@@ -63,10 +63,12 @@ bool WiFiRequests::RemoveScanner(const char *ssid) {
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
+            ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, removed:'%s'", ssid);
             erase(it);
             return true;
         }
     }
+    ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, not found:'%s'", ssid);
     return false;
 }
 
@@ -84,21 +86,22 @@ void WiFiRequests::StationDone() {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Station) {
             erase(it);
-            break;
+            return;
         }
     }
 }
 
 void WiFiRequests::ScannerDone(const char *ssid) {
-    ESP_LOGI(TAG_WiFiRequests, "ScannerDone, ssid:%s", ssid);
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
             it->Payload.Scanner.status = true;
-            break;
+            ESP_LOGI(TAG_WiFiRequests, "ScannerDone, found:%s", ssid);
+            return;
         }
     }
+    ESP_LOGI(TAG_WiFiRequests, "ScannerDone, not found:'%s'", ssid);
 }
 
 void WiFiRequests::AccessPointDone(const char *ssid) {
@@ -109,7 +112,7 @@ void WiFiRequests::AccessPointDone(const char *ssid) {
         if (request.type == RequestItemType::wqi_AccessPoint
             && it->Payload.AccessPoint.ssid == ssid) {
             erase(it);
-            break;
+            return;
         }
     }
 }

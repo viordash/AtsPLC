@@ -20,26 +20,32 @@ EventBits_t WiFiService::ScannerTask(RequestItem *request) {
     ESP_LOGI(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
 
     EventBits_t uxBits = 0;
+    bool found = false;
     do {
         uxBits = xEventGroupWaitBits(event,
-                                     STOP_BIT | NEW_REQUEST_BIT,
+                                     STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
                                      true,
                                      false,
-                                     /*portMAX_DELAY*/ 3000 / portTICK_RATE_MS);
+                                     /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
 
         ESP_LOGI(TAG_WiFiService_Scanner, "process, uxBits:0x%08X", uxBits);
 
-        bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0;
+        bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0;
         if (timeout) {
-            ESP_LOGI(TAG_WiFiService_Scanner, "timeout");
+            ESP_LOGI(TAG_WiFiService_Scanner, "found");
+            found = true;
             break;
         }
 
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
+    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
 
-    Controller::WakeupProcessTask();
-    requests.ScannerDone(request->Payload.Scanner.ssid);
+    if (found) {
+        Controller::WakeupProcessTask();
+        requests.ScannerDone(request->Payload.Scanner.ssid);
+    } else {
+        requests.RemoveScanner(request->Payload.Scanner.ssid);
+    }
 
-    ESP_LOGW(TAG_WiFiService_Scanner, "finish");
+    ESP_LOGW(TAG_WiFiService_Scanner, "finish, bits:0x%08X", uxBits);
     return uxBits;
 }

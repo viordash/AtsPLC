@@ -45,7 +45,8 @@ EventBits_t WiFiService::StationTask() {
         }
 
         uxBits = xEventGroupWaitBits(event,
-                                     CONNECTED_BIT | FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT,
+                                     CONNECTED_BIT | FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT
+                                         | CANCEL_REQUEST_BIT,
                                      true,
                                      false,
                                      portMAX_DELAY);
@@ -78,13 +79,13 @@ EventBits_t WiFiService::StationTask() {
             }
         }
 
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
+    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
 
     stop_http_server();
     Disconnect();
     requests.StationDone();
 
-    ESP_LOGW(TAG_WiFiService_Station, "finish");
+    ESP_LOGW(TAG_WiFiService_Station, "finish, bits:0x%08X", uxBits);
     return uxBits;
 }
 

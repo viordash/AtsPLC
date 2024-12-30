@@ -20,4 +20,5 @@ class ControllerBaseInput {
     uint8_t ReadValue();
     uint8_t PeekValue();
     bool UpdateValue(uint8_t new_value);
+    virtual void CancelReadingValue(){};
 };

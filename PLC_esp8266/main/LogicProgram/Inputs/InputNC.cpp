@@ -29,11 +29,12 @@ bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive //
-        && Input->ReadValue() == LogicElement::MinValue) {
+    state = LogicItemState::lisPassive;
+    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
+        Input->CancelReadingValue();
+    } else if (prev_elem_state == LogicItemState::lisActive //
+               && Input->ReadValue() == LogicElement::MinValue) {
         state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
     }
 
     if (state != prev_state) {

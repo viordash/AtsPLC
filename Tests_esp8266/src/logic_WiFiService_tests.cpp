@@ -168,7 +168,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("uxBitsToWaitFor",
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
+                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT
+                                      | WiFiService::CANCEL_REQUEST_BIT)
         .andReturnValue(WiFiService::STOP_BIT)
         .ignoreOtherParameters();
 
@@ -199,7 +200,8 @@ TEST(LogicWiFiServiceTestsGroup,
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("uxBitsToWaitFor",
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
+                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT
+                                      | WiFiService::CANCEL_REQUEST_BIT)
         .andReturnValue(WiFiService::CONNECTED_BIT)
         .ignoreOtherParameters();
 
@@ -207,7 +209,8 @@ TEST(LogicWiFiServiceTestsGroup,
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("uxBitsToWaitFor",
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
+                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT
+                                      | WiFiService::CANCEL_REQUEST_BIT)
         .andReturnValue(WiFiService::NEW_REQUEST_BIT)
         .ignoreOtherParameters();
 
@@ -245,7 +248,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("uxBitsToWaitFor",
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
+                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT
+                                      | WiFiService::CANCEL_REQUEST_BIT)
         .andReturnValue(WiFiService::FAILED_BIT)
         .ignoreOtherParameters();
 
@@ -253,7 +257,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("uxBitsToWaitFor",
                                   WiFiService::CONNECTED_BIT | WiFiService::FAILED_BIT
-                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT)
+                                      | WiFiService::STOP_BIT | WiFiService::NEW_REQUEST_BIT
+                                      | WiFiService::CANCEL_REQUEST_BIT)
         .andReturnValue(WiFiService::STOP_BIT)
         .ignoreOtherParameters();
 
