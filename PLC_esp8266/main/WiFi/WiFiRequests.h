@@ -32,6 +32,7 @@ class WiFiRequests : public std::list<RequestItem> {
     bool Add(RequestItem *new_request);
     bool AddOrReAddIfStatus(RequestItem *new_request, bool *status);
     bool RemoveScanner(const char *ssid);
+    bool RemoveAccessPoint(const char *ssid);
     RequestItem Pop();
     void StationDone();
     void ScannerDone(const char *ssid);

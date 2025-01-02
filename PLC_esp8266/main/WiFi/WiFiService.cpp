@@ -118,8 +118,17 @@ void WiFiService::Generate(const char *ssid) {
     request.Payload.AccessPoint.ssid = ssid;
 
     bool was_inserted = requests.Add(&request);
+    ESP_LOGI(TAG_WiFiService, "Generate, was_inserted:%d", was_inserted);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
+    }
+}
+
+void WiFiService::CancelGenerate(const char *ssid) {
+    bool removed = requests.RemoveAccessPoint(ssid);
+    ESP_LOGI(TAG_WiFiService, "CancelGenerate, removed:%d", removed);
+    if (removed) {
+        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
     }
 }
 
@@ -144,6 +153,13 @@ void WiFiService::Task(void *parm) {
 
                 case wqi_Scanner:
                     has_new_request = wifi_service->ScannerTask(&new_request);
+                    if (has_new_request) {
+                        continue;
+                    }
+                    break;
+
+                case wqi_AccessPoint:
+                    has_new_request = wifi_service->AccessPointTask(&new_request);
                     if (has_new_request) {
                         continue;
                     }

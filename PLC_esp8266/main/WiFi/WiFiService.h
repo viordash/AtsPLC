@@ -35,6 +35,7 @@ class WiFiService {
                               int32_t max_retry_count);
     bool StationTask();
     bool ScannerTask(RequestItem *request);
+    bool AccessPointTask(RequestItem *request);
 
     static void Task(void *parm);
     static void
@@ -64,4 +65,5 @@ class WiFiService {
     void CancelScan(const char *ssid);
 
     void Generate(const char *ssid);
+    void CancelGenerate(const char *ssid);
 };

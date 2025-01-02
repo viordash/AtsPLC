@@ -13,6 +13,11 @@ ControllerVariable::ControllerVariable() {
     Unbind();
 }
 
+void ControllerVariable::Init() {
+    ControllerBaseInput::Init();
+    out_value = LogicElement::MinValue;
+}
+
 bool ControllerVariable::SampleValue() {
     if (!required) {
         return false;
@@ -28,8 +33,12 @@ bool ControllerVariable::SampleValue() {
 void ControllerVariable::WriteValue(uint8_t new_value) {
     required = true;
     out_value = new_value;
-    if (out_value && BindedToWiFi()) {
-        wifi_service->Generate(ssid);
+    if (BindedToWiFi()) {
+        if (out_value != LogicElement::MinValue) {
+            wifi_service->Generate(ssid);
+        } else {
+            wifi_service->CancelGenerate(ssid);
+        }
     }
 }
 

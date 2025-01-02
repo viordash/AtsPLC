@@ -13,11 +13,11 @@
 
 #define INFINITY_CONNECT_RETRY -1
 
-static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
+static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
-bool WiFiService::ScannerTask(RequestItem *request) {
-    ESP_LOGI(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
+bool WiFiService::AccessPointTask(RequestItem *request) {
+    ESP_LOGI(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.Scanner.ssid);
 
     bool has_new_request = false;
     EventBits_t uxBits = 0;
@@ -28,14 +28,14 @@ bool WiFiService::ScannerTask(RequestItem *request) {
                                      true,
                                      false,
                                      /*portMAX_DELAY*/ 1000 / portTICK_RATE_MS);
-        ESP_LOGI(TAG_WiFiService_Scanner, "process, uxBits:0x%08X", uxBits);
+        ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", uxBits);
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
             has_new_request = true;
         }
 
         bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0;
         if (timeout) {
-            ESP_LOGI(TAG_WiFiService_Scanner, "found");
+            ESP_LOGI(TAG_WiFiService_AccessPoint, "found");
             found = true;
             break;
         }
@@ -44,11 +44,11 @@ bool WiFiService::ScannerTask(RequestItem *request) {
 
     if (found) {
         Controller::WakeupProcessTask();
-        requests.ScannerDone(request->Payload.Scanner.ssid);
+        requests.AccessPointDone(request->Payload.Scanner.ssid);
     } else {
-        requests.RemoveScanner(request->Payload.Scanner.ssid);
+        requests.RemoveAccessPoint(request->Payload.Scanner.ssid);
     }
 
-    ESP_LOGW(TAG_WiFiService_Scanner, "finish, has_new_request:%u", has_new_request);
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "finish, has_new_request:%u", has_new_request);
     return has_new_request;
 }

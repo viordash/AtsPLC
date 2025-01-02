@@ -36,7 +36,7 @@ bool WiFiRequests::Add(RequestItem *new_request) {
 }
 
 bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
-    ESP_LOGD(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
+    ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
 
     std::lock_guard<std::mutex> lock(lock_mutex);
     bool exists = false;
@@ -69,6 +69,21 @@ bool WiFiRequests::RemoveScanner(const char *ssid) {
         }
     }
     ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, not found:'%s'", ssid);
+    return false;
+}
+
+bool WiFiRequests::RemoveAccessPoint(const char *ssid) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    for (auto it = begin(); it != end(); it++) {
+        auto request = *it;
+        if (request.type == RequestItemType::wqi_AccessPoint
+            && it->Payload.AccessPoint.ssid == ssid) {
+            ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, removed:'%s'", ssid);
+            erase(it);
+            return true;
+        }
+    }
+    ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, not found:'%s'", ssid);
     return false;
 }
 
