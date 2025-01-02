@@ -47,24 +47,24 @@ TEST(LogicControllerDOTestsGroup, Init_reset_value_and_set_required) {
     CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
 }
 
-TEST(LogicControllerDOTestsGroup, SampleValue_reset_required_reading) {
+TEST(LogicControllerDOTestsGroup, FetchValue_reset_required_reading) {
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
     CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
-    testable.SampleValue();
+    testable.FetchValue();
     CHECK_FALSE(*(testable.PublicMorozov_Get_required_reading()));
 }
 
-TEST(LogicControllerDOTestsGroup, SampleValue_return_true_if_any_changes) {
+TEST(LogicControllerDOTestsGroup, FetchValue_return_true_if_any_changes) {
     mock("2").expectNCalls(2, "gpio_get_level").andReturnValue(0);
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
-    CHECK_TRUE(testable.SampleValue());
+    CHECK_TRUE(testable.FetchValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
-    CHECK_FALSE(testable.SampleValue());
+    CHECK_FALSE(testable.FetchValue());
 }
 
 TEST(LogicControllerDOTestsGroup, UpdateValue_return_true_if_any_changes) {
@@ -152,7 +152,7 @@ TEST(LogicControllerDOTestsGroup, Value_changes_in_transaction) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
-    CHECK_FALSE(testable.SampleValue());
+    CHECK_FALSE(testable.FetchValue());
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
 
     testable.WriteValue(LogicElement::MaxValue);
@@ -161,6 +161,6 @@ TEST(LogicControllerDOTestsGroup, Value_changes_in_transaction) {
     testable.CommitChanges();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
 
-    CHECK_TRUE(testable.SampleValue());
+    CHECK_TRUE(testable.FetchValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
 }

@@ -19,7 +19,7 @@ extern "C" {
 ControllerAI::ControllerAI() : ControllerBaseInput() {
 }
 
-bool ControllerAI::SampleValue() {
+bool ControllerAI::FetchValue() {
     if (!required_reading) {
         return false;
     }

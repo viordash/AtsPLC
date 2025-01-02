@@ -165,7 +165,7 @@ void Controller::ProcessTask(void *parm) {
         }
 
         need_render |= inputs_changed;
-        need_render |= SampleIOValues();
+        need_render |= FetchIOValues();
 
         bool any_changes_in_actions = ladder->DoAction();
         CommitChanges();
@@ -257,16 +257,16 @@ void Controller::RenderTask(void *parm) {
     vTaskDelete(NULL);
 }
 
-bool Controller::SampleIOValues() {
+bool Controller::FetchIOValues() {
     bool has_changes = false;
-    has_changes |= Controller::DI.SampleValue();
-    has_changes |= Controller::AI.SampleValue();
-    has_changes |= Controller::O1.SampleValue();
-    has_changes |= Controller::O2.SampleValue();
-    has_changes |= Controller::V1.SampleValue();
-    has_changes |= Controller::V2.SampleValue();
-    has_changes |= Controller::V3.SampleValue();
-    has_changes |= Controller::V4.SampleValue();
+    has_changes |= Controller::DI.FetchValue();
+    has_changes |= Controller::AI.FetchValue();
+    has_changes |= Controller::O1.FetchValue();
+    has_changes |= Controller::O2.FetchValue();
+    has_changes |= Controller::V1.FetchValue();
+    has_changes |= Controller::V2.FetchValue();
+    has_changes |= Controller::V3.FetchValue();
+    has_changes |= Controller::V4.FetchValue();
     return has_changes;
 }
 

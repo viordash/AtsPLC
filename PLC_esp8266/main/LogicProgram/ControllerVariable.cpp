@@ -19,7 +19,7 @@ void ControllerVariable::Init() {
     value = LogicElement::MinValue;
 }
 
-bool ControllerVariable::SampleValue() {
+bool ControllerVariable::FetchValue() {
     if (!required_reading) {
         return false;
     }

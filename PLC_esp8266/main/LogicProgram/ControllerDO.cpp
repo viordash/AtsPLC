@@ -13,7 +13,7 @@ void ControllerDO::Init() {
     ControllerBaseOutput::Init();
 }
 
-bool ControllerDO::SampleValue() {
+bool ControllerDO::FetchValue() {
     if (!required_reading) {
         return false;
     }

@@ -15,7 +15,7 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
   public:
     explicit ControllerVariable();
     void Init() override;
-    bool SampleValue() override;
+    bool FetchValue() override;
     void CommitChanges() override;
     void BindToWiFi(WiFiService *wifi_service, const char *ssid);
     void Unbind();

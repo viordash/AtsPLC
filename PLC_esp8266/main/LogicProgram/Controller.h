@@ -39,7 +39,7 @@ class Controller {
 
     static void Start(EventGroupHandle_t gpio_events, void *wifi_service);
     static void Stop();
-    static bool SampleIOValues();
+    static bool FetchIOValues();
     static void CommitChanges();
 
     static void ProcessTask(void *parm);

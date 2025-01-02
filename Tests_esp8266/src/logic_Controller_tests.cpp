@@ -40,7 +40,7 @@ TEST_TEARDOWN() {
 }
 ;
 
-TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
+TEST(LogicControllerTestsGroup, FetchIOValues_AI) {
     volatile uint16_t adc = 100 / 0.1;
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -50,18 +50,18 @@ TEST(LogicControllerTestsGroup, SampleIOValues_AI) {
         .expectNCalls(2, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
+    CHECK_FALSE(Controller::FetchIOValues());
 
     adc = 42 / 0.1;
     Controller::AI.ReadValue();
     Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(42 / 0.4, Controller::AI.PeekValue());
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_DI) {
+TEST(LogicControllerTestsGroup, FetchIOValues_DI) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -69,16 +69,16 @@ TEST(LogicControllerTestsGroup, SampleIOValues_DI) {
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
+    CHECK_FALSE(Controller::FetchIOValues());
 
     Controller::DI.ReadValue();
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::DI.PeekValue());
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_O1) {
+TEST(LogicControllerTestsGroup, FetchIOValues_O1) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -86,16 +86,16 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O1) {
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
+    CHECK_FALSE(Controller::FetchIOValues());
 
     Controller::O1.ReadValue();
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O1.PeekValue());
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
+TEST(LogicControllerTestsGroup, FetchIOValues_O2) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -103,16 +103,16 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
+    CHECK_FALSE(Controller::FetchIOValues());
 
     Controller::O2.ReadValue();
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O2.PeekValue());
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V1_mandatory_after_init) {
+TEST(LogicControllerTestsGroup, FetchIOValues_V1_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -121,12 +121,12 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V1_mandatory_after_init) {
     Controller::V1.WriteValue(42);
     Controller::V1.CommitChanges();
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     Controller::V1.ReadValue();
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V2_mandatory_after_init) {
+TEST(LogicControllerTestsGroup, FetchIOValues_V2_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -135,12 +135,12 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V2_mandatory_after_init) {
     Controller::V2.WriteValue(42);
     Controller::V2.CommitChanges();
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     Controller::V2.ReadValue();
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V3_mandatory_after_init) {
+TEST(LogicControllerTestsGroup, FetchIOValues_V3_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -149,12 +149,12 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V3_mandatory_after_init) {
     Controller::V3.WriteValue(42);
     Controller::V3.CommitChanges();
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     Controller::V3.ReadValue();
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V4_mandatory_after_init) {
+TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
@@ -163,9 +163,9 @@ TEST(LogicControllerTestsGroup, SampleIOValues_V4_mandatory_after_init) {
     Controller::V4.WriteValue(42);
     Controller::V4.CommitChanges();
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     Controller::V4.ReadValue();
-    CHECK_FALSE(Controller::SampleIOValues());
+    CHECK_FALSE(Controller::FetchIOValues());
 }
 
 TEST(LogicControllerTestsGroup,

@@ -94,13 +94,13 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_active) {
     TestableComparatorLs testable;
     testable.SetReference(51 / 0.4);
     testable.SetIoAdr(MapIO::AI);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     adc = 49 / 0.1;
     Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
@@ -118,13 +118,13 @@ TEST(LogicComparatorLsTestsGroup, DoAction_change_state_to_passive) {
     TestableComparatorLs testable;
     testable.SetReference(50 / 0.4);
     testable.SetIoAdr(MapIO::AI);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     adc = 51 / 0.1;
     Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
-    CHECK_TRUE(Controller::SampleIOValues());
+    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }

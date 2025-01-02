@@ -8,7 +8,7 @@
 ControllerDI::ControllerDI() : ControllerBaseInput() {
 }
 
-bool ControllerDI::SampleValue() {
+bool ControllerDI::FetchValue() {
     if (!required_reading) {
         return false;
     }
