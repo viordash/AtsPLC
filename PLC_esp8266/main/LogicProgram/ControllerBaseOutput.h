@@ -6,8 +6,14 @@
 
 class ControllerBaseOutput {
   protected:
+    uint8_t out_value;
+    bool required_writing;
 
   public:
+    ControllerBaseOutput();
     virtual ~ControllerBaseOutput();
-    virtual void WriteValue(uint8_t new_value) = 0;
+
+    virtual void Init();
+    virtual void CommitChanges() = 0;
+    void WriteValue(uint8_t new_value);
 };

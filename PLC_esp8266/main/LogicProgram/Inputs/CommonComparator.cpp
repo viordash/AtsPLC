@@ -49,7 +49,7 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
 
     state = LogicItemState::lisPassive;
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
-        Input->CancelReadingValue();
+        Input->CancelReadingProcess();
     } else if (prev_elem_state == LogicItemState::lisActive //
                && this->CompareFunction()) {
         state = LogicItemState::lisActive;

@@ -8,7 +8,7 @@
 
 class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
-    uint8_t out_value;
+    uint8_t value;
     WiFiService *wifi_service;
     const char *ssid;
 
@@ -16,10 +16,10 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
     explicit ControllerVariable();
     void Init() override;
     bool SampleValue() override;
-    void WriteValue(uint8_t new_value) override;
+    void CommitChanges() override;
     void BindToWiFi(WiFiService *wifi_service, const char *ssid);
     void Unbind();
     bool BindedToWiFi();
 
-    void CancelReadingValue() override;
+    void CancelReadingProcess() override;
 };

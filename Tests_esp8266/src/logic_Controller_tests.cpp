@@ -112,71 +112,59 @@ TEST(LogicControllerTestsGroup, SampleIOValues_O2) {
     CHECK_FALSE(Controller::SampleIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V1) {
+TEST(LogicControllerTestsGroup, SampleIOValues_V1_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
-
-    Controller::V1.ReadValue();
     Controller::V1.WriteValue(42);
+    Controller::V1.CommitChanges();
+
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(42, Controller::V1.PeekValue());
+    Controller::V1.ReadValue();
     CHECK_FALSE(Controller::SampleIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V2) {
+TEST(LogicControllerTestsGroup, SampleIOValues_V2_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
-
-    Controller::V2.ReadValue();
     Controller::V2.WriteValue(42);
+    Controller::V2.CommitChanges();
+
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(42, Controller::V2.PeekValue());
+    Controller::V2.ReadValue();
     CHECK_FALSE(Controller::SampleIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V3) {
+TEST(LogicControllerTestsGroup, SampleIOValues_V3_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
-
-    Controller::V3.ReadValue();
     Controller::V3.WriteValue(42);
+    Controller::V3.CommitChanges();
+
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(42, Controller::V3.PeekValue());
+    Controller::V3.ReadValue();
     CHECK_FALSE(Controller::SampleIOValues());
 }
 
-TEST(LogicControllerTestsGroup, SampleIOValues_V4) {
+TEST(LogicControllerTestsGroup, SampleIOValues_V4_mandatory_after_init) {
     mock().expectNCalls(1, "adc_read").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-
-    Controller::SampleIOValues();
-    CHECK_FALSE(Controller::SampleIOValues());
-
-    Controller::V4.ReadValue();
     Controller::V4.WriteValue(42);
+    Controller::V4.CommitChanges();
+
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(42, Controller::V4.PeekValue());
+    Controller::V4.ReadValue();
     CHECK_FALSE(Controller::SampleIOValues());
 }
 

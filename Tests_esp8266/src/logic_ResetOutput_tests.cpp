@@ -74,26 +74,33 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_cal
     testable.SetIoAdr(MapIO::V1);
 
     Controller::V1.WriteValue(LogicElement::MaxValue);
+    Controller::V1.CommitChanges();
+
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+
+    Controller::V1.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+    Controller::CommitChanges();
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 }
 
 TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
     Controller::V1.WriteValue(LogicElement::MaxValue);
+    Controller::V1.CommitChanges();
 
     TestableResetOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
     CHECK_TRUE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    Controller::V1.CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicResetOutputTestsGroup, GetElementType_returns_et_ResetOutput) {

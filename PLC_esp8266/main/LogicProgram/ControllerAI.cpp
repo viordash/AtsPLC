@@ -16,14 +16,17 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
+ControllerAI::ControllerAI() : ControllerBaseInput() {
+}
+
 bool ControllerAI::SampleValue() {
-    if (!required) {
+    if (!required_reading) {
         return false;
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI, read_adc_max_period_ms)) {
         return false;
     }
-    required = false;
+    required_reading = false;
 
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;

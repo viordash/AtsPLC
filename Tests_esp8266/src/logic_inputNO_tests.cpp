@@ -139,8 +139,9 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive) {
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::SampleIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

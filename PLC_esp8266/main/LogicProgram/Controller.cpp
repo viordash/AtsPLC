@@ -168,6 +168,7 @@ void Controller::ProcessTask(void *parm) {
         need_render |= SampleIOValues();
 
         bool any_changes_in_actions = ladder->DoAction();
+        CommitChanges();
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
@@ -267,6 +268,15 @@ bool Controller::SampleIOValues() {
     has_changes |= Controller::V3.SampleValue();
     has_changes |= Controller::V4.SampleValue();
     return has_changes;
+}
+
+void Controller::CommitChanges() {
+    Controller::O1.CommitChanges();
+    Controller::O2.CommitChanges();
+    Controller::V1.CommitChanges();
+    Controller::V2.CommitChanges();
+    Controller::V3.CommitChanges();
+    Controller::V4.CommitChanges();
 }
 
 bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {

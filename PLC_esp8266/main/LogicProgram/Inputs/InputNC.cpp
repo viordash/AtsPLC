@@ -31,7 +31,7 @@ bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
 
     state = LogicItemState::lisPassive;
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
-        Input->CancelReadingValue();
+        Input->CancelReadingProcess();
     } else if (prev_elem_state == LogicItemState::lisActive //
                && Input->ReadValue() == LogicElement::MinValue) {
         state = LogicItemState::lisActive;

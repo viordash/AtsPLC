@@ -9,30 +9,34 @@
 
 static const char *TAG_ControllerVariable = "ControllerVariable";
 
-ControllerVariable::ControllerVariable() {
+ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBaseOutput() {
     Unbind();
 }
 
 void ControllerVariable::Init() {
     ControllerBaseInput::Init();
-    out_value = LogicElement::MinValue;
+    ControllerBaseOutput::Init();
+    value = LogicElement::MinValue;
 }
 
 bool ControllerVariable::SampleValue() {
-    if (!required) {
+    if (!required_reading) {
         return false;
     }
-    required = false;
+    required_reading = false;
 
     if (BindedToWiFi()) {
-        out_value = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
+        value = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
     }
-    return UpdateValue(out_value);
+    return UpdateValue(value);
 }
 
-void ControllerVariable::WriteValue(uint8_t new_value) {
-    required = true;
-    out_value = new_value;
+void ControllerVariable::CommitChanges() {
+    if (!required_writing) {
+        return;
+    }
+    required_writing = false;
+    value = out_value;
     if (BindedToWiFi()) {
         if (out_value != LogicElement::MinValue) {
             wifi_service->Generate(ssid);
@@ -55,11 +59,11 @@ bool ControllerVariable::BindedToWiFi() {
     return this->wifi_service != NULL;
 }
 
-void ControllerVariable::CancelReadingValue() {
+void ControllerVariable::CancelReadingProcess() {
     ESP_LOGI(TAG_ControllerVariable,
-             "CancelReadingValue, wifi:%u, required:%u",
+             "CancelReadingProcess, wifi:%u, required:%u",
              BindedToWiFi(),
-             required);
+             required_reading);
     if (BindedToWiFi()) {
         wifi_service->CancelScan(ssid);
     }

@@ -80,13 +80,14 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::V1.WriteValue(LogicElement::MinValue);
     Controller::SampleIOValues();
-
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+
+    Controller::V1.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
+    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.ReadValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
@@ -97,16 +98,20 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     Controller::V1.WriteValue(LogicElement::MaxValue);
-    Controller::SampleIOValues();
+    Controller::V1.CommitChanges();
 
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
+    Controller::SampleIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+
+    Controller::V1.ReadValue();
     CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 }
 
 TEST(LogicDirectOutputTestsGroup, GetElementType_returns_et_DirectOutput) {

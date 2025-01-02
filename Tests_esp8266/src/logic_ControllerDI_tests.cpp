@@ -21,30 +21,30 @@ TEST_GROUP(LogicControllerDITestsGroup){ //
 namespace {
     class TestableControllerDI : public ControllerDI {
       public:
-        bool *PublicMorozov_Get_required() {
-            return &required;
+        bool *PublicMorozov_Get_required_reading() {
+            return &required_reading;
         }
     };
 } // namespace
 
-TEST(LogicControllerDITestsGroup, Init_reset_value_and_set_requried) {
+TEST(LogicControllerDITestsGroup, Init_reset_value_and_set_required) {
     TestableControllerDI testable;
-    *(testable.PublicMorozov_Get_required()) = false;
+    *(testable.PublicMorozov_Get_required_reading()) = false;
     testable.UpdateValue(LogicElement::MaxValue);
 
     testable.Init();
-    CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
+    CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDITestsGroup, SampleValue_reset_requried) {
+TEST(LogicControllerDITestsGroup, SampleValue_reset_required) {
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     TestableControllerDI testable;
     testable.Init();
 
-    CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
+    CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
     testable.SampleValue();
-    CHECK_FALSE(*(testable.PublicMorozov_Get_required()));
+    CHECK_FALSE(*(testable.PublicMorozov_Get_required_reading()));
 }
 
 TEST(LogicControllerDITestsGroup, SampleValue_return_true_if_any_changes) {
@@ -73,12 +73,12 @@ TEST(LogicControllerDITestsGroup, UpdateValue_updated_value) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDITestsGroup, ReadValue_returns_value_and_set_requried) {
+TEST(LogicControllerDITestsGroup, ReadValue_returns_value_and_set_required) {
     TestableControllerDI testable;
     testable.Init();
-    *(testable.PublicMorozov_Get_required()) = false;
+    *(testable.PublicMorozov_Get_required_reading()) = false;
     CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
 
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
-    CHECK_TRUE(*(testable.PublicMorozov_Get_required()));
+    CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
 }

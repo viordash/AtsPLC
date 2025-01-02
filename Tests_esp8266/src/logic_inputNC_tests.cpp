@@ -68,17 +68,18 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::SampleIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     CHECK_FALSE(Controller::SampleIOValues());
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
+    Controller::SampleIOValues();
     CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
-                     "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
 }
 
@@ -93,8 +94,9 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
     TestableInputNC testable;
     testable.SetIoAdr(MapIO::DI);
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::SampleIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
