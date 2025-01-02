@@ -178,7 +178,7 @@ void set_digital_value(gpio_output gpio, bool value) {
 }
 
 uint16_t get_analog_value() {
-    uint16_t adc = 0xFFFF;
+    uint16_t adc = 0x0;
     esp_err_t err = adc_read(&adc);
     if (err != ESP_OK) {
         ESP_LOGE(TAG_gpio, "get_analog_value, err:0x%X", err);
