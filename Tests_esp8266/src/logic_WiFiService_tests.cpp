@@ -31,8 +31,11 @@ namespace {
         EventGroupHandle_t PublicMorozov_Get_event() {
             return event;
         }
-        bool PublicMorozov_StationTask() {
-            return StationTask();
+        void PublicMorozov_StationTask() {
+            StationTask();
+        }
+        void PublicMorozov_AddSsidToScannedList(const char *ssid) {
+            AddSsidToScannedList(ssid);
         }
     };
 } // namespace
@@ -85,15 +88,17 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
     mock(buffer)
-        .expectNCalls(2, "xEventGroupSetBits")
+        .expectNCalls(1, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
-    CHECK_FALSE(testable.Scan("ssid_0"));
+    const char *ssid_0 = "test_0";
 
-    CHECK_FALSE(testable.Scan("ssid_0"));
+    CHECK_FALSE(testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    CHECK_TRUE(testable.Scan("ssid_0"));
+    testable.PublicMorozov_AddSsidToScannedList(ssid_0);
+
+    CHECK_TRUE(testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
@@ -149,7 +154,9 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_w
     settings.wifi.ssid[0] = 0;
     settings.wifi.password[0] = 0;
 
-    CHECK_FALSE(testable.PublicMorozov_StationTask());
+    mock().expectNoCall("esp_wifi_start");
+    mock().expectNoCall("xEventGroupWaitBits");
+    testable.PublicMorozov_StationTask();
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
@@ -232,7 +239,7 @@ TEST(LogicWiFiServiceTestsGroup,
     testable.ConnectToStation();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    CHECK_TRUE(testable.PublicMorozov_StationTask());
+    testable.PublicMorozov_StationTask();
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 }
 

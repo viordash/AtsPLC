@@ -34,12 +34,10 @@ class WiFiService {
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
-    bool ConnectToStationTask(wifi_config_t *wifi_config,
-                              bool *has_new_request,
-                              int32_t max_retry_count);
-    bool StationTask();
-    bool ScannerTask(RequestItem *request);
-    bool AccessPointTask(RequestItem *request);
+    bool ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count);
+    void StationTask();
+    void ScannerTask(RequestItem *request);
+    void AccessPointTask(RequestItem *request);
 
     static void Task(void *parm);
     static void

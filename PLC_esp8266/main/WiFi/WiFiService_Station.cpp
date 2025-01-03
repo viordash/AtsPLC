@@ -15,9 +15,7 @@
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern device_settings settings;
 
-bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config,
-                                       bool *has_new_request,
-                                       int32_t max_retry_count) {
+bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count) {
     ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation");
 
     int connect_retry_num = 0;
@@ -69,14 +67,11 @@ bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config,
         }
     } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
 
-    if ((uxBits & NEW_REQUEST_BIT) != 0) {
-        *has_new_request = true;
-    }
     return false;
 }
 
-bool WiFiService::StationTask() {
-    ESP_LOGI(TAG_WiFiService_Station, "start");
+void WiFiService::StationTask() {
+    ESP_LOGW(TAG_WiFiService_Station, "start");
 
     int32_t max_retry_count;
     wifi_config_t wifi_config = {};
@@ -92,13 +87,12 @@ bool WiFiService::StationTask() {
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
-        return false;
+        return;
     }
 
-    bool has_new_request = false;
     bool break_process = false;
-    while (!break_process && !has_new_request) {
-        if (!ConnectToStationTask(&wifi_config, &has_new_request, max_retry_count)) {
+    while (!break_process) {
+        if (!ConnectToStationTask(&wifi_config, max_retry_count)) {
             Disconnect();
             break;
         }
@@ -115,10 +109,7 @@ bool WiFiService::StationTask() {
         stop_http_server();
         Disconnect();
 
-        if ((uxBits & NEW_REQUEST_BIT) != 0) {
-            has_new_request = true;
-        }
-        if ((uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) != 0) {
+        if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) != 0) {
             break_process = true;
         }
 
@@ -133,19 +124,15 @@ bool WiFiService::StationTask() {
                                     wait_disconnecting_timeout);
 
             ESP_LOGI(TAG_WiFiService_Station, "wait disconnecting, uxBits:0x%08X", uxBits);
-            if ((uxBits & NEW_REQUEST_BIT) != 0) {
-                has_new_request = true;
-            }
-            if ((uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) != 0) {
+
+            if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) != 0) {
                 break_process = true;
             }
         }
     }
 
-    requests.StationDone();
-
-    ESP_LOGW(TAG_WiFiService_Station, "finish, has_new_request:%u", has_new_request);
-    return has_new_request;
+    requests.RemoveStation();
+    ESP_LOGW(TAG_WiFiService_Station, "finish");
 }
 
 void WiFiService::Connect(wifi_config_t *wifi_config) {

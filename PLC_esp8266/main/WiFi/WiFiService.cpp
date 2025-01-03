@@ -81,44 +81,39 @@ bool WiFiService::Started() {
 }
 
 void WiFiService::ConnectToStation() {
-    RequestItem request = {};
-    request.type = RequestItemType::wqi_Station;
-    bool was_inserted = requests.Add(&request);
+    bool was_inserted = requests.Station();
+    ESP_LOGI(TAG_WiFiService, "ConnectToStation, was_inserted:%d", was_inserted);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
 }
 
 bool WiFiService::Scan(const char *ssid) {
-    RequestItem request = {};
-    request.type = RequestItemType::wqi_Scanner;
-    request.Payload.Scanner.ssid = ssid;
-
-    bool was_inserted = requests.Add(&request);
+    bool was_inserted = requests.Scan(ssid);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
     bool status = FindSsidInScannedList(ssid);
-    ESP_LOGI(TAG_WiFiService, "Scan, was_inserted:%d, status:%d", was_inserted, status);
+    ESP_LOGI(TAG_WiFiService,
+             "Scan, ssid:%s, was_inserted:%d, status:%d",
+             ssid,
+             was_inserted,
+             status);
     return status;
 }
 
 void WiFiService::CancelScan(const char *ssid) {
     RemoveSsidFromScannedList(ssid);
     bool removed = requests.RemoveScanner(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelScan, removed:%d", removed);
+    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
         xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
     }
 }
 
 void WiFiService::Generate(const char *ssid) {
-    RequestItem request = {};
-    request.type = RequestItemType::wqi_AccessPoint;
-    request.Payload.AccessPoint.ssid = ssid;
-
-    bool was_inserted = requests.Add(&request);
-    ESP_LOGI(TAG_WiFiService, "Generate, was_inserted:%d", was_inserted);
+    bool was_inserted = requests.AccessPoint(ssid);
+    ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s, was_inserted:%d", ssid, was_inserted);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
@@ -126,7 +121,7 @@ void WiFiService::Generate(const char *ssid) {
 
 void WiFiService::CancelGenerate(const char *ssid) {
     bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelGenerate, removed:%d", removed);
+    ESP_LOGI(TAG_WiFiService, "CancelGenerate, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
         xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
     }
@@ -135,48 +130,37 @@ void WiFiService::CancelGenerate(const char *ssid) {
 void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
-    bool has_new_request;
 
-    EventBits_t uxBits = 0;
+    EventBits_t uxBits;
     do {
-        if ((uxBits & NEW_REQUEST_BIT) != 0) {
-            RequestItem new_request = wifi_service->requests.Pop();
-            ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.type);
-
-            switch (new_request.type) {
-                case wqi_Station:
-                    has_new_request = wifi_service->StationTask();
-                    if (has_new_request) {
-                        continue;
-                    }
-                    break;
-
-                case wqi_Scanner:
-                    has_new_request = wifi_service->ScannerTask(&new_request);
-                    if (has_new_request) {
-                        continue;
-                    }
-                    break;
-
-                case wqi_AccessPoint:
-                    has_new_request = wifi_service->AccessPointTask(&new_request);
-                    if (has_new_request) {
-                        continue;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-            ESP_LOGI(TAG_WiFiService, "end request, type:%u", new_request.type);
-        }
-
         uxBits = xEventGroupWaitBits(wifi_service->event,
                                      STOP_BIT | NEW_REQUEST_BIT,
                                      true,
                                      false,
                                      portMAX_DELAY);
 
+        RequestItem new_request;
+        while ((uxBits & STOP_BIT) == 0 && wifi_service->requests.Pop(&new_request)) {
+            ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.Type);
+
+            switch (new_request.Type) {
+                case wqi_Station:
+                    wifi_service->StationTask();
+                    break;
+
+                case wqi_Scanner:
+                    wifi_service->ScannerTask(&new_request);
+                    break;
+
+                case wqi_AccessPoint:
+                    wifi_service->AccessPointTask(&new_request);
+                    break;
+
+                default:
+                    break;
+            }
+            ESP_LOGI(TAG_WiFiService, "end request, type:%u", new_request.Type);
+        }
     } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
     ESP_LOGW(TAG_WiFiService, "Finish task");
