@@ -34,8 +34,12 @@ void WiFiService::ScannerTask(RequestItem *request) {
             found = true;
             break;
         }
-
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) == 0);
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_Scanner, "Cancel request, ssid:%s", request->Payload.Scanner.ssid);
+            break;
+        }
+    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
     if (found) {
         AddSsidToScannedList(request->Payload.Scanner.ssid);

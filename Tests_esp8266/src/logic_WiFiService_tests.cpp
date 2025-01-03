@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Controller.h"
 #include "main/WiFi/WiFiService.h"
 #include "main/settings.h"
 
@@ -33,6 +34,12 @@ namespace {
         }
         void PublicMorozov_StationTask() {
             StationTask();
+        }
+        void PublicMorozov_ScannerTask(RequestItem *request) {
+            ScannerTask(request);
+        }
+        void PublicMorozov_AccessPointTask(RequestItem *request) {
+            AccessPointTask(request);
         }
         void PublicMorozov_AddSsidToScannedList(const char *ssid) {
             AddSsidToScannedList(ssid);
@@ -285,4 +292,129 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
     strcpy(settings.wifi.password, "test_pwd");
 
     testable.PublicMorozov_StationTask();
+}
+
+TEST(
+    LogicWiFiServiceTestsGroup,
+    ScannerTask_handle_CANCEL_REQUEST_BIT_and_then_stop_task_only_request_has_already_been_deleted) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::CANCEL_REQUEST_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    testable.Scan(ssid_1);
+
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
+    testable.PublicMorozov_ScannerTask(&request);
+}
+
+TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other_scan_requests) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::CANCEL_REQUEST_BIT)
+        .ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::STOP_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    testable.Scan(ssid_0);
+
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
+    testable.PublicMorozov_ScannerTask(&request);
+}
+
+TEST(
+    LogicWiFiServiceTestsGroup,
+    AccessPointTask_handle_CANCEL_REQUEST_BIT_and_then_stop_task_only_request_has_already_been_deleted) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::CANCEL_REQUEST_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    testable.Generate(ssid_1);
+
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
+}
+
+TEST(LogicWiFiServiceTestsGroup,
+     AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_other_AP_requests) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(1, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::CANCEL_REQUEST_BIT)
+        .ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::STOP_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    testable.Generate(ssid_0);
+
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
 }

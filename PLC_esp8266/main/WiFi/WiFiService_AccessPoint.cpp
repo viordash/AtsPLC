@@ -17,7 +17,7 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
-    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.Scanner.ssid);
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
     EventBits_t uxBits = 0;
     do {
@@ -33,10 +33,14 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             ESP_LOGI(TAG_WiFiService_AccessPoint, "found");
             break;
         }
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_AccessPoint, "Cancel request, ssid:%s", request->Payload.AccessPoint.ssid);
+            break;
+        }
+    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) == 0);
-
-    requests.RemoveAccessPoint(request->Payload.Scanner.ssid);
+    requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
     Controller::WakeupProcessTask();
 
     ESP_LOGW(TAG_WiFiService_AccessPoint, "finish");

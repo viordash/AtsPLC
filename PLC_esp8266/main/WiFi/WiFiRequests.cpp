@@ -21,14 +21,20 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     return true;
 }
 
-std::list<RequestItem>::iterator WiFiRequests::Find(RequestItem *new_request) {
+std::list<RequestItem>::iterator WiFiRequests::Find(RequestItem *request) {
     for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (Equals(&request, new_request)) {
+        auto req = *it;
+        if (Equals(&req, request)) {
             return it;
         }
     }
     return end();
+}
+
+bool WiFiRequests::Contains(RequestItem *request) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    auto item = Find(request);
+    return item != end();
 }
 
 bool WiFiRequests::Scan(const char *ssid) {

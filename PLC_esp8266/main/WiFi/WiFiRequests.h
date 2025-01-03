@@ -26,9 +26,11 @@ class WiFiRequests : public std::list<RequestItem> {
   protected:
     std::mutex lock_mutex;
     bool Equals(const RequestItem *a, const RequestItem *b) const;
-    std::list<RequestItem>::iterator Find(RequestItem *new_request);
+    std::list<RequestItem>::iterator Find(RequestItem *request);
 
   public:
+    bool Contains(RequestItem *request);
+
     bool Scan(const char *ssid);
     bool RemoveScanner(const char *ssid);
 
