@@ -93,18 +93,18 @@ bool WiFiService::Scan(const char *ssid) {
     RequestItem request = {};
     request.type = RequestItemType::wqi_Scanner;
     request.Payload.Scanner.ssid = ssid;
-    request.Payload.Scanner.status = false;
 
-    bool status;
-    bool was_inserted = requests.AddOrReAddIfStatus(&request, &status);
-    ESP_LOGI(TAG_WiFiService, "Scan, was_inserted:%d, status:%d", was_inserted, status);
+    bool was_inserted = requests.Add(&request);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
+    bool status = FindSsidInScannedList(ssid);
+    ESP_LOGI(TAG_WiFiService, "Scan, was_inserted:%d, status:%d", was_inserted, status);
     return status;
 }
 
 void WiFiService::CancelScan(const char *ssid) {
+    RemoveSsidFromScannedList(ssid);
     bool removed = requests.RemoveScanner(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, removed:%d", removed);
     if (removed) {

@@ -35,29 +35,6 @@ bool WiFiRequests::Add(RequestItem *new_request) {
     return true;
 }
 
-bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
-    ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
-
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    bool exists = false;
-    *status = false;
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (Equals(&request, new_request)) {
-            *status = it->Payload.Scanner.status;
-            if (*status) {
-                erase(it);
-            }
-            exists = true;
-            break;
-        }
-    }
-    if (!exists || *status) {
-        push_front(*new_request);
-    }
-    return !exists || *status;
-}
-
 bool WiFiRequests::RemoveScanner(const char *ssid) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
@@ -101,9 +78,11 @@ void WiFiRequests::StationDone() {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Station) {
             erase(it);
+            ESP_LOGI(TAG_WiFiRequests, "StationDone, found");
             return;
         }
     }
+    ESP_LOGI(TAG_WiFiRequests, "StationDone, not found");
 }
 
 void WiFiRequests::ScannerDone(const char *ssid) {
@@ -111,7 +90,7 @@ void WiFiRequests::ScannerDone(const char *ssid) {
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
-            it->Payload.Scanner.status = true;
+            erase(it);
             ESP_LOGI(TAG_WiFiRequests, "ScannerDone, found:%s", ssid);
             return;
         }
@@ -120,14 +99,15 @@ void WiFiRequests::ScannerDone(const char *ssid) {
 }
 
 void WiFiRequests::AccessPointDone(const char *ssid) {
-    ESP_LOGI(TAG_WiFiRequests, "AccessPointDone, ssid:%s", ssid);
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (auto it = begin(); it != end(); it++) {
         auto request = *it;
         if (request.type == RequestItemType::wqi_AccessPoint
             && it->Payload.AccessPoint.ssid == ssid) {
             erase(it);
+            ESP_LOGI(TAG_WiFiRequests, "AccessPointDone, ssid:%s", ssid);
             return;
         }
     }
+    ESP_LOGI(TAG_WiFiRequests, "AccessPointDone, not found:'%s'", ssid);
 }

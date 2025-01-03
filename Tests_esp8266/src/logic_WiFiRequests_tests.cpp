@@ -75,12 +75,8 @@ TEST(LogicWiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
     a.Payload.Scanner.ssid = ssid_with_same_value_but_diff_address;
     CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
-    a.Payload.Scanner.status = true;
-    b.Payload.Scanner.status = false;
     CHECK_TRUE_TEXT(testable.PublicMorozov_Equals(&a, &b), "status should not affect comparison");
 
-    a.Payload.Scanner.status = true;
-    b.Payload.Scanner.status = true;
     CHECK_TRUE_TEXT(testable.PublicMorozov_Equals(&a, &b), "status should not affect comparison");
 }
 
@@ -117,7 +113,6 @@ TEST(LogicWiFiRequestsTestsGroup, Add_is_unique) {
     RequestItem request = {};
     request.type = RequestItemType::wqi_Scanner;
     request.Payload.Scanner.ssid = ssid;
-    request.Payload.Scanner.status = false;
 
     CHECK_TRUE(testable.Add(&request));
     CHECK_EQUAL(1, testable.size());
@@ -126,61 +121,6 @@ TEST(LogicWiFiRequestsTestsGroup, Add_is_unique) {
     CHECK_EQUAL(1, testable.size());
     CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
     CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
-}
-
-TEST(LogicWiFiRequestsTestsGroup, AddOrReAddIfStatus_is_unique) {
-    TestableWiFiRequests testable;
-
-    CHECK_EQUAL(0, testable.size());
-
-    const char *ssid = "test";
-    RequestItem request = {};
-    request.type = RequestItemType::wqi_Scanner;
-    request.Payload.Scanner.ssid = ssid;
-    request.Payload.Scanner.status = false;
-
-    bool status;
-    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
-    CHECK_EQUAL(1, testable.size());
-
-    CHECK_FALSE(testable.AddOrReAddIfStatus(&request, &status));
-    CHECK_EQUAL(1, testable.size());
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
-    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
-}
-
-TEST(LogicWiFiRequestsTestsGroup,
-     AddOrReAddIfStatus_return_status_of_previously_added_Scan_request) {
-    TestableWiFiRequests testable;
-
-    CHECK_EQUAL(0, testable.size());
-
-    const char *ssid = "test";
-    RequestItem request = {};
-    request.type = RequestItemType::wqi_Scanner;
-    request.Payload.Scanner.ssid = ssid;
-    request.Payload.Scanner.status = false;
-
-    bool status;
-    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
-    CHECK_EQUAL(1, testable.size());
-    CHECK_FALSE(status);
-
-    CHECK_FALSE(testable.AddOrReAddIfStatus(&request, &status));
-    CHECK_EQUAL(1, testable.size());
-    CHECK_FALSE(status);
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
-    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
-    CHECK_FALSE(testable.back().Payload.Scanner.status);
-
-    testable.back().Payload.Scanner.status = true;
-
-    CHECK_TRUE(testable.AddOrReAddIfStatus(&request, &status));
-    CHECK_EQUAL(1, testable.size());
-    CHECK_TRUE(status);
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().type);
-    CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
-    CHECK_FALSE(testable.back().Payload.Scanner.status);
 }
 
 TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
@@ -303,8 +243,8 @@ TEST(LogicWiFiRequestsTestsGroup,
     for (auto it = testable.begin(); it != testable.end(); it++) {
         auto request = *it;
 
-        changed = request.type == RequestItemType::wqi_Scanner
-               && request.Payload.Scanner.ssid == ssid_1 && request.Payload.Scanner.status;
+        changed =
+            request.type == RequestItemType::wqi_Scanner && request.Payload.Scanner.ssid == ssid_1;
     }
     CHECK_TRUE(changed);
 }

@@ -17,7 +17,7 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
 bool WiFiService::AccessPointTask(RequestItem *request) {
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.Scanner.ssid);
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.Scanner.ssid);
 
     bool has_new_request = false;
     EventBits_t uxBits = 0;
@@ -27,7 +27,7 @@ bool WiFiService::AccessPointTask(RequestItem *request) {
                                      STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
                                      true,
                                      false,
-                                     /*portMAX_DELAY*/ 1000 / portTICK_RATE_MS);
+                                     /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
         ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", uxBits);
         if ((uxBits & NEW_REQUEST_BIT) != 0) {
             has_new_request = true;

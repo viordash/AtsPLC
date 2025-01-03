@@ -80,7 +80,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, Scan_return_status_and_re_add_scan_request) {
+TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -93,10 +93,8 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status_and_re_add_scan_request) {
     CHECK_FALSE(testable.Scan("ssid_0"));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.PublicMorozov_Get_requests()->front().Payload.Scanner.status = true;
     CHECK_TRUE(testable.Scan("ssid_0"));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
-    CHECK_FALSE(testable.PublicMorozov_Get_requests()->front().Payload.Scanner.status);
 }
 
 TEST(LogicWiFiServiceTestsGroup, CancelScan) {

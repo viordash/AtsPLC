@@ -20,11 +20,15 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unordered_set>
 
 class WiFiService {
   public:
   protected:
     WiFiRequests requests;
+
+    std::mutex scanned_ssid_lock_mutex;
+    std::unordered_set<const char *> scanned_ssid;
 
     EventGroupHandle_t event;
 
@@ -42,6 +46,10 @@ class WiFiService {
     wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+
+    void AddSsidToScannedList(const char *ssid);
+    bool FindSsidInScannedList(const char *ssid);
+    void RemoveSsidFromScannedList(const char *ssid);
 
   public:
     static const int STARTED_BIT = BIT0;
