@@ -5,10 +5,10 @@
 static const char *TAG_WiFiRequests = "WiFiRequests";
 
 bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
-    if (a->type != b->type) {
+    if (a->Type != b->Type) {
         return false;
     }
-    switch (a->type) {
+    switch (a->Type) {
         case wqi_Station:
             return true;
 
@@ -21,113 +21,99 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     return true;
 }
 
-bool WiFiRequests::Add(RequestItem *new_request) {
-    ESP_LOGI(TAG_WiFiRequests, "Add, type:%u", new_request->type);
-
-    std::lock_guard<std::mutex> lock(lock_mutex);
+std::list<RequestItem>::iterator WiFiRequests::Find(RequestItem *request) {
     for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (Equals(&request, new_request)) {
-            return false;
+        auto req = *it;
+        if (Equals(&req, request)) {
+            return it;
         }
     }
-    push_front(*new_request);
-    return true;
+    return end();
 }
 
-bool WiFiRequests::AddOrReAddIfStatus(RequestItem *new_request, bool *status) {
-    ESP_LOGI(TAG_WiFiRequests, "AddOrReAddIfStatus, type:%u", new_request->type);
-
+bool WiFiRequests::Contains(RequestItem *request) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    bool exists = false;
-    *status = false;
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (Equals(&request, new_request)) {
-            *status = it->Payload.Scanner.status;
-            if (*status) {
-                erase(it);
-            }
-            exists = true;
-            break;
-        }
+    auto item = Find(request);
+    return item != end();
+}
+
+bool WiFiRequests::Scan(const char *ssid) {
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (!exists) {
+        push_front(request);
     }
-    if (!exists || *status) {
-        push_front(*new_request);
-    }
-    return !exists || *status;
+    ESP_LOGD(TAG_WiFiRequests, "Scan, ssid:%s, exists:%u", ssid, exists);
+    return !exists;
 }
 
 bool WiFiRequests::RemoveScanner(const char *ssid) {
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
-            ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, removed:'%s'", ssid);
-            erase(it);
-            return true;
-        }
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (exists) {
+        erase(item);
     }
-    ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, not found:'%s'", ssid);
-    return false;
+    ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, ssid:%s, exists:%u", ssid, exists);
+    return exists;
+}
+
+bool WiFiRequests::AccessPoint(const char *ssid) {
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (!exists) {
+        push_front(request);
+    }
+    ESP_LOGD(TAG_WiFiRequests, "AccessPoint, ssid:%s, exists:%u", ssid, exists);
+    return !exists;
 }
 
 bool WiFiRequests::RemoveAccessPoint(const char *ssid) {
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (request.type == RequestItemType::wqi_AccessPoint
-            && it->Payload.AccessPoint.ssid == ssid) {
-            ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, removed:'%s'", ssid);
-            erase(it);
-            return true;
-        }
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (exists) {
+        erase(item);
     }
-    ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, not found:'%s'", ssid);
-    return false;
+    ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, ssid:%s, exists:%u", ssid, exists);
+    return exists;
 }
 
-RequestItem WiFiRequests::Pop() {
+bool WiFiRequests::Station() {
+    RequestItem request = { RequestItemType::wqi_Station, {} };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    assert(!empty());
-    auto request = back();
-    return request;
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (!exists) {
+        push_front(request);
+    }
+    ESP_LOGI(TAG_WiFiRequests, "Station, exists:%u", exists);
+    return !exists;
 }
 
-void WiFiRequests::StationDone() {
-    ESP_LOGI(TAG_WiFiRequests, "StationDone");
+bool WiFiRequests::RemoveStation() {
+    RequestItem request = { RequestItemType::wqi_Station, {} };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (request.type == RequestItemType::wqi_Station) {
-            erase(it);
-            return;
-        }
+    auto item = Find(&request);
+    bool exists = item != end();
+    if (exists) {
+        erase(item);
     }
+    ESP_LOGI(TAG_WiFiRequests, "RemoveStation, exists:%u", exists);
+    return exists;
 }
 
-void WiFiRequests::ScannerDone(const char *ssid) {
+bool WiFiRequests::Pop(RequestItem *request) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (request.type == RequestItemType::wqi_Scanner && it->Payload.Scanner.ssid == ssid) {
-            it->Payload.Scanner.status = true;
-            ESP_LOGI(TAG_WiFiRequests, "ScannerDone, found:%s", ssid);
-            return;
-        }
+    if (empty()) {
+        return false;
     }
-    ESP_LOGI(TAG_WiFiRequests, "ScannerDone, not found:'%s'", ssid);
-}
-
-void WiFiRequests::AccessPointDone(const char *ssid) {
-    ESP_LOGI(TAG_WiFiRequests, "AccessPointDone, ssid:%s", ssid);
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    for (auto it = begin(); it != end(); it++) {
-        auto request = *it;
-        if (request.type == RequestItemType::wqi_AccessPoint
-            && it->Payload.AccessPoint.ssid == ssid) {
-            erase(it);
-            return;
-        }
-    }
+    *request = back();
+    return true;
 }

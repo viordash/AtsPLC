@@ -191,7 +191,7 @@ TEST(LogicControllerTestsGroup,
 
     CHECK_EQUAL(1, wifi_service->PublicMorozov_Get_requests()->size());
     CHECK_EQUAL(RequestItemType::wqi_Station,
-                wifi_service->PublicMorozov_Get_requests()->front().type);
+                wifi_service->PublicMorozov_Get_requests()->front().Type);
 }
 
 TEST(LogicControllerTestsGroup, WakeupProcessTask) {

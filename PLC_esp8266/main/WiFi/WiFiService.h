@@ -20,28 +20,34 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unordered_set>
 
 class WiFiService {
   public:
   protected:
     WiFiRequests requests;
 
+    std::mutex scanned_ssid_lock_mutex;
+    std::unordered_set<const char *> scanned_ssid;
+
     EventGroupHandle_t event;
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
-    bool ConnectToStationTask(wifi_config_t *wifi_config,
-                              bool *has_new_request,
-                              int32_t max_retry_count);
-    bool StationTask();
-    bool ScannerTask(RequestItem *request);
-    bool AccessPointTask(RequestItem *request);
+    bool ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count);
+    void StationTask();
+    void ScannerTask(RequestItem *request);
+    void AccessPointTask(RequestItem *request);
 
     static void Task(void *parm);
     static void
     wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+
+    void AddSsidToScannedList(const char *ssid);
+    bool FindSsidInScannedList(const char *ssid);
+    void RemoveSsidFromScannedList(const char *ssid);
 
   public:
     static const int STARTED_BIT = BIT0;

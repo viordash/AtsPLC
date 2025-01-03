@@ -16,39 +16,32 @@
 static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
-bool WiFiService::AccessPointTask(RequestItem *request) {
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.Scanner.ssid);
+void WiFiService::AccessPointTask(RequestItem *request) {
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
-    bool has_new_request = false;
     EventBits_t uxBits = 0;
-    bool found = false;
     do {
         uxBits = xEventGroupWaitBits(event,
-                                     STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
+                                     STOP_BIT | CANCEL_REQUEST_BIT,
                                      true,
                                      false,
-                                     /*portMAX_DELAY*/ 1000 / portTICK_RATE_MS);
+                                     /*portMAX_DELAY*/ 10000 / portTICK_RATE_MS);
         ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", uxBits);
-        if ((uxBits & NEW_REQUEST_BIT) != 0) {
-            has_new_request = true;
-        }
 
-        bool timeout = (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0;
+        bool timeout = (uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) == 0;
         if (timeout) {
             ESP_LOGI(TAG_WiFiService_AccessPoint, "found");
-            found = true;
             break;
         }
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_AccessPoint, "Cancel request, ssid:%s", request->Payload.AccessPoint.ssid);
+            break;
+        }
+    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
+    requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
+    Controller::WakeupProcessTask();
 
-    if (found) {
-        Controller::WakeupProcessTask();
-        requests.AccessPointDone(request->Payload.Scanner.ssid);
-    } else {
-        requests.RemoveAccessPoint(request->Payload.Scanner.ssid);
-    }
-
-    ESP_LOGW(TAG_WiFiService_AccessPoint, "finish, has_new_request:%u", has_new_request);
-    return has_new_request;
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "finish");
 }
