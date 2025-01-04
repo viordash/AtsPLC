@@ -17,6 +17,7 @@ extern "C" {
 
 class ControllerDO : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
+    bool value_changed;
     gpio_output gpio;
 
   public:

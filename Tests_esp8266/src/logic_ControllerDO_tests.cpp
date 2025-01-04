@@ -67,6 +67,23 @@ TEST(LogicControllerDOTestsGroup, FetchValue_return_true_if_any_changes) {
     CHECK_FALSE(testable.FetchValue());
 }
 
+TEST(LogicControllerDOTestsGroup, FetchValue_return_true_once_if_changes_happened_on_commit) {
+    mock("2").expectNCalls(2, "gpio_get_level").andReturnValue(0);
+    mock("2").expectOneCall("gpio_set_level").withUnsignedIntParameter("level", 0);
+    TestableControllerDO testable(gpio_output::OUTPUT_0);
+    testable.Init();
+
+    testable.WriteValue(LogicElement::MaxValue);
+    testable.CommitChanges();
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
+
+    CHECK_TRUE(testable.FetchValue());
+    CHECK_FALSE(testable.FetchValue());
+    
+    testable.ReadValue();
+    CHECK_FALSE(testable.FetchValue());
+}
+
 TEST(LogicControllerDOTestsGroup, UpdateValue_return_true_if_any_changes) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
@@ -165,7 +182,7 @@ TEST(LogicControllerDOTestsGroup, Value_changes_in_transaction) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 
-    CHECK_FALSE(testable.FetchValue());
+    CHECK_TRUE(testable.FetchValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 
