@@ -5,12 +5,10 @@
 #include <unistd.h>
 
 class ControllerBaseInput {
-  private:
-    uint8_t in_value;
-    std::mutex lock_value;
-
   protected:
     bool required_reading;
+    uint8_t value;
+    std::mutex lock_value;
 
   public:
     ControllerBaseInput();

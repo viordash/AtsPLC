@@ -89,7 +89,6 @@ TEST(LogicIncOutputTestsGroup,
     testable.SetIoAdr(MapIO::V1);
 
     Controller::V1.WriteValue(42);
-    Controller::V1.CommitChanges();
 
     CHECK_TRUE(Controller::FetchIOValues());
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -107,7 +106,6 @@ TEST(LogicIncOutputTestsGroup,
 
 TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive) {
     Controller::V1.WriteValue(42);
-    Controller::V1.CommitChanges(); 
 
     TestableIncOutput testable;
     testable.SetIoAdr(MapIO::V1);

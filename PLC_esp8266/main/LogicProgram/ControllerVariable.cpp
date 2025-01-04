@@ -16,7 +16,7 @@ ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBase
 void ControllerVariable::Init() {
     ControllerBaseInput::Init();
     ControllerBaseOutput::Init();
-    value = LogicElement::MinValue;
+    value_changed = false;
 }
 
 bool ControllerVariable::FetchValue() {
@@ -25,10 +25,19 @@ bool ControllerVariable::FetchValue() {
     }
     required_reading = false;
 
+    bool changed = value_changed;
+    value_changed = false;
+
+    uint8_t val;
     if (BindedToWiFi()) {
-        value = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
+        val = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
+    } else {
+        val = out_value;
     }
-    return UpdateValue(value);
+    if (UpdateValue(val)) {
+        return true;
+    }
+    return changed;
 }
 
 void ControllerVariable::CommitChanges() {
@@ -36,7 +45,7 @@ void ControllerVariable::CommitChanges() {
         return;
     }
     required_writing = false;
-    value = out_value;
+    value_changed = UpdateValue(out_value);
     if (BindedToWiFi()) {
         if (out_value != LogicElement::MinValue) {
             wifi_service->Generate(ssid);
@@ -67,4 +76,5 @@ void ControllerVariable::CancelReadingProcess() {
     if (BindedToWiFi()) {
         wifi_service->CancelScan(ssid);
     }
+    ControllerVariable::Init();
 }

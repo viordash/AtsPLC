@@ -60,9 +60,24 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_return_true_if_any_changes) {
     TestableControllerVariable testable;
     testable.Init();
 
-    *testable.PublicMorozov_Get_value() = 42;
+    *testable.PublicMorozov_Get_out_value() = 42;
     CHECK_TRUE(testable.FetchValue());
     CHECK_EQUAL(42, testable.ReadValue());
+    CHECK_FALSE(testable.FetchValue());
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_return_true_once_if_changes_happened_on_commit) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    testable.WriteValue(42);
+    testable.CommitChanges();
+    CHECK_EQUAL(42, testable.ReadValue());
+
+    CHECK_TRUE(testable.FetchValue());
+    CHECK_FALSE(testable.FetchValue());
+    
+    testable.ReadValue();
     CHECK_FALSE(testable.FetchValue());
 }
 
@@ -152,8 +167,28 @@ TEST(LogicControllerVariableTestsGroup, Value_changes_in_transaction) {
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
 
     testable.CommitChanges();
-    CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
+    CHECK_EQUAL(42, testable.ReadValue());
 
     CHECK_TRUE(testable.FetchValue());
     CHECK_EQUAL(42, testable.ReadValue());
+
+    testable.WriteValue(41);
+    CHECK_TRUE(testable.FetchValue());
+    CHECK_EQUAL(41, testable.ReadValue());
+    CHECK_EQUAL(41, testable.PeekValue());
+}
+
+TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_calls_Init) {
+    TestableControllerVariable testable;
+    testable.Init();
+    testable.WriteValue(42);
+    testable.CommitChanges();
+
+    CHECK_EQUAL(42, testable.ReadValue());
+    testable.CancelReadingProcess();
+    CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
+    CHECK_FALSE(*(testable.PublicMorozov_Get_required_writing()));
+    CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
+    CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
+    CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
 }

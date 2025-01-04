@@ -8,7 +8,7 @@
 
 class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
-    uint8_t value;
+    bool value_changed;
     WiFiService *wifi_service;
     const char *ssid;
 

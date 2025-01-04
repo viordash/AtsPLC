@@ -119,7 +119,6 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V1_mandatory_after_init) {
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V1.WriteValue(42);
-    Controller::V1.CommitChanges();
 
     CHECK_TRUE(Controller::FetchIOValues());
     Controller::V1.ReadValue();
@@ -133,7 +132,6 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V2_mandatory_after_init) {
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V2.WriteValue(42);
-    Controller::V2.CommitChanges();
 
     CHECK_TRUE(Controller::FetchIOValues());
     Controller::V2.ReadValue();
@@ -147,7 +145,6 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V3_mandatory_after_init) {
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V3.WriteValue(42);
-    Controller::V3.CommitChanges();
 
     CHECK_TRUE(Controller::FetchIOValues());
     Controller::V3.ReadValue();
@@ -161,7 +158,6 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V4.WriteValue(42);
-    Controller::V4.CommitChanges();
 
     CHECK_TRUE(Controller::FetchIOValues());
     Controller::V4.ReadValue();

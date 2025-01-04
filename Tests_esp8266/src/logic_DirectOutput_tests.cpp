@@ -98,7 +98,6 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     Controller::V1.WriteValue(LogicElement::MaxValue);
-    Controller::V1.CommitChanges();
 
     TestableDirectOutput testable;
     testable.SetIoAdr(MapIO::V1);
