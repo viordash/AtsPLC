@@ -90,6 +90,11 @@ void WiFiService::StationTask() {
         return;
     }
 
+    ESP_ERROR_CHECK(
+        esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, this));
+    ESP_ERROR_CHECK(
+        esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
+
     bool break_process = false;
     while (!break_process) {
         if (!ConnectToStationTask(&wifi_config, max_retry_count)) {
@@ -131,28 +136,66 @@ void WiFiService::StationTask() {
         }
     }
 
+    ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler));
+    ESP_ERROR_CHECK(
+        esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
+
     requests.RemoveStation();
     ESP_LOGW(TAG_WiFiService_Station, "finish");
 }
 
-void WiFiService::Connect(wifi_config_t *wifi_config) {
-    ESP_LOGI(TAG_WiFiService_Station, "Connect");
+void WiFiService::wifi_event_handler(void *arg,
+                                     esp_event_base_t event_base,
+                                     int32_t event_id,
+                                     void *event_data) {
+    (void)event_data;
+    auto wifi_service = static_cast<WiFiService *>(arg);
+    switch (event_id) {
+        case WIFI_EVENT_STA_START:
+            ESP_LOGI(TAG_WiFiService_Station, "start wifi event");
+            esp_wifi_connect();
+            return;
 
-    /* Setting a password implies station will connect to all security modes including WEP/WPA.
-     * However these modes are deprecated and not advisable to be used. Incase your Access point
-     * doesn't support WPA2, these mode can be enabled by commenting below line */
+        case WIFI_EVENT_STA_DISCONNECTED:
+            ESP_LOGI(TAG_WiFiService_Station, "connect to the AP fail");
+            xEventGroupSetBits(wifi_service->event, WiFiService::FAILED_BIT);
+            return;
 
-    if (wifi_config->sta.password[0] != 0) {
-        wifi_config->sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+        case WIFI_EVENT_STA_STOP:
+            ESP_LOGI(TAG_WiFiService_Station, "stop wifi event");
+            return;
+
+        case WIFI_EVENT_STA_CONNECTED:
+            ESP_LOGI(TAG_WiFiService_Station, "wifi connected event");
+            return;
+
+        default:
+            ESP_LOGW(TAG_WiFiService_Station,
+                     "unhandled event, event_base:%s, event_id:%d",
+                     event_base,
+                     event_id);
+            break;
     }
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void WiFiService::Disconnect() {
-    ESP_LOGI(TAG_WiFiService_Station, "Disconnect");
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
-    ESP_ERROR_CHECK(esp_wifi_stop());
+void WiFiService::ip_event_handler(void *arg,
+                                   esp_event_base_t event_base,
+                                   int32_t event_id,
+                                   void *event_data) {
+    auto wifi_service = static_cast<WiFiService *>(arg);
+    auto event = (ip_event_got_ip_t *)event_data;
+
+    switch (event_id) {
+        case IP_EVENT_STA_GOT_IP:
+            ESP_LOGI(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+            xEventGroupSetBits(wifi_service->event, CONNECTED_BIT);
+            return;
+
+        default:
+            ESP_LOGW(TAG_WiFiService_Station,
+                     "unhandled event, event_base:%s, event_id:%d",
+                     event_base,
+                     event_id);
+            break;
+    }
 }

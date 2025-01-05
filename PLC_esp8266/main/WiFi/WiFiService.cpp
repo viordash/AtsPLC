@@ -29,11 +29,6 @@ void WiFiService::Start() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    ESP_ERROR_CHECK(
-        esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, this));
-    ESP_ERROR_CHECK(
-        esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
-
     ConnectToStation();
     ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, 3, NULL) != pdPASS
                         ? ESP_FAIL
@@ -58,12 +53,6 @@ void WiFiService::Stop() {
             ESP_LOGI(TAG_WiFiService, "stopped, uxBits:0x%08X", uxBits);
         }
     }
-
-    ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler));
-    ESP_ERROR_CHECK(
-        esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
-
-    Disconnect();
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
 
@@ -168,58 +157,27 @@ void WiFiService::Task(void *parm) {
     vTaskDelete(NULL);
 }
 
-void WiFiService::wifi_event_handler(void *arg,
-                                     esp_event_base_t event_base,
-                                     int32_t event_id,
-                                     void *event_data) {
-    (void)event_data;
-    auto wifi_service = static_cast<WiFiService *>(arg);
-    switch (event_id) {
-        case WIFI_EVENT_STA_START:
-            ESP_LOGI(TAG_WiFiService, "start wifi event");
-            esp_wifi_connect();
-            return;
+void WiFiService::Connect(wifi_config_t *wifi_config) {
+    ESP_LOGI(TAG_WiFiService, "Connect");
 
-        case WIFI_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG_WiFiService, "connect to the AP fail");
-            xEventGroupSetBits(wifi_service->event, WiFiService::FAILED_BIT);
-            return;
+    /* Setting a password implies station will connect to all security modes including WEP/WPA.
+     * However these modes are deprecated and not advisable to be used. Incase your Access point
+     * doesn't support WPA2, these mode can be enabled by commenting below line */
 
-        case WIFI_EVENT_STA_STOP:
-            ESP_LOGI(TAG_WiFiService, "stop wifi event");
-            return;
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 
-        case WIFI_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG_WiFiService, "wifi connected event");
-            return;
-
-        default:
-            ESP_LOGW(TAG_WiFiService,
-                     "unhandled event, event_base:%s, event_id:%d",
-                     event_base,
-                     event_id);
-            break;
+    if (wifi_config != NULL) {
+        if (wifi_config->sta.password[0] != 0) {
+            wifi_config->sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+        }
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config));
     }
+
+    ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void WiFiService::ip_event_handler(void *arg,
-                                   esp_event_base_t event_base,
-                                   int32_t event_id,
-                                   void *event_data) {
-    auto wifi_service = static_cast<WiFiService *>(arg);
-    auto event = (ip_event_got_ip_t *)event_data;
-
-    switch (event_id) {
-        case IP_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG_WiFiService, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
-            xEventGroupSetBits(wifi_service->event, CONNECTED_BIT);
-            return;
-
-        default:
-            ESP_LOGW(TAG_WiFiService,
-                     "unhandled event, event_base:%s, event_id:%d",
-                     event_base,
-                     event_id);
-            break;
-    }
+void WiFiService::Disconnect() {
+    ESP_LOGI(TAG_WiFiService, "Disconnect");
+    ESP_ERROR_CHECK(esp_wifi_disconnect());
+    ESP_ERROR_CHECK(esp_wifi_stop());
 }
