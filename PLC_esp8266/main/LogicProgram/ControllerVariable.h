@@ -8,14 +8,13 @@
 
 class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
-    bool value_changed;
     WiFiService *wifi_service;
     const char *ssid;
 
   public:
     explicit ControllerVariable();
     void Init() override;
-    bool FetchValue() override;
+    void FetchValue() override;
     void CommitChanges() override;
     void BindToWiFi(WiFiService *wifi_service, const char *ssid);
     void Unbind();

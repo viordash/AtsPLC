@@ -76,13 +76,13 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_cal
     Controller::V1.WriteValue(LogicElement::MaxValue);
     Controller::V1.CommitChanges();
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     Controller::V1.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
@@ -97,7 +97,7 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
     TestableResetOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     Controller::V1.CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());

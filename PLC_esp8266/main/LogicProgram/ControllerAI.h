@@ -9,5 +9,5 @@ class ControllerAI : public ControllerBaseInput {
   public:
     ControllerAI();
     const int read_adc_max_period_ms = 1000;
-    bool FetchValue() override;
+    void FetchValue() override;
 };

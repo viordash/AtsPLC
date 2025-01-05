@@ -16,17 +16,13 @@ ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBase
 void ControllerVariable::Init() {
     ControllerBaseInput::Init();
     ControllerBaseOutput::Init();
-    value_changed = false;
 }
 
-bool ControllerVariable::FetchValue() {
+void ControllerVariable::FetchValue() {
     if (!required_reading) {
-        return false;
+        return;
     }
     required_reading = false;
-
-    bool changed = value_changed;
-    value_changed = false;
 
     uint8_t val;
     if (BindedToWiFi()) {
@@ -34,10 +30,7 @@ bool ControllerVariable::FetchValue() {
     } else {
         val = out_value;
     }
-    if (UpdateValue(val)) {
-        return true;
-    }
-    return changed;
+    UpdateValue(val);
 }
 
 void ControllerVariable::CommitChanges() {
@@ -45,7 +38,7 @@ void ControllerVariable::CommitChanges() {
         return;
     }
     required_writing = false;
-    value_changed = UpdateValue(out_value);
+    UpdateValue(out_value);
     if (BindedToWiFi()) {
         if (out_value != LogicElement::MinValue) {
             wifi_service->Generate(ssid);

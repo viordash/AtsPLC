@@ -15,9 +15,9 @@ class ControllerBaseInput {
     virtual ~ControllerBaseInput();
 
     virtual void Init();
-    virtual bool FetchValue() = 0;
+    virtual void FetchValue() = 0;
     uint8_t ReadValue();
     uint8_t PeekValue();
-    bool UpdateValue(uint8_t new_value);
+    void UpdateValue(uint8_t new_value);
     virtual void CancelReadingProcess(){};
 };

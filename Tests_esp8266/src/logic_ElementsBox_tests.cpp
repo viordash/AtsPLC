@@ -339,7 +339,7 @@ TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
 
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);
     ElementsBox testable(100, &fake_doaction_element, false);

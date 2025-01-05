@@ -97,11 +97,11 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
     testable.SetIoAdr(MapIO::DI);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
@@ -122,7 +122,7 @@ TEST(LogicInputNOTestsGroup, DoAction_change_state_to_active) {
     TestableInputNO testable;
     testable.SetIoAdr(MapIO::DI);
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }

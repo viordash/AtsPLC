@@ -26,9 +26,7 @@ uint8_t ControllerBaseInput::PeekValue() {
     return value;
 }
 
-bool ControllerBaseInput::UpdateValue(uint8_t new_value) {
+void ControllerBaseInput::UpdateValue(uint8_t new_value) {
     std::lock_guard<std::mutex> lock(lock_value);
-    bool has_changes = value != new_value;
     value = new_value;
-    return has_changes;
 }

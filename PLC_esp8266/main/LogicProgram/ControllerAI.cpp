@@ -19,16 +19,16 @@ extern "C" {
 ControllerAI::ControllerAI() : ControllerBaseInput() {
 }
 
-bool ControllerAI::FetchValue() {
+void ControllerAI::FetchValue() {
     if (!required_reading) {
-        return false;
+        return;
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI, read_adc_max_period_ms)) {
-        return false;
+        return;
     }
     required_reading = false;
 
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;
-    return UpdateValue(percent04);
+    UpdateValue(percent04);
 }

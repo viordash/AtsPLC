@@ -57,53 +57,29 @@ TEST(LogicControllerDOTestsGroup, FetchValue_reset_required_reading) {
     CHECK_FALSE(*(testable.PublicMorozov_Get_required_reading()));
 }
 
-TEST(LogicControllerDOTestsGroup, FetchValue_return_true_if_any_changes) {
-    mock("2").expectNCalls(2, "gpio_get_level").andReturnValue(0);
+TEST(LogicControllerDOTestsGroup, FetchValue) {
+    mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
-    CHECK_FALSE(testable.FetchValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDOTestsGroup, FetchValue_return_true_once_if_changes_happened_on_commit) {
-    mock("2").expectNCalls(2, "gpio_get_level").andReturnValue(0);
-    mock("2").expectOneCall("gpio_set_level").withUnsignedIntParameter("level", 0);
+TEST(LogicControllerDOTestsGroup, UpdateValue) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
-    testable.WriteValue(LogicElement::MaxValue);
-    testable.CommitChanges();
+    testable.UpdateValue(LogicElement::MaxValue);
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
-
-    CHECK_TRUE(testable.FetchValue());
-    CHECK_FALSE(testable.FetchValue());
-    
-    testable.ReadValue();
-    CHECK_FALSE(testable.FetchValue());
-}
-
-TEST(LogicControllerDOTestsGroup, UpdateValue_return_true_if_any_changes) {
-    TestableControllerDO testable(gpio_output::OUTPUT_0);
-    testable.Init();
-
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
-    CHECK_FALSE(testable.UpdateValue(LogicElement::MaxValue));
-}
-
-TEST(LogicControllerDOTestsGroup, UpdateValue_updated_value) {
-    TestableControllerDO testable(gpio_output::OUTPUT_0);
-    testable.Init();
-
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
 TEST(LogicControllerDOTestsGroup, ReadValue_returns_value) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
+    testable.UpdateValue(LogicElement::MaxValue);
 
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
 }
@@ -170,7 +146,7 @@ TEST(LogicControllerDOTestsGroup, Value_changes_in_transaction) {
     TestableControllerDO testable(gpio_output::OUTPUT_0);
     testable.Init();
 
-    CHECK_FALSE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
 
@@ -182,11 +158,11 @@ TEST(LogicControllerDOTestsGroup, Value_changes_in_transaction) {
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
 }

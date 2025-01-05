@@ -75,14 +75,14 @@ TEST(LogicDecOutputTestsGroup,
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.WriteValue(42);
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();    
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     CHECK_EQUAL(41, Controller::V1.PeekValue());
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();    
     CHECK_EQUAL(41, Controller::V1.PeekValue());
@@ -95,7 +95,7 @@ TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     Controller::CommitChanges(); 
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());

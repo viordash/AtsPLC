@@ -15,27 +15,19 @@ ControllerDO::ControllerDO(gpio_output gpio) : ControllerBaseInput(), Controller
 void ControllerDO::Init() {
     ControllerBaseInput::Init();
     ControllerBaseOutput::Init();
-    value_changed = false;
 }
 
-bool ControllerDO::FetchValue() {
+void ControllerDO::FetchValue() {
     if (!required_reading) {
-        return false;
+        return;
     }
     required_reading = false;
-
-    bool changed = value_changed;
-    value_changed = false;
 
     bool val_1bit = get_digital_value(gpio);
     uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
 
     ESP_LOGI(TAG_ControllerDO, "FetchValue, percent04:%u, in_value:%u", percent04, PeekValue());
-
-    if (UpdateValue(percent04)) {
-        return true;
-    }
-    return changed;
+    UpdateValue(percent04);
 }
 
 void ControllerDO::CommitChanges() {
@@ -44,5 +36,5 @@ void ControllerDO::CommitChanges() {
     }
     required_writing = false;
     set_digital_value(gpio, out_value != LogicElement::MinValue);
-    value_changed = UpdateValue(out_value);
+    UpdateValue(out_value);
 }

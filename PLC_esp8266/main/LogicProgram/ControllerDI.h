@@ -8,5 +8,5 @@ class ControllerDI : public ControllerBaseInput {
   protected:
   public:
     ControllerDI();
-    bool FetchValue() override;
+    void FetchValue() override;
 };

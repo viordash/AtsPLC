@@ -164,11 +164,11 @@ void Controller::ProcessTask(void *parm) {
             }
         }
 
-        need_render |= inputs_changed;
-        need_render |= FetchIOValues();
-
+        FetchIOValues();
         bool any_changes_in_actions = ladder->DoAction();
         CommitChanges();
+
+        need_render |= inputs_changed;
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
@@ -257,17 +257,15 @@ void Controller::RenderTask(void *parm) {
     vTaskDelete(NULL);
 }
 
-bool Controller::FetchIOValues() {
-    bool has_changes = false;
-    has_changes |= Controller::DI.FetchValue();
-    has_changes |= Controller::AI.FetchValue();
-    has_changes |= Controller::O1.FetchValue();
-    has_changes |= Controller::O2.FetchValue();
-    has_changes |= Controller::V1.FetchValue();
-    has_changes |= Controller::V2.FetchValue();
-    has_changes |= Controller::V3.FetchValue();
-    has_changes |= Controller::V4.FetchValue();
-    return has_changes;
+void Controller::FetchIOValues() {
+    Controller::DI.FetchValue();
+    Controller::AI.FetchValue();
+    Controller::O1.FetchValue();
+    Controller::O2.FetchValue();
+    Controller::V1.FetchValue();
+    Controller::V2.FetchValue();
+    Controller::V3.FetchValue();
+    Controller::V4.FetchValue();
 }
 
 void Controller::CommitChanges() {

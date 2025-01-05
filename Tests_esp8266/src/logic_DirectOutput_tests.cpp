@@ -86,7 +86,7 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_active) {
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     Controller::V1.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.ReadValue());
 }
 
@@ -109,7 +109,7 @@ TEST(LogicDirectOutputTestsGroup, DoAction_change_state_to_passive) {
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     Controller::V1.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 }
 

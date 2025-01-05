@@ -82,7 +82,7 @@ TEST(LogicSetOutputTestsGroup, DoAction_change_state_to_active__and_second_call_
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     Controller::V1.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
+    Controller::FetchIOValues();
     CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.ReadValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));

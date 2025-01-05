@@ -8,13 +8,13 @@
 ControllerDI::ControllerDI() : ControllerBaseInput() {
 }
 
-bool ControllerDI::FetchValue() {
+void ControllerDI::FetchValue() {
     if (!required_reading) {
-        return false;
+        return;
     }
     required_reading = false;
 
     bool val_1bit = get_digital_input_value();
     uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
-    return UpdateValue(percent04);
+    UpdateValue(percent04);
 }

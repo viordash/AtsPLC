@@ -45,20 +45,17 @@ TEST(LogicControllerTestsGroup, FetchIOValues_AI) {
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     mock()
-        .expectNCalls(2, "adc_read")
+        .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    Controller::FetchIOValues();
-    CHECK_FALSE(Controller::FetchIOValues());
-
     adc = 42 / 0.1;
-    Controller::AI.ReadValue();
     Controller::RemoveRequestWakeupMs((void *)&Controller::AI);
-    CHECK_TRUE(Controller::FetchIOValues());
+
+    CHECK_EQUAL(0, Controller::AI.PeekValue());
+    Controller::FetchIOValues();
     CHECK_EQUAL(42 / 0.4, Controller::AI.PeekValue());
-    CHECK_FALSE(Controller::FetchIOValues());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_DI) {
@@ -66,16 +63,11 @@ TEST(LogicControllerTestsGroup, FetchIOValues_DI) {
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-    mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
+    CHECK_EQUAL(LogicElement::MinValue, Controller::DI.PeekValue());
     Controller::FetchIOValues();
-    CHECK_FALSE(Controller::FetchIOValues());
-
-    Controller::DI.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::DI.PeekValue());
-    CHECK_FALSE(Controller::FetchIOValues());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_O1) {
@@ -83,16 +75,11 @@ TEST(LogicControllerTestsGroup, FetchIOValues_O1) {
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("15").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-    mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("2").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
+    CHECK_EQUAL(LogicElement::MinValue, Controller::O1.PeekValue());
     Controller::FetchIOValues();
-    CHECK_FALSE(Controller::FetchIOValues());
-
-    Controller::O1.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O1.PeekValue());
-    CHECK_FALSE(Controller::FetchIOValues());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_O2) {
@@ -100,16 +87,11 @@ TEST(LogicControllerTestsGroup, FetchIOValues_O2) {
     mock("2").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock("0").expectNCalls(1, "gpio_get_level").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
-    mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(1);
     mock("15").expectNCalls(1, "gpio_get_level").andReturnValue(0);
 
+    CHECK_EQUAL(LogicElement::MinValue, Controller::O2.PeekValue());
     Controller::FetchIOValues();
-    CHECK_FALSE(Controller::FetchIOValues());
-
-    Controller::O2.ReadValue();
-    CHECK_TRUE(Controller::FetchIOValues());
     CHECK_EQUAL(LogicElement::MaxValue, Controller::O2.PeekValue());
-    CHECK_FALSE(Controller::FetchIOValues());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_V1_mandatory_after_init) {
@@ -120,9 +102,9 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V1_mandatory_after_init) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V1.WriteValue(42);
 
-    CHECK_TRUE(Controller::FetchIOValues());
-    Controller::V1.ReadValue();
-    CHECK_FALSE(Controller::FetchIOValues());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+    Controller::FetchIOValues();
+    CHECK_EQUAL(42, Controller::V1.PeekValue());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_V2_mandatory_after_init) {
@@ -133,9 +115,9 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V2_mandatory_after_init) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V2.WriteValue(42);
 
-    CHECK_TRUE(Controller::FetchIOValues());
-    Controller::V2.ReadValue();
-    CHECK_FALSE(Controller::FetchIOValues());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V2.PeekValue());
+    Controller::FetchIOValues();
+    CHECK_EQUAL(42, Controller::V2.PeekValue());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_V3_mandatory_after_init) {
@@ -146,9 +128,9 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V3_mandatory_after_init) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V3.WriteValue(42);
 
-    CHECK_TRUE(Controller::FetchIOValues());
-    Controller::V3.ReadValue();
-    CHECK_FALSE(Controller::FetchIOValues());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V3.PeekValue());
+    Controller::FetchIOValues();
+    CHECK_EQUAL(42, Controller::V3.PeekValue());
 }
 
 TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
@@ -159,9 +141,9 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
     mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
     Controller::V4.WriteValue(42);
 
-    CHECK_TRUE(Controller::FetchIOValues());
-    Controller::V4.ReadValue();
-    CHECK_FALSE(Controller::FetchIOValues());
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V4.PeekValue());
+    Controller::FetchIOValues();
+    CHECK_EQUAL(42, Controller::V4.PeekValue());
 }
 
 TEST(LogicControllerTestsGroup,

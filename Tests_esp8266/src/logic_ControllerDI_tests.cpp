@@ -47,29 +47,22 @@ TEST(LogicControllerDITestsGroup, FetchValue_reset_required) {
     CHECK_FALSE(*(testable.PublicMorozov_Get_required_reading()));
 }
 
-TEST(LogicControllerDITestsGroup, FetchValue_return_true_if_any_changes) {
-    mock("0").expectNCalls(2, "gpio_get_level").andReturnValue(0);
+TEST(LogicControllerDITestsGroup, FetchValue) {
+    mock("0").expectNCalls(1, "gpio_get_level").andReturnValue(0);
     TestableControllerDI testable;
     testable.Init();
 
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
-    CHECK_FALSE(testable.FetchValue());
+    CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
-TEST(LogicControllerDITestsGroup, UpdateValue_return_true_if_any_changes) {
+TEST(LogicControllerDITestsGroup, UpdateValue) {
     TestableControllerDI testable;
     testable.Init();
 
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
-    CHECK_FALSE(testable.UpdateValue(LogicElement::MaxValue));
-}
-
-TEST(LogicControllerDITestsGroup, UpdateValue_updated_value) {
-    TestableControllerDI testable;
-    testable.Init();
-
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
+    testable.UpdateValue(LogicElement::MaxValue);
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
@@ -77,7 +70,7 @@ TEST(LogicControllerDITestsGroup, ReadValue_returns_value_and_set_required) {
     TestableControllerDI testable;
     testable.Init();
     *(testable.PublicMorozov_Get_required_reading()) = false;
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
+    testable.UpdateValue(LogicElement::MaxValue);
 
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));

@@ -56,51 +56,29 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_reset_required_reading) {
     CHECK_FALSE(*(testable.PublicMorozov_Get_required_reading()));
 }
 
-TEST(LogicControllerVariableTestsGroup, FetchValue_return_true_if_any_changes) {
+TEST(LogicControllerVariableTestsGroup, FetchValue) {
     TestableControllerVariable testable;
     testable.Init();
 
     *testable.PublicMorozov_Get_out_value() = 42;
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(42, testable.ReadValue());
-    CHECK_FALSE(testable.FetchValue());
+    CHECK_EQUAL(42, testable.PeekValue());
 }
 
-TEST(LogicControllerVariableTestsGroup, FetchValue_return_true_once_if_changes_happened_on_commit) {
+TEST(LogicControllerVariableTestsGroup, UpdateValue) {
     TestableControllerVariable testable;
     testable.Init();
 
-    testable.WriteValue(42);
-    testable.CommitChanges();
-    CHECK_EQUAL(42, testable.ReadValue());
-
-    CHECK_TRUE(testable.FetchValue());
-    CHECK_FALSE(testable.FetchValue());
-    
-    testable.ReadValue();
-    CHECK_FALSE(testable.FetchValue());
-}
-
-TEST(LogicControllerVariableTestsGroup, UpdateValue_return_true_if_any_changes) {
-    TestableControllerVariable testable;
-    testable.Init();
-
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
-    CHECK_FALSE(testable.UpdateValue(LogicElement::MaxValue));
-}
-
-TEST(LogicControllerVariableTestsGroup, UpdateValue_updated_value) {
-    TestableControllerVariable testable;
-    testable.Init();
-
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
+    testable.UpdateValue(LogicElement::MaxValue);
+    CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MaxValue, testable.PeekValue());
 }
 
 TEST(LogicControllerVariableTestsGroup, ReadValue_returns_value) {
     TestableControllerVariable testable;
     testable.Init();
-    CHECK_TRUE(testable.UpdateValue(LogicElement::MaxValue));
+    testable.UpdateValue(LogicElement::MaxValue);
 
     CHECK_EQUAL(LogicElement::MaxValue, testable.ReadValue());
 }
@@ -160,7 +138,7 @@ TEST(LogicControllerVariableTestsGroup, Value_changes_in_transaction) {
     TestableControllerVariable testable;
     testable.Init();
 
-    CHECK_FALSE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
 
     testable.WriteValue(42);
@@ -169,11 +147,11 @@ TEST(LogicControllerVariableTestsGroup, Value_changes_in_transaction) {
     testable.CommitChanges();
     CHECK_EQUAL(42, testable.ReadValue());
 
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(42, testable.ReadValue());
 
     testable.WriteValue(41);
-    CHECK_TRUE(testable.FetchValue());
+    testable.FetchValue();
     CHECK_EQUAL(41, testable.ReadValue());
     CHECK_EQUAL(41, testable.PeekValue());
 }

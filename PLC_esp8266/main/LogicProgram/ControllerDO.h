@@ -17,13 +17,12 @@ extern "C" {
 
 class ControllerDO : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
-    bool value_changed;
     gpio_output gpio;
 
   public:
     explicit ControllerDO(gpio_output gpio);
 
     void Init() override;
-    bool FetchValue() override;
+    void FetchValue() override;
     void CommitChanges() override;
 };
