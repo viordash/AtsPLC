@@ -356,6 +356,25 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other
     testable.PublicMorozov_ScannerTask(&request);
 }
 
+TEST(LogicWiFiServiceTestsGroup, ScannerTask_before_stop_calls_WakeupProcessTask) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::STOP_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
+    testable.PublicMorozov_ScannerTask(&request);
+}
+
 TEST(
     LogicWiFiServiceTestsGroup,
     AccessPointTask_handle_CANCEL_REQUEST_BIT_and_then_stop_task_only_request_has_already_been_deleted) {
@@ -385,8 +404,7 @@ TEST(
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup,
-     AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_other_AP_requests) {
+TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_other_AP_requests) {
     TestableWiFiService testable;
 
     char buffer[32];
@@ -415,6 +433,25 @@ TEST(LogicWiFiServiceTestsGroup,
     const char *ssid_0 = "test_0";
     testable.Generate(ssid_0);
 
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
+}
+
+TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcessTask) {
+    TestableWiFiService testable;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("uxBitsToWaitFor",
+                                  WiFiService::STOP_BIT | WiFiService::CANCEL_REQUEST_BIT)
+        .andReturnValue(WiFiService::STOP_BIT)
+        .ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
 }
