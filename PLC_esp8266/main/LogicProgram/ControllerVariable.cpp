@@ -76,5 +76,6 @@ void ControllerVariable::CancelReadingProcess() {
     if (BindedToWiFi()) {
         wifi_service->CancelScan(ssid);
     }
-    ControllerVariable::Init();
+    value = LogicElement::MinValue;
+    out_value = LogicElement::MinValue;
 }
