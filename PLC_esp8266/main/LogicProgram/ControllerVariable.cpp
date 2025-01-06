@@ -26,7 +26,7 @@ void ControllerVariable::FetchValue() {
 
     uint8_t val;
     if (BindedToWiFi()) {
-        val = wifi_service->Scan(ssid) ? LogicElement::MaxValue : LogicElement::MinValue;
+        val = wifi_service->Scan(ssid);
     } else {
         val = out_value;
     }

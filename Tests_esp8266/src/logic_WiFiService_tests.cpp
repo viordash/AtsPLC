@@ -41,11 +41,14 @@ namespace {
         void PublicMorozov_AccessPointTask(RequestItem *request) {
             AccessPointTask(request);
         }
-        void PublicMorozov_AddSsidToScannedList(const char *ssid) {
-            AddSsidToScannedList(ssid);
+        void PublicMorozov_AddSsidToScannedList(const char *ssid, uint8_t rssi) {
+            AddSsidToScannedList(ssid, rssi);
         }
-        bool PublicMorozov_FindSsidInScannedList(const char *ssid) {
-            return FindSsidInScannedList(ssid);
+        bool PublicMorozov_FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
+            return FindSsidInScannedList(ssid, rssi);
+        }
+        uint8_t PublicMorozov_ScaleRssiToPercent04(int8_t rssi) {
+            return ScaleRssiToPercent04(rssi);
         }
     };
 } // namespace
@@ -103,12 +106,12 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
 
     const char *ssid_0 = "test_0";
 
-    CHECK_FALSE(testable.Scan(ssid_0));
+    CHECK_EQUAL(LogicElement::MinValue, testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.PublicMorozov_AddSsidToScannedList(ssid_0);
+    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 42);
 
-    CHECK_TRUE(testable.Scan(ssid_0));
+    CHECK_EQUAL(42, testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
@@ -125,7 +128,7 @@ TEST(LogicWiFiServiceTestsGroup, CancelScan) {
         .expectNCalls(1, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
-    CHECK_FALSE(testable.Scan("ssid_0"));
+    CHECK_EQUAL(LogicElement::MinValue, testable.Scan("ssid_0"));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
     testable.CancelScan("ssid_0");
@@ -449,7 +452,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     mock()
         .expectOneCall("esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us_start, sizeof(os_us_start));
-    uint64_t os_us_after_wait = 5600000;
+    uint64_t os_us_after_wait = 11200000;
     mock()
         .expectOneCall("esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us_after_wait, sizeof(os_us_after_wait));
@@ -481,9 +484,10 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     const char *ssid_0 = "test_0";
     testable.Scan(ssid_0);
 
+    uint8_t rssi;
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0));
+    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
 }
 
 TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_is_usable) {
@@ -530,13 +534,15 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
     strcpy((char *)ap_records.ssid, ssid_0);
     ap_records.rssi = -120;
 
+    uint8_t rssi;
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0));
+    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
 
     ap_records.rssi = -119;
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0));
+    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_EQUAL(2, rssi);
 }
 
 TEST(
@@ -618,4 +624,17 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
+}
+
+TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
+    TestableWiFiService testable;
+
+    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-128));
+    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-120));
+    CHECK_EQUAL(2, testable.PublicMorozov_ScaleRssiToPercent04(-119));
+    CHECK_EQUAL(127, testable.PublicMorozov_ScaleRssiToPercent04(-73));
+    CHECK_EQUAL(252, testable.PublicMorozov_ScaleRssiToPercent04(-27));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(-26));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(0));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127));
 }

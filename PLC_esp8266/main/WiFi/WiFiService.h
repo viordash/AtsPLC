@@ -20,7 +20,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unordered_set>
+#include <unordered_map>
 
 class WiFiService {
   public:
@@ -28,7 +28,7 @@ class WiFiService {
     WiFiRequests requests;
 
     std::mutex scanned_ssid_lock_mutex;
-    std::unordered_set<const char *> scanned_ssid;
+    std::unordered_map<const char *, uint8_t> scanned_ssid;
 
     EventGroupHandle_t event;
 
@@ -38,7 +38,7 @@ class WiFiService {
     void StationTask();
 
     bool StartScan(const char *ssid);
-    int8_t Scan(RequestItem *request);
+    int8_t Scanning(RequestItem *request);
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
@@ -49,8 +49,9 @@ class WiFiService {
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
-    void AddSsidToScannedList(const char *ssid);
-    bool FindSsidInScannedList(const char *ssid);
+    uint8_t ScaleRssiToPercent04(int8_t rssi);
+    void AddSsidToScannedList(const char *ssid, uint8_t rssi);
+    bool FindSsidInScannedList(const char *ssid, uint8_t *rssi);
     void RemoveSsidFromScannedList(const char *ssid);
 
   public:
@@ -71,7 +72,7 @@ class WiFiService {
     bool Started();
 
     void ConnectToStation();
-    bool Scan(const char *ssid);
+    uint8_t Scan(const char *ssid);
     void CancelScan(const char *ssid);
 
     void Generate(const char *ssid);

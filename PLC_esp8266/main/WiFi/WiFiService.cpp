@@ -1,4 +1,5 @@
 #include "WiFiService.h"
+#include "LogicProgram/LogicElement.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
 #include "esp_system.h"
@@ -77,18 +78,23 @@ void WiFiService::ConnectToStation() {
     }
 }
 
-bool WiFiService::Scan(const char *ssid) {
+uint8_t WiFiService::Scan(const char *ssid) {
     bool was_inserted = requests.Scan(ssid);
     if (was_inserted) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
-    bool status = FindSsidInScannedList(ssid);
+    uint8_t rssi;
+    bool found = FindSsidInScannedList(ssid, &rssi);
     ESP_LOGD(TAG_WiFiService,
-             "Scan, ssid:%s, was_inserted:%d, status:%d",
+             "Scan, ssid:%s, was_inserted:%d, found:%d, rssi:%u",
              ssid,
              was_inserted,
-             status);
-    return status;
+             found,
+             rssi);
+    if (!found) {
+        rssi = LogicElement::MinValue;
+    }
+    return rssi;
 }
 
 void WiFiService::CancelScan(const char *ssid) {
