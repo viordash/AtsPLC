@@ -137,7 +137,10 @@ uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi) {
 
 void WiFiService::AddSsidToScannedList(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    scanned_ssid.insert({ ssid, rssi });
+    auto it = scanned_ssid.insert({ ssid, rssi });
+    if (!it.second) {
+        it.first->second = rssi;
+    }
     ESP_LOGD(TAG_WiFiService_Scanner,
              "AddSsidToScannedList, cnt:%u",
              (unsigned)scanned_ssid.size());

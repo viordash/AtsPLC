@@ -638,3 +638,18 @@ TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(0));
     CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127));
 }
+
+TEST(LogicWiFiServiceTestsGroup, AddSsidToScannedList_update_rssi_if_record_already_exists) {
+    TestableWiFiService testable;
+
+    uint8_t rssi;
+    const char *ssid_0 = "test_0";
+
+    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 42);
+    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_EQUAL(42, rssi);
+
+    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 19);
+    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_EQUAL(19, rssi);
+}
