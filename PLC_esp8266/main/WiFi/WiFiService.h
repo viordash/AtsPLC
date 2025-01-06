@@ -36,6 +36,10 @@ class WiFiService {
     void Disconnect();
     bool ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count);
     void StationTask();
+
+    bool StartScan(const char *ssid);
+    int8_t Scan(RequestItem *request);
+    void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
 

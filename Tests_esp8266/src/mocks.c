@@ -431,3 +431,30 @@ esp_err_t esp_ota_set_boot_partition(const esp_partition_t *partition) {
         ->withConstPointerParameters("partition", partition)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
+
+esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_start")
+        ->withConstPointerParameters("config", config)
+        ->withBoolParameters("block", block)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_stop(void) {
+    return mock_c()->actualCall("esp_wifi_scan_stop")->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_get_ap_num")
+        ->withOutputParameter("number", number)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_records) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_get_ap_records")
+        ->withOutputParameter("number", number)
+        ->withOutputParameter("ap_records", ap_records)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}

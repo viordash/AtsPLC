@@ -83,7 +83,7 @@ bool WiFiService::Scan(const char *ssid) {
         xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
     bool status = FindSsidInScannedList(ssid);
-    ESP_LOGI(TAG_WiFiService,
+    ESP_LOGD(TAG_WiFiService,
              "Scan, ssid:%s, was_inserted:%d, status:%d",
              ssid,
              was_inserted,
