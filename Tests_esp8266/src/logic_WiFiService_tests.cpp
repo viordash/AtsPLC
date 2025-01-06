@@ -12,11 +12,18 @@
 #include "main/WiFi/WiFiService.h"
 #include "main/settings.h"
 
-TEST_GROUP(LogicWiFiServiceTestsGroup){ //
-                                        TEST_SETUP(){}
+TEST_GROUP(LogicWiFiServiceTestsGroup){
+    //
+    TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+Controller::Start(NULL, NULL);
+}
 
-                                        TEST_TEARDOWN(){}
-};
+TEST_TEARDOWN() {
+    Controller::Stop();
+}
+}
+;
 
 namespace {
     class TestableWiFiService : public WiFiService {
@@ -78,6 +85,8 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
         .expectNCalls(3, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
+    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
+
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
     testable.Scan("ssid_0");
@@ -104,6 +113,8 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
         .expectNCalls(1, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
+
     const char *ssid_0 = "test_0";
 
     CHECK_EQUAL(LogicElement::MinValue, testable.Scan(ssid_0));
@@ -112,6 +123,36 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
     testable.PublicMorozov_AddSsidToScannedList(ssid_0, 42);
 
     CHECK_EQUAL(42, testable.Scan(ssid_0));
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicWiFiServiceTestsGroup, Scan_re_add_request_only_after_delay) {
+    TestableWiFiService testable;
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(2, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (uint64_t *)&os_us, sizeof(os_us));
+
+    const char *ssid_0 = "test_0";
+
+    testable.Scan(ssid_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+
+    testable.PublicMorozov_Get_requests()->RemoveScanner(ssid_0);
+
+    os_us = 29990000;
+    testable.Scan(ssid_0);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+
+    os_us = 30000000;
+    Controller::RemoveExpiredWakeupRequests();
+    testable.Scan(ssid_0);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
@@ -127,6 +168,8 @@ TEST(LogicWiFiServiceTestsGroup, CancelScan) {
     mock(buffer)
         .expectNCalls(1, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     CHECK_EQUAL(LogicElement::MinValue, testable.Scan("ssid_0"));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
@@ -319,7 +362,7 @@ TEST(
         .ignoreOtherParameters();
     uint64_t os_us = 0;
     mock()
-        .expectNCalls(2, "esp_timer_get_time")
+        .expectNCalls(3, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
     mock().expectNCalls(1, "esp_wifi_scan_get_ap_records").ignoreOtherParameters();
     mock().expectNCalls(1, "esp_wifi_scan_stop").ignoreOtherParameters();
@@ -361,7 +404,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other
         .ignoreOtherParameters();
     uint64_t os_us = 0;
     mock()
-        .expectNCalls(3, "esp_timer_get_time")
+        .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
     uint16_t number = 0;
     mock()
@@ -450,7 +493,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
         .ignoreOtherParameters();
     uint64_t os_us_start = 0;
     mock()
-        .expectOneCall("esp_timer_get_time")
+        .expectNCalls(2, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us_start, sizeof(os_us_start));
     uint64_t os_us_after_wait = 7000000;
     mock()
@@ -499,7 +542,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
         .expectNCalls(2, "esp_wifi_scan_start")
         .withBoolParameter("block", false)
         .ignoreOtherParameters();
-    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(4, "esp_timer_get_time").ignoreOtherParameters();
 
     uint16_t number = 1;
     wifi_ap_record_t ap_records = {};

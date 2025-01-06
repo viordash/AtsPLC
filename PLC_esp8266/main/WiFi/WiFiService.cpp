@@ -1,4 +1,5 @@
 #include "WiFiService.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicElement.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
@@ -79,10 +80,15 @@ void WiFiService::ConnectToStation() {
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
-    bool was_inserted = requests.Scan(ssid);
-    if (was_inserted) {
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
+    const int request_re_add_delay_ms = 3000;
+    bool was_inserted = false;
+    if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
+        was_inserted = requests.Scan(ssid);
+        if (was_inserted) {
+            xEventGroupSetBits(event, NEW_REQUEST_BIT);
+        }
     }
+
     uint8_t rssi;
     bool found = FindSsidInScannedList(ssid, &rssi);
     ESP_LOGD(TAG_WiFiService,
