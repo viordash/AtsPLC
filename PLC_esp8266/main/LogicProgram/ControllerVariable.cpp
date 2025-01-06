@@ -62,7 +62,7 @@ bool ControllerVariable::BindedToWiFi() {
 }
 
 void ControllerVariable::CancelReadingProcess() {
-    ESP_LOGI(TAG_ControllerVariable,
+    ESP_LOGD(TAG_ControllerVariable,
              "CancelReadingProcess, wifi:%u, required:%u",
              BindedToWiFi(),
              required_reading);
