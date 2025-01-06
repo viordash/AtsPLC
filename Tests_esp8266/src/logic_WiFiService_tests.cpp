@@ -452,7 +452,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     mock()
         .expectOneCall("esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us_start, sizeof(os_us_start));
-    uint64_t os_us_after_wait = 11200000;
+    uint64_t os_us_after_wait = 7000000;
     mock()
         .expectOneCall("esp_timer_get_time")
         .withOutputParameterReturning("os_us", &os_us_after_wait, sizeof(os_us_after_wait));

@@ -16,7 +16,7 @@
 static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
 extern device_settings settings;
 
-#define PASSIVE_PER_CHANNEL_SCAN_TIME_MS 400
+#define PASSIVE_PER_CHANNEL_SCAN_TIME_MS 500
 #define CHANNELS_COUNT 14
 #define MAX_AVAILABLE_RSSI -26
 #define MIN_AVAILABLE_RSSI -120
@@ -44,7 +44,7 @@ int8_t WiFiService::Scanning(RequestItem *request) {
 
     wifi_ap_record_t ap_info[1] = {};
 
-    uint32_t scan_max_time_ms = (PASSIVE_PER_CHANNEL_SCAN_TIME_MS * CHANNELS_COUNT) * 2;
+    uint32_t scan_max_time_ms = (PASSIVE_PER_CHANNEL_SCAN_TIME_MS * CHANNELS_COUNT);
     auto current_time = (uint64_t)esp_timer_get_time();
     auto timeout_time = current_time + (scan_max_time_ms * 1000);
     int64_t timespan;
