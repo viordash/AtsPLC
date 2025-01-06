@@ -27,8 +27,9 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     wifi_config.ap.ssid_len = strlen((char *)wifi_config.ap.ssid);
 
     strcpy((char *)wifi_config.ap.password, "AtsPLC_12345678");
-    wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
-    wifi_config.ap.max_connection = 1;
+    wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    wifi_config.ap.max_connection = 0;
+    // wifi_config.ap.ssid_hidden = true;
 
     err = esp_wifi_set_mode(WIFI_MODE_AP);
     if (err != ESP_OK) {

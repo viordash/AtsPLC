@@ -146,11 +146,11 @@ TEST(LogicWiFiServiceTestsGroup, Scan_re_add_request_only_after_delay) {
 
     testable.PublicMorozov_Get_requests()->RemoveScanner(ssid_0);
 
-    os_us = 29990000;
+    os_us = 2999000;
     testable.Scan(ssid_0);
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
-    os_us = 30000000;
+    os_us = 3000000;
     Controller::RemoveExpiredWakeupRequests();
     testable.Scan(ssid_0);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
@@ -186,6 +186,8 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
         .expectNCalls(3, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
+    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
+
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
     testable.Generate("ssid_0");
@@ -202,6 +204,36 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
 
     testable.Generate("ssid_2");
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicWiFiServiceTestsGroup, Generate_re_add_request_only_after_delay) {
+    TestableWiFiService testable;
+    char buffer[32];
+    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
+    mock(buffer)
+        .expectNCalls(2, "xEventGroupSetBits")
+        .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
+
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(3, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (uint64_t *)&os_us, sizeof(os_us));
+
+    const char *ssid_0 = "test_0";
+
+    testable.Generate(ssid_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+
+    testable.PublicMorozov_Get_requests()->RemoveAccessPoint(ssid_0);
+
+    os_us = 2999000;
+    testable.Generate(ssid_0);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+
+    os_us = 3000000;
+    Controller::RemoveExpiredWakeupRequests();
+    testable.Generate(ssid_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
@@ -600,6 +632,7 @@ TEST(
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
@@ -635,6 +668,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);

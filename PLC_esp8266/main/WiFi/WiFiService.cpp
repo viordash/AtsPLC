@@ -32,7 +32,8 @@ void WiFiService::Start() {
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     ConnectToStation();
-    ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, 3, NULL) != pdPASS
+    ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, NULL)
+                            != pdPASS
                         ? ESP_FAIL
                         : ESP_OK);
 }
@@ -113,10 +114,13 @@ void WiFiService::CancelScan(const char *ssid) {
 }
 
 void WiFiService::Generate(const char *ssid) {
-    bool was_inserted = requests.AccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s, was_inserted:%d", ssid, was_inserted);
-    if (was_inserted) {
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
+    const int request_re_add_delay_ms = 3000;
+    if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
+        bool was_inserted = requests.AccessPoint(ssid);
+        ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s, was_inserted:%d", ssid, was_inserted);
+        if (was_inserted) {
+            xEventGroupSetBits(event, NEW_REQUEST_BIT);
+        }
     }
 }
 
