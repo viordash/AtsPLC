@@ -175,7 +175,10 @@ void Controller::ProcessTask(void *parm) {
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
         }
         need_render |= force_render;
-        if (need_render) {
+        const int minimal_re_rendering_time_ms = 1000;
+        if (need_render
+            && Controller::RequestWakeupMs((void *)Controller::RenderTask,
+                                           minimal_re_rendering_time_ms)) {
             need_render = false;
             xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
         }
