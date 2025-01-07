@@ -140,7 +140,7 @@ void WiFiService::Task(void *parm) {
 
         RequestItem new_request;
         while ((uxBits & STOP_BIT) == 0 && wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGI(TAG_WiFiService, "New request, type:%u", new_request.Type);
+            ESP_LOGD(TAG_WiFiService, "New request, type:%u", new_request.Type);
 
             switch (new_request.Type) {
                 case wqi_Station:
@@ -158,7 +158,7 @@ void WiFiService::Task(void *parm) {
                 default:
                     break;
             }
-            ESP_LOGI(TAG_WiFiService, "end request, type:%u", new_request.Type);
+            ESP_LOGD(TAG_WiFiService, "end request, type:%u", new_request.Type);
         }
     } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
 
@@ -168,7 +168,7 @@ void WiFiService::Task(void *parm) {
 }
 
 void WiFiService::Connect(wifi_config_t *wifi_config) {
-    ESP_LOGI(TAG_WiFiService, "Connect");
+    ESP_LOGD(TAG_WiFiService, "Connect");
 
     /* Setting a password implies station will connect to all security modes including WEP/WPA.
      * However these modes are deprecated and not advisable to be used. Incase your Access point
@@ -187,7 +187,7 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
 }
 
 void WiFiService::Disconnect() {
-    ESP_LOGI(TAG_WiFiService, "Disconnect");
+    ESP_LOGD(TAG_WiFiService, "Disconnect");
     ESP_ERROR_CHECK(esp_wifi_disconnect());
     ESP_ERROR_CHECK(esp_wifi_stop());
 }
