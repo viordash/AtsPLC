@@ -111,10 +111,10 @@ TEST(LogicWiFiRequestsTestsGroup, Scan_is_unique) {
 
     const char *ssid = "test";
 
-    CHECK_TRUE(testable.Scan(ssid));
+    testable.Scan(ssid);
     CHECK_EQUAL(1, testable.size());
 
-    CHECK_FALSE(testable.Scan(ssid));
+    testable.Scan(ssid);
     CHECK_EQUAL(1, testable.size());
     CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.back().Type);
     CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
@@ -126,10 +126,10 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
 
-    CHECK_TRUE(testable.Scan(ssid_0));
-    CHECK_TRUE(testable.AccessPoint(ssid_0));
-    CHECK_TRUE(testable.Scan(ssid_1));
-    CHECK_TRUE(testable.AccessPoint(ssid_1));
+    testable.Scan(ssid_0);
+    testable.AccessPoint(ssid_0);
+    testable.Scan(ssid_1);
+    testable.AccessPoint(ssid_1);
     CHECK_EQUAL(4, testable.size());
 
     RequestItem request;

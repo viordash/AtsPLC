@@ -31,13 +31,13 @@ class WiFiRequests : public std::list<RequestItem> {
   public:
     bool Contains(RequestItem *request);
 
-    bool Scan(const char *ssid);
+    void Scan(const char *ssid);
     bool RemoveScanner(const char *ssid);
 
-    bool AccessPoint(const char *ssid);
+    void AccessPoint(const char *ssid);
     bool RemoveAccessPoint(const char *ssid);
 
-    bool Station();
+    void Station();
     bool RemoveStation();
 
     bool Pop(RequestItem *request);

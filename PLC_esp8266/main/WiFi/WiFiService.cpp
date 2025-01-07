@@ -73,11 +73,9 @@ bool WiFiService::Started() {
 }
 
 void WiFiService::ConnectToStation() {
-    bool was_inserted = requests.Station();
-    ESP_LOGI(TAG_WiFiService, "ConnectToStation, was_inserted:%d", was_inserted);
-    if (was_inserted) {
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
-    }
+    requests.Station();
+    xEventGroupSetBits(event, NEW_REQUEST_BIT);
+    ESP_LOGI(TAG_WiFiService, "ConnectToStation");
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -85,22 +83,14 @@ uint8_t WiFiService::Scan(const char *ssid) {
     SAFETY_SETTINGS(
         { request_re_add_delay_ms = settings.wifi_scanner.delay_re_adding_request_ms; });
 
-    bool was_inserted = false;
     if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
-        was_inserted = requests.Scan(ssid);
-        if (was_inserted) {
-            xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        }
+        requests.Scan(ssid);
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
     }
 
     uint8_t rssi;
     bool found = FindSsidInScannedList(ssid, &rssi);
-    ESP_LOGD(TAG_WiFiService,
-             "Scan, ssid:%s, was_inserted:%d, found:%d, rssi:%u",
-             ssid,
-             was_inserted,
-             found,
-             rssi);
+    ESP_LOGD(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
     if (!found) {
         rssi = LogicElement::MinValue;
     }
@@ -120,13 +110,11 @@ void WiFiService::Generate(const char *ssid) {
     int request_re_add_delay_ms;
     SAFETY_SETTINGS(
         { request_re_add_delay_ms = settings.wifi_access_point.delay_re_adding_request_ms; });
-        
+
     if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
-        bool was_inserted = requests.AccessPoint(ssid);
-        ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s, was_inserted:%d", ssid, was_inserted);
-        if (was_inserted) {
-            xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        }
+        requests.AccessPoint(ssid);
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
+        ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s", ssid);
     }
 }
 

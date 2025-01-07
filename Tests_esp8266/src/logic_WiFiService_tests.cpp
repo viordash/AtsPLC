@@ -61,12 +61,12 @@ namespace {
     };
 } // namespace
 
-TEST(LogicWiFiServiceTestsGroup, TryConnectToStation_requests_are_unique) {
+TEST(LogicWiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
     TestableWiFiService testable;
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
     mock(buffer)
-        .expectNCalls(1, "xEventGroupSetBits")
+        .expectNCalls(2, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
@@ -83,25 +83,38 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
     mock(buffer)
-        .expectNCalls(3, "xEventGroupSetBits")
+        .expectNCalls(5, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
-    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(10, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (uint64_t *)&os_us, sizeof(os_us));
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan("ssid_0");
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan("ssid_0");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan("ssid_2");
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
@@ -137,7 +150,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_re_add_request_only_after_delay) {
 
     volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(3, "esp_timer_get_time")
+        .expectNCalls(4, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (uint64_t *)&os_us, sizeof(os_us));
 
     const char *ssid_0 = "test_0";
@@ -148,6 +161,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_re_add_request_only_after_delay) {
     testable.PublicMorozov_Get_requests()->RemoveScanner(ssid_0);
 
     os_us = 2999000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Scan(ssid_0);
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
@@ -184,25 +198,38 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
     char buffer[32];
     sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
     mock(buffer)
-        .expectNCalls(3, "xEventGroupSetBits")
+        .expectNCalls(5, "xEventGroupSetBits")
         .withPointerParameter("xEventGroup", testable.PublicMorozov_Get_event());
 
-    mock().expectNCalls(3, "esp_timer_get_time").ignoreOtherParameters();
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(10, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (uint64_t *)&os_us, sizeof(os_us));
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Generate("ssid_0");
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Generate("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Generate("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Generate("ssid_0");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
+    os_us += 3000000;
+    Controller::RemoveExpiredWakeupRequests();
     testable.Generate("ssid_2");
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
