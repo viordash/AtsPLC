@@ -116,5 +116,6 @@
         "forward_list": "cpp",
         "unordered_set": "cpp",
         "esp_wpa.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

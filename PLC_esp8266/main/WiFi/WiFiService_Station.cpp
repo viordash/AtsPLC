@@ -77,11 +77,11 @@ void WiFiService::StationTask() {
     wifi_config_t wifi_config = {};
 
     SAFETY_SETTINGS(
-        memcpy(wifi_config.sta.ssid, settings.wifi.ssid, sizeof(wifi_config.sta.ssid)); //
+        memcpy(wifi_config.sta.ssid, settings.wifi_station.ssid, sizeof(wifi_config.sta.ssid)); //
         memcpy(wifi_config.sta.password,
-               settings.wifi.password,
+               settings.wifi_station.password,
                sizeof(wifi_config.sta.password));                //
-        max_retry_count = settings.wifi.connect_max_retry_count; //
+        max_retry_count = settings.wifi_station.connect_max_retry_count; //
     );
 
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;

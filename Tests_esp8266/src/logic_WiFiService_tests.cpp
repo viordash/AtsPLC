@@ -239,8 +239,8 @@ TEST(LogicWiFiServiceTestsGroup, Generate_re_add_request_only_after_delay) {
 TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
     TestableWiFiService testable;
 
-    settings.wifi.ssid[0] = 0;
-    settings.wifi.password[0] = 0;
+    settings.wifi_station.ssid[0] = 0;
+    settings.wifi_station.password[0] = 0;
 
     mock().expectNoCall("esp_wifi_start");
     mock().expectNoCall("xEventGroupWaitBits");
@@ -271,8 +271,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
 
     TestableWiFiService testable;
 
-    strcpy(settings.wifi.ssid, "test_ssid");
-    strcpy(settings.wifi.password, "test_pwd");
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
 
     testable.PublicMorozov_StationTask();
 }
@@ -325,8 +325,8 @@ TEST(LogicWiFiServiceTestsGroup,
 
     TestableWiFiService testable;
 
-    strcpy(settings.wifi.ssid, "test_ssid");
-    strcpy(settings.wifi.password, "test_pwd");
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
 
     testable.ConnectToStation();
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
@@ -375,8 +375,8 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
 
     TestableWiFiService testable;
 
-    strcpy(settings.wifi.ssid, "test_ssid");
-    strcpy(settings.wifi.password, "test_pwd");
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
 
     testable.PublicMorozov_StationTask();
 }
