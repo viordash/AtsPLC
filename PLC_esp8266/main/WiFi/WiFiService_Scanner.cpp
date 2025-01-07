@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INFINITY_CONNECT_RETRY -1
-
 static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
 extern device_settings settings;
 
