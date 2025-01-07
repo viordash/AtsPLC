@@ -117,7 +117,10 @@ void WiFiService::CancelScan(const char *ssid) {
 }
 
 void WiFiService::Generate(const char *ssid) {
-    const int request_re_add_delay_ms = 3000;
+    int request_re_add_delay_ms;
+    SAFETY_SETTINGS(
+        { request_re_add_delay_ms = settings.wifi_access_point.delay_re_adding_request_ms; });
+        
     if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
         bool was_inserted = requests.AccessPoint(ssid);
         ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s, was_inserted:%d", ssid, was_inserted);

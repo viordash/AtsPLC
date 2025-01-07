@@ -17,17 +17,18 @@ extern device_settings settings;
 void WiFiService::AccessPointTask(RequestItem *request) {
     ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
-    const int generation_time_ms = 20000;
+    wifi_access_point_settings access_point_settings;
+    SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
+
     esp_err_t err;
     wifi_config_t wifi_config = {};
 
     strcpy((char *)wifi_config.ap.ssid, request->Payload.AccessPoint.ssid);
     wifi_config.ap.ssid_len = strlen((char *)wifi_config.ap.ssid);
 
-    strcpy((char *)wifi_config.ap.password, "AtsPLC_12345678");
     wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     wifi_config.ap.max_connection = 0;
-    // wifi_config.ap.ssid_hidden = true;
+    wifi_config.ap.ssid_hidden = access_point_settings.ssid_hidden;
 
     err = esp_wifi_set_mode(WIFI_MODE_AP);
     if (err != ESP_OK) {
@@ -54,7 +55,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                                      STOP_BIT | CANCEL_REQUEST_BIT,
                                      true,
                                      false,
-                                     generation_time_ms / portTICK_RATE_MS);
+                                     access_point_settings.generation_time_ms / portTICK_RATE_MS);
         ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", uxBits);
 
         bool timeout = (uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) == 0;
