@@ -62,12 +62,12 @@ void load_settings() {
     ESP_LOGI(TAG_settings, "smartconfig.counter:%u", settings.smartconfig.counter);
     ESP_LOGI(TAG_settings,
              "wifi.ssid:%.*s",
-             (int)sizeof(settings.wifi.ssid) - 1,
-             settings.wifi.ssid);
+             (int)sizeof(settings.wifi_station.ssid) - 1,
+             settings.wifi_station.ssid);
     ESP_LOGI(TAG_settings,
              "wifi.password:%.*s",
-             (int)sizeof(settings.wifi.password) - 1,
-             settings.wifi.password);
+             (int)sizeof(settings.wifi_station.password) - 1,
+             settings.wifi_station.password);
 
     delete[] storage.data;
 }

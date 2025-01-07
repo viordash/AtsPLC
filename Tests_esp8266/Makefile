@@ -10,7 +10,8 @@ SOURCE_PROJECT_DIR := \
 	-I$(PWD)/../PLC_esp8266/main/Display \
 	-I$(PWD)/../PLC_esp8266/main/LogicProgram \
 	-I$(PWD)/../PLC_esp8266/main/LogicProgram/Inputs \
-	-I$(PWD)/../PLC_esp8266/main/LogicProgram/Outputs
+	-I$(PWD)/../PLC_esp8266/main/LogicProgram/Outputs \
+	-I$(PWD)/../PLC_esp8266/main/WiFi
 
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 

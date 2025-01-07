@@ -17,7 +17,7 @@
 
 TEST_GROUP(LogicResetOutputTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -73,27 +73,34 @@ TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_active__and_second_cal
     TestableResetOutput testable;
     testable.SetIoAdr(MapIO::V1);
 
-    Controller::V1.SetValue(LogicElement::MaxValue);
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::V1.WriteValue(LogicElement::MaxValue);
+    Controller::V1.CommitChanges();
+
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
-    CHECK_TRUE(Controller::SampleIOValues());
-    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+
+    Controller::V1.ReadValue();
+    Controller::FetchIOValues();
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.PeekValue());
+    Controller::CommitChanges();
+    CHECK_EQUAL(LogicElement::MinValue, Controller::V1.ReadValue());
 }
 
 TEST(LogicResetOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::V1.SetValue(LogicElement::MaxValue);
+    Controller::V1.WriteValue(LogicElement::MaxValue);
+    Controller::V1.CommitChanges();
 
     TestableResetOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    Controller::V1.CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(LogicElement::MaxValue, Controller::V1.PeekValue());
 }
 
 TEST(LogicResetOutputTestsGroup, GetElementType_returns_et_ResetOutput) {

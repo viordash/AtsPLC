@@ -6,7 +6,7 @@
 #include <sys/param.h>
 #include <unistd.h>
 
-static const char *TAG = "http_server";
+static const char *TAG_HttpServer = "http_server";
 
 HttpServer::HttpServer(std::vector<BaseController *> controllers) {
     this->controllers = controllers;
@@ -38,15 +38,15 @@ bool HttpServer::Start() {
     };
 
     if (httpd_start(&server, &config) != ESP_OK) {
-        ESP_LOGE(TAG, "Start error");
+        ESP_LOGE(TAG_HttpServer, "Start error");
         server = NULL;
         return false;
     }
-    ESP_LOGI(TAG, "Starting, listen port:%u", config.server_port);
+    ESP_LOGI(TAG_HttpServer, "Starting, listen port:%u", config.server_port);
 
     for (const auto &controller : controllers) {
         for (const auto &uriHandler : controller->GetUriHandlers()) {
-            ESP_LOGI(TAG, "Registering URI handlers");
+            ESP_LOGI(TAG_HttpServer, "Registering URI handlers");
             httpd_register_uri_handler(server, uriHandler);
         }
     }
@@ -56,7 +56,7 @@ bool HttpServer::Start() {
 void HttpServer::Stop() {
     if (server != NULL) {
         httpd_stop(server);
-        ESP_LOGI(TAG, "Stopped");
+        ESP_LOGI(TAG_HttpServer, "Stopped");
     }
     server = NULL;
 }

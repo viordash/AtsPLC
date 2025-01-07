@@ -2,6 +2,7 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
@@ -141,7 +142,6 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
 
     auto *source_element_as_indicator = Indicator::TryToCast(source_element);
     if (source_element_as_indicator != NULL) {
-        indicator->SetIoAdr(source_element_as_indicator->GetIoAdr());
         indicator->SetLowScale(source_element_as_indicator->GetLowScale());
         indicator->SetHighScale(source_element_as_indicator->GetHighScale());
         indicator->SetDecimalPoint(source_element_as_indicator->GetDecimalPoint());
@@ -150,6 +150,21 @@ bool ElementsBox::CopyParamsToIndicator(LogicElement *source_element, Indicator 
 
     return true;
 }
+
+bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBinding *binding) {
+    if (binding == NULL) {
+        return false;
+    }
+
+    auto *source_element_as_wifi_binding = WiFiBinding::TryToCast(source_element);
+    if (source_element_as_wifi_binding != NULL) {
+        binding->SetSsid(source_element_as_wifi_binding->GetSsid());
+        return true;
+    }
+    binding->SetSsid("AtsPLC");
+    return true;
+}
+
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
 
@@ -158,11 +173,13 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
     if (CopyParamsToCommonComparator(source_element, CommonComparator::TryToCast(new_element))) {
         return;
     }
-
     if (CopyParamsToCommonTimer(source_element, CommonTimer::TryToCast(new_element))) {
         return;
     }
     if (CopyParamsToIndicator(source_element, Indicator::TryToCast(new_element))) {
+        return;
+    }
+    if (CopyParamsToWiFiBinding(source_element, WiFiBinding::TryToCast(new_element))) {
         return;
     }
 
@@ -223,6 +240,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_ComparatorLE, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorLs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Indicator, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_WiFiBinding, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);
@@ -317,13 +335,14 @@ void ElementsBox::PageUp() {
 
     if (selected_in_editing_property) {
         GetSelectedElement()->PageUp();
+    } else {
+        SelectPrior();
     }
 }
 
 void ElementsBox::PageDown() {
     bool selected_in_editing_property =
         GetSelectedElement()->Editing() && GetSelectedElement()->InEditingProperty();
-
     ESP_LOGI(TAG_ElementsBox,
              "PageDown, selected_index:%d, in_editing:%d",
              selected_index,
@@ -331,6 +350,8 @@ void ElementsBox::PageDown() {
 
     if (selected_in_editing_property) {
         GetSelectedElement()->PageDown();
+    } else {
+        SelectNext();
     }
 }
 

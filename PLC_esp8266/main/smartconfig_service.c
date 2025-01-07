@@ -155,8 +155,8 @@ static void start_process() {
         memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
 
         SAFETY_SETTINGS( //
-            memcpy(settings.wifi.ssid, wifi_config.sta.ssid, sizeof(settings.wifi.ssid));
-            memcpy(settings.wifi.password, wifi_config.sta.password, sizeof(settings.wifi.ssid));
+            memcpy(settings.wifi_station.ssid, wifi_config.sta.ssid, sizeof(settings.wifi_station.ssid));
+            memcpy(settings.wifi_station.password, wifi_config.sta.password, sizeof(settings.wifi_station.ssid));
             store_settings(); //
         );
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);

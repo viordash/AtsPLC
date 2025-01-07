@@ -3,7 +3,7 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
-static const char *TAG = "update_controller";
+static const char *TAG_UpdateController = "update_controller";
 
 #define SCRATCH_BUFSIZE 4096
 
@@ -43,7 +43,7 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
 }
 
 bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
-    ESP_LOGI(TAG, "ReceiveFile, size: '%u'", req->content_len);
+    ESP_LOGI(TAG_UpdateController, "ReceiveFile, size: '%u'", (uint32_t)req->content_len);
 
     esp_err_t err;
     const esp_partition_t *update_partition;
@@ -56,7 +56,7 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
     while (file_size > 0) {
         int received = httpd_req_recv(req, buffer, MIN(SCRATCH_BUFSIZE, file_size));
         if (received < 0) {
-            ESP_LOGE(TAG, "ReceiveFile, error: '%d'", received);
+            ESP_LOGE(TAG_UpdateController, "ReceiveFile, error: '%d'", received);
             switch (received) {
                 case HTTPD_SOCK_ERR_TIMEOUT:
                     SendHttpError_408(req);
@@ -73,11 +73,14 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
             return false;
         }
         file_size -= received;
-        ESP_LOGD(TAG, "ReceiveFile, received: %u, remained: %u", received, file_size);
+        ESP_LOGD(TAG_UpdateController,
+                 "ReceiveFile, received: %u, remained: %u",
+                 received,
+                 file_size);
 
         err = esp_ota_write(update_handle, (const void *)buffer, received);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Error: esp_ota_write failed! err=0x%x", err);
+            ESP_LOGE(TAG_UpdateController, "Error: esp_ota_write failed! err=0x%x", err);
             SendHttpError_500(req);
             return false;
         }
@@ -99,16 +102,16 @@ bool UpdateController::BeginOta(const esp_partition_t **update_partition,
     const esp_partition_t *running = esp_ota_get_running_partition();
 
     if (configured != running) {
-        ESP_LOGW(TAG,
+        ESP_LOGW(TAG_UpdateController,
                  "Configured OTA boot partition at offset 0x%08x, but running from offset 0x%08x",
                  configured->address,
                  running->address);
-        ESP_LOGW(TAG,
+        ESP_LOGW(TAG_UpdateController,
                  "(This can happen if either the OTA boot data or preferred boot image become "
                  "corrupted somehow.)");
     }
 
-    ESP_LOGI(TAG,
+    ESP_LOGI(TAG_UpdateController,
              "Running partition type %d subtype %d (offset 0x%08x)",
              running->type,
              running->subtype,
@@ -117,21 +120,21 @@ bool UpdateController::BeginOta(const esp_partition_t **update_partition,
     *update_partition = esp_ota_get_next_update_partition(NULL);
 
     if (*update_partition == NULL) {
-        ESP_LOGE(TAG, "update_partition == NULL");
+        ESP_LOGE(TAG_UpdateController, "update_partition == NULL");
         return false;
     }
-    ESP_LOGI(TAG,
+    ESP_LOGI(TAG_UpdateController,
              "Writing to partition subtype %d at offset 0x%x",
              (*update_partition)->subtype,
              (*update_partition)->address);
 
     err = esp_ota_begin(*update_partition, image_size, update_handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_ota_begin failed, error=%d", err);
+        ESP_LOGE(TAG_UpdateController, "esp_ota_begin failed, error=%d", err);
         return false;
     }
 
-    ESP_LOGI(TAG, "BeginOta succeeded");
+    ESP_LOGI(TAG_UpdateController, "BeginOta succeeded");
 
     return true;
 }
@@ -140,15 +143,15 @@ bool UpdateController::FinishOta(const esp_partition_t *update_partition,
                                  esp_ota_handle_t *update_handle) {
     esp_err_t err;
     if (esp_ota_end(*update_handle) != ESP_OK) {
-        ESP_LOGE(TAG, "esp_ota_end failed!");
+        ESP_LOGE(TAG_UpdateController, "esp_ota_end failed!");
         return false;
     }
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_ota_set_boot_partition failed! err=0x%x", err);
+        ESP_LOGE(TAG_UpdateController, "esp_ota_set_boot_partition failed! err=0x%x", err);
         return false;
     }
-    ESP_LOGI(TAG, "FinishOta succeeded");
+    ESP_LOGI(TAG_UpdateController, "FinishOta succeeded");
     return true;
 }

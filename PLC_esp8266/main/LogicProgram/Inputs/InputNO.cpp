@@ -29,11 +29,14 @@ bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive //
-        && Input->GetValue() != LogicElement::MinValue) {
+    ESP_LOGD(TAG_InputNO, "'%s' state:%u, val:%u", label, state, Input->PeekValue());
+
+    state = LogicItemState::lisPassive;
+    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
+        Input->CancelReadingProcess();
+    } else if (prev_elem_state == LogicItemState::lisActive //
+               && Input->ReadValue() != LogicElement::MinValue) {
         state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
     }
 
     if (state != prev_state) {

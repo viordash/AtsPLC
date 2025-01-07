@@ -36,7 +36,7 @@ bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            Output->SetValue(LogicElement::MinValue);
+            Output->WriteValue(LogicElement::MinValue);
         }
         any_changes = true;
         ESP_LOGD(TAG_ResetOutput, ".");

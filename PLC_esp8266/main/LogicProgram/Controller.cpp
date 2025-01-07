@@ -29,12 +29,21 @@ static const char *TAG_Controller = "controller";
 #define DO_SCROLL_PAGE_UP BIT8
 #define DO_SCROLL_PAGE_DOWN BIT9
 
+#define GPIO_EVENTS_ALL_BITS                                                                       \
+    (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
+     | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE                       \
+     | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
+
+static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
+              "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
+
 bool Controller::runned = NULL;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
+WiFiService *Controller::wifi_service = NULL;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -45,8 +54,9 @@ ControllerVariable Controller::V2;
 ControllerVariable Controller::V3;
 ControllerVariable Controller::V4;
 
-void Controller::Start(EventGroupHandle_t gpio_events) {
+void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
     Controller::gpio_events = gpio_events;
+    Controller::wifi_service = (WiFiService *)wifi_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -114,17 +124,15 @@ void Controller::ProcessTask(void *parm) {
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
     while (Controller::runned) {
-        EventBits_t uxBits = xEventGroupWaitBits(
-            Controller::gpio_events,
-            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
-                | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE
-                | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN,
-            true,
-            false,
-            processWakeupService->Get());
+        EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
+                                                 GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
+                                                 true,
+                                                 false,
+                                                 processWakeupService->Get());
 
         processWakeupService->RemoveExpired();
 
+        ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
         bool force_render = uxBits == 0;
@@ -142,6 +150,9 @@ void Controller::ProcessTask(void *parm) {
                 case ButtonsPressType::DOWN_PRESSED:
                     xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
                     break;
+                case ButtonsPressType::DOWN_LONG_PRESSED:
+                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
+                    break;
                 case ButtonsPressType::SELECT_PRESSED:
                     xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
                     break;
@@ -153,10 +164,11 @@ void Controller::ProcessTask(void *parm) {
             }
         }
 
-        need_render |= inputs_changed;
-        need_render |= SampleIOValues();
-
+        FetchIOValues();
         bool any_changes_in_actions = ladder->DoAction();
+        CommitChanges();
+
+        need_render |= inputs_changed;
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
@@ -245,17 +257,24 @@ void Controller::RenderTask(void *parm) {
     vTaskDelete(NULL);
 }
 
-bool Controller::SampleIOValues() {
-    bool has_changes = false;
-    has_changes |= Controller::DI.SampleValue();
-    has_changes |= Controller::AI.SampleValue();
-    has_changes |= Controller::O1.SampleValue();
-    has_changes |= Controller::O2.SampleValue();
-    has_changes |= Controller::V1.SampleValue();
-    has_changes |= Controller::V2.SampleValue();
-    has_changes |= Controller::V3.SampleValue();
-    has_changes |= Controller::V4.SampleValue();
-    return has_changes;
+void Controller::FetchIOValues() {
+    Controller::DI.FetchValue();
+    Controller::AI.FetchValue();
+    Controller::O1.FetchValue();
+    Controller::O2.FetchValue();
+    Controller::V1.FetchValue();
+    Controller::V2.FetchValue();
+    Controller::V3.FetchValue();
+    Controller::V4.FetchValue();
+}
+
+void Controller::CommitChanges() {
+    Controller::O1.CommitChanges();
+    Controller::O2.CommitChanges();
+    Controller::V1.CommitChanges();
+    Controller::V2.CommitChanges();
+    Controller::V3.CommitChanges();
+    Controller::V4.CommitChanges();
 }
 
 bool Controller::RequestWakeupMs(void *id, uint32_t delay_ms) {
@@ -268,4 +287,62 @@ void Controller::RemoveRequestWakeupMs(void *id) {
 
 void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
+}
+
+void Controller::BindVariableToWiFi(const MapIO io_adr, const char *ssid) {
+    switch (io_adr) {
+        case MapIO::V1:
+            if (Controller::wifi_service != NULL) {
+                Controller::V1.BindToWiFi(Controller::wifi_service, ssid);
+            }
+            break;
+        case MapIO::V2:
+            if (Controller::wifi_service != NULL) {
+                Controller::V2.BindToWiFi(Controller::wifi_service, ssid);
+            }
+            break;
+        case MapIO::V3:
+            if (Controller::wifi_service != NULL) {
+                Controller::V3.BindToWiFi(Controller::wifi_service, ssid);
+            }
+            break;
+        case MapIO::V4:
+            if (Controller::wifi_service != NULL) {
+                Controller::V4.BindToWiFi(Controller::wifi_service, ssid);
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::UnbindVariable(const MapIO io_adr) {
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.Unbind();
+            break;
+        case MapIO::V2:
+            Controller::V2.Unbind();
+            break;
+        case MapIO::V3:
+            Controller::V3.Unbind();
+            break;
+        case MapIO::V4:
+            Controller::V4.Unbind();
+            break;
+        default:
+            break;
+    }
+
+    if (!Controller::V1.BindedToWiFi() && !Controller::V2.BindedToWiFi()
+        && !Controller::V3.BindedToWiFi() && !Controller::V4.BindedToWiFi()) {
+        if (Controller::wifi_service != NULL) {
+            Controller::wifi_service->ConnectToStation();
+        }
+    }
+}
+
+void Controller::WakeupProcessTask() {
+    xEventGroupSetBits(Controller::gpio_events, WAKEUP_PROCESS_TASK);
 }

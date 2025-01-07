@@ -18,27 +18,12 @@ extern "C" {
 #include "LogicProgram/ControllerVariable.h"
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
+#include "WiFi/WiFiService.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct {
-    uint8_t value;
-    bool required;
-} ControllerIOValue;
-
-typedef struct {
-    ControllerIOValue AI;
-    ControllerIOValue DI;
-    ControllerIOValue O1;
-    ControllerIOValue O2;
-    uint8_t V1;
-    uint8_t V2;
-    uint8_t V3;
-    uint8_t V4;
-} ControllerIOValues;
 
 class Controller {
   protected:
@@ -47,11 +32,15 @@ class Controller {
     static TaskHandle_t process_task_handle;
     static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
+    static WiFiService *wifi_service;
 
   public:
-    static void Start(EventGroupHandle_t gpio_events);
+    static const int WAKEUP_PROCESS_TASK = BIT15;
+
+    static void Start(EventGroupHandle_t gpio_events, void *wifi_service);
     static void Stop();
-    static bool SampleIOValues();
+    static void FetchIOValues();
+    static void CommitChanges();
 
     static void ProcessTask(void *parm);
     static void RenderTask(void *parm);
@@ -68,4 +57,9 @@ class Controller {
     static bool RequestWakeupMs(void *id, uint32_t delay_ms);
     static void RemoveRequestWakeupMs(void *id);
     static void RemoveExpiredWakeupRequests();
+
+    static void BindVariableToWiFi(const MapIO io_adr, const char *ssid);
+    static void UnbindVariable(const MapIO io_adr);
+
+    static void WakeupProcessTask();
 };

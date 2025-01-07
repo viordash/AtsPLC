@@ -21,6 +21,8 @@ class ControllerDO : public ControllerBaseInput, public ControllerBaseOutput {
 
   public:
     explicit ControllerDO(gpio_output gpio);
-    bool SampleValue() override;
-    void SetValue(uint8_t new_value) override;
+
+    void Init() override;
+    void FetchValue() override;
+    void CommitChanges() override;
 };

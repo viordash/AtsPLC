@@ -11,6 +11,7 @@ class CommonTimer;
 class CommonComparator;
 class CommonOutput;
 class Indicator;
+class WiFiBinding;
 
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
@@ -29,6 +30,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
                                       CommonComparator *common_comparator);
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
     bool CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator);
+    bool CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBinding *binding);
     void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:

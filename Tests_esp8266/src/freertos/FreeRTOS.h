@@ -69,6 +69,8 @@ typedef uint32_t TickType_t;
 #define portSTACK_GROWTH			( -1 )
 #define portTICK_PERIOD_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT			4
+
+#define portTICK_RATE_MS portTICK_PERIOD_MS
 /*-----------------------------------------------------------*/
 
 void portYIELD_FROM_ISR(void);

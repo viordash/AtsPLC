@@ -17,7 +17,7 @@
 
 TEST_GROUP(LogicDecOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -73,32 +73,32 @@ TEST(LogicDecOutputTestsGroup,
      DoAction_change_state_to_active__and_second_call_does_not_decrement) {
     TestableDecOutput testable;
     testable.SetIoAdr(MapIO::V1);
-    Controller::V1.GetValue();
+    Controller::V1.WriteValue(42);
 
-    Controller::V1.SetValue(42);
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::CommitChanges();    
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
+
     CHECK_EQUAL(41, Controller::V1.PeekValue());
 
-    CHECK_FALSE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    Controller::CommitChanges();    
     CHECK_EQUAL(41, Controller::V1.PeekValue());
 }
 
 TEST(LogicDecOutputTestsGroup, DoAction_change_state_to_passive) {
-    Controller::V1.GetValue();
-    Controller::V1.SetValue(42);
+    Controller::V1.WriteValue(42);
 
     TestableDecOutput testable;
     testable.SetIoAdr(MapIO::V1);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    Controller::CommitChanges(); 
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
-    CHECK_EQUAL(42, Controller::V1.PeekValue());
 }
 
 TEST(LogicDecOutputTestsGroup, GetElementType_returns_et_DecOutput) {

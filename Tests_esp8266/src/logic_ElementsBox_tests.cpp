@@ -21,7 +21,7 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
-Controller::Start(NULL);
+Controller::Start(NULL, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -58,7 +58,7 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          false);
-    CHECK_EQUAL(16, testable.size());
+    CHECK_EQUAL(17, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -69,12 +69,13 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[10]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[12]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_IncOutput, testable[13]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[14]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[13]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[14]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[16]->GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -83,7 +84,7 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          true);
-    CHECK_EQUAL(11, testable.size());
+    CHECK_EQUAL(12, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -94,7 +95,8 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[7]->GetElementType());
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[11]->GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -279,6 +281,37 @@ TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
     CHECK_COMPARE(matched, >, 0);
 }
 
+TEST(LogicElementsBoxTestsGroup, copy_params_for_wifi_binding_element) {
+    int matched = 0;
+    WiFiBinding stored_element(MapIO::AI, "wifi_test");
+    ElementsBox testable(100, &stored_element, false);
+    for (auto *element : testable) {
+        auto *element_as_wifi_binding = WiFiBinding::TryToCast(element);
+        if (element_as_wifi_binding != NULL) {
+            CHECK_EQUAL(MapIO::AI, element_as_wifi_binding->GetIoAdr());
+            STRCMP_EQUAL("wifi_test", element_as_wifi_binding->GetSsid());
+            matched++;
+        }
+    }
+    delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
+}
+
+TEST(LogicElementsBoxTestsGroup, wifi_binding_element_has_default_param_V1) {
+    int matched = 0;
+    Wire stored_element;
+    ElementsBox testable(115, &stored_element, false);
+    for (auto *element : testable) {
+        auto *element_as_wifi_binding = WiFiBinding::TryToCast(element);
+        if (element_as_wifi_binding != NULL) {
+            CHECK_EQUAL(MapIO::V1, element_as_wifi_binding->GetIoAdr());
+            matched++;
+        }
+    }
+    delete testable.GetSelectedElement();
+    CHECK_COMPARE(matched, >, 0);
+}
+
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(7, &stored_element, false);
@@ -306,7 +339,7 @@ TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
         .expectNCalls(1, "adc_read")
         .withOutputParameterReturning("adc", (const void *)&adc, sizeof(adc));
 
-    CHECK_TRUE(Controller::SampleIOValues());
+    Controller::FetchIOValues();
 
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);
     ElementsBox testable(100, &fake_doaction_element, false);
@@ -360,6 +393,8 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
@@ -387,6 +422,8 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_Indicator, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectPrior();

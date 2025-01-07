@@ -7,5 +7,6 @@
 class ControllerDI : public ControllerBaseInput {
   protected:
   public:
-    bool SampleValue() override;
+    ControllerDI();
+    void FetchValue() override;
 };

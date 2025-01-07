@@ -2,14 +2,23 @@
 
 #include "LogicProgram/ControllerBaseInput.h"
 #include "LogicProgram/ControllerBaseOutput.h"
+#include "WiFi/WiFiService.h"
 #include <stdint.h>
 #include <unistd.h>
 
 class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutput {
   protected:
-    uint8_t out_value;
+    WiFiService *wifi_service;
+    const char *ssid;
 
   public:
-    bool SampleValue() override;
-    void SetValue(uint8_t new_value) override;
+    explicit ControllerVariable();
+    void Init() override;
+    void FetchValue() override;
+    void CommitChanges() override;
+    void BindToWiFi(WiFiService *wifi_service, const char *ssid);
+    void Unbind();
+    bool BindedToWiFi();
+
+    void CancelReadingProcess() override;
 };

@@ -1,10 +1,18 @@
 #include "CppUTestExt/MockSupport_c.h"
 #include "driver/adc.h"
 #include "driver/gpio.h"
+#include "esp_event_legacy.h"
+#include "esp_http_server.h"
+#include "esp_ota_ops.h"
 #include "esp_spiffs.h"
+#include "esp_wifi.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 #include <stdlib.h>
+
+const char *WIFI_EVENT = "wifi_event";
+const char *IP_EVENT = "ip_event";
+const char *ETH_EVENT = "eth_event";
 
 const char *esp_err_to_name(esp_err_t code) {
     (void)code;
@@ -113,6 +121,16 @@ EventBits_t xEventGroupSetBits(EventGroupHandle_t xEventGroup, const EventBits_t
         ->returnIntValueOrDefault(pdTRUE);
 }
 
+EventBits_t xEventGroupClearBits(EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToClear) {
+    char buffer[32];
+    sprintf(buffer, "0x%08X", uxBitsToClear);
+
+    return mock_scope_c(buffer)
+        ->actualCall("xEventGroupClearBits")
+        ->withPointerParameters("xEventGroup", xEventGroup)
+        ->returnIntValueOrDefault(pdTRUE);
+}
+
 EventBits_t xEventGroupWaitBits(EventGroupHandle_t xEventGroup,
                                 const EventBits_t uxBitsToWaitFor,
                                 const BaseType_t xClearOnExit,
@@ -146,6 +164,13 @@ int64_t esp_timer_get_time(void) {
 
 void vTaskDelay(const TickType_t xTicksToDelay) {
     mock_c()->actualCall("vTaskDelay")->withUnsignedIntParameters("xTicksToDelay", xTicksToDelay);
+}
+
+void vTaskDelayUntil(TickType_t *const pxPreviousWakeTime, const TickType_t xTimeIncrement) {
+    mock_c()
+        ->actualCall("vTaskDelayUntil")
+        ->withConstPointerParameters("pxPreviousWakeTime", pxPreviousWakeTime)
+        ->withUnsignedIntParameters("xTimeIncrement", xTimeIncrement);
 }
 
 BaseType_t xTaskCreate(
@@ -197,4 +222,239 @@ BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
         ->withIntParameters("eAction", (int)eAction)
         ->withPointerParameters("pulPreviousNotificationValue", pulPreviousNotificationValue)
         ->returnIntValueOrDefault(pdPASS);
+}
+
+esp_err_t esp_event_send(system_event_t *event) {
+    return mock_c()
+        ->actualCall("esp_event_send")
+        ->withPointerParameters("event", event)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_init(const wifi_init_config_t *config) {
+    return mock_c()
+        ->actualCall("esp_wifi_init")
+        ->withConstPointerParameters("config", config)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_event_handler_register(esp_event_base_t event_base,
+                                     int32_t event_id,
+                                     esp_event_handler_t event_handler,
+                                     void *event_handler_arg) {
+    (void)event_handler;
+    (void)event_handler_arg;
+    return mock_c()
+        ->actualCall("esp_event_handler_register")
+        ->withConstPointerParameters("event_base", event_base)
+        ->withIntParameters("event_id", event_id)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+esp_err_t esp_event_handler_unregister(esp_event_base_t event_base,
+                                       int32_t event_id,
+                                       esp_event_handler_t event_handler) {
+    (void)event_handler;
+    return mock_c()
+        ->actualCall("esp_event_handler_unregister")
+        ->withConstPointerParameters("event_base", event_base)
+        ->withIntParameters("event_id", event_id)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_start(void) {
+    return mock_c()->actualCall("esp_wifi_start")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_connect(void) {
+    return mock_c()->actualCall("esp_wifi_connect")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_disconnect(void) {
+    return mock_c()->actualCall("esp_wifi_disconnect")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_stop(void) {
+    return mock_c()->actualCall("esp_wifi_stop")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_deinit(void) {
+    return mock_c()->actualCall("esp_wifi_deinit")->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t tcpip_adapter_clear_default_wifi_handlers() {
+    return mock_c()
+        ->actualCall("tcpip_adapter_clear_default_wifi_handlers")
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_set_mode(wifi_mode_t mode) {
+    return mock_c()
+        ->actualCall("esp_wifi_set_mode")
+        ->withIntParameters("mode", mode)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf) {
+    return mock_c()
+        ->actualCall("esp_wifi_set_config")
+        ->withIntParameters("interface", interface)
+        ->withPointerParameters("conf", conf)
+        ->returnIntValueOrDefault(ESP_OK);
+}
+
+size_t httpd_req_get_url_query_len(httpd_req_t *r) {
+    return mock_c()
+        ->actualCall("httpd_req_get_url_query_len")
+        ->withPointerParameters("r", r)
+        ->returnUnsignedIntValueOrDefault(0);
+}
+
+esp_err_t httpd_req_get_url_query_str(httpd_req_t *r, char *buf, size_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_req_get_url_query_str")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_query_key_value(const char *qry, const char *key, char *val, size_t val_size) {
+    return mock_c()
+        ->actualCall("httpd_query_key_value")
+        ->withStringParameters("qry", qry)
+        ->withStringParameters("key", key)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)val, val_size)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_set_status(httpd_req_t *r, const char *status) {
+    return mock_c()
+        ->actualCall("httpd_resp_set_status")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("status", status)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_set_type(httpd_req_t *r, const char *type) {
+    return mock_c()
+        ->actualCall("httpd_resp_set_type")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("type", type)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_resp_send(httpd_req_t *r, const char *buf, ssize_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_resp_send")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_register_uri_handler(httpd_handle_t handle, const httpd_uri_t *uri_handler) {
+    return mock_c()
+        ->actualCall("httpd_register_uri_handler")
+        ->withPointerParameters("handle", handle)
+        ->withConstPointerParameters("uri_handler", uri_handler)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_start(httpd_handle_t *handle, const httpd_config_t *config) {
+    return mock_c()
+        ->actualCall("httpd_register_uri_handler")
+        ->withPointerParameters("handle", handle)
+        ->withConstPointerParameters("config", config)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t httpd_stop(httpd_handle_t handle) {
+    return mock_c()
+        ->actualCall("httpd_stop")
+        ->withPointerParameters("handle", handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+int httpd_req_recv(httpd_req_t *r, char *buf, size_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_req_recv")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_write(esp_ota_handle_t handle, const void *data, size_t size) {
+    return mock_c()
+        ->actualCall("esp_ota_write")
+        ->withUnsignedIntParameters("handle", handle)
+        ->withMemoryBufferParameter("data", (const unsigned char *)data, size)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+const esp_partition_t *esp_ota_get_boot_partition(void) {
+    return mock_c()
+        ->actualCall("esp_ota_get_boot_partition")
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+const esp_partition_t *esp_ota_get_running_partition(void) {
+    return mock_c()
+        ->actualCall("esp_ota_get_running_partition")
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+const esp_partition_t *esp_ota_get_next_update_partition(const esp_partition_t *start_from) {
+    return mock_c()
+        ->actualCall("esp_ota_get_next_update_partition")
+        ->withConstPointerParameters("start_from", start_from)
+        ->returnConstPointerValueOrDefault(NULL);
+}
+
+esp_err_t
+esp_ota_begin(const esp_partition_t *partition, size_t image_size, esp_ota_handle_t *out_handle) {
+    return mock_c()
+        ->actualCall("esp_ota_begin")
+        ->withConstPointerParameters("partition", partition)
+        ->withUnsignedIntParameters("image_size", image_size)
+        ->withPointerParameters("out_handle", out_handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_end(esp_ota_handle_t handle) {
+    return mock_c()
+        ->actualCall("esp_ota_end")
+        ->withUnsignedIntParameters("handle", handle)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_ota_set_boot_partition(const esp_partition_t *partition) {
+    return mock_c()
+        ->actualCall("esp_ota_set_boot_partition")
+        ->withConstPointerParameters("partition", partition)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_start")
+        ->withConstPointerParameters("config", config)
+        ->withBoolParameters("block", block)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_stop(void) {
+    return mock_c()->actualCall("esp_wifi_scan_stop")->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_get_ap_num")
+        ->withOutputParameter("number", number)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_records) {
+    return mock_c()
+        ->actualCall("esp_wifi_scan_get_ap_records")
+        ->withOutputParameter("number", number)
+        ->withOutputParameter("ap_records", ap_records)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
