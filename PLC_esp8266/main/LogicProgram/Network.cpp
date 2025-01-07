@@ -415,6 +415,20 @@ void Network::EndEditing() {
     RemoveSpaceForNewElement();
 }
 
+void Network::Option() {
+    auto selected_element = GetSelectedElement();
+
+    ESP_LOGI(TAG_Network, "Option, selected_element:%d", selected_element);
+    if (selected_element >= 0) {
+        if ((*this)[selected_element]->Editing()) {
+            static_cast<ElementsBox *>((*this)[selected_element])->Option();
+            return;
+        }
+    } else {
+        SwitchState();
+    }
+}
+
 int Network::GetSelectedElement() {
     for (int i = 0; i < (int)size(); i++) {
         auto element = (*this)[i];

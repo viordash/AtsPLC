@@ -50,4 +50,5 @@ class EditableElement {
     virtual void PageUp() = 0;
     virtual void PageDown() = 0;
     virtual void Change() = 0;
+    virtual void Option() = 0;
 };

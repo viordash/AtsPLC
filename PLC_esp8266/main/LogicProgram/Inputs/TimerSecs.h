@@ -39,4 +39,5 @@ class TimerSecs : public CommonTimer {
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 };

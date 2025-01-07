@@ -51,5 +51,6 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void PageUp() override final;
     void PageDown() override final;
     void Change() override final;
+    void Option() override final;
     bool EditingCompleted();
 };

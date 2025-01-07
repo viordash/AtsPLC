@@ -33,4 +33,5 @@ class CommonInput : public LogicElement, public InputElement, public LabeledLogi
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 };

@@ -143,3 +143,6 @@ void TimerMSecs::Change() {
             break;
     }
 }
+
+void TimerMSecs::Option() {
+}

@@ -153,3 +153,6 @@ void CommonOutput::Change() {
             break;
     }
 }
+
+void CommonOutput::Option() {
+}
