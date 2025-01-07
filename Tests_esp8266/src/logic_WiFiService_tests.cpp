@@ -54,8 +54,9 @@ namespace {
         bool PublicMorozov_FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
             return FindSsidInScannedList(ssid, rssi);
         }
-        uint8_t PublicMorozov_ScaleRssiToPercent04(int8_t rssi) {
-            return ScaleRssiToPercent04(rssi);
+        uint8_t PublicMorozov_ScaleRssiToPercent04(int8_t rssi,
+                                                   wifi_scanner_settings *scanner_settings) {
+            return ScaleRssiToPercent04(rssi, scanner_settings);
         }
     };
 } // namespace
@@ -729,15 +730,16 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
 
 TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     TestableWiFiService testable;
+    wifi_scanner_settings scanner_settings = { 0, 0, -26, -120 };
 
-    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-128));
-    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-120));
-    CHECK_EQUAL(2, testable.PublicMorozov_ScaleRssiToPercent04(-119));
-    CHECK_EQUAL(127, testable.PublicMorozov_ScaleRssiToPercent04(-73));
-    CHECK_EQUAL(252, testable.PublicMorozov_ScaleRssiToPercent04(-27));
-    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(-26));
-    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(0));
-    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127));
+    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-128, &scanner_settings));
+    CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-120, &scanner_settings));
+    CHECK_EQUAL(2, testable.PublicMorozov_ScaleRssiToPercent04(-119, &scanner_settings));
+    CHECK_EQUAL(127, testable.PublicMorozov_ScaleRssiToPercent04(-73, &scanner_settings));
+    CHECK_EQUAL(252, testable.PublicMorozov_ScaleRssiToPercent04(-27, &scanner_settings));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(-26, &scanner_settings));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(0, &scanner_settings));
+    CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127, &scanner_settings));
 }
 
 TEST(LogicWiFiServiceTestsGroup, AddSsidToScannedList_update_rssi_if_record_already_exists) {

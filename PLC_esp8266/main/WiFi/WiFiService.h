@@ -17,6 +17,7 @@ extern "C" {
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_wifi_types.h"
+#include "settings.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,8 +38,8 @@ class WiFiService {
     bool ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count);
     void StationTask();
 
-    bool StartScan(const char *ssid);
-    int8_t Scanning(RequestItem *request);
+    bool StartScan(const char *ssid, wifi_scanner_settings *scanner_settings);
+    int8_t Scanning(RequestItem *request, wifi_scanner_settings *scanner_settings);
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
@@ -49,7 +50,7 @@ class WiFiService {
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
-    uint8_t ScaleRssiToPercent04(int8_t rssi);
+    uint8_t ScaleRssiToPercent04(int8_t rssi, wifi_scanner_settings *scanner_settings);
     void AddSsidToScannedList(const char *ssid, uint8_t rssi);
     bool FindSsidInScannedList(const char *ssid, uint8_t *rssi);
     void RemoveSsidFromScannedList(const char *ssid);

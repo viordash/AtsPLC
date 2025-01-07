@@ -81,7 +81,10 @@ void WiFiService::ConnectToStation() {
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
-    const int request_re_add_delay_ms = 3000;
+    int request_re_add_delay_ms;
+    SAFETY_SETTINGS(
+        { request_re_add_delay_ms = settings.wifi_scanner.delay_re_adding_request_ms; });
+
     bool was_inserted = false;
     if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
         was_inserted = requests.Scan(ssid);

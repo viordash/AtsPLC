@@ -76,13 +76,13 @@ void WiFiService::StationTask() {
     int32_t max_retry_count;
     wifi_config_t wifi_config = {};
 
-    SAFETY_SETTINGS(
+    SAFETY_SETTINGS({
         memcpy(wifi_config.sta.ssid, settings.wifi_station.ssid, sizeof(wifi_config.sta.ssid)); //
         memcpy(wifi_config.sta.password,
                settings.wifi_station.password,
-               sizeof(wifi_config.sta.password));                //
-        max_retry_count = settings.wifi_station.connect_max_retry_count; //
-    );
+               sizeof(wifi_config.sta.password)); //
+        max_retry_count = settings.wifi_station.connect_max_retry_count;
+    });
 
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
     if (!has_wifi_sta_settings) {
