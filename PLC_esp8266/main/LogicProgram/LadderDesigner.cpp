@@ -216,13 +216,13 @@ void Ladder::HandleButtonOption() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGD(TAG_Ladder,
+    ESP_LOGI(TAG_Ladder,
              "HandleButtonOption, %u, selected_network:%d",
              (unsigned)design_state,
              selected_network);
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->SwitchState();
+            (*this)[selected_network]->Option();
             break;
 
         default:

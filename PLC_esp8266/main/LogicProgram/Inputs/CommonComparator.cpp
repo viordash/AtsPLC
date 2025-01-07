@@ -240,3 +240,6 @@ void CommonComparator::Change() {
             return;
     }
 }
+
+void CommonComparator::Option() {
+}

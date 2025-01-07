@@ -358,6 +358,9 @@ void WiFiBinding::Change() {
             break;
     }
 }
+void WiFiBinding::Option() {
+}
+
 void WiFiBinding::EndEditing() {
     ssid_size = 0;
     while (ssid_size < sizeof(ssid) && ssid[ssid_size] != 0 && ssid[ssid_size] != place_new_char) {

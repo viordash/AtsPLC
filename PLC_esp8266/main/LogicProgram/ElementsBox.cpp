@@ -371,6 +371,22 @@ void ElementsBox::Change() {
     GetSelectedElement()->Change();
 }
 
+void ElementsBox::Option() {
+    bool selected_in_editing = GetSelectedElement()->Editing();
+
+    ESP_LOGI(TAG_ElementsBox,
+             "Option, selected_index:%d, in_editing:%d",
+             selected_index,
+             selected_in_editing);
+
+    if (!selected_in_editing) {
+        ESP_LOGE(TAG_ElementsBox, "Option");
+        return;
+    }
+
+    GetSelectedElement()->Option();
+}
+
 bool ElementsBox::EditingCompleted() {
     bool selected_in_editing = GetSelectedElement()->Editing();
     ESP_LOGI(TAG_ElementsBox,

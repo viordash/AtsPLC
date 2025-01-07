@@ -80,6 +80,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 
     float GetLowScale();
     void SetLowScale(float scale);

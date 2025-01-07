@@ -38,4 +38,5 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 };

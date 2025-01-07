@@ -59,6 +59,7 @@ class WiFiBinding : public LogicElement, public InputElement, public LabeledLogi
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 
     const char *GetSsid();
     void SetSsid(const char *ssid);

@@ -90,6 +90,8 @@ namespace {
         }
         void Change() {
         }
+        void Option() {
+        }
         bool EditingCompleted() {
             return true;
         }

@@ -27,6 +27,7 @@ class Wire : public LogicElement {
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 
     static Wire *TryToCast(LogicElement *logic_element);
 };

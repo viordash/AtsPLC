@@ -100,6 +100,9 @@ void Wire::Change() {
     EndEditing();
 }
 
+void Wire::Option() {
+}
+
 Wire *Wire::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_Wire:

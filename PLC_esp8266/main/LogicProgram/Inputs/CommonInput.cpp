@@ -138,3 +138,6 @@ void CommonInput::Change() {
             break;
     }
 }
+
+void CommonInput::Option() {
+}

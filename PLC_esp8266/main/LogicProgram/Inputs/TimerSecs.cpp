@@ -145,3 +145,6 @@ void TimerSecs::Change() {
             break;
     }
 }
+
+void TimerSecs::Option() {
+}
