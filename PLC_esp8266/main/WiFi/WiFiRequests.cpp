@@ -56,7 +56,7 @@ bool WiFiRequests::RemoveScanner(const char *ssid) {
     if (exists) {
         erase(item);
     }
-    ESP_LOGI(TAG_WiFiRequests, "RemoveScanner, ssid:%s, exists:%u", ssid, exists);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveScanner, ssid:%s, exists:%u", ssid, exists);
     return exists;
 }
 
@@ -79,7 +79,7 @@ bool WiFiRequests::RemoveAccessPoint(const char *ssid) {
     if (exists) {
         erase(item);
     }
-    ESP_LOGI(TAG_WiFiRequests, "RemoveAccessPoint, ssid:%s, exists:%u", ssid, exists);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveAccessPoint, ssid:%s, exists:%u", ssid, exists);
     return exists;
 }
 
@@ -91,7 +91,7 @@ void WiFiRequests::Station() {
     if (!exists) {
         push_front(request);
     }
-    ESP_LOGI(TAG_WiFiRequests, "Station, exists:%u", exists);
+    ESP_LOGD(TAG_WiFiRequests, "Station, exists:%u", exists);
 }
 
 bool WiFiRequests::RemoveStation() {
@@ -102,7 +102,7 @@ bool WiFiRequests::RemoveStation() {
     if (exists) {
         erase(item);
     }
-    ESP_LOGI(TAG_WiFiRequests, "RemoveStation, exists:%u", exists);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveStation, exists:%u", exists);
     return exists;
 }
 

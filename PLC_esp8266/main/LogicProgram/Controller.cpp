@@ -244,12 +244,19 @@ void Controller::RenderTask(void *parm) {
         }
 
         if (force_render || (ulNotifiedValue & DO_RENDERING)) {
-            int64_t now_time = esp_timer_get_time();
+            int64_t time_before_render = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
             ladder->Render(fb);
             end_render(fb);
-            ESP_LOGD(TAG_Controller, "r (%d ms)", (int)((esp_timer_get_time() - now_time) / 1000));
+
+            int64_t time_after_render = esp_timer_get_time();
+            static int64_t loop_time = 0;
+            ESP_LOGD(TAG_Controller,
+                     "r %d ms (%d ms)",
+                     (int)((time_after_render - loop_time) / 1000),
+                     (int)((time_after_render - time_before_render) / 1000));
+            loop_time = time_after_render;
         }
     }
 
