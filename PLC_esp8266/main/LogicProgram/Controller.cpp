@@ -175,7 +175,7 @@ void Controller::ProcessTask(void *parm) {
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
         }
         need_render |= force_render;
-        const int minimal_re_rendering_time_ms = 500;
+        const int minimal_re_rendering_time_ms = 1000;
         if (need_render
             && Controller::RequestWakeupMs((void *)Controller::RenderTask,
                                            minimal_re_rendering_time_ms)) {
