@@ -156,7 +156,7 @@ TEST(LogicControllerVariableTestsGroup, Value_changes_in_transaction) {
     CHECK_EQUAL(41, testable.PeekValue());
 }
 
-TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_calls_Init) {
+TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_binded_to_wifi) {
     TestableControllerVariable testable;
     testable.Init();
     testable.WriteValue(42);
@@ -164,8 +164,13 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_calls_Init) {
 
     CHECK_EQUAL(42, testable.ReadValue());
     testable.CancelReadingProcess();
-    CHECK_TRUE(*(testable.PublicMorozov_Get_required_reading()));
-    CHECK_FALSE(*(testable.PublicMorozov_Get_required_writing()));
+    CHECK_EQUAL(42, testable.ReadValue());
+    CHECK_EQUAL(42, *testable.PublicMorozov_Get_out_value());
+
+    WiFiService wifi_service;
+    testable.BindToWiFi(&wifi_service, "test");
+
+    testable.CancelReadingProcess();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
     CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
