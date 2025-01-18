@@ -79,7 +79,7 @@ void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
                                 "ctrl_actions_task",
-                                2048,
+                                2048 + 512,
                                 NULL,
                                 3,
                                 &Controller::process_task_handle)
