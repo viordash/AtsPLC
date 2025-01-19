@@ -2,6 +2,7 @@
 #include "Display/bitmaps/wif_sta_active.h"
 #include "Display/bitmaps/wif_sta_error.h"
 #include "Display/bitmaps/wif_sta_inactive.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -12,6 +13,7 @@
 static const char *TAG_WiFiStation = "WiFiStation";
 
 WiFiStation::WiFiStation() : LogicElement() {
+    station_connect_status = WiFiStationConnectStatus::wscs_Error;
 }
 
 WiFiStation::~WiFiStation() {
@@ -22,13 +24,29 @@ WiFiStation::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
-    const Bitmap *bitmap;
+    const Bitmap *bitmap = &bitmap_passive;
+
+    switch (station_connect_status) {
+        case WiFiStationConnectStatus::wscs_Connected:
+            if (prev_elem_state == LogicItemState::lisActive) {
+                bitmap = &bitmap_active;
+            } else {
+                bitmap = &bitmap_passive;
+            }
+            break;
+
+        case WiFiStationConnectStatus::wscs_Error:
+            bitmap = &bitmap_error;
+            break;
+
+        default:
+            bitmap = &bitmap_passive;
+            break;
+    }
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        bitmap = &bitmap_active;
         res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
     } else {
-        bitmap = &bitmap_passive;
         res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
     }
     if (!res) {

@@ -345,11 +345,18 @@ void Controller::UnbindVariable(const MapIO io_adr) {
     if (!Controller::V1.BindedToWiFi() && !Controller::V2.BindedToWiFi()
         && !Controller::V3.BindedToWiFi() && !Controller::V4.BindedToWiFi()) {
         if (Controller::wifi_service != NULL) {
-            Controller::wifi_service->ConnectToStation();
+            Controller::ConnectToWiFiStation();
         }
     }
 }
 
 void Controller::WakeupProcessTask() {
     xEventGroupSetBits(Controller::gpio_events, WAKEUP_PROCESS_TASK);
+}
+
+WiFiStationConnectStatus Controller::ConnectToWiFiStation() {
+    if (Controller::wifi_service != NULL) {
+        return Controller::wifi_service->ConnectToStation();
+    }
+    return WiFiStationConnectStatus::wscs_Error;
 }

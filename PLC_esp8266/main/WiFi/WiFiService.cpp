@@ -31,6 +31,7 @@ void WiFiService::Start() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
     ConnectToStation();
     ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, NULL)
                             != pdPASS
@@ -72,10 +73,21 @@ bool WiFiService::Started() {
     return uxBits & STARTED_BIT;
 }
 
-void WiFiService::ConnectToStation() {
+WiFiStationConnectStatus WiFiService::ConnectToStation() {
     requests.Station();
     xEventGroupSetBits(event, NEW_REQUEST_BIT);
     ESP_LOGI(TAG_WiFiService, "ConnectToStation");
+    return GetWiFiStationConnectStatus();
+}
+
+void WiFiService::SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status) {
+    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
+    station_connect_status = new_status;
+}
+
+WiFiStationConnectStatus WiFiService::GetWiFiStationConnectStatus() {
+    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
+    return station_connect_status;
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -184,6 +196,7 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
     }
 
     ESP_ERROR_CHECK(esp_wifi_start());
+    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
 }
 
 void WiFiService::Disconnect() {

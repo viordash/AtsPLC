@@ -1,6 +1,8 @@
 #pragma once
 
-#include "LogicProgram/Inputs/CommonInput.h"
+#include "Display/display.h"
+#include "LogicProgram/LogicElement.h"
+#include "WiFi/WiFiStationConnectStatus.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -9,6 +11,9 @@ class WiFiStation : public LogicElement {
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
     const static Bitmap bitmap_error;
+
+  protected:
+    WiFiStationConnectStatus station_connect_status;
 
   public:
     typedef enum { //

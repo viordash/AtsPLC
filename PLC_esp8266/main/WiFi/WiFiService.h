@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include "WiFiRequests.h"
+#include "WiFiStationConnectStatus.h"
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -32,6 +33,9 @@ class WiFiService {
     std::unordered_map<const char *, uint8_t> scanned_ssid;
 
     EventGroupHandle_t event;
+
+    std::mutex station_connect_status_lock_mutex;
+    WiFiStationConnectStatus station_connect_status;
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
@@ -55,6 +59,9 @@ class WiFiService {
     bool FindSsidInScannedList(const char *ssid, uint8_t *rssi);
     void RemoveSsidFromScannedList(const char *ssid);
 
+    void SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status);
+    WiFiStationConnectStatus GetWiFiStationConnectStatus();
+
   public:
     static const int STARTED_BIT = BIT0;
     static const int RUNNED_BIT = BIT1;
@@ -72,7 +79,7 @@ class WiFiService {
     void Stop();
     bool Started();
 
-    void ConnectToStation();
+    WiFiStationConnectStatus ConnectToStation();
     uint8_t Scan(const char *ssid);
     void CancelScan(const char *ssid);
 

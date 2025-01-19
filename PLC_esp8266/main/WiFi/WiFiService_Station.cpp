@@ -37,6 +37,7 @@ bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_r
         bool connected = (uxBits & CONNECTED_BIT) != 0;
         if (connected) {
             ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
+            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
             return true;
         }
 
@@ -87,6 +88,7 @@ void WiFiService::StationTask() {
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
+        SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
         requests.RemoveStation();
         return;
     }
