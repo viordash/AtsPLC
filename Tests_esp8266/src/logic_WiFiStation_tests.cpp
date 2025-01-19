@@ -62,7 +62,7 @@ TEST(LogicWiFiStationTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(32, start_point.x);
+    CHECK_EQUAL(20, start_point.x);
 }
 
 TEST(LogicWiFiStationTestsGroup, Render_when_passive) {
@@ -79,7 +79,7 @@ TEST(LogicWiFiStationTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(32, start_point.x);
+    CHECK_EQUAL(20, start_point.x);
 }
 
 TEST(LogicWiFiStationTestsGroup, DoAction_skip_when_incoming_passive) {
@@ -93,17 +93,14 @@ TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive__due_incoming_
     TestableWiFiStation testable;
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    Controller::FetchIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    Controller::FetchIOValues();
     CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
 }
@@ -111,7 +108,6 @@ TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive__due_incoming_
 TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_active) {
     TestableWiFiStation testable;
 
-    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
@@ -121,7 +117,6 @@ TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive) {
     TestableWiFiStation testable;
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
@@ -134,7 +129,6 @@ TEST(LogicWiFiStationTestsGroup, Serialize) {
     CHECK_EQUAL(2, writed);
 
     CHECK_EQUAL(TvElementType::et_WiFiStation, *((TvElementType *)&buffer[0]));
-    CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
 }
 
 TEST(LogicWiFiStationTestsGroup, Serialize_just_for_obtain_size) {
@@ -158,7 +152,6 @@ TEST(LogicWiFiStationTestsGroup, Serialize_to_small_buffer_return_zero) {
 TEST(LogicWiFiStationTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiStation;
-    *((MapIO *)&buffer[1]) = MapIO::V3;
 
     TestableWiFiStation testable;
 
@@ -174,25 +167,6 @@ TEST(LogicWiFiStationTestsGroup, Deserialize_with_small_buffer_return_zero) {
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
-}
-
-TEST(LogicWiFiStationTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
-    uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiStation;
-
-    TestableWiFiStation testable;
-
-    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
-    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
-
-    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::V4 + 1);
-    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(0, readed);
-
-    *((MapIO *)&buffer[1]) = MapIO::DI;
-    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(1, readed);
 }
 
 TEST(LogicWiFiStationTestsGroup, GetElementType) {

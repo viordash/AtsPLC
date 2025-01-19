@@ -70,12 +70,19 @@ size_t WiFiStation::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
+    uint8_t dummy = 0;
+    if (!Record::Write(&dummy, sizeof(dummy), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
 size_t WiFiStation::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-
+    uint8_t dummy;
+    if (!Record::Read(&dummy, sizeof(dummy), buffer, buffer_size, &readed)) {
+        return 0;
+    }
     return readed;
 }
 

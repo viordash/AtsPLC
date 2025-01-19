@@ -15,7 +15,7 @@ class WiFiStation : public LogicElement {
         ciepi_None = EditableElement::EditingPropertyId::cepi_None,
     } EditingPropertyId;
 
-    const uint8_t LeftPadding = 4;
+    const uint8_t LeftPadding = 8;
     explicit WiFiStation();
     ~WiFiStation();
 
