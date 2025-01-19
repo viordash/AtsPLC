@@ -11,6 +11,10 @@ class WiFiStation : public LogicElement {
     const static Bitmap bitmap_error;
 
   public:
+    typedef enum { //
+        ciepi_None = EditableElement::EditingPropertyId::cepi_None,
+    } EditingPropertyId;
+
     const uint8_t LeftPadding = 4;
     explicit WiFiStation();
     ~WiFiStation();
@@ -23,4 +27,11 @@ class WiFiStation : public LogicElement {
     TvElementType GetElementType() override final;
 
     static WiFiStation *TryToCast(LogicElement *logic_element);
+
+    void SelectPrior() override;
+    void SelectNext() override;
+    void PageUp() override;
+    void PageDown() override;
+    void Change() override;
+    void Option() override;
 };

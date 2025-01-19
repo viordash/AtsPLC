@@ -37,8 +37,8 @@ WiFiStation::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     start_point->x += LeftPadding;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                                && (CommonInput::EditingPropertyId)editing_property_id
-                                       == CommonInput::EditingPropertyId::ciepi_None
+                                && (WiFiStation::EditingPropertyId)editing_property_id
+                                       == WiFiStation::EditingPropertyId::ciepi_None
                                 && Blinking_50();
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
@@ -91,4 +91,31 @@ WiFiStation *WiFiStation::TryToCast(LogicElement *logic_element) {
         default:
             return NULL;
     }
+}
+
+void WiFiStation::SelectPrior() {
+    ESP_LOGI(TAG_WiFiStation, "SelectPrior");
+}
+
+void WiFiStation::SelectNext() {
+    ESP_LOGI(TAG_WiFiStation, "SelectNext");
+}
+
+void WiFiStation::PageUp() {
+}
+
+void WiFiStation::PageDown() {
+}
+
+void WiFiStation::Change() {
+    ESP_LOGI(TAG_WiFiStation, "Change");
+    switch (editing_property_id) {
+
+        default:
+            EndEditing();
+            break;
+    }
+}
+
+void WiFiStation::Option() {
 }
