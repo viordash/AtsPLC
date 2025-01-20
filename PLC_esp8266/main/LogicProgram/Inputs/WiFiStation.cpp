@@ -75,8 +75,22 @@ bool WiFiStation::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
     bool any_changes = false;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    LogicItemState prev_state = state;
 
-    ESP_LOGD(TAG_WiFiStation, "state:%u", state);
+    state = LogicItemState::lisPassive;
+    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
+        Controller::DisconnectFromWiFiStation();
+    } else if (prev_elem_state == LogicItemState::lisActive) {
+        station_connect_status = Controller::ConnectToWiFiStation();
+        if (station_connect_status == WiFiStationConnectStatus::wscs_Connected) {
+            state = LogicItemState::lisActive;
+        }
+    }
+
+    if (state != prev_state) {
+        any_changes = true;
+        ESP_LOGD(TAG_WiFiStation, ".");
+    }
 
     return any_changes;
 }

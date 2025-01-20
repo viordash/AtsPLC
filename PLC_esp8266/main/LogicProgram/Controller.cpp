@@ -360,3 +360,9 @@ WiFiStationConnectStatus Controller::ConnectToWiFiStation() {
     }
     return WiFiStationConnectStatus::wscs_Error;
 }
+
+void Controller::DisconnectFromWiFiStation() {
+    if (Controller::wifi_service != NULL) {
+        Controller::wifi_service->DisconnectFromStation();
+    }
+}

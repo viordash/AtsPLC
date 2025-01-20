@@ -74,10 +74,22 @@ bool WiFiService::Started() {
 }
 
 WiFiStationConnectStatus WiFiService::ConnectToStation() {
-    requests.Station();
-    xEventGroupSetBits(event, NEW_REQUEST_BIT);
-    ESP_LOGI(TAG_WiFiService, "ConnectToStation");
+    bool was_added = requests.Station();
+    if (was_added) {
+        xEventGroupSetBits(event, NEW_REQUEST_BIT);
+        ESP_LOGI(TAG_WiFiService, "ConnectToStation, new req");
+    }
+
+    ESP_LOGD(TAG_WiFiService, "ConnectToStation, was_added:%u", was_added);
     return GetWiFiStationConnectStatus();
+}
+
+void WiFiService::DisconnectFromStation() {
+    bool removed = requests.RemoveStation();
+    ESP_LOGI(TAG_WiFiService, "DisconnectFromStation, removed:%d", removed);
+    if (removed) {
+        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
+    }
 }
 
 void WiFiService::SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status) {
@@ -156,7 +168,7 @@ void WiFiService::Task(void *parm) {
 
             switch (new_request.Type) {
                 case wqi_Station:
-                    wifi_service->StationTask();
+                    wifi_service->StationTask(&new_request);
                     break;
 
                 case wqi_Scanner:

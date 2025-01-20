@@ -65,4 +65,5 @@ class Controller {
     static void WakeupProcessTask();
 
     static WiFiStationConnectStatus ConnectToWiFiStation();
+    static void DisconnectFromWiFiStation();
 };

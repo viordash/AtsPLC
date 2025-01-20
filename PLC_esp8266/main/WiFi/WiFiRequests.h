@@ -37,7 +37,7 @@ class WiFiRequests : public std::list<RequestItem> {
     void AccessPoint(const char *ssid);
     bool RemoveAccessPoint(const char *ssid);
 
-    void Station();
+    bool Station();
     bool RemoveStation();
 
     bool Pop(RequestItem *request);

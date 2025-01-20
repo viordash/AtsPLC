@@ -15,7 +15,9 @@
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern device_settings settings;
 
-bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_retry_count) {
+bool WiFiService::ConnectToStationTask(RequestItem *request,
+                                       wifi_config_t *wifi_config,
+                                       int32_t max_retry_count) {
     ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation");
 
     int connect_retry_num = 0;
@@ -33,6 +35,12 @@ bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_r
                                      portMAX_DELAY);
 
         ESP_LOGI(TAG_WiFiService_Station, "process ConnectToStation, uxBits:0x%08X", uxBits);
+
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_Station, "Cancel connection");
+            return false;
+        }
 
         bool connected = (uxBits & CONNECTED_BIT) != 0;
         if (connected) {
@@ -66,12 +74,12 @@ bool WiFiService::ConnectToStationTask(wifi_config_t *wifi_config, int32_t max_r
                 return false;
             }
         }
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) == 0);
+    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
 
     return false;
 }
 
-void WiFiService::StationTask() {
+void WiFiService::StationTask(RequestItem *request) {
     ESP_LOGW(TAG_WiFiService_Station, "start");
 
     int32_t max_retry_count;
@@ -100,7 +108,7 @@ void WiFiService::StationTask() {
 
     bool break_process = false;
     while (!break_process) {
-        if (!ConnectToStationTask(&wifi_config, max_retry_count)) {
+        if (!ConnectToStationTask(request, &wifi_config, max_retry_count)) {
             Disconnect();
             break;
         }
@@ -117,7 +125,13 @@ void WiFiService::StationTask() {
         stop_http_server();
         Disconnect();
 
-        if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) != 0) {
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_Station, "Leave station");
+            break_process = true;
+        }
+
+        if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT)) != 0) {
             break_process = true;
         }
 
@@ -133,7 +147,13 @@ void WiFiService::StationTask() {
 
             ESP_LOGI(TAG_WiFiService_Station, "wait disconnecting, uxBits:0x%08X", uxBits);
 
-            if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT)) != 0) {
+            cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+            if (cancel) {
+                ESP_LOGI(TAG_WiFiService_Station, "Cancel reconnection");
+                break_process = true;
+            }
+
+            if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT)) != 0) {
                 break_process = true;
             }
         }

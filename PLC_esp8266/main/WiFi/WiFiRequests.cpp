@@ -83,15 +83,16 @@ bool WiFiRequests::RemoveAccessPoint(const char *ssid) {
     return exists;
 }
 
-void WiFiRequests::Station() {
+bool WiFiRequests::Station() {
     RequestItem request = { RequestItemType::wqi_Station, {} };
     std::lock_guard<std::mutex> lock(lock_mutex);
     auto item = Find(&request);
-    bool exists = item != end();
-    if (!exists) {
+    bool new_req = item == end();
+    if (new_req) {
         push_front(request);
     }
-    ESP_LOGD(TAG_WiFiRequests, "Station, exists:%u", exists);
+    ESP_LOGD(TAG_WiFiRequests, "Station, is new req:%u", !new_req);
+    return new_req;
 }
 
 bool WiFiRequests::RemoveStation() {
