@@ -208,7 +208,6 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
     }
 
     ESP_ERROR_CHECK(esp_wifi_start());
-    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
 }
 
 void WiFiService::Disconnect() {

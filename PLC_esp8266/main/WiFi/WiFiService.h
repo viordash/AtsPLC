@@ -39,8 +39,6 @@ class WiFiService {
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
-    bool
-    ConnectToStationTask(RequestItem *request, wifi_config_t *wifi_config, int32_t max_retry_count);
     void StationTask(RequestItem *request);
 
     bool StartScan(const char *ssid, wifi_scanner_settings *scanner_settings);

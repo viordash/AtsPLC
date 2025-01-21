@@ -15,73 +15,10 @@
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern device_settings settings;
 
-bool WiFiService::ConnectToStationTask(RequestItem *request,
-                                       wifi_config_t *wifi_config,
-                                       int32_t max_retry_count) {
-    ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation");
-
-    int connect_retry_num = 0;
-    EventBits_t uxBits = 0;
-    do {
-        if (uxBits == 0 || (uxBits & FAILED_BIT) != 0) {
-            Connect(wifi_config);
-        }
-
-        uxBits = xEventGroupWaitBits(event,
-                                     CONNECTED_BIT | FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT
-                                         | CANCEL_REQUEST_BIT,
-                                     true,
-                                     false,
-                                     portMAX_DELAY);
-
-        ESP_LOGI(TAG_WiFiService_Station, "process ConnectToStation, uxBits:0x%08X", uxBits);
-
-        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
-        if (cancel) {
-            ESP_LOGI(TAG_WiFiService_Station, "Cancel connection");
-            return false;
-        }
-
-        bool connected = (uxBits & CONNECTED_BIT) != 0;
-        if (connected) {
-            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
-            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
-            return true;
-        }
-
-        bool any_failure = (uxBits & FAILED_BIT) != 0;
-        if (any_failure) {
-            bool retry_connect =
-                (max_retry_count == INFINITY_CONNECT_RETRY || connect_retry_num < max_retry_count);
-
-            if (retry_connect) {
-                connect_retry_num++;
-                ESP_LOGI(TAG_WiFiService_Station,
-                         "failed. reconnect, num:%d of %d",
-                         connect_retry_num,
-                         max_retry_count);
-                Disconnect();
-
-                const TickType_t reconnect_delay = 3000 / portTICK_RATE_MS;
-                xEventGroupWaitBits(event,
-                                    STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
-                                    false,
-                                    false,
-                                    reconnect_delay);
-
-            } else {
-                ESP_LOGI(TAG_WiFiService_Station, "failed. unable reconnect");
-                return false;
-            }
-        }
-    } while (uxBits != 0 && (uxBits & (STOP_BIT | NEW_REQUEST_BIT)) == 0);
-
-    return false;
-}
-
 void WiFiService::StationTask(RequestItem *request) {
     ESP_LOGW(TAG_WiFiService_Station, "start");
 
+    int connect_retry_num = 0;
     int32_t max_retry_count;
     wifi_config_t wifi_config = {};
 
@@ -106,55 +43,65 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_ERROR_CHECK(
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
-    bool break_process = false;
-    while (!break_process) {
-        if (!ConnectToStationTask(request, &wifi_config, max_retry_count)) {
+    EventBits_t uxBits = 0;
+    while (true) {
+
+        if (uxBits == 0 || (uxBits & FAILED_BIT) != 0) {
+            Connect(&wifi_config);
+        }
+
+        uxBits = xEventGroupWaitBits(event,
+                                     CONNECTED_BIT | FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT
+                                         | CANCEL_REQUEST_BIT,
+                                     true,
+                                     false,
+                                     portMAX_DELAY);
+
+        ESP_LOGI(TAG_WiFiService_Station, "event uxBits:0x%08X", uxBits);
+
+        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (cancel) {
+            ESP_LOGI(TAG_WiFiService_Station, "Cancel");
+            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
+            stop_http_server();
             Disconnect();
             break;
         }
 
-        start_http_server();
-        EventBits_t uxBits =
-            xEventGroupWaitBits(event,
-                                FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
-                                true,
-                                false,
-                                portMAX_DELAY);
-        ESP_LOGI(TAG_WiFiService_Station, "on connecting, uxBits:0x%08X", uxBits);
-
-        stop_http_server();
-        Disconnect();
-
-        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
-        if (cancel) {
-            ESP_LOGI(TAG_WiFiService_Station, "Leave station");
-            break_process = true;
-        }
-
-        if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT)) != 0) {
-            break_process = true;
+        bool connected = (uxBits & CONNECTED_BIT) != 0;
+        if (connected) {
+            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
+            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
+            start_http_server();
+            continue;
         }
 
         bool any_failure = (uxBits & FAILED_BIT) != 0;
-        if (!any_failure) {
-            const TickType_t wait_disconnecting_timeout = 5000 / portTICK_RATE_MS;
-            uxBits =
+        if (any_failure) {
+            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
+            stop_http_server();
+            Disconnect();
+
+            bool retry_connect =
+                (max_retry_count == INFINITY_CONNECT_RETRY || connect_retry_num < max_retry_count);
+
+            if (retry_connect) {
+                connect_retry_num++;
+                ESP_LOGI(TAG_WiFiService_Station,
+                         "failed. reconnect, num:%d of %d",
+                         connect_retry_num,
+                         max_retry_count);
+
+                const TickType_t reconnect_delay = 3000 / portTICK_RATE_MS;
                 xEventGroupWaitBits(event,
-                                    FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
-                                    true,
+                                    STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
                                     false,
-                                    wait_disconnecting_timeout);
+                                    false,
+                                    reconnect_delay);
 
-            ESP_LOGI(TAG_WiFiService_Station, "wait disconnecting, uxBits:0x%08X", uxBits);
-
-            cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
-            if (cancel) {
-                ESP_LOGI(TAG_WiFiService_Station, "Cancel reconnection");
-                break_process = true;
-            }
-
-            if ((uxBits & (STOP_BIT | NEW_REQUEST_BIT)) != 0) {
-                break_process = true;
+            } else {
+                ESP_LOGI(TAG_WiFiService_Station, "failed. unable reconnect");
+                break;
             }
         }
     }
