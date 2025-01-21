@@ -31,7 +31,7 @@ class WiFiRequests : public std::list<RequestItem> {
   public:
     bool Contains(RequestItem *request);
 
-    void Scan(const char *ssid);
+    bool Scan(const char *ssid);
     bool RemoveScanner(const char *ssid);
 
     void AccessPoint(const char *ssid);

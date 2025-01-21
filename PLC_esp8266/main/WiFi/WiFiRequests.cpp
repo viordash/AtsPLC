@@ -37,15 +37,16 @@ bool WiFiRequests::Contains(RequestItem *request) {
     return item != end();
 }
 
-void WiFiRequests::Scan(const char *ssid) {
+bool WiFiRequests::Scan(const char *ssid) {
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
     auto item = Find(&request);
-    bool exists = item != end();
-    if (!exists) {
+    bool new_req = item == end();
+    if (new_req) {
         push_front(request);
     }
-    ESP_LOGD(TAG_WiFiRequests, "Scan, ssid:%s, exists:%u", ssid, exists);
+    ESP_LOGD(TAG_WiFiRequests, "Scan, ssid:%s, new_req:%u", ssid, new_req);
+    return new_req;
 }
 
 bool WiFiRequests::RemoveScanner(const char *ssid) {
