@@ -46,7 +46,7 @@ bool HttpServer::Start() {
 
     for (const auto &controller : controllers) {
         for (const auto &uriHandler : controller->GetUriHandlers()) {
-            ESP_LOGI(TAG_HttpServer, "Registering URI handlers");
+            ESP_LOGI(TAG_HttpServer, "reg URI:%s", uriHandler->uri);
             httpd_register_uri_handler(server, uriHandler);
         }
     }
