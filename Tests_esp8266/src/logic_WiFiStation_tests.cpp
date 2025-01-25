@@ -18,16 +18,28 @@
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
+namespace {
+    class TestableWiFiService : public WiFiService {
+      public:
+        void PublicMorozov_SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status) {
+            SetWiFiStationConnectStatus(new_status);
+        }
+    };
+} // namespace
+TestableWiFiService *wifi_service;
+
 TEST_GROUP(LogicWiFiStationTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL);
+wifi_service = new TestableWiFiService();
+Controller::Start(NULL, wifi_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete wifi_service;
 }
 }
 ;
@@ -62,7 +74,7 @@ TEST(LogicWiFiStationTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(20, start_point.x);
+    CHECK_EQUAL(24, start_point.x);
 }
 
 TEST(LogicWiFiStationTestsGroup, Render_when_passive) {
@@ -79,7 +91,7 @@ TEST(LogicWiFiStationTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(20, start_point.x);
+    CHECK_EQUAL(24, start_point.x);
 }
 
 TEST(LogicWiFiStationTestsGroup, DoAction_skip_when_incoming_passive) {
@@ -92,6 +104,18 @@ TEST(LogicWiFiStationTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive__due_incoming_switch_to_passive) {
     TestableWiFiStation testable;
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::CANCEL_REQUEST_BIT)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+    wifi_service->PublicMorozov_SetWiFiStationConnectStatus(
+        WiFiStationConnectStatus::wscs_Connected);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();
@@ -107,6 +131,13 @@ TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive__due_incoming_
 
 TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_active) {
     TestableWiFiStation testable;
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+    wifi_service->PublicMorozov_SetWiFiStationConnectStatus(
+        WiFiStationConnectStatus::wscs_Connected);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     Controller::CommitChanges();
@@ -115,6 +146,14 @@ TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_active) {
 
 TEST(LogicWiFiStationTestsGroup, DoAction_change_state_to_passive) {
     TestableWiFiStation testable;
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+    wifi_service->PublicMorozov_SetWiFiStationConnectStatus(
+        WiFiStationConnectStatus::wscs_NoStation);
+
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));

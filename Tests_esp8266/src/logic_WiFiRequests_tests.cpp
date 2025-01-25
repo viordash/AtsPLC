@@ -154,7 +154,7 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     testable.pop_back();
 }
 
-TEST(LogicWiFiRequestsTestsGroup, StationDone_removes_Station_request) {
+TEST(LogicWiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";

@@ -206,9 +206,9 @@ BaseType_t xTaskNotifyWait(uint32_t ulBitsToClearOnEntry,
         ->actualCall("xTaskNotifyWait")
         ->withUnsignedIntParameters("ulBitsToClearOnEntry", ulBitsToClearOnEntry)
         ->withUnsignedIntParameters("ulBitsToClearOnExit", ulBitsToClearOnExit)
-        ->withPointerParameters("pulNotificationValue", pulNotificationValue)
+        ->withOutputParameter("pulNotificationValue", pulNotificationValue)
         ->withUnsignedIntParameters("xTicksToWait", xTicksToWait)
-        ->returnIntValueOrDefault(pdPASS);
+        ->returnIntValueOrDefault(pdTRUE);
 }
 
 BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
