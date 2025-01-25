@@ -458,3 +458,14 @@ esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_re
         ->withOutputParameter("ap_records", ap_records)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
+
+void vTaskGetInfo(TaskHandle_t xTask,
+                  TaskStatus_t *pxTaskStatus,
+                  BaseType_t xGetFreeStackSpace,
+                  eTaskState eState) {
+    (void)xTask;
+    (void)pxTaskStatus;
+    (void)xGetFreeStackSpace;
+    (void)eState;
+    mock_c()->actualCall("vTaskGetInfo");
+}
