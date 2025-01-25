@@ -46,9 +46,8 @@ void WiFiService::StationTask(RequestItem *request) {
     bool has_connect = false;
     bool delay_before_reconnect = false;
     uint32_t ulNotifiedValue = 0;
-    xTaskNotifyWait(CONNECTED_BIT | FAILED_BIT, 0, &ulNotifiedValue, 0);
-
     Connect(&wifi_config);
+
     while (true) {
         if (!delay_before_reconnect) {
             xTaskNotifyWait(0,
@@ -134,6 +133,12 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler));
     ESP_ERROR_CHECK(
         esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
+
+    const TickType_t wait_disconnection = 500 / portTICK_RATE_MS;
+    if (xTaskNotifyWait(0, CONNECTED_BIT | FAILED_BIT, &ulNotifiedValue, wait_disconnection)
+        == pdTRUE) {
+        ESP_LOGI(TAG_WiFiService_Station, "fully disconnected");
+    }
 
     requests.RemoveStation();
     ESP_LOGW(TAG_WiFiService_Station, "finish");

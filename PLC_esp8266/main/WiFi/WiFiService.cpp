@@ -138,13 +138,10 @@ void WiFiService::Task(void *parm) {
         if ((ulNotifiedValue & STOP_BIT) != 0) {
             break;
         }
-
+        ESP_LOGI(TAG_WiFiService, "new request, uxBits:0x%08X", ulNotifiedValue);
         RequestItem new_request;
         while (wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGI(TAG_WiFiService,
-                     "New request, type:%u, uxBits:0x%08X",
-                     new_request.Type,
-                     ulNotifiedValue);
+            ESP_LOGI(TAG_WiFiService, "exec request, type:%u", new_request.Type);
 
             switch (new_request.Type) {
                 case wqi_Station:
