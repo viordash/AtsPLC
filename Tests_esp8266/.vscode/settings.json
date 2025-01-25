@@ -1,5 +1,8 @@
 {
     "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "files.exclude": {
+        "**/*.d": true
+    },
     "files.associations": {
         "*.Single": "makefile",
         "stdlib.h": "c",
