@@ -37,6 +37,11 @@ bool WiFiRequests::Contains(RequestItem *request) {
     return item != end();
 }
 
+bool WiFiRequests::OneMoreInQueue() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    return size() > 1;
+}
+
 bool WiFiRequests::Scan(const char *ssid) {
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
@@ -61,15 +66,16 @@ bool WiFiRequests::RemoveScanner(const char *ssid) {
     return exists;
 }
 
-void WiFiRequests::AccessPoint(const char *ssid) {
+bool WiFiRequests::AccessPoint(const char *ssid) {
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
     auto item = Find(&request);
-    bool exists = item != end();
-    if (!exists) {
+    bool new_req = item == end();
+    if (new_req) {
         push_front(request);
     }
-    ESP_LOGD(TAG_WiFiRequests, "AccessPoint, ssid:%s, exists:%u", ssid, exists);
+    ESP_LOGD(TAG_WiFiRequests, "AccessPoint, ssid:%s, new_req:%u", ssid, new_req);
+    return new_req;
 }
 
 bool WiFiRequests::RemoveAccessPoint(const char *ssid) {

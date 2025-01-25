@@ -32,7 +32,7 @@ class WiFiService {
     std::mutex scanned_ssid_lock_mutex;
     std::unordered_map<const char *, uint8_t> scanned_ssid;
 
-    EventGroupHandle_t event;
+    TaskHandle_t task_handle;
 
     std::mutex station_connect_status_lock_mutex;
     WiFiStationConnectStatus station_connect_status;
@@ -62,14 +62,10 @@ class WiFiService {
     WiFiStationConnectStatus GetWiFiStationConnectStatus();
 
   public:
-    static const int STARTED_BIT = BIT0;
-    static const int RUNNED_BIT = BIT1;
-    static const int STOP_BIT = BIT2;
-    static const int STOPPED_BIT = BIT3;
-    static const int FAILED_BIT = BIT4;
-    static const int CONNECTED_BIT = BIT5;
-    static const int NEW_REQUEST_BIT = BIT6;
-    static const int CANCEL_REQUEST_BIT = BIT7;
+    static const int STOP_BIT = BIT0;
+    static const int FAILED_BIT = BIT1;
+    static const int CONNECTED_BIT = BIT2;
+    static const int CANCEL_REQUEST_BIT = BIT3;
 
     WiFiService();
     ~WiFiService();

@@ -43,34 +43,52 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_ERROR_CHECK(
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
-    EventBits_t uxBits = 0;
-    while (true) {
+    bool has_connect = false;
+    bool delay_before_reconnect = false;
+    uint32_t ulNotifiedValue = 0;
+    xTaskNotifyWait(CONNECTED_BIT | FAILED_BIT, 0, &ulNotifiedValue, 0);
 
-        if (uxBits == 0 || (uxBits & FAILED_BIT) != 0) {
-            Connect(&wifi_config);
+    Connect(&wifi_config);
+    while (true) {
+        if (!delay_before_reconnect) {
+            xTaskNotifyWait(0,
+                            CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
+                            &ulNotifiedValue,
+                            portMAX_DELAY);
+        } else {
+            delay_before_reconnect = false;
+        }
+        ESP_LOGI(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
+
+        bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
+        if (to_stop) {
+            break;
         }
 
-        uxBits = xEventGroupWaitBits(event,
-                                     CONNECTED_BIT | FAILED_BIT | STOP_BIT | NEW_REQUEST_BIT
-                                         | CANCEL_REQUEST_BIT,
-                                     true,
-                                     false,
-                                     portMAX_DELAY);
-        ESP_LOGI(TAG_WiFiService_Station, "event uxBits:0x%08X", uxBits);
-
-        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        bool cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_Station, "Cancel");
             break;
         }
-
-        bool any_failure = (uxBits & FAILED_BIT) != 0;
+        bool one_more_request = requests.OneMoreInQueue();
+        bool any_failure = (ulNotifiedValue & FAILED_BIT) != 0;
         if (any_failure) {
             bool retry_connect = (max_retry_count == INFINITY_CONNECT_RETRY
                                   || connect_retries_num < max_retry_count);
             if (!retry_connect) {
                 ESP_LOGI(TAG_WiFiService_Station, "failed. unable reconnect");
                 break;
+            }
+            has_connect = false;
+
+            const int retries_num_before_no_station = 3;
+            if (connect_retries_num >= retries_num_before_no_station) {
+                SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
+                if (one_more_request) {
+                    ESP_LOGI(TAG_WiFiService_Station,
+                             "Stop connecting to station due to new request");
+                    break;
+                }
             }
 
             connect_retries_num++;
@@ -81,45 +99,37 @@ void WiFiService::StationTask(RequestItem *request) {
 
             stop_http_server();
             Disconnect();
-            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
 
             const TickType_t reconnect_delay = 3000 / portTICK_RATE_MS;
-            xEventGroupWaitBits(event,
-                                STOP_BIT | NEW_REQUEST_BIT | CANCEL_REQUEST_BIT,
-                                false,
-                                false,
-                                reconnect_delay);
+            delay_before_reconnect =
+                xTaskNotifyWait(0,
+                                CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
+                                &ulNotifiedValue,
+                                reconnect_delay)
+                == pdFALSE;
+            if (delay_before_reconnect) {
+                Connect(&wifi_config);
+                ulNotifiedValue = 0;
+            }
             continue;
         }
 
-        bool new_request = (uxBits & NEW_REQUEST_BIT) != 0;
-        if (new_request) {
-            if (GetWiFiStationConnectStatus() == WiFiStationConnectStatus::wscs_Connected) {
-                ESP_LOGI(TAG_WiFiService_Station, "Disconnect station due to new request");
-                break;
-            }
-
-            const int mandatory_retries_num = 3;
-            const int max_retries =
-                max_retry_count == INFINITY_CONNECT_RETRY ? mandatory_retries_num : max_retry_count;
-
-            if (connect_retries_num > max_retries) {
-                ESP_LOGI(TAG_WiFiService_Station, "Stop connecting to station due to new request");
-                break;
-            }
-        }
-
-        bool connected = (uxBits & CONNECTED_BIT) != 0;
+        bool connected = (ulNotifiedValue & CONNECTED_BIT) != 0;
         if (connected) {
             ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
             SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
             start_http_server();
             connect_retries_num = 0;
+            has_connect = true;
+        }
+
+        if (one_more_request && has_connect) {
+            ESP_LOGI(TAG_WiFiService_Station, "Disconnect station due to new request");
+            break;
         }
     }
     stop_http_server();
     Disconnect();
-    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
 
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler));
     ESP_ERROR_CHECK(
@@ -143,7 +153,7 @@ void WiFiService::wifi_event_handler(void *arg,
 
         case WIFI_EVENT_STA_DISCONNECTED:
             ESP_LOGI(TAG_WiFiService_Station, "connect to the AP fail");
-            xEventGroupSetBits(wifi_service->event, WiFiService::FAILED_BIT);
+            xTaskNotify(wifi_service->task_handle, FAILED_BIT, eNotifyAction::eSetBits);
             return;
 
         case WIFI_EVENT_STA_STOP:
@@ -173,7 +183,7 @@ void WiFiService::ip_event_handler(void *arg,
     switch (event_id) {
         case IP_EVENT_STA_GOT_IP:
             ESP_LOGI(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
-            xEventGroupSetBits(wifi_service->event, CONNECTED_BIT);
+            xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
             return;
 
         default:

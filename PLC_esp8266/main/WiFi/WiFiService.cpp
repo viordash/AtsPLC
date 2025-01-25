@@ -18,25 +18,26 @@ static const char *TAG_WiFiService = "WiFiService";
 extern device_settings settings;
 
 WiFiService::WiFiService() {
+    station_connect_status = WiFiStationConnectStatus ::wscs_Error;
 }
 
 WiFiService::~WiFiService() {
 }
 
 void WiFiService::Start() {
-    ESP_LOGW(TAG_WiFiService, "Start");
-    event = xEventGroupCreate();
-    xEventGroupSetBits(event, WiFiService::STARTED_BIT);
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
+    ESP_ERROR_CHECK(
+        xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, &task_handle)
+                != pdPASS
+            ? ESP_FAIL
+            : ESP_OK);
+
     ConnectToStation();
-    ESP_ERROR_CHECK(xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, NULL)
-                            != pdPASS
-                        ? ESP_FAIL
-                        : ESP_OK);
+    ESP_LOGW(TAG_WiFiService, "Start, task_handle:%p", task_handle);
 }
 
 void WiFiService::Stop() {
@@ -45,50 +46,37 @@ void WiFiService::Stop() {
         return;
     }
 
-    xEventGroupSetBits(event, STOP_BIT);
+    xTaskNotify(task_handle, STOP_BIT, eNotifyAction::eSetBits);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 
-    EventBits_t uxBits = xEventGroupWaitBits(event, WiFiService::RUNNED_BIT, false, false, 0);
-    bool runned = (uxBits & WiFiService::RUNNED_BIT) != 0;
-    if (runned) {
-        ESP_LOGI(TAG_WiFiService, "Stop, is_runned, uxBits:0x%08X", uxBits);
-
-        uxBits = xEventGroupWaitBits(event, WiFiService::STOPPED_BIT, false, false, portMAX_DELAY);
-        if (uxBits & WiFiService::STOPPED_BIT) {
-            ESP_LOGI(TAG_WiFiService, "stopped, uxBits:0x%08X", uxBits);
-        }
-    }
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
-
-    xEventGroupClearBits(event, STARTED_BIT);
-    vEventGroupDelete(event);
 }
 
 bool WiFiService::Started() {
-    EventBits_t uxBits = xEventGroupWaitBits(event, STARTED_BIT, false, false, 0);
+    TaskStatus_t xTaskDetails;
+    vTaskGetInfo(task_handle, &xTaskDetails, pdFALSE, eTaskState::eInvalid);
 
-    if (uxBits & STARTED_BIT) {
-        ESP_LOGI(TAG_WiFiService, "is_runned, uxBits:0x%08X", uxBits);
+    if (xTaskDetails.eCurrentState == eTaskState::eRunning) {
+        ESP_LOGI(TAG_WiFiService, "is_runned");
     }
-    return uxBits & STARTED_BIT;
+    return xTaskDetails.eCurrentState == eTaskState::eRunning;
 }
 
 WiFiStationConnectStatus WiFiService::ConnectToStation() {
-    bool was_added = requests.Station();
-    if (was_added) {
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        ESP_LOGI(TAG_WiFiService, "ConnectToStation, new req");
+    auto status = GetWiFiStationConnectStatus();
+    if (requests.Station()) {
+        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        ESP_LOGE(TAG_WiFiService, "ConnectToStation, status:%u", status);
     }
-
-    ESP_LOGD(TAG_WiFiService, "ConnectToStation, was_added:%u", was_added);
-    return GetWiFiStationConnectStatus();
+    return status;
 }
 
 void WiFiService::DisconnectFromStation() {
     bool removed = requests.RemoveStation();
     ESP_LOGI(TAG_WiFiService, "DisconnectFromStation, removed:%d", removed);
     if (removed) {
-        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
+        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
 }
 
@@ -103,16 +91,15 @@ WiFiStationConnectStatus WiFiService::GetWiFiStationConnectStatus() {
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
-    if (requests.Scan(ssid)) {
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        ESP_LOGI(TAG_WiFiService, "Scan, ssid:%s, new req", ssid);
-    }
-
     uint8_t rssi;
     bool found = FindSsidInScannedList(ssid, &rssi);
-    ESP_LOGD(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
     if (!found) {
         rssi = LogicElement::MinValue;
+    }
+
+    if (requests.Scan(ssid)) {
+        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        ESP_LOGE(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
     }
     return rssi;
 }
@@ -122,19 +109,14 @@ void WiFiService::CancelScan(const char *ssid) {
     bool removed = requests.RemoveScanner(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
-        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
+        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
 }
 
 void WiFiService::Generate(const char *ssid) {
-    int request_re_add_delay_ms;
-    SAFETY_SETTINGS(
-        { request_re_add_delay_ms = settings.wifi_access_point.delay_re_adding_request_ms; });
-
-    if (Controller::RequestWakeupMs((void *)ssid, request_re_add_delay_ms)) {
-        requests.AccessPoint(ssid);
-        xEventGroupSetBits(event, NEW_REQUEST_BIT);
-        ESP_LOGI(TAG_WiFiService, "Generate, ssid:%s", ssid);
+    if (requests.AccessPoint(ssid)) {
+        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        ESP_LOGE(TAG_WiFiService, "Generate, ssid:%s", ssid);
     }
 }
 
@@ -142,7 +124,7 @@ void WiFiService::CancelGenerate(const char *ssid) {
     bool removed = requests.RemoveAccessPoint(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelGenerate, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
-        xEventGroupSetBits(event, CANCEL_REQUEST_BIT);
+        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
 }
 
@@ -150,17 +132,19 @@ void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    EventBits_t uxBits;
-    do {
-        uxBits = xEventGroupWaitBits(wifi_service->event,
-                                     STOP_BIT | NEW_REQUEST_BIT,
-                                     true,
-                                     false,
-                                     portMAX_DELAY);
+    uint32_t ulNotifiedValue = 0;
+    while (true) {
+        xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY);
+        if ((ulNotifiedValue & STOP_BIT) != 0) {
+            break;
+        }
 
         RequestItem new_request;
-        while ((uxBits & STOP_BIT) == 0 && wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGD(TAG_WiFiService, "New request, type:%u", new_request.Type);
+        while (wifi_service->requests.Pop(&new_request)) {
+            ESP_LOGI(TAG_WiFiService,
+                     "New request, type:%u, uxBits:0x%08X",
+                     new_request.Type,
+                     ulNotifiedValue);
 
             switch (new_request.Type) {
                 case wqi_Station:
@@ -180,10 +164,9 @@ void WiFiService::Task(void *parm) {
             }
             ESP_LOGD(TAG_WiFiService, "end request, type:%u", new_request.Type);
         }
-    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
+    }
 
     ESP_LOGW(TAG_WiFiService, "Finish task");
-    xEventGroupSetBits(wifi_service->event, WiFiService::STOPPED_BIT);
     vTaskDelete(NULL);
 }
 

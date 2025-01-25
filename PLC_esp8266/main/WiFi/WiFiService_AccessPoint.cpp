@@ -15,7 +15,7 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
-    ESP_LOGD(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
     wifi_access_point_settings access_point_settings;
     SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
@@ -48,34 +48,44 @@ void WiFiService::AccessPointTask(RequestItem *request) {
         return;
     }
 
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "generating ssid:'%s'...", request->Payload.AccessPoint.ssid);
-    EventBits_t uxBits = 0;
-    do {
-        uxBits = xEventGroupWaitBits(event,
-                                     STOP_BIT | CANCEL_REQUEST_BIT,
-                                     true,
-                                     false,
-                                     access_point_settings.generation_time_ms / portTICK_RATE_MS);
-        ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", uxBits);
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "generating ssid:'%s'...",
+             request->Payload.AccessPoint.ssid);
 
-        bool timeout = (uxBits & (STOP_BIT | CANCEL_REQUEST_BIT)) == 0;
-        if (timeout) {
+    uint32_t ulNotifiedValue = 0;
+    while (true) {
+        bool notify_wait_timeout =
+            xTaskNotifyWait(0,
+                            CANCEL_REQUEST_BIT,
+                            &ulNotifiedValue,
+                            access_point_settings.generation_time_ms / portTICK_RATE_MS)
+            == pdFALSE;
+
+        ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
+
+        if (notify_wait_timeout) {
             ESP_LOGD(TAG_WiFiService_AccessPoint, "timeout");
             break;
         }
-        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+
+        bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
+        if (to_stop) {
+            break;
+        }
+
+        bool cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_AccessPoint,
                      "Cancel request, ssid:%s",
                      request->Payload.AccessPoint.ssid);
             break;
         }
-    } while (uxBits != 0 && (uxBits & STOP_BIT) == 0);
+    }
 
     esp_wifi_stop();
 
     requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
     Controller::WakeupProcessTask();
 
-    ESP_LOGD(TAG_WiFiService_AccessPoint, "finish");
+    ESP_LOGW(TAG_WiFiService_AccessPoint, "finish");
 }
