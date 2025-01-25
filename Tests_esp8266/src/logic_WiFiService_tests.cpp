@@ -226,12 +226,6 @@ TEST(LogicWiFiServiceTestsGroup,
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
 
-    mock()
-        .expectNCalls(2, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifVal = WiFiService::CONNECTED_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
@@ -257,8 +251,8 @@ TEST(LogicWiFiServiceTestsGroup,
     strcpy(settings.wifi_station.ssid, "test_ssid");
     strcpy(settings.wifi_station.password, "test_pwd");
 
-    testable.ConnectToStation();
-    testable.Scan("ssid");
+    testable.PublicMorozov_Get_requests()->Station();
+    testable.PublicMorozov_Get_requests()->Scan("ssid");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
     RequestItem request = { RequestItemType::wqi_Station, {} };
@@ -341,12 +335,6 @@ TEST(
     mock().expectOneCall("esp_wifi_disconnect");
     mock().expectOneCall("esp_wifi_stop");
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
@@ -360,7 +348,7 @@ TEST(
 
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
-    testable.Scan(ssid_1);
+    testable.PublicMorozov_Get_requests()->Scan(ssid_1);
 
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
@@ -388,12 +376,6 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other
     mock().expectOneCall("esp_wifi_disconnect");
     mock().expectOneCall("esp_wifi_stop");
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
@@ -413,7 +395,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other
     mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
-    testable.Scan(ssid_0);
+    testable.PublicMorozov_Get_requests()->Scan(ssid_0);
 
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
@@ -483,12 +465,6 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     mock().expectOneCall("esp_wifi_disconnect");
     mock().expectOneCall("esp_wifi_stop");
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifVal = 0;
     mock()
         .expectNCalls(2, "xTaskNotifyWait")
@@ -501,7 +477,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
-    testable.Scan(ssid_0);
+    testable.PublicMorozov_Get_requests()->Scan(ssid_0);
 
     uint8_t rssi;
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
@@ -532,12 +508,6 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
     mock().expectNCalls(2, "esp_wifi_disconnect");
     mock().expectNCalls(2, "esp_wifi_stop");
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifStop = WiFiService::STOP_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
@@ -550,7 +520,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
     mock(buffer).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
-    testable.Scan(ssid_0);
+    testable.PublicMorozov_Get_requests()->Scan(ssid_0);
 
     strcpy((char *)ap_records.ssid, ssid_0);
     ap_records.rssi = -120;
@@ -579,12 +549,6 @@ TEST(
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
@@ -598,7 +562,7 @@ TEST(
 
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
-    testable.Generate(ssid_1);
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_1);
 
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -614,12 +578,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
 
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
@@ -640,7 +598,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
     mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
-    testable.Generate(ssid_0);
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0);
 
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -671,6 +629,66 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
+}
+
+TEST(LogicWiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_restart) {
+    TestableWiFiService testable;
+
+    mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
+    mock()
+        .expectOneCall("esp_wifi_set_config")
+        .withIntParameter("interface", ESP_IF_WIFI_AP)
+        .ignoreOtherParameters();
+    mock().expectOneCall("esp_wifi_start");
+    mock().expectOneCall("esp_wifi_stop");
+
+    uint32_t notifStop = WiFiService::STOP_BIT;
+    mock()
+        .expectNCalls(1, "xTaskNotifyWait")
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
+        .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
+        .ignoreOtherParameters();
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
+    CHECK_EQUAL_TEXT(1,
+                     testable.PublicMorozov_Get_requests()->size(),
+                     "AccessPoint can be restarted");
+}
+
+TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_canceled) {
+    TestableWiFiService testable;
+
+    mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
+    mock()
+        .expectOneCall("esp_wifi_set_config")
+        .withIntParameter("interface", ESP_IF_WIFI_AP)
+        .ignoreOtherParameters();
+    mock().expectOneCall("esp_wifi_start");
+    mock().expectOneCall("esp_wifi_stop");
+
+    uint32_t notifStop = WiFiService::CANCEL_REQUEST_BIT;
+    mock()
+        .expectNCalls(1, "xTaskNotifyWait")
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
+        .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
+        .ignoreOtherParameters();
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
+    CHECK_EQUAL_TEXT(0,
+                     testable.PublicMorozov_Get_requests()->size(),
+                     "AccessPoint cannot be restarted");
 }
 
 TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {

@@ -52,6 +52,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
              "generating ssid:'%s'...",
              request->Payload.AccessPoint.ssid);
 
+    bool cancel = false;
     uint32_t ulNotifiedValue = 0;
     while (true) {
         bool notify_wait_timeout =
@@ -73,7 +74,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             break;
         }
 
-        bool cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_AccessPoint,
                      "Cancel request, ssid:%s",
@@ -85,6 +86,10 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     esp_wifi_stop();
 
     requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
+    if (!cancel) {
+        requests.AccessPoint(request->Payload.AccessPoint.ssid);
+    }
+
     Controller::WakeupProcessTask();
 
     ESP_LOGW(TAG_WiFiService_AccessPoint, "finish");
