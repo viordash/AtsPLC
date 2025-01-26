@@ -79,8 +79,17 @@ void app_main() {
     void *wifi_service = start_wifi_service();
     start_process_engine(gpio_events, wifi_service);
 
+    uint32_t free_mem = esp_get_free_heap_size();
+    printf("mem: %u\n", free_mem);
     while (true) {
-        vTaskDelay(portMAX_DELAY);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        uint32_t curr_free_mem = esp_get_free_heap_size();
+        int32_t dead_band_1perc = curr_free_mem / 100;
+        int32_t diff = curr_free_mem - free_mem;
+        if (diff > dead_band_1perc || diff < -dead_band_1perc) {
+            printf("mem: %u\n", curr_free_mem);
+            free_mem = curr_free_mem;
+        }
     }
 
     stop_process_engine();
