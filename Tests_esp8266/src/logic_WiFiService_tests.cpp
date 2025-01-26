@@ -693,7 +693,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
 
 TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     TestableWiFiService testable;
-    wifi_scanner_settings scanner_settings = { 0, 0, -26, -120 };
+    wifi_scanner_settings scanner_settings = { 0, -26, -120 };
 
     CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-128, &scanner_settings));
     CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-120, &scanner_settings));
