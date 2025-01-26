@@ -12,6 +12,7 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
+#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Wire.h"
@@ -241,6 +242,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_ComparatorLs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Indicator, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiBinding, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_WiFiStation, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);

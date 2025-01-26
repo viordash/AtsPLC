@@ -1,4 +1,5 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -9,7 +10,7 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
 #include "LogicProgram/Outputs/IncOutput.h"
@@ -80,6 +81,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_WiFiBinding:
             element = new WiFiBinding();
+            break;
+        case et_WiFiStation:
+            element = new WiFiStation();
             break;
         default:
             break;

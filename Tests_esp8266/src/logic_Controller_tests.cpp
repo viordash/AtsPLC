@@ -18,9 +18,6 @@ namespace {
         WiFiRequests *PublicMorozov_Get_requests() {
             return &requests;
         }
-        EventGroupHandle_t PublicMorozov_Get_event() {
-            return event;
-        }
     };
 } // namespace
 TestableWiFiService *wifi_service;
@@ -149,11 +146,11 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
 TEST(LogicControllerTestsGroup,
      UnbindVariable_for_last_variable_also_send_ConnectToStation_request_to_wifi_service) {
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", WiFiService::NEW_REQUEST_BIT);
-    mock(buffer)
-        .expectNCalls(1, "xEventGroupSetBits")
-        .withPointerParameter("xEventGroup", wifi_service->PublicMorozov_Get_event());
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
 
     Controller::BindVariableToWiFi(MapIO::V1, "test_ssid");
     Controller::BindVariableToWiFi(MapIO::V2, "test_ssid");

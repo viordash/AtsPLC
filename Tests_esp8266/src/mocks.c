@@ -206,9 +206,9 @@ BaseType_t xTaskNotifyWait(uint32_t ulBitsToClearOnEntry,
         ->actualCall("xTaskNotifyWait")
         ->withUnsignedIntParameters("ulBitsToClearOnEntry", ulBitsToClearOnEntry)
         ->withUnsignedIntParameters("ulBitsToClearOnExit", ulBitsToClearOnExit)
-        ->withPointerParameters("pulNotificationValue", pulNotificationValue)
+        ->withOutputParameter("pulNotificationValue", pulNotificationValue)
         ->withUnsignedIntParameters("xTicksToWait", xTicksToWait)
-        ->returnIntValueOrDefault(pdPASS);
+        ->returnIntValueOrDefault(pdTRUE);
 }
 
 BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
@@ -457,4 +457,15 @@ esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_re
         ->withOutputParameter("number", number)
         ->withOutputParameter("ap_records", ap_records)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+void vTaskGetInfo(TaskHandle_t xTask,
+                  TaskStatus_t *pxTaskStatus,
+                  BaseType_t xGetFreeStackSpace,
+                  eTaskState eState) {
+    (void)xTask;
+    (void)pxTaskStatus;
+    (void)xGetFreeStackSpace;
+    (void)eState;
+    mock_c()->actualCall("vTaskGetInfo");
 }

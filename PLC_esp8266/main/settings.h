@@ -17,14 +17,12 @@ typedef struct {
 } wifi_station_settings;
 
 typedef struct {
-    uint32_t delay_re_adding_request_ms;
     uint16_t per_channel_scan_time_ms;
     int8_t max_rssi;
     int8_t min_rssi;
 } wifi_scanner_settings;
 
 typedef struct {
-    uint32_t delay_re_adding_request_ms;
     uint32_t generation_time_ms;
     bool ssid_hidden;
 } wifi_access_point_settings;

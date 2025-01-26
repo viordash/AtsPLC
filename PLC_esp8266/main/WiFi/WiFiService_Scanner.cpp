@@ -41,10 +41,9 @@ int8_t WiFiService::Scanning(RequestItem *request, wifi_scanner_settings *scanne
     uint32_t scan_max_time_ms = (scanner_settings->per_channel_scan_time_ms * CHANNELS_COUNT);
     auto current_time = (uint64_t)esp_timer_get_time();
     auto timeout_time = current_time + (scan_max_time_ms * 1000);
-    int64_t timespan;
 
-    EventBits_t uxBits = 0;
-    do {
+    uint32_t ulNotifiedValue = 0;
+    while (true) {
         uint16_t number = sizeof(ap_info) / sizeof(ap_info[0]);
         err = esp_wifi_scan_get_ap_records(&number, ap_info);
         if (err != ESP_OK) {
@@ -65,27 +64,36 @@ int8_t WiFiService::Scanning(RequestItem *request, wifi_scanner_settings *scanne
             }
         }
 
-        uxBits =
-            xEventGroupWaitBits(event,
-                                STOP_BIT | CANCEL_REQUEST_BIT,
-                                true,
-                                false,
-                                scanner_settings->per_channel_scan_time_ms / portTICK_PERIOD_MS);
+        bool notify_wait_timeout =
+            xTaskNotifyWait(0,
+                            CANCEL_REQUEST_BIT,
+                            &ulNotifiedValue,
+                            scanner_settings->per_channel_scan_time_ms / portTICK_PERIOD_MS)
+            == pdFALSE;
 
-        timespan = timeout_time - (uint64_t)esp_timer_get_time();
+        int64_t timespan = timeout_time - (uint64_t)esp_timer_get_time();
         ESP_LOGD(TAG_WiFiService_Scanner,
                  "process, uxBits:0x%08X, timespan:%lld",
-                 uxBits,
+                 ulNotifiedValue,
                  (long long)timespan);
 
-        bool cancel = (uxBits & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        if (timespan <= 0) {
+            break;
+        }
+        bool to_stop = !notify_wait_timeout && (ulNotifiedValue & STOP_BIT) != 0;
+        if (to_stop) {
+            break;
+        }
+
+        bool cancel = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0
+                   && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_Scanner,
                      "Cancel request, ssid:%s",
                      request->Payload.Scanner.ssid);
             break;
         }
-    } while ((uxBits & STOP_BIT) == 0 && timespan > 0);
+    }
     return scanner_settings->min_rssi;
 }
 

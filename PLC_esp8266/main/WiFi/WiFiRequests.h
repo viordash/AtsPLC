@@ -30,14 +30,15 @@ class WiFiRequests : public std::list<RequestItem> {
 
   public:
     bool Contains(RequestItem *request);
+    bool OneMoreInQueue();
 
-    void Scan(const char *ssid);
+    bool Scan(const char *ssid);
     bool RemoveScanner(const char *ssid);
 
-    void AccessPoint(const char *ssid);
+    bool AccessPoint(const char *ssid);
     bool RemoveAccessPoint(const char *ssid);
 
-    void Station();
+    bool Station();
     bool RemoveStation();
 
     bool Pop(RequestItem *request);

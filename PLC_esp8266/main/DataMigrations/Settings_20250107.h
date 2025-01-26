@@ -29,14 +29,12 @@ namespace MigrateSettings {
             } wifi_station_settings;
 
             typedef struct {
-                uint32_t delay_re_adding_request_ms;
                 uint16_t per_channel_scan_time_ms;
                 int8_t max_rssi;
                 int8_t min_rssi;
             } wifi_scanner_settings;
 
             typedef struct {
-                uint32_t delay_re_adding_request_ms;
                 uint32_t generation_time_ms;
                 bool ssid_hidden;
             } wifi_access_point_settings;
@@ -68,12 +66,10 @@ namespace MigrateSettings {
             pCurrSettings->wifi_station.connect_max_retry_count =
                 pPrevSettings->wifi.connect_max_retry_count;
 
-            pCurrSettings->wifi_scanner.delay_re_adding_request_ms = 3000;
             pCurrSettings->wifi_scanner.per_channel_scan_time_ms = 500;
             pCurrSettings->wifi_scanner.max_rssi = -26;
             pCurrSettings->wifi_scanner.min_rssi = -120;
 
-            pCurrSettings->wifi_access_point.delay_re_adding_request_ms = 3000;
             pCurrSettings->wifi_access_point.generation_time_ms = 20000;
             pCurrSettings->wifi_access_point.ssid_hidden = false;
 
