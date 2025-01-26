@@ -67,7 +67,7 @@ WiFiStationConnectStatus WiFiService::ConnectToStation() {
     auto status = GetWiFiStationConnectStatus();
     if (requests.Station()) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGE(TAG_WiFiService, "ConnectToStation, status:%u", status);
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation, status:%u", status);
     }
     return status;
 }
@@ -99,7 +99,7 @@ uint8_t WiFiService::Scan(const char *ssid) {
 
     if (requests.Scan(ssid)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGE(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
+        ESP_LOGD(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
     }
     return rssi;
 }
@@ -116,7 +116,7 @@ void WiFiService::CancelScan(const char *ssid) {
 void WiFiService::Generate(const char *ssid) {
     if (requests.AccessPoint(ssid)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGE(TAG_WiFiService, "Generate, ssid:%s", ssid);
+        ESP_LOGD(TAG_WiFiService, "Generate, ssid:%s", ssid);
     }
 }
 
@@ -138,7 +138,7 @@ void WiFiService::Task(void *parm) {
         if ((ulNotifiedValue & STOP_BIT) != 0) {
             break;
         }
-        ESP_LOGI(TAG_WiFiService, "new request, uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", ulNotifiedValue);
         RequestItem new_request;
         while (wifi_service->requests.Pop(&new_request)) {
             ESP_LOGI(TAG_WiFiService, "exec request, type:%u", new_request.Type);

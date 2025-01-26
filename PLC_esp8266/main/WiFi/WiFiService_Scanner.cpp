@@ -103,7 +103,7 @@ void WiFiService::StopScan() {
 }
 
 void WiFiService::ScannerTask(RequestItem *request) {
-    ESP_LOGW(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
+    ESP_LOGD(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
 
     wifi_scanner_settings scanner_settings;
     SAFETY_SETTINGS({ scanner_settings = settings.wifi_scanner; });
@@ -124,7 +124,7 @@ void WiFiService::ScannerTask(RequestItem *request) {
     requests.RemoveScanner(request->Payload.Scanner.ssid);
     Controller::WakeupProcessTask();
 
-    ESP_LOGW(TAG_WiFiService_Scanner,
+    ESP_LOGD(TAG_WiFiService_Scanner,
              "finish, ssid:%s, rssi:%d[%u]",
              request->Payload.Scanner.ssid,
              rssi,

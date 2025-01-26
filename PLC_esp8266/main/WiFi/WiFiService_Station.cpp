@@ -16,7 +16,7 @@ static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern device_settings settings;
 
 void WiFiService::StationTask(RequestItem *request) {
-    ESP_LOGW(TAG_WiFiService_Station, "start");
+    ESP_LOGD(TAG_WiFiService_Station, "start");
 
     int connect_retries_num = 0;
     int32_t max_retry_count;
@@ -57,7 +57,7 @@ void WiFiService::StationTask(RequestItem *request) {
         } else {
             delay_before_reconnect = false;
         }
-        ESP_LOGI(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
 
         bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
         if (to_stop) {
@@ -75,7 +75,7 @@ void WiFiService::StationTask(RequestItem *request) {
             bool retry_connect = (max_retry_count == INFINITY_CONNECT_RETRY
                                   || connect_retries_num < max_retry_count);
             if (!retry_connect) {
-                ESP_LOGI(TAG_WiFiService_Station, "failed. unable reconnect");
+                ESP_LOGW(TAG_WiFiService_Station, "failed. unable reconnect");
                 break;
             }
             has_connect = false;
@@ -136,12 +136,12 @@ void WiFiService::StationTask(RequestItem *request) {
 
     const TickType_t wait_disconnection = 500 / portTICK_RATE_MS;
     if (xTaskNotifyWait(0, CONNECTED_BIT | FAILED_BIT, &ulNotifiedValue, wait_disconnection)
-        == pdTRUE) {
-        ESP_LOGI(TAG_WiFiService_Station, "fully disconnected");
+        != pdTRUE) {
+        ESP_LOGI(TAG_WiFiService_Station, "not fully disconnected");
     }
 
     requests.RemoveStation();
-    ESP_LOGW(TAG_WiFiService_Station, "finish");
+    ESP_LOGD(TAG_WiFiService_Station, "finish");
 }
 
 void WiFiService::wifi_event_handler(void *arg,
@@ -152,21 +152,21 @@ void WiFiService::wifi_event_handler(void *arg,
     auto wifi_service = static_cast<WiFiService *>(arg);
     switch (event_id) {
         case WIFI_EVENT_STA_START:
-            ESP_LOGI(TAG_WiFiService_Station, "start wifi event");
+            ESP_LOGD(TAG_WiFiService_Station, "start wifi event");
             esp_wifi_connect();
             return;
 
         case WIFI_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG_WiFiService_Station, "connect to the AP fail");
+            ESP_LOGD(TAG_WiFiService_Station, "connect to the AP fail");
             xTaskNotify(wifi_service->task_handle, FAILED_BIT, eNotifyAction::eSetBits);
             return;
 
         case WIFI_EVENT_STA_STOP:
-            ESP_LOGI(TAG_WiFiService_Station, "stop wifi event");
+            ESP_LOGD(TAG_WiFiService_Station, "stop wifi event");
             return;
 
         case WIFI_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG_WiFiService_Station, "wifi connected event");
+            ESP_LOGD(TAG_WiFiService_Station, "wifi connected event");
             return;
 
         default:
@@ -187,7 +187,7 @@ void WiFiService::ip_event_handler(void *arg,
 
     switch (event_id) {
         case IP_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+            ESP_LOGD(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
             xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
             return;
 

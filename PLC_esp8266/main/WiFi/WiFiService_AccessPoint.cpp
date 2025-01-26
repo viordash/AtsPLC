@@ -15,7 +15,7 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
-    ESP_LOGW(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
     wifi_access_point_settings access_point_settings;
     SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
@@ -62,7 +62,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                             access_point_settings.generation_time_ms / portTICK_RATE_MS)
             == pdFALSE;
 
-        ESP_LOGI(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
 
         if (notify_wait_timeout) {
             ESP_LOGD(TAG_WiFiService_AccessPoint, "timeout");
@@ -92,5 +92,5 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     Controller::WakeupProcessTask();
 
-    ESP_LOGW(TAG_WiFiService_AccessPoint, "finish");
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "finish");
 }
