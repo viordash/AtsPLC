@@ -6,19 +6,17 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "sys_gpio.h"
 #include "settings.h"
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
+#include "sys_gpio.h"
 #include "tcpip_adapter.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 static const char *TAG = "smartconfig";
-static const uint32_t min_period_ms = 500;
-static const uint32_t max_period_ms = 4000;
-static const uint32_t start_smartconfig_counter = 4;
+
 static const uint32_t timeout_ms = 600000;
 
 extern device_settings settings;
@@ -155,8 +153,12 @@ static void start_process() {
         memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
 
         SAFETY_SETTINGS( //
-            memcpy(settings.wifi_station.ssid, wifi_config.sta.ssid, sizeof(settings.wifi_station.ssid));
-            memcpy(settings.wifi_station.password, wifi_config.sta.password, sizeof(settings.wifi_station.ssid));
+            memcpy(settings.wifi_station.ssid,
+                   wifi_config.sta.ssid,
+                   sizeof(settings.wifi_station.ssid));
+            memcpy(settings.wifi_station.password,
+                   wifi_config.sta.password,
+                   sizeof(settings.wifi_station.ssid));
             store_settings(); //
         );
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
@@ -171,31 +173,7 @@ static void task(void *parm) {
 
     xEventGroupSetBits(service.event, RUNNED_BIT);
 
-    SAFETY_SETTINGS(                    //
-        settings.smartconfig.counter++; //
-    );
-
-    bool ready_to_smartconfig =
-        settings.smartconfig.counter == start_smartconfig_counter || select_button_pressed();
-
-    if (!ready_to_smartconfig) {
-        TickType_t ticks_start = 0;
-        vTaskDelayUntil(&ticks_start, min_period_ms / portTICK_RATE_MS);
-        ESP_LOGI(TAG, "Begin check period, %u", settings.smartconfig.counter);
-        SAFETY_SETTINGS(      //
-            store_settings(); //
-        );
-        vTaskDelayUntil(&ticks_start, max_period_ms / portTICK_RATE_MS);
-        ESP_LOGI(TAG, "End check period, %u", settings.smartconfig.counter);
-    }
-    SAFETY_SETTINGS(                      //
-        settings.smartconfig.counter = 0; //
-        store_settings();                 //
-    );
-
-    if (ready_to_smartconfig) {
-        start_process();
-    }
+    start_process();
 
     xEventGroupClearBits(service.event, RUNNED_BIT);
     ESP_LOGW(TAG, "Finish task");
