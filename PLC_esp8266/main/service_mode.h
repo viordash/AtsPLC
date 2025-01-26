@@ -1,6 +1,5 @@
 #pragma once
 
-#include "freertos/event_groups.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -9,8 +8,7 @@
 extern "C" {
 #endif
 
-void start_smartconfig();
-bool smartconfig_is_runned();
+void run_service_mode();
 
 #ifdef __cplusplus
 }
