@@ -11,6 +11,7 @@
 
 #include "Display/display.h"
 #include "LogicProgram/process_engine.h"
+#include "Maintenance/service_mode.h"
 #include "WiFi/wifi_service.h"
 #include "buttons.h"
 #include "crc32.h"
@@ -22,7 +23,6 @@
 #include "hotreload_service.h"
 #include "redundant_storage.h"
 #include "restart_counter.h"
-#include "service_mode.h"
 #include "settings.h"
 #include "storage.h"
 #include "sys_gpio.h"
@@ -66,8 +66,8 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    if (!hotreload->is_hotstart && select_button_pressed()) {
-        run_service_mode();
+    if (/*!hotreload->is_hotstart && */ !select_button_pressed()) {
+        run_service_mode(gpio_events);
     }
 
     void *wifi_service = start_wifi_service();

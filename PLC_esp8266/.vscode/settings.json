@@ -117,7 +117,8 @@
         "unordered_set": "cpp",
         "esp_wpa.h": "c",
         "timersecs.h": "c",
-        "sys_gpio.h": "c"
+        "sys_gpio.h": "c",
+        "servicemodehandler.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
