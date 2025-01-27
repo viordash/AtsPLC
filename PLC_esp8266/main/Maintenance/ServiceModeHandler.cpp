@@ -84,8 +84,7 @@ void ServiceModeHandler::RenderMainMenu(Mode mode) {
     end_render(fb);
 }
 
-ServiceModeHandler::Mode
-ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
+ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
     switch (mode) {
         case Mode::sm_SmartConfig:
             mode = Mode::sm_ResetToDefault;
@@ -103,8 +102,7 @@ ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
     return mode;
 }
 
-ServiceModeHandler::Mode
-ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
+ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
     switch (mode) {
         case Mode::sm_SmartConfig:
             mode = Mode::sm_BackupLogic;
@@ -125,11 +123,7 @@ ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
 void ServiceModeHandler::Execute(Mode mode) {
     switch (mode) {
         case Mode::sm_SmartConfig:
-            start_smartconfig();
-            while (smartconfig_is_runned()) {
-                ESP_LOGI(TAG_ServiceModeHandler, "wait smartconfig...");
-                vTaskDelay(3000 / portTICK_PERIOD_MS);
-            }
+            SmartConfig();
             break;
         case Mode::sm_BackupLogic:
             ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_BackupLogic not implemented");
@@ -141,4 +135,46 @@ void ServiceModeHandler::Execute(Mode mode) {
             ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_ResetToDefault not implemented");
             break;
     }
+}
+
+void ServiceModeHandler::SmartConfig() {
+    ESP_LOGI(TAG_ServiceModeHandler, "exec SmartConfig");
+
+    bool runned = true;
+    start_smartconfig();
+    while (runned) {
+
+        switch (smartconfig_get_status()) {
+            case scs_Start:
+                break;
+
+            case scs_Started:
+                break;
+
+            case scs_Disconnected:
+                break;
+
+            case scs_GotIP:
+                break;
+
+            case scs_ScanDone:
+                break;
+
+            case scs_FoundChannel:
+                break;
+
+            case scs_GotCreds:
+                break;
+
+            case scs_Completed:
+                runned = false;
+                break;
+
+            case scs_Error:
+                runned = false;
+                break;
+        }
+
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    };
 }

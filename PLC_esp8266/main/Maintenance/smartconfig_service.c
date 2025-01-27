@@ -27,7 +27,20 @@ static struct {
 
 static const int CONNECTED_BIT = BIT0;
 static const int ESPTOUCH_DONE_BIT = BIT1;
-static const int RUNNED_BIT = BIT2;
+static const int STATUS_START_BIT = BIT2;
+static const int STATUS_STARTED_BIT = BIT3;
+static const int STATUS_DISCONNECTED_BIT = BIT4;
+static const int STATUS_GOT_IP_BIT = BIT5;
+static const int STATUS_SCAN_DONE_BIT = BIT6;
+static const int STATUS_FOUND_CHANNEL_BIT = BIT7;
+static const int STATUS_GOT_CREDS_BIT = BIT8;
+static const int STATUS_COMPLETED_BIT = BIT9;
+static const int STATUS_ERROR_BIT = BIT10;
+
+#define STATUS_ALL_BITS                                                                            \
+    (STATUS_START_BIT | STATUS_STARTED_BIT | STATUS_DISCONNECTED_BIT | STATUS_GOT_IP_BIT           \
+     | STATUS_SCAN_DONE_BIT | STATUS_FOUND_CHANNEL_BIT | STATUS_GOT_CREDS_BIT                      \
+     | STATUS_COMPLETED_BIT | STATUS_ERROR_BIT)
 
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
@@ -143,6 +156,7 @@ static void start_process() {
             break;
         }
     } while ((uxBits & (CONNECTED_BIT | ESPTOUCH_DONE_BIT)) != 0);
+
     if (connected) {
         wifi_config_t wifi_config = {};
         char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
@@ -171,11 +185,10 @@ static void start_process() {
 static void task(void *parm) {
     ESP_LOGI(TAG, "Start task");
 
-    xEventGroupSetBits(service.event, RUNNED_BIT);
+    xEventGroupSetBits(service.event, STATUS_START_BIT);
 
     start_process();
 
-    xEventGroupClearBits(service.event, RUNNED_BIT);
     ESP_LOGW(TAG, "Finish task");
     vTaskDelete(NULL);
 }
@@ -186,14 +199,35 @@ void start_smartconfig() {
                                                                                          : ESP_OK);
 }
 
-bool smartconfig_is_runned() {
+enum SmartconfigStatus smartconfig_get_status() {
     if (service.event == NULL) {
-        return false;
+        return scs_Error;
     }
-    EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
+    EventBits_t uxBits = xEventGroupWaitBits(service.event, STATUS_ALL_BITS, true, false, 0);
 
-    if (uxBits & RUNNED_BIT) {
-        ESP_LOGD(TAG, "is_runned, uxBits:0x%08X", uxBits);
+    if (uxBits & STATUS_START_BIT) {
+        return scs_Start;
     }
-    return uxBits & RUNNED_BIT;
+    if (uxBits & STATUS_STARTED_BIT) {
+        return scs_Started;
+    }
+    if (uxBits & STATUS_DISCONNECTED_BIT) {
+        return scs_Disconnected;
+    }
+    if (uxBits & STATUS_GOT_IP_BIT) {
+        return scs_GotIP;
+    }
+    if (uxBits & STATUS_SCAN_DONE_BIT) {
+        return scs_ScanDone;
+    }
+    if (uxBits & STATUS_FOUND_CHANNEL_BIT) {
+        return scs_FoundChannel;
+    }
+    if (uxBits & STATUS_GOT_CREDS_BIT) {
+        return scs_GotCreds;
+    }
+    if (uxBits & STATUS_COMPLETED_BIT) {
+        return scs_Completed;
+    }
+    return scs_Error;
 }
