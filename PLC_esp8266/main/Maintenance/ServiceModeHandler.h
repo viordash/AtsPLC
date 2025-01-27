@@ -13,13 +13,14 @@ extern "C" {
 #endif
 
 class ServiceModeHandler {
-  protected:
-    enum ServiceMode { sm_SmartConfig, sm_BackupLogic, sm_RestoreLogic, sm_ResetToDefault };
+  public:
+    enum Mode { sm_SmartConfig, sm_BackupLogic, sm_RestoreLogic, sm_ResetToDefault };
 
-    static void RenderMainMenu(ServiceMode mode);
-    static ServiceMode ChangeModeToPrev(ServiceMode mode);
-    static ServiceMode ChangeModeToNext(ServiceMode mode);
-    static void Execute(ServiceMode mode);
+  protected:
+    static void RenderMainMenu(Mode mode);
+    static Mode ChangeModeToPrev(Mode mode);
+    static Mode ChangeModeToNext(Mode mode);
+    static void Execute(Mode mode);
 
   public:
     static void Start(EventGroupHandle_t gpio_events);

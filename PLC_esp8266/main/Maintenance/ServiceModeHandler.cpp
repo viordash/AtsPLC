@@ -1,4 +1,4 @@
-#include "ServiceModeHandler.h"
+#include "Maintenance/ServiceModeHandler.h"
 #include "Display/Common.h"
 #include "Display/display.h"
 #include "buttons.h"
@@ -13,7 +13,7 @@
 static const char *TAG_ServiceModeHandler = "service_mode";
 
 void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
-    ServiceMode mode = ServiceMode::sm_SmartConfig;
+    Mode mode = Mode::sm_SmartConfig;
 
     while (true) {
         RenderMainMenu(mode);
@@ -46,7 +46,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     }
 }
 
-void ServiceModeHandler::RenderMainMenu(ServiceMode mode) {
+void ServiceModeHandler::RenderMainMenu(Mode mode) {
     char buffer[64];
     uint8_t x = 1;
     uint8_t y = 1;
@@ -59,16 +59,16 @@ void ServiceModeHandler::RenderMainMenu(ServiceMode mode) {
     uint8_t marker_x = x;
     uint8_t marker_y = y;
     switch (mode) {
-        case ServiceMode::sm_SmartConfig:
+        case Mode::sm_SmartConfig:
             marker_y += height * 1;
             break;
-        case ServiceMode::sm_BackupLogic:
+        case Mode::sm_BackupLogic:
             marker_y += height * 2;
             break;
-        case ServiceMode::sm_RestoreLogic:
+        case Mode::sm_RestoreLogic:
             marker_y += height * 3;
             break;
-        case ServiceMode::sm_ResetToDefault:
+        case Mode::sm_ResetToDefault:
             marker_y += height * 4;
             break;
     }
@@ -84,61 +84,61 @@ void ServiceModeHandler::RenderMainMenu(ServiceMode mode) {
     end_render(fb);
 }
 
-ServiceModeHandler::ServiceMode
-ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::ServiceMode mode) {
+ServiceModeHandler::Mode
+ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
     switch (mode) {
-        case ServiceMode::sm_SmartConfig:
-            mode = ServiceMode::sm_ResetToDefault;
+        case Mode::sm_SmartConfig:
+            mode = Mode::sm_ResetToDefault;
             break;
-        case ServiceMode::sm_BackupLogic:
-            mode = ServiceMode::sm_SmartConfig;
+        case Mode::sm_BackupLogic:
+            mode = Mode::sm_SmartConfig;
             break;
-        case ServiceMode::sm_RestoreLogic:
-            mode = ServiceMode::sm_BackupLogic;
+        case Mode::sm_RestoreLogic:
+            mode = Mode::sm_BackupLogic;
             break;
-        case ServiceMode::sm_ResetToDefault:
-            mode = ServiceMode::sm_RestoreLogic;
+        case Mode::sm_ResetToDefault:
+            mode = Mode::sm_RestoreLogic;
             break;
     }
     return mode;
 }
 
-ServiceModeHandler::ServiceMode
-ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::ServiceMode mode) {
+ServiceModeHandler::Mode
+ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
     switch (mode) {
-        case ServiceMode::sm_SmartConfig:
-            mode = ServiceMode::sm_BackupLogic;
+        case Mode::sm_SmartConfig:
+            mode = Mode::sm_BackupLogic;
             break;
-        case ServiceMode::sm_BackupLogic:
-            mode = ServiceMode::sm_RestoreLogic;
+        case Mode::sm_BackupLogic:
+            mode = Mode::sm_RestoreLogic;
             break;
-        case ServiceMode::sm_RestoreLogic:
-            mode = ServiceMode::sm_ResetToDefault;
+        case Mode::sm_RestoreLogic:
+            mode = Mode::sm_ResetToDefault;
             break;
-        case ServiceMode::sm_ResetToDefault:
-            mode = ServiceMode::sm_SmartConfig;
+        case Mode::sm_ResetToDefault:
+            mode = Mode::sm_SmartConfig;
             break;
     }
     return mode;
 }
 
-void ServiceModeHandler::Execute(ServiceMode mode) {
+void ServiceModeHandler::Execute(Mode mode) {
     switch (mode) {
-        case ServiceMode::sm_SmartConfig:
+        case Mode::sm_SmartConfig:
             start_smartconfig();
             while (smartconfig_is_runned()) {
                 ESP_LOGI(TAG_ServiceModeHandler, "wait smartconfig...");
                 vTaskDelay(3000 / portTICK_PERIOD_MS);
             }
             break;
-        case ServiceMode::sm_BackupLogic:
-            ESP_LOGE(TAG_ServiceModeHandler, "ServiceMode::sm_BackupLogic not implemented");
+        case Mode::sm_BackupLogic:
+            ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_BackupLogic not implemented");
             break;
-        case ServiceMode::sm_RestoreLogic:
-            ESP_LOGE(TAG_ServiceModeHandler, "ServiceMode::sm_RestoreLogic not implemented");
+        case Mode::sm_RestoreLogic:
+            ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_RestoreLogic not implemented");
             break;
-        case ServiceMode::sm_ResetToDefault:
-            ESP_LOGE(TAG_ServiceModeHandler, "ServiceMode::sm_ResetToDefault not implemented");
+        case Mode::sm_ResetToDefault:
+            ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_ResetToDefault not implemented");
             break;
     }
 }

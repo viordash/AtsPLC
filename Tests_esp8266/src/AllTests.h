@@ -87,3 +87,5 @@ IMPORT_TEST_GROUP(LogicWiFiServiceTestsGroup);
 IMPORT_TEST_GROUP(LogicWiFiRequestsTestsGroup);
 
 IMPORT_TEST_GROUP(LogicWiFiStationTestsGroup);
+
+IMPORT_TEST_GROUP(ServiceModeHandlerTestsGroup);
