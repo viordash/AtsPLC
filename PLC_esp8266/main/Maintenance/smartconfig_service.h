@@ -22,7 +22,7 @@ enum SmartconfigStatus {
 };
 
 void start_smartconfig();
-enum SmartconfigStatus smartconfig_get_status();
+enum SmartconfigStatus smartconfig_status();
 
 #ifdef __cplusplus
 }

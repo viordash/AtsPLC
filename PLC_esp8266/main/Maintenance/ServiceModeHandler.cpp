@@ -144,37 +144,44 @@ void ServiceModeHandler::SmartConfig() {
     start_smartconfig();
     while (runned) {
 
-        switch (smartconfig_get_status()) {
+        switch (smartconfig_status()) {
             case scs_Start:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_Start");
                 break;
 
             case scs_Started:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_Started");
                 break;
 
             case scs_Disconnected:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_Disconnected");
                 break;
 
             case scs_GotIP:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_GotIP");
                 break;
 
             case scs_ScanDone:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_ScanDone");
                 break;
 
             case scs_FoundChannel:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_FoundChannel");
                 break;
 
             case scs_GotCreds:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_GotCreds");
                 break;
 
             case scs_Completed:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_Completed");
                 runned = false;
                 break;
 
             case scs_Error:
+                ESP_LOGI(TAG_ServiceModeHandler, "scs_Error");
                 runned = false;
                 break;
         }
-
-        vTaskDelay(500 / portTICK_PERIOD_MS);
     };
 }
