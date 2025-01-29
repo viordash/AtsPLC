@@ -181,6 +181,8 @@ static void start_process() {
             store_settings(); //
         );
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
+    } else {
+        xEventGroupSetBits(service.event, STATUS_ERROR_BIT);
     }
 
     stop_wifi();

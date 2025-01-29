@@ -16,6 +16,6 @@ class LogsList {
   public:
     explicit LogsList();
 
-    void Render(uint8_t *fb);
+    bool Render(uint8_t *fb);
     void Append(const char *message);
 };

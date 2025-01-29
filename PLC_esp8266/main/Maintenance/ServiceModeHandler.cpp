@@ -1,5 +1,6 @@
 #include "Maintenance/ServiceModeHandler.h"
 #include "Display/Common.h"
+#include "Display/LogsList.h"
 #include "Display/display.h"
 #include "buttons.h"
 #include "esp_err.h"
@@ -38,7 +39,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                 mode = ChangeModeToNext(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
-                Execute(mode);
+                Execute(gpio_events, mode);
                 return;
             default:
                 break;
@@ -120,10 +121,10 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler
     return mode;
 }
 
-void ServiceModeHandler::Execute(Mode mode) {
+void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
     switch (mode) {
         case Mode::sm_SmartConfig:
-            SmartConfig();
+            SmartConfig(gpio_events);
             break;
         case Mode::sm_BackupLogic:
             ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_BackupLogic not implemented");
@@ -137,51 +138,64 @@ void ServiceModeHandler::Execute(Mode mode) {
     }
 }
 
-void ServiceModeHandler::SmartConfig() {
+void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_ServiceModeHandler, "exec SmartConfig");
+
+    LogsList logs_list;
 
     bool runned = true;
     start_smartconfig();
     while (runned) {
-
         switch (smartconfig_status()) {
             case scs_Start:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_Start");
+                logs_list.Append("Start");
                 break;
 
             case scs_Started:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_Started");
+                logs_list.Append("Started");
                 break;
 
             case scs_Disconnected:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_Disconnected");
+                logs_list.Append("Disconnected");
                 break;
 
             case scs_GotIP:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_GotIP");
+                logs_list.Append("Got IP");
                 break;
 
             case scs_ScanDone:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_ScanDone");
+                logs_list.Append("Scanning");
                 break;
 
             case scs_FoundChannel:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_FoundChannel");
+                logs_list.Append("Found channel");
                 break;
 
             case scs_GotCreds:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_GotCreds");
+                logs_list.Append("Got credentials");
                 break;
 
             case scs_Completed:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_Completed");
+                logs_list.Append("Completed");
                 runned = false;
                 break;
 
             case scs_Error:
-                ESP_LOGI(TAG_ServiceModeHandler, "scs_Error");
+                logs_list.Append("Error");
                 runned = false;
                 break;
         }
+
+        uint8_t *fb = begin_render();
+        logs_list.Render(fb);
+        end_render(fb);
     };
+
+    const int show_logs_time_ms = 10000;
+    xEventGroupWaitBits(gpio_events,
+                        BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE
+                            | BUTTON_DOWN_IO_OPEN | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN,
+                        true,
+                        false,
+                        show_logs_time_ms / portTICK_PERIOD_MS);
 }

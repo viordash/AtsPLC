@@ -12,15 +12,17 @@ LogsList::LogsList() {
     memset(lines, 0, sizeof(lines));
 }
 
-void LogsList::Render(uint8_t *fb) {
+bool LogsList::Render(uint8_t *fb) {
     uint8_t x = 1;
     uint8_t y = 1;
     uint8_t height = get_text_f6X12_height();
 
     for (size_t i = 0; i < lines_count; i++) {
-        strcpy(lines[i], lines[i + 1]);
-        ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * i, lines[i]) <= 0);
+        if (strlen(lines[i]) > 0 && draw_text_f6X12(fb, x, y + height * i, lines[i]) <= 0) {
+            return false;
+        }
     }
+    return true;
 }
 
 void LogsList::Append(const char *message) {

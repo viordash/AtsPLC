@@ -20,8 +20,8 @@ class ServiceModeHandler {
     static void RenderMainMenu(Mode mode);
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
-    static void Execute(Mode mode);
-    static void SmartConfig();
+    static void Execute(EventGroupHandle_t gpio_events, Mode mode);
+    static void SmartConfig(EventGroupHandle_t gpio_events);
 
   public:
     static void Start(EventGroupHandle_t gpio_events);

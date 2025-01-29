@@ -131,3 +131,35 @@ TEST(LogsListTestsGroup, Append_scroll_lines) {
     STRCMP_EQUAL("line 5", testable.PublicMorozov_GetLine(3));
     STRCMP_EQUAL("line 6", testable.PublicMorozov_GetLine(4));
 }
+
+TEST(LogsListTestsGroup, Render) {
+    TestableLogsList testable;
+
+    testable.Append("line 0");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Append("line 1");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Append("line 2");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Append("line 3");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Append("line 4");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Append("line 5");
+    CHECK_TRUE(testable.Render(frame_buffer));    
+
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+}
