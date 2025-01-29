@@ -141,7 +141,7 @@ void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
 void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_ServiceModeHandler, "exec SmartConfig");
 
-    LogsList logs_list;
+    LogsList logs_list("SmartConfig");
 
     bool runned = true;
     start_smartconfig();
@@ -156,7 +156,7 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                 break;
 
             case scs_Disconnected:
-                logs_list.Append("Disconnected");
+                logs_list.Append("Disconnected 0123456");
                 break;
 
             case scs_GotIP:
@@ -191,7 +191,7 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
         end_render(fb);
     };
 
-    const int show_logs_time_ms = 10000;
+    const int show_logs_time_ms = 30000;
     xEventGroupWaitBits(gpio_events,
                         BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE
                             | BUTTON_DOWN_IO_OPEN | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN,

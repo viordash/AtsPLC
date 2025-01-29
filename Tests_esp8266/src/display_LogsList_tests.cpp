@@ -26,10 +26,10 @@ TEST_TEARDOWN() {
 
 class TestableLogsList : public LogsList {
   public:
-    const static int line_size = 16;
-    const static int lines_count = 5;
+    const static int line_size = 21;
+    const static int lines_count = 4;
 
-    explicit TestableLogsList() : LogsList() {
+    explicit TestableLogsList(const char *title) : LogsList(title) {
         static_assert(line_size == LogsList::line_size);
         static_assert(lines_count == LogsList::lines_count);
     }
@@ -37,10 +37,16 @@ class TestableLogsList : public LogsList {
     char *PublicMorozov_GetLine(int line_num) {
         return lines[line_num];
     }
+    char *PublicMorozov_GetTitle() {
+        return title;
+    }
+    int PublicMorozov_GetTitle_x() {
+        return title_x;
+    }
 };
 
 TEST(LogsListTestsGroup, Ctor_reset_lines) {
-    TestableLogsList testable;
+    TestableLogsList testable("list_box");
 
     for (size_t i = 0; i < testable.lines_count; i++) {
         CHECK_EQUAL(0, strlen(testable.PublicMorozov_GetLine(i)));
@@ -48,92 +54,81 @@ TEST(LogsListTestsGroup, Ctor_reset_lines) {
 }
 
 TEST(LogsListTestsGroup, Append_short_line__puts_unchanged) {
-    TestableLogsList testable;
+    TestableLogsList testable("list_box");
 
-    testable.Append("shorter0than 16");
-    testable.Append("shorter1than 16");
-    testable.Append("shorter2than 16");
-    testable.Append("shorter3than 16");
-    testable.Append("shorter4than 16");
+    testable.Append("shorter 0 than 21 ab");
+    testable.Append("shorter 1 than 21 ab");
+    testable.Append("shorter 2 than 21 ab");
+    testable.Append("shorter 3 than 21 ab");
 
-    STRCMP_EQUAL("shorter0than 16", testable.PublicMorozov_GetLine(0));
-    STRCMP_EQUAL("shorter1than 16", testable.PublicMorozov_GetLine(1));
-    STRCMP_EQUAL("shorter2than 16", testable.PublicMorozov_GetLine(2));
-    STRCMP_EQUAL("shorter3than 16", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("shorter4than 16", testable.PublicMorozov_GetLine(4));
+    STRCMP_EQUAL("shorter 0 than 21 ab", testable.PublicMorozov_GetLine(0));
+    STRCMP_EQUAL("shorter 1 than 21 ab", testable.PublicMorozov_GetLine(1));
+    STRCMP_EQUAL("shorter 2 than 21 ab", testable.PublicMorozov_GetLine(2));
+    STRCMP_EQUAL("shorter 3 than 21 ab", testable.PublicMorozov_GetLine(3));
 }
 
 TEST(LogsListTestsGroup, Append_long_line__puts_with_end_elipses) {
-    TestableLogsList testable;
+    TestableLogsList testable("list_box");
 
-    testable.Append("looonger0than 16");
-    testable.Append("looonger1than 16a");
-    testable.Append("looonger2than 16ab");
-    testable.Append("looonger3than 16abc");
-    testable.Append("looonger4than 16abcd");
+    testable.Append("looonger 0 than 21 ab");
+    testable.Append("looonger 1 than 21 abc");
+    testable.Append("looonger 2 than 21 abcd");
+    testable.Append("looonger 3 than 21 abcde");
 
-    STRCMP_EQUAL("looonger0tha...", testable.PublicMorozov_GetLine(0));
-    STRCMP_EQUAL("looonger1tha...", testable.PublicMorozov_GetLine(1));
-    STRCMP_EQUAL("looonger2tha...", testable.PublicMorozov_GetLine(2));
-    STRCMP_EQUAL("looonger3tha...", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("looonger4tha...", testable.PublicMorozov_GetLine(4));
+    STRCMP_EQUAL("looonger 0 than 2...", testable.PublicMorozov_GetLine(0));
+    STRCMP_EQUAL("looonger 1 than 2...", testable.PublicMorozov_GetLine(1));
+    STRCMP_EQUAL("looonger 2 than 2...", testable.PublicMorozov_GetLine(2));
+    STRCMP_EQUAL("looonger 3 than 2...", testable.PublicMorozov_GetLine(3));
 }
 
 TEST(LogsListTestsGroup, Append_scroll_lines) {
-    TestableLogsList testable;
+    TestableLogsList testable("list_box");
 
     testable.Append("line 0");
     STRCMP_EQUAL("line 0", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("", testable.PublicMorozov_GetLine(4));
 
     testable.Append("line 1");
     STRCMP_EQUAL("line 0", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("line 1", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("", testable.PublicMorozov_GetLine(4));
 
     testable.Append("line 2");
     STRCMP_EQUAL("line 0", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("line 1", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("line 2", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("", testable.PublicMorozov_GetLine(4));
 
     testable.Append("line 3");
     STRCMP_EQUAL("line 0", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("line 1", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("line 2", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("line 3", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("", testable.PublicMorozov_GetLine(4));
 
     testable.Append("line 4");
-    STRCMP_EQUAL("line 0", testable.PublicMorozov_GetLine(0));
-    STRCMP_EQUAL("line 1", testable.PublicMorozov_GetLine(1));
-    STRCMP_EQUAL("line 2", testable.PublicMorozov_GetLine(2));
-    STRCMP_EQUAL("line 3", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("line 4", testable.PublicMorozov_GetLine(4));
-
-    testable.Append("line 5");
     STRCMP_EQUAL("line 1", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("line 2", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("line 3", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("line 4", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("line 5", testable.PublicMorozov_GetLine(4));
 
-    testable.Append("line 6");
+    testable.Append("line 5");
     STRCMP_EQUAL("line 2", testable.PublicMorozov_GetLine(0));
     STRCMP_EQUAL("line 3", testable.PublicMorozov_GetLine(1));
     STRCMP_EQUAL("line 4", testable.PublicMorozov_GetLine(2));
     STRCMP_EQUAL("line 5", testable.PublicMorozov_GetLine(3));
-    STRCMP_EQUAL("line 6", testable.PublicMorozov_GetLine(4));
+
+    testable.Append("line 6");
+    STRCMP_EQUAL("line 3", testable.PublicMorozov_GetLine(0));
+    STRCMP_EQUAL("line 4", testable.PublicMorozov_GetLine(1));
+    STRCMP_EQUAL("line 5", testable.PublicMorozov_GetLine(2));
+    STRCMP_EQUAL("line 6", testable.PublicMorozov_GetLine(3));
 }
 
 TEST(LogsListTestsGroup, Render) {
-    TestableLogsList testable;
+    TestableLogsList testable("list_box");
 
     testable.Append("line 0");
     CHECK_TRUE(testable.Render(frame_buffer));
@@ -151,8 +146,7 @@ TEST(LogsListTestsGroup, Render) {
     CHECK_TRUE(testable.Render(frame_buffer));
 
     testable.Append("line 5");
-    CHECK_TRUE(testable.Render(frame_buffer));    
-
+    CHECK_TRUE(testable.Render(frame_buffer));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
@@ -162,4 +156,11 @@ TEST(LogsListTestsGroup, Render) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
+}
+
+TEST(LogsListTestsGroup, Very_long_title__trim_to_line_size) {
+    TestableLogsList testable("title looonger than 21 abcd");
+
+    STRCMP_EQUAL(">> title looonger th <<", testable.PublicMorozov_GetTitle());
+    CHECK_EQUAL(1, testable.PublicMorozov_GetTitle_x());
 }
