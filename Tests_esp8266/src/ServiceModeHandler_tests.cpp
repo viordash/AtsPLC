@@ -10,6 +10,7 @@
 
 #include "main/Maintenance/ServiceModeHandler.cpp"
 #include "main/Maintenance/ServiceModeHandler.h"
+#include "main/Maintenance/ServiceModeHandler_SmartConfig.cpp"
 
 TEST_GROUP(ServiceModeHandlerTestsGroup){ //
                                           TEST_SETUP(){}
