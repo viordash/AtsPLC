@@ -15,23 +15,22 @@ LogsList::LogsList(const char *title) {
 }
 
 void LogsList::BuildTitle(const char *title) {
-
-    char trimmed_title[line_size];
     size_t len = strlen(title);
-    const int decor_size = 4;
-    
-    if (len > line_size - decor_size - 1) {
-        const int elips_len = 3;
-        strncpy(trimmed_title, title, line_size - decor_size - 1);
+    const int left_decor_size = 2;
+    const int right_decor_size = 2;
+
+    strcpy(this->title, "> ");
+    if (len > line_size - (left_decor_size + right_decor_size) - 1) {
+        strncat(this->title, title, line_size - (left_decor_size + right_decor_size) - 1);
     } else {
-        strcpy(trimmed_title, title);
+        strcat(this->title, title);
     }
-    snprintf(this->title, sizeof(this->title), "> %s <", trimmed_title);
+    strcat(this->title, " <");
 
     uint8_t *fb = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
     const uint8_t x = 2;
     const uint8_t y = 2;
-    int width = draw_text_f6X12(fb, x, y, title);
+    int width = draw_text_f6X12(fb, x, y, this->title);
     ESP_ERROR_CHECK(width <= 0);
     title_x = x + (DISPLAY_WIDTH - width) / 2;
     ESP_ERROR_CHECK(title_x <= 0);

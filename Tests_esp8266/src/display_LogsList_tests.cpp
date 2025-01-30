@@ -159,8 +159,33 @@ TEST(LogsListTestsGroup, Render) {
 }
 
 TEST(LogsListTestsGroup, Very_long_title__trim_to_line_size) {
-    TestableLogsList testable("title looonger than 21 abcd");
+    TestableLogsList trimmed_title("title looonger than 20 abcd");
 
-    STRCMP_EQUAL(">> title looonger th <<", testable.PublicMorozov_GetTitle());
-    CHECK_EQUAL(1, testable.PublicMorozov_GetTitle_x());
+    STRCMP_EQUAL("> title looonger t <", trimmed_title.PublicMorozov_GetTitle());
+
+    TestableLogsList normal_title("not trimmed text");
+
+    STRCMP_EQUAL("> not trimmed text <", normal_title.PublicMorozov_GetTitle());
+}
+
+TEST(LogsListTestsGroup, Title_center_aligned) {
+    TestableLogsList testable_0("012345678901234567");
+    STRCMP_EQUAL("> 0123456789012345 <", testable_0.PublicMorozov_GetTitle());
+    CHECK_EQUAL(6, testable_0.PublicMorozov_GetTitle_x());
+
+    TestableLogsList testable_1("0123456789012345");
+    STRCMP_EQUAL("> 0123456789012345 <", testable_1.PublicMorozov_GetTitle());
+    CHECK_EQUAL(6, testable_1.PublicMorozov_GetTitle_x());
+
+    TestableLogsList testable_2("012345678901234");
+    STRCMP_EQUAL("> 012345678901234 <", testable_2.PublicMorozov_GetTitle());
+    CHECK_EQUAL(9, testable_2.PublicMorozov_GetTitle_x());
+
+    TestableLogsList testable_3("01234567890123");
+    STRCMP_EQUAL("> 01234567890123 <", testable_3.PublicMorozov_GetTitle());
+    CHECK_EQUAL(12, testable_3.PublicMorozov_GetTitle_x());
+
+    TestableLogsList testable_4("0123");
+    STRCMP_EQUAL("> 0123 <", testable_4.PublicMorozov_GetTitle());
+    CHECK_EQUAL(42, testable_4.PublicMorozov_GetTitle_x());
 }
