@@ -13,19 +13,18 @@
 
 static const char *TAG_ServiceModeHandler = "service_mode";
 
+#define EXPECTED_BUTTONS                                                                           \
+    (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
+     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
+
 void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     Mode mode = Mode::sm_SmartConfig;
 
     while (true) {
         RenderMainMenu(mode);
 
-        EventBits_t uxBits = xEventGroupWaitBits(
-            gpio_events,
-            BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN
-                | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN,
-            true,
-            false,
-            portMAX_DELAY);
+        EventBits_t uxBits =
+            xEventGroupWaitBits(gpio_events, EXPECTED_BUTTONS, true, false, portMAX_DELAY);
 
         ESP_LOGI(TAG_ServiceModeHandler, "bits:0x%08X", uxBits);
 
@@ -140,7 +139,7 @@ void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
 
 void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_ServiceModeHandler, "exec SmartConfig");
-
+    uint8_t *fb;
     LogsList logs_list("SmartConfig");
 
     bool runned = true;
@@ -186,16 +185,26 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                 break;
         }
 
-        uint8_t *fb = begin_render();
+        fb = begin_render();
         logs_list.Render(fb);
         end_render(fb);
-    };
+    }
 
-    const int show_logs_time_ms = 30000;
+    uint8_t x = 1;
+    uint8_t y = 1;
+    uint8_t height = get_text_f6X12_height();
+
+    const int show_logs_time_ms = 3000;
     xEventGroupWaitBits(gpio_events,
-                        BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE
-                            | BUTTON_DOWN_IO_OPEN | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN,
+                        EXPECTED_BUTTONS,
                         true,
                         false,
                         show_logs_time_ms / portTICK_PERIOD_MS);
+
+    fb = begin_render();
+    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "SC completed!") <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") <= 0);
+    end_render(fb);
+
+    xEventGroupWaitBits(gpio_events, EXPECTED_BUTTONS, true, false, portMAX_DELAY);
 }
