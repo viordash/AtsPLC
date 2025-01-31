@@ -17,9 +17,10 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
     uint8_t *fb;
     LogsList logs_list("SmartConfig");
 
-    bool runned = true;
+    bool success = false;
+    bool error = false;
     start_smartconfig();
-    while (runned) {
+    while (!success && !error) {
         switch (smartconfig_status()) {
             case scs_Start:
                 logs_list.Append("Start");
@@ -51,12 +52,12 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
 
             case scs_Completed:
                 logs_list.Append("Completed");
-                runned = false;
+                success = true;
                 break;
 
             case scs_Error:
                 logs_list.Append("Error");
-                runned = false;
+                error = true;
                 break;
         }
 
@@ -77,7 +78,13 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                         show_logs_time_ms / portTICK_PERIOD_MS);
 
     fb = begin_render();
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "SC completed!") <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12(fb,
+                                    x,
+                                    y + height * 1,
+                                    success //
+                                        ? "SC completed!"
+                                        : "SC error!")
+                    <= 0);
     ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") <= 0);
     end_render(fb);
 
