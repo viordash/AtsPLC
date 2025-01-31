@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#define DEVICE_SETTINGS_VERSION ((uint32_t)0x20250107)
-
 typedef struct {
     uint32_t counter;
 } smartconfig_settings;
