@@ -31,7 +31,7 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                 break;
 
             case scs_Disconnected:
-                logs_list.Append("Disconnected 0123456");
+                logs_list.Append("Disconnected");
                 break;
 
             case scs_GotIP:
