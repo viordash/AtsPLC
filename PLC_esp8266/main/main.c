@@ -11,6 +11,7 @@
 
 #include "Display/display.h"
 #include "LogicProgram/process_engine.h"
+#include "Maintenance/service_mode.h"
 #include "WiFi/wifi_service.h"
 #include "buttons.h"
 #include "crc32.h"
@@ -23,7 +24,6 @@
 #include "redundant_storage.h"
 #include "restart_counter.h"
 #include "settings.h"
-#include "smartconfig_service.h"
 #include "storage.h"
 #include "sys_gpio.h"
 #include <stdio.h>
@@ -50,11 +50,6 @@ void app_main() {
     load_settings();
 
     system_init();
-
-    if (!hotreload->is_hotstart) {
-        start_smartconfig();
-    }
-
     display_init();
     hot_restart_counter();
 
@@ -71,9 +66,8 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    while (smartconfig_is_runned()) {
-        printf("wait smartconfig...\n");
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+    if (!hotreload->is_hotstart && up_button_pressed()) {
+        run_service_mode(gpio_events);
     }
 
     void *wifi_service = start_wifi_service();

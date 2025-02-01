@@ -401,3 +401,20 @@ int ssd1306_draw_circle(const ssd1306_t *dev,
     }
     return 0;
 }
+
+int ssd1306_draw_rectangle(const ssd1306_t *dev,
+                           uint8_t *fb,
+                           int8_t x,
+                           int8_t y,
+                           uint8_t w,
+                           uint8_t h,
+                           ssd1306_color_t color) {
+    int err = 0;
+    if ((err = ssd1306_draw_hline(dev, fb, x, y, w, color)))
+        return err;
+    if ((err = ssd1306_draw_hline(dev, fb, x, y + h - 1, w, color)))
+        return err;
+    if ((err = ssd1306_draw_vline(dev, fb, x, y, h, color)))
+        return err;
+    return ssd1306_draw_vline(dev, fb, x + w - 1, y, h, color);
+}

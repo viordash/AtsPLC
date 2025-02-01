@@ -6,19 +6,17 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "sys_gpio.h"
 #include "settings.h"
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
+#include "sys_gpio.h"
 #include "tcpip_adapter.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 static const char *TAG = "smartconfig";
-static const uint32_t min_period_ms = 500;
-static const uint32_t max_period_ms = 4000;
-static const uint32_t start_smartconfig_counter = 4;
+
 static const uint32_t timeout_ms = 600000;
 
 extern device_settings settings;
@@ -29,11 +27,25 @@ static struct {
 
 static const int CONNECTED_BIT = BIT0;
 static const int ESPTOUCH_DONE_BIT = BIT1;
-static const int RUNNED_BIT = BIT2;
+static const int STATUS_START_BIT = BIT2;
+static const int STATUS_STARTED_BIT = BIT3;
+static const int STATUS_DISCONNECTED_BIT = BIT4;
+static const int STATUS_GOT_IP_BIT = BIT5;
+static const int STATUS_SCAN_DONE_BIT = BIT6;
+static const int STATUS_FOUND_CHANNEL_BIT = BIT7;
+static const int STATUS_GOT_CREDS_BIT = BIT8;
+static const int STATUS_COMPLETED_BIT = BIT9;
+static const int STATUS_ERROR_BIT = BIT10;
+
+#define STATUS_ALL_BITS                                                                            \
+    (STATUS_START_BIT | STATUS_STARTED_BIT | STATUS_DISCONNECTED_BIT | STATUS_GOT_IP_BIT           \
+     | STATUS_SCAN_DONE_BIT | STATUS_FOUND_CHANNEL_BIT | STATUS_GOT_CREDS_BIT                      \
+     | STATUS_COMPLETED_BIT | STATUS_ERROR_BIT)
 
 static void
 event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        xEventGroupSetBits(service.event, STATUS_STARTED_BIT);
         ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2));
         smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
         ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
@@ -42,6 +54,7 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
     }
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         xEventGroupClearBits(service.event, CONNECTED_BIT);
+        xEventGroupSetBits(service.event, STATUS_DISCONNECTED_BIT);
         ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED. restart smartconfig");
         ESP_ERROR_CHECK(esp_smartconfig_stop());
         ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH_V2));
@@ -51,19 +64,22 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
     }
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP");
-        xEventGroupSetBits(service.event, CONNECTED_BIT);
+        xEventGroupSetBits(service.event, CONNECTED_BIT | STATUS_GOT_IP_BIT);
         return;
     }
     if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
+        xEventGroupSetBits(service.event, STATUS_SCAN_DONE_BIT);
         ESP_LOGI(TAG, "Scan done");
         return;
     }
     if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
+        xEventGroupSetBits(service.event, STATUS_FOUND_CHANNEL_BIT);
         ESP_LOGI(TAG, "Found channel");
         return;
     }
     if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
         ESP_LOGI(TAG, "Got SSID and password");
+        xEventGroupSetBits(service.event, STATUS_GOT_CREDS_BIT);
 
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
         wifi_config_t wifi_config = {};
@@ -88,7 +104,7 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         return;
     }
     if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
-        xEventGroupSetBits(service.event, ESPTOUCH_DONE_BIT);
+        xEventGroupSetBits(service.event, ESPTOUCH_DONE_BIT | STATUS_COMPLETED_BIT);
         ESP_LOGI(TAG, "SC_EVENT_SEND_ACK_DONE");
         return;
     }
@@ -145,6 +161,7 @@ static void start_process() {
             break;
         }
     } while ((uxBits & (CONNECTED_BIT | ESPTOUCH_DONE_BIT)) != 0);
+
     if (connected) {
         wifi_config_t wifi_config = {};
         char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
@@ -155,11 +172,17 @@ static void start_process() {
         memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
 
         SAFETY_SETTINGS( //
-            memcpy(settings.wifi_station.ssid, wifi_config.sta.ssid, sizeof(settings.wifi_station.ssid));
-            memcpy(settings.wifi_station.password, wifi_config.sta.password, sizeof(settings.wifi_station.ssid));
+            memcpy(settings.wifi_station.ssid,
+                   wifi_config.sta.ssid,
+                   sizeof(settings.wifi_station.ssid));
+            memcpy(settings.wifi_station.password,
+                   wifi_config.sta.password,
+                   sizeof(settings.wifi_station.ssid));
             store_settings(); //
         );
         ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
+    } else {
+        xEventGroupSetBits(service.event, STATUS_ERROR_BIT);
     }
 
     stop_wifi();
@@ -169,35 +192,10 @@ static void start_process() {
 static void task(void *parm) {
     ESP_LOGI(TAG, "Start task");
 
-    xEventGroupSetBits(service.event, RUNNED_BIT);
+    xEventGroupSetBits(service.event, STATUS_START_BIT);
 
-    SAFETY_SETTINGS(                    //
-        settings.smartconfig.counter++; //
-    );
+    start_process();
 
-    bool ready_to_smartconfig =
-        settings.smartconfig.counter == start_smartconfig_counter || select_button_pressed();
-
-    if (!ready_to_smartconfig) {
-        TickType_t ticks_start = 0;
-        vTaskDelayUntil(&ticks_start, min_period_ms / portTICK_RATE_MS);
-        ESP_LOGI(TAG, "Begin check period, %u", settings.smartconfig.counter);
-        SAFETY_SETTINGS(      //
-            store_settings(); //
-        );
-        vTaskDelayUntil(&ticks_start, max_period_ms / portTICK_RATE_MS);
-        ESP_LOGI(TAG, "End check period, %u", settings.smartconfig.counter);
-    }
-    SAFETY_SETTINGS(                      //
-        settings.smartconfig.counter = 0; //
-        store_settings();                 //
-    );
-
-    if (ready_to_smartconfig) {
-        start_process();
-    }
-
-    xEventGroupClearBits(service.event, RUNNED_BIT);
     ESP_LOGW(TAG, "Finish task");
     vTaskDelete(NULL);
 }
@@ -208,14 +206,37 @@ void start_smartconfig() {
                                                                                          : ESP_OK);
 }
 
-bool smartconfig_is_runned() {
+enum SmartconfigStatus smartconfig_status() {
     if (service.event == NULL) {
-        return false;
+        return scs_Error;
     }
-    EventBits_t uxBits = xEventGroupWaitBits(service.event, RUNNED_BIT, false, false, 0);
 
-    if (uxBits & RUNNED_BIT) {
-        ESP_LOGD(TAG, "is_runned, uxBits:0x%08X", uxBits);
+    EventBits_t uxBits =
+        xEventGroupWaitBits(service.event, STATUS_ALL_BITS, true, false, portMAX_DELAY);
+
+    if (uxBits & STATUS_START_BIT) {
+        return scs_Start;
     }
-    return uxBits & RUNNED_BIT;
+    if (uxBits & STATUS_STARTED_BIT) {
+        return scs_Started;
+    }
+    if (uxBits & STATUS_DISCONNECTED_BIT) {
+        return scs_Disconnected;
+    }
+    if (uxBits & STATUS_GOT_IP_BIT) {
+        return scs_GotIP;
+    }
+    if (uxBits & STATUS_SCAN_DONE_BIT) {
+        return scs_ScanDone;
+    }
+    if (uxBits & STATUS_FOUND_CHANNEL_BIT) {
+        return scs_FoundChannel;
+    }
+    if (uxBits & STATUS_GOT_CREDS_BIT) {
+        return scs_GotCreds;
+    }
+    if (uxBits & STATUS_COMPLETED_BIT) {
+        return scs_Completed;
+    }
+    return scs_Error;
 }

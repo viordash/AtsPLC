@@ -29,7 +29,7 @@ void set_digital_value(gpio_output gpio, bool value);
 
 uint16_t get_analog_value();
 bool get_digital_input_value();
-bool select_button_pressed();
+bool up_button_pressed();
 
 #ifdef __cplusplus
 }

@@ -116,7 +116,10 @@
         "forward_list": "cpp",
         "unordered_set": "cpp",
         "esp_wpa.h": "c",
-        "timersecs.h": "c"
+        "timersecs.h": "c",
+        "sys_gpio.h": "c",
+        "servicemodehandler.h": "c",
+        "task.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -15,13 +15,15 @@ SOURCE_PROJECT_DIR := \
 
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 
+include $(PWD)/../PLC_esp8266/main/component.mk
+
 # define the Cpp compiler to use
 CXX = g++
 CC = gcc
 
 # define any compile-time flags
-CXXFLAGS	:= -Wall -Wextra -g -std=gnu++0x
-CFLAGS	:= -Wall -Wextra -g
+CXXFLAGS	:= -Wall -Wextra -g -std=gnu++0x $(CPPFLAGS)
+CFLAGS	:= -Wall -Wextra -g $(CPPFLAGS)
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify

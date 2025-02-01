@@ -191,8 +191,8 @@ bool get_digital_input_value() {
     return input_closed;
 }
 
-bool select_button_pressed() {
-    bool state = gpio_get_level(BUTTON_SELECT_IO) == 0;
-    ESP_LOGI(TAG_gpio, "select_button_pressed, state:%d", state);
+bool up_button_pressed() {
+    bool state = gpio_get_level(BUTTON_UP_IO) == 0;
+    ESP_LOGD(TAG_gpio, "select_button_pressed, state:%d", state);
     return state;
 }
