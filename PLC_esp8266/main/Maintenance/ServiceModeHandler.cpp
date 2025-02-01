@@ -21,13 +21,23 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     while (true) {
         RenderMainMenu(mode);
 
-        EventBits_t uxBits =
-            xEventGroupWaitBits(gpio_events, EXPECTED_BUTTONS, true, false, portMAX_DELAY);
+        const int service_mode_timeout_ms = 120000;
+        EventBits_t uxBits = xEventGroupWaitBits(gpio_events,
+                                                 EXPECTED_BUTTONS,
+                                                 true,
+                                                 false,
+                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
 
         ESP_LOGI(TAG_ServiceModeHandler, "bits:0x%08X", uxBits);
 
+        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        if (timeout) {
+            ESP_LOGI(TAG_ServiceModeHandler, "timeout, returns to main");
+            return;
+        }
+
         ButtonsPressType pressed_button = handle_buttons(uxBits);
-        ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
+        ESP_LOGI(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 mode = ChangeModeToPrev(mode);
