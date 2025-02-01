@@ -66,7 +66,7 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    if (/*!hotreload->is_hotstart && */ !select_button_pressed()) {
+    if (!hotreload->is_hotstart && up_button_pressed()) {
         run_service_mode(gpio_events);
     }
 
