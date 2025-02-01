@@ -51,7 +51,7 @@ void ServiceModeHandler::RenderMainMenu(Mode mode) {
     uint8_t height = get_text_f6X12_height();
     uint8_t *fb = begin_render();
 
-    sprintf(buffer, " v%08X.%X", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
+    sprintf(buffer, " v%08X.%u", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
     ESP_ERROR_CHECK(draw_text_f5X7(fb, x, y, buffer) <= 0);
 
     uint8_t marker_x = x;
