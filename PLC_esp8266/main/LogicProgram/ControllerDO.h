@@ -1,18 +1,8 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "freertos/FreeRTOS.h"
-#include "sys_gpio.h"
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "LogicProgram/ControllerBaseInput.h"
 #include "LogicProgram/ControllerBaseOutput.h"
+#include "sys_gpio.h"
 #include <stdint.h>
 #include <unistd.h>
 

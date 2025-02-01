@@ -1,13 +1,8 @@
 #pragma once
 
-#include "freertos/event_groups.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 enum SmartconfigStatus {
     scs_Start,
@@ -23,7 +18,3 @@ enum SmartconfigStatus {
 
 void start_smartconfig();
 enum SmartconfigStatus smartconfig_status();
-
-#ifdef __cplusplus
-}
-#endif

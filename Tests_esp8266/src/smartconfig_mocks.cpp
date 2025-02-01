@@ -1,4 +1,4 @@
-#include "CppUTestExt/MockSupport_c.h"
+#include "CppUTestExt/MockSupport.h"
 
 #include "main/Maintenance/smartconfig_service.h"
 #include <stdbool.h>
@@ -8,9 +8,9 @@
 #include <unistd.h>
 
 enum SmartconfigStatus smartconfig_status() {
-    return mock_c()->actualCall("smartconfig_status")->returnIntValueOrDefault(scs_Error);
+    return (SmartconfigStatus)mock().actualCall("smartconfig_status").returnIntValueOrDefault(scs_Error);
 }
 
 void start_smartconfig() {
-    mock_c()->actualCall("start_smartconfig");
+    mock().actualCall("start_smartconfig");
 }

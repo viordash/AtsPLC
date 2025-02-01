@@ -34,10 +34,6 @@ typedef struct {
 
 extern device_settings settings;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void load_settings();
 void store_settings();
 
@@ -47,10 +43,5 @@ void unlock_settings();
 #define SAFETY_SETTINGS(action)                                                                    \
     {                                                                                              \
         lock_settings();                                                                           \
-        action;                                                                                    \
-        unlock_settings();                                                                         \
+        action unlock_settings();                                                                  \
     }
-
-#ifdef __cplusplus
-}
-#endif

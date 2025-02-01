@@ -31,6 +31,8 @@
 
 static const char *TAG = "main";
 
+extern "C" void app_main();
+
 extern device_settings settings;
 
 static void system_init() {
@@ -38,7 +40,7 @@ static void system_init() {
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 }
 
-extern "C" void app_main() {
+void app_main() {
     load_hotreload();
 
     if (hotreload->is_hotstart) {

@@ -8,8 +8,8 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 
-void run_service_mode(EventGroupHandle_t gpio_events);
-
 #ifdef __cplusplus
 }
 #endif
+
+void run_service_mode(EventGroupHandle_t gpio_events);
