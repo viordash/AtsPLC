@@ -8,9 +8,9 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 
-void start_process_engine(EventGroupHandle_t gpio_events, void *wifi_service);
-void stop_process_engine();
-
 #ifdef __cplusplus
 }
 #endif
+
+void start_process_engine(EventGroupHandle_t gpio_events, void *wifi_service);
+void stop_process_engine();

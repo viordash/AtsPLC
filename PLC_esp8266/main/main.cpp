@@ -38,7 +38,7 @@ static void system_init() {
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 }
 
-void app_main() {
+extern "C" void app_main() {
     load_hotreload();
 
     if (hotreload->is_hotstart) {

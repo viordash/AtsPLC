@@ -1,9 +1,15 @@
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/task.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "driver/adc.h"
 #include "driver/gpio.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 #include "esp_attr.h"
 #include "esp_log.h"
 #include "sys_gpio.h"
@@ -42,8 +48,8 @@ static void outputs_init() {
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
     io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
     set_digital_value(OUTPUT_0, false);
     set_digital_value(OUTPUT_1, false);
@@ -118,7 +124,7 @@ static void inputs_init() {
     io_conf.intr_type = GPIO_INTR_ANYEDGE;
     io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
     io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_up_en = 1;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     gpio_install_isr_service(0);
