@@ -18,11 +18,4 @@ typedef enum { //
     SELECT_LONG_PRESSED
 } ButtonsPressType;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 ButtonsPressType handle_buttons(EventBits_t uxBits);
-
-#ifdef __cplusplus
-}
-#endif

@@ -1,18 +1,18 @@
-/* Hello World Example
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#ifdef __cplusplus
+}
+#endif
+
 #include "Display/display.h"
-#include "LogicProgram/process_engine.h"
-#include "Maintenance/service_mode.h"
-#include "WiFi/wifi_service.h"
+#include "LogicProgram/Controller.h"
+#include "Maintenance/ServiceModeHandler.h"
+#include "WiFi/WiFiService.h"
 #include "buttons.h"
 #include "crc32.h"
 #include "driver/uart.h"
@@ -30,6 +30,8 @@
 #include <string.h>
 
 static const char *TAG = "main";
+
+extern "C" void app_main();
 
 extern device_settings settings;
 
@@ -67,11 +69,12 @@ void app_main() {
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
     if (!hotreload->is_hotstart && up_button_pressed()) {
-        run_service_mode(gpio_events);
+        ServiceModeHandler::Start(gpio_events);
     }
 
-    void *wifi_service = start_wifi_service();
-    start_process_engine(gpio_events, wifi_service);
+    WiFiService wifi_service;
+    wifi_service.Start();
+    Controller::Start(gpio_events, &wifi_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
     printf("mem: %u\n", free_mem);
@@ -86,8 +89,8 @@ void app_main() {
         }
     }
 
-    stop_process_engine();
-    stop_wifi_service();
+    Controller::Stop();
+    wifi_service.Stop();
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);

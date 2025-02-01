@@ -1,7 +1,18 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "freertos/queue.h"
+#include "freertos/task.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -17,9 +28,6 @@
 #define INPUT_1_IO_CLOSE BIT8
 #define INPUT_1_IO_OPEN BIT9
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef enum { OUTPUT_0 = 0x01, OUTPUT_1 = 0x02 } gpio_output;
 
 EventGroupHandle_t gpio_init();
@@ -30,7 +38,3 @@ void set_digital_value(gpio_output gpio, bool value);
 uint16_t get_analog_value();
 bool get_digital_input_value();
 bool up_button_pressed();
-
-#ifdef __cplusplus
-}
-#endif

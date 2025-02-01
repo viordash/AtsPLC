@@ -9,13 +9,11 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "hotreload_service.h"
 #include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-extern "C" {
-#include "hotreload_service.h"
-}
 
 static const char *TAG_Controller = "controller";
 

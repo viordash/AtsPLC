@@ -25,10 +25,6 @@
 #define WIRE_BLINK_BODY_WIDTH 8
 #define WIRE_STANDART_WIDTH (16 + WIRE_BLINK_BODY_WIDTH)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "Display/Common.h"
 
 void display_init();
@@ -56,7 +52,3 @@ bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
 bool draw_horz_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
 bool draw_rectangle(uint8_t *fb, int8_t x, int8_t y, uint8_t w, uint8_t h);
 void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);
-
-#ifdef __cplusplus
-}
-#endif

@@ -23,10 +23,10 @@ typedef struct {
 volatile rtc_hotreload_data *_rtc_hotreload_data = (volatile rtc_hotreload_data *)RTC_USER_BASE;
 hotreload_data *hotreload = NULL;
 
-_Static_assert(sizeof(hotreload->is_hotstart) == 4, "sizeof(is_hotstart)");
-_Static_assert(sizeof(hotreload->restart_count) == 4, "sizeof(restart_count)");
-_Static_assert(sizeof(hotreload->view_top_index) == 4, "sizeof(view_top_index)");
-_Static_assert(sizeof(hotreload->selected_network) == 4, "sizeof(selected_network)");
+static_assert(sizeof(hotreload->is_hotstart) == 4, "sizeof(is_hotstart)");
+static_assert(sizeof(hotreload->restart_count) == 4, "sizeof(restart_count)");
+static_assert(sizeof(hotreload->view_top_index) == 4, "sizeof(view_top_index)");
+static_assert(sizeof(hotreload->selected_network) == 4, "sizeof(selected_network)");
 
 void init_hotreload() {
     hotreload->is_hotstart = false;
