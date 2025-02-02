@@ -52,7 +52,7 @@ namespace {
             return FindSsidInScannedList(ssid, rssi);
         }
         uint8_t PublicMorozov_ScaleRssiToPercent04(int8_t rssi,
-                                                   wifi_scanner_settings *scanner_settings) {
+                                                   CurrentSettings::wifi_scanner_settings *scanner_settings) {
             return ScaleRssiToPercent04(rssi, scanner_settings);
         }
     };
@@ -693,7 +693,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
 
 TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     TestableWiFiService testable;
-    wifi_scanner_settings scanner_settings = { 0, -26, -120 };
+    CurrentSettings::wifi_scanner_settings scanner_settings = { 0, -26, -120 };
 
     CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-128, &scanner_settings));
     CHECK_EQUAL(0, testable.PublicMorozov_ScaleRssiToPercent04(-120, &scanner_settings));

@@ -5,7 +5,6 @@ extern "C" {
 #include "freertos/task.h"
 }
 
-#include "DataMigrations/MigrateSettings.h"
 #include "MigrateAnyData/MigrateAnyData.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -17,7 +16,7 @@ extern "C" {
 
 static const char *TAG_settings = "settings";
 
-device_settings settings = {};
+CurrentSettings::device_settings settings = {};
 
 static SemaphoreHandle_t mutex = NULL;
 

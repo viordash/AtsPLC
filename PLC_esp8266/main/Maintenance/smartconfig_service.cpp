@@ -19,7 +19,7 @@ static const char *TAG = "smartconfig";
 
 static const uint32_t timeout_ms = 600000;
 
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 static struct {
     EventGroupHandle_t event;

@@ -1,38 +1,11 @@
 #pragma once
 
+#include "DataMigrations/MigrateSettings.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
 
-typedef struct {
-    uint32_t counter;
-} smartconfig_settings;
-
-typedef struct {
-    char ssid[32];
-    char password[64];
-    int32_t connect_max_retry_count;
-} wifi_station_settings;
-
-typedef struct {
-    uint16_t per_channel_scan_time_ms;
-    int8_t max_rssi;
-    int8_t min_rssi;
-} wifi_scanner_settings;
-
-typedef struct {
-    uint32_t generation_time_ms;
-    bool ssid_hidden;
-} wifi_access_point_settings;
-
-typedef struct {
-    smartconfig_settings smartconfig;
-    wifi_station_settings wifi_station;
-    wifi_scanner_settings wifi_scanner;
-    wifi_access_point_settings wifi_access_point;
-} device_settings;
-
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 void load_settings();
 void store_settings();
