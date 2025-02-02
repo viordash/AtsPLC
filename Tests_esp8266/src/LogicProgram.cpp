@@ -59,3 +59,6 @@
 #include "HttpServer/MainController.cpp"
 #include "HttpServer/UpdateController.cpp"
 #include "HttpServer/http_server.cpp"
+
+#include "main/Display/ListBox.cpp"
+#include "main/Display/LogsList.cpp"
