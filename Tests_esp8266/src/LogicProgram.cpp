@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/Backups/backups_storage.cpp"
+#include "main/Maintenance/backups_storage.cpp"
 #include "main/redundant_storage.cpp"
 #include "main/storage.cpp"
 

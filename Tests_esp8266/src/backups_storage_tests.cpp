@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "main/Backups/backups_storage.h"
+#include "main/Maintenance/backups_storage.h"
 #include "main/storage.h"
 
 #include "tests_utils.h"
