@@ -21,7 +21,6 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     while (true) {
         RenderMainMenu(mode);
 
-        const int service_mode_timeout_ms = 120000;
         EventBits_t uxBits = xEventGroupWaitBits(gpio_events,
                                                  EXPECTED_BUTTONS,
                                                  true,
