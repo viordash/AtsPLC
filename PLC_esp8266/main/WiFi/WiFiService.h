@@ -41,8 +41,8 @@ class WiFiService {
     void Disconnect();
     void StationTask(RequestItem *request);
 
-    bool StartScan(const char *ssid, wifi_scanner_settings *scanner_settings);
-    int8_t Scanning(RequestItem *request, wifi_scanner_settings *scanner_settings);
+    bool StartScan(const char *ssid, CurrentSettings::wifi_scanner_settings *scanner_settings);
+    int8_t Scanning(RequestItem *request, CurrentSettings::wifi_scanner_settings *scanner_settings);
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
@@ -53,7 +53,8 @@ class WiFiService {
     static void
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
-    uint8_t ScaleRssiToPercent04(int8_t rssi, wifi_scanner_settings *scanner_settings);
+    uint8_t ScaleRssiToPercent04(int8_t rssi,
+                                 CurrentSettings::wifi_scanner_settings *scanner_settings);
     void AddSsidToScannedList(const char *ssid, uint8_t rssi);
     bool FindSsidInScannedList(const char *ssid, uint8_t *rssi);
     void RemoveSsidFromScannedList(const char *ssid);

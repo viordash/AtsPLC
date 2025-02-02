@@ -12,12 +12,12 @@
 #include <stdlib.h>
 
 static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
     ESP_LOGD(TAG_WiFiService_AccessPoint, "start, ssid:%s", request->Payload.AccessPoint.ssid);
 
-    wifi_access_point_settings access_point_settings;
+    CurrentSettings::wifi_access_point_settings access_point_settings;
     SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
 
     esp_err_t err;

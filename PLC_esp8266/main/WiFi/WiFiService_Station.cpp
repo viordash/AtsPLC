@@ -13,7 +13,7 @@
 #define INFINITY_CONNECT_RETRY -1
 
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 void WiFiService::StationTask(RequestItem *request) {
     ESP_LOGD(TAG_WiFiService_Station, "start");

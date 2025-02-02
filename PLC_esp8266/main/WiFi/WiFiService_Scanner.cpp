@@ -11,11 +11,12 @@
 #include <stdlib.h>
 
 static const char *TAG_WiFiService_Scanner = "WiFiService.Scanner";
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 #define CHANNELS_COUNT 14
 
-bool WiFiService::StartScan(const char *ssid, wifi_scanner_settings *scanner_settings) {
+bool WiFiService::StartScan(const char *ssid,
+                            CurrentSettings::wifi_scanner_settings *scanner_settings) {
     wifi_scan_config_t scan_config = {};
     scan_config.show_hidden = true;
     scan_config.ssid = (uint8_t *)ssid;
@@ -33,7 +34,8 @@ bool WiFiService::StartScan(const char *ssid, wifi_scanner_settings *scanner_set
     return true;
 }
 
-int8_t WiFiService::Scanning(RequestItem *request, wifi_scanner_settings *scanner_settings) {
+int8_t WiFiService::Scanning(RequestItem *request,
+                             CurrentSettings::wifi_scanner_settings *scanner_settings) {
     esp_err_t err;
 
     wifi_ap_record_t ap_info[1] = {};
@@ -105,7 +107,7 @@ void WiFiService::StopScan() {
 void WiFiService::ScannerTask(RequestItem *request) {
     ESP_LOGD(TAG_WiFiService_Scanner, "start, ssid:%s", request->Payload.Scanner.ssid);
 
-    wifi_scanner_settings scanner_settings;
+    CurrentSettings::wifi_scanner_settings scanner_settings;
     SAFETY_SETTINGS({ scanner_settings = settings.wifi_scanner; });
 
     int8_t rssi = scanner_settings.min_rssi;
@@ -131,7 +133,9 @@ void WiFiService::ScannerTask(RequestItem *request) {
              ScaleRssiToPercent04(rssi, &scanner_settings));
 }
 
-uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi, wifi_scanner_settings *scanner_settings) {
+uint8_t
+WiFiService::ScaleRssiToPercent04(int8_t rssi,
+                                  CurrentSettings::wifi_scanner_settings *scanner_settings) {
     float fl = ((float)rssi - scanner_settings->min_rssi)
              / (scanner_settings->max_rssi - scanner_settings->min_rssi);
     fl = fl * (LogicElement::MaxValue - LogicElement::MinValue) + LogicElement::MinValue;

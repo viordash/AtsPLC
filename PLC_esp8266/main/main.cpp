@@ -33,7 +33,7 @@ static const char *TAG = "main";
 
 extern "C" void app_main();
 
-extern device_settings settings;
+extern CurrentSettings::device_settings settings;
 
 static void system_init() {
     tcpip_adapter_init();

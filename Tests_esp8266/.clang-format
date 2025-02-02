@@ -31,3 +31,10 @@ AllowAllParametersOfDeclarationOnNextLine: false
 BinPackParameters: false 
 AllowAllArgumentsOnNextLine: false
 BinPackArguments: false
+IncludeCategories:
+  - Regex:           'freertos/'
+    Priority:        0 
+  - Regex:           '_Initial'  
+    Priority:        1 
+  - Regex:           '.*'
+    Priority:        7         
