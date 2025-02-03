@@ -63,30 +63,10 @@ void ServiceModeHandler::RenderMainMenu(Mode mode) {
     sprintf(buffer, " v%08X.%u", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
     ESP_ERROR_CHECK(draw_text_f5X7(fb, x, y, buffer) <= 0);
 
-    uint8_t marker_x = x;
-    uint8_t marker_y = y;
-    switch (mode) {
-        case Mode::sm_SmartConfig:
-            marker_y += height * 1;
-            break;
-        case Mode::sm_BackupLogic:
-            marker_y += height * 2;
-            break;
-        case Mode::sm_RestoreLogic:
-            marker_y += height * 3;
-            break;
-        case Mode::sm_ResetToDefault:
-            marker_y += height * 4;
-            break;
-    }
-    int marker_width = draw_text_f6X12(fb, marker_x, marker_y, "\x01");
-    ESP_ERROR_CHECK(marker_width <= 0);
-    x += marker_width;
-
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "  Smart config") <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "  Backup logic") <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 3, "  Restore logic") <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 4, "  Reset to default") <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 1, "Smart config", mode == Mode::sm_SmartConfig) <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 2, "Backup logic", mode == Mode::sm_BackupLogic) <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 3, "Restore logic", mode == Mode::sm_RestoreLogic) <= 0);
+    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 4, "Reset to default", mode == Mode::sm_ResetToDefault) <= 0);
 
     end_render(fb);
 }
