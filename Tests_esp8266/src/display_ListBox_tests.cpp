@@ -8,19 +8,23 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <freertos/FreeRTOS.h>
+#include <driver/gpio.h>
+#include <driver/i2c.h>
+#include <ssd1306/ssd1306.h>
 
-#include "main/Display/display.h"
 #include "main/Display/ListBox.h"
+#include "main/Display/display.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+extern ssd1306_color_t foreground_color;
+extern ssd1306_color_t background_color;
 
 TEST_GROUP(ListBoxTestsGroup){ //
-                                TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
-mock().disable();
+                               TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 }
 
 TEST_TEARDOWN() {
-    mock().enable();
 }
 }
 ;
@@ -43,6 +47,9 @@ class TestableListBox : public ListBox {
     }
     int PublicMorozov_GetTitle_x() {
         return title_x;
+    }
+    int PublicMorozov_Get_selected() {
+        return selected;
     }
 };
 
@@ -84,4 +91,62 @@ TEST(ListBoxTestsGroup, Title_center_aligned) {
     TestableListBox testable_4("0123");
     STRCMP_EQUAL("> 0123 <", testable_4.PublicMorozov_GetTitle());
     CHECK_EQUAL(42, testable_4.PublicMorozov_GetTitle_x());
+}
+
+TEST(ListBoxTestsGroup, Insert__trim_text_to_line_size) {
+    TestableListBox list_box("");
+
+    list_box.Insert(0, "text looonger than 20");
+
+    STRCMP_EQUAL("text looonger than 2", list_box.PublicMorozov_GetLine(0));
+
+    list_box.Insert(1, "text length equal 20");
+    STRCMP_EQUAL("text length equal 20", list_box.PublicMorozov_GetLine(1));
+}
+
+TEST(ListBoxTestsGroup, Render) {
+    TestableListBox testable("list_box");
+
+    testable.Insert(0, "line 0");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Insert(1, "line 1");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Insert(2, "line 2");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    testable.Insert(3, "line 3");
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+}
+
+TEST(ListBoxTestsGroup, No_selection_on_ctor) {
+    TestableListBox testable("");
+
+    CHECK_EQUAL(-1, testable.PublicMorozov_Get_selected());
+}
+
+TEST(ListBoxTestsGroup, Render_selected_item) {
+    TestableListBox testable("");
+
+    testable.Insert(0, "line 0");
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_EQUAL(OLED_COLOR_WHITE, foreground_color);
+    CHECK_EQUAL(OLED_COLOR_BLACK, background_color);
+
+    testable.Select(0);
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_EQUAL(OLED_COLOR_BLACK, foreground_color);
+    CHECK_EQUAL(OLED_COLOR_WHITE, background_color);
 }

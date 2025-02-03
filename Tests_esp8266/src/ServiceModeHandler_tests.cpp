@@ -21,9 +21,6 @@ TEST_GROUP(ServiceModeHandlerTestsGroup){ //
 namespace {
     class TestableServiceModeHandler : public ServiceModeHandler {
       public:
-        static void PublicMorozov_RenderMainMenu(Mode mode) {
-            RenderMainMenu(mode);
-        }
         static Mode PublicMorozov_ChangeModeToPrev(Mode mode) {
             return ChangeModeToPrev(mode);
         }

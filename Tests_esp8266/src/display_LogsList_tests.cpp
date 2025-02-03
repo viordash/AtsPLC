@@ -26,22 +26,14 @@ TEST_TEARDOWN() {
 
 class TestableLogsList : public LogsList {
   public:
-    const static int line_size = 21;
     const static int lines_count = 4;
 
     explicit TestableLogsList(const char *title) : LogsList(title) {
-        static_assert(line_size == LogsList::line_size);
         static_assert(lines_count == LogsList::lines_count);
     }
 
     char *PublicMorozov_GetLine(int line_num) {
         return lines[line_num];
-    }
-    char *PublicMorozov_GetTitle() {
-        return title;
-    }
-    int PublicMorozov_GetTitle_x() {
-        return title_x;
     }
 };
 

@@ -20,13 +20,17 @@ extern "C" {
 
 class ServiceModeHandler {
   public:
-    enum Mode { sm_SmartConfig, sm_BackupLogic, sm_RestoreLogic, sm_ResetToDefault };
+    enum Mode {
+        sm_SmartConfig = 0,
+        sm_BackupLogic = 1,
+        sm_RestoreLogic = 2,
+        sm_ResetToDefault = 3
+    };
 
   protected:
     static const int service_mode_timeout_ms = 120000;
     static const size_t max_backup_files = 4;
 
-    static void RenderMainMenu(Mode mode);
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
     static void Execute(EventGroupHandle_t gpio_events, Mode mode);
@@ -35,7 +39,7 @@ class ServiceModeHandler {
     static void Backup(EventGroupHandle_t gpio_events);
     static void RenderBackup(uint32_t fileno, bool *files_stat, size_t files_count);
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
-    static void CreateBackupName(uint32_t fileno, char * name);
+    static void CreateBackupName(uint32_t fileno, char *name);
     static void CreateBackup(uint32_t fileno);
 
   public:

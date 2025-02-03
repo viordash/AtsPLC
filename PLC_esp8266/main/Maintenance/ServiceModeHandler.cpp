@@ -1,5 +1,6 @@
 #include "Maintenance/ServiceModeHandler.h"
 #include "Display/Common.h"
+#include "Display/ListBox.h"
 #include "Display/display.h"
 #include "buttons.h"
 #include "esp_err.h"
@@ -16,10 +17,23 @@ static const char *TAG_ServiceModeHandler = "ServiceMode";
      | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
 
 void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
+    char buffer[64];
     Mode mode = Mode::sm_SmartConfig;
 
+    sprintf(buffer, "v%08X.%u", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
+    ListBox listBox(buffer);
+    listBox.Insert(0, "Smart config");
+    listBox.Insert(1, "Backup logic");
+    listBox.Insert(2, "Restore logic");
+    listBox.Insert(3, "Reset to default");
+    listBox.Select(mode);
+
     while (true) {
-        RenderMainMenu(mode);
+        {
+            uint8_t *fb = begin_render();
+            listBox.Render(fb);
+            end_render(fb);
+        }
 
         EventBits_t uxBits = xEventGroupWaitBits(gpio_events,
                                                  EXPECTED_BUTTONS,
@@ -40,9 +54,11 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 mode = ChangeModeToPrev(mode);
+                listBox.Select(mode);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
                 mode = ChangeModeToNext(mode);
+                listBox.Select(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
                 Execute(gpio_events, mode);
@@ -51,24 +67,6 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                 break;
         }
     }
-}
-
-void ServiceModeHandler::RenderMainMenu(Mode mode) {
-    char buffer[64];
-    uint8_t x = 1;
-    uint8_t y = 1;
-    uint8_t height = get_text_f6X12_height();
-    uint8_t *fb = begin_render();
-
-    sprintf(buffer, " v%08X.%u", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
-    ESP_ERROR_CHECK(draw_text_f5X7(fb, x, y, buffer) <= 0);
-
-    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 1, "Smart config", mode == Mode::sm_SmartConfig) <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 2, "Backup logic", mode == Mode::sm_BackupLogic) <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 3, "Restore logic", mode == Mode::sm_RestoreLogic) <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12_colored(fb, x, y + height * 4, "Reset to default", mode == Mode::sm_ResetToDefault) <= 0);
-
-    end_render(fb);
 }
 
 ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {

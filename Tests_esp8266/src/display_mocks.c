@@ -1,8 +1,8 @@
+#include "freertos/event_groups.h"
 #include "CppUTestExt/MockSupport_c.h"
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "esp_spiffs.h"
-#include "freertos/event_groups.h"
 #include <stdlib.h>
 
 #include <ssd1306/ssd1306.h>
@@ -16,7 +16,7 @@
         x = y;                                                                                     \
         y = temp##x##y;                                                                            \
     } while (0)
-    
+
 int ssd1306_load_frame_buffer(const ssd1306_t *dev, uint8_t buf[]) {
     (void)dev;
     (void)buf;
@@ -321,6 +321,9 @@ int ssd1306_draw_char(const ssd1306_t *dev,
     return d->width;
 }
 
+ssd1306_color_t foreground_color;
+ssd1306_color_t background_color;
+
 int ssd1306_draw_string(const ssd1306_t *dev,
                         uint8_t *fb,
                         const font_info_t *font,
@@ -342,6 +345,8 @@ int ssd1306_draw_string(const ssd1306_t *dev,
         ++str;
         if (*str)
             x += font->c;
+        foreground_color = foreground;
+        background_color = background;
     }
     return x - t;
 }

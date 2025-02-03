@@ -9,6 +9,7 @@
 
 ListBox::ListBox(const char *title) {
     memset(lines, 0, sizeof(lines));
+    selected = -1;
 
     BuildTitle(title);
 }
@@ -37,8 +38,8 @@ void ListBox::BuildTitle(const char *title) {
 }
 
 bool ListBox::Render(uint8_t *fb) {
-    const uint8_t x = 4;
-    uint8_t y = 2;
+    const uint8_t x = left_padding;
+    uint8_t y = top_padding;
     uint8_t height = get_text_f6X12_height();
 
     if (!draw_rectangle(fb, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)) {
@@ -49,10 +50,31 @@ bool ListBox::Render(uint8_t *fb) {
         return false;
     }
     y += height;
-    for (size_t i = 0; i < lines_count; i++) {
-        if (strlen(lines[i]) > 0 && draw_text_f6X12(fb, x, y + height * i, lines[i]) <= 0) {
+    for (int i = 0; i < lines_count; i++) {
+        if (draw_text_f6X12_colored(fb, x, y + height * i, lines[i], selected == i) < 0) {
             return false;
         }
     }
     return true;
+}
+
+bool ListBox::Insert(int pos, const char *text) {
+    if (pos < 0 || pos >= lines_count) {
+        return false;
+    }
+
+    char *line = lines[pos];
+    size_t len = strlen(text);
+
+    if (len > line_size - 1) {
+        strncpy(line, text, line_size - 1);
+        line[line_size - 1] = 0;
+    } else {
+        strcpy(line, text);
+    }
+    return true;
+}
+
+void ListBox::Select(int index) {
+    selected = index;
 }
