@@ -37,7 +37,6 @@ class ServiceModeHandler {
     static void SmartConfig(EventGroupHandle_t gpio_events);
 
     static void Backup(EventGroupHandle_t gpio_events);
-    static void RenderBackup(uint32_t fileno, bool *files_stat, size_t files_count);
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
     static void CreateBackupName(uint32_t fileno, char *name);
     static void CreateBackup(uint32_t fileno);

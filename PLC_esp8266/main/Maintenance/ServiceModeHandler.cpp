@@ -29,11 +29,9 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     listBox.Select(mode);
 
     while (true) {
-        {
-            uint8_t *fb = begin_render();
-            listBox.Render(fb);
-            end_render(fb);
-        }
+        uint8_t *fb = begin_render();
+        listBox.Render(fb);
+        end_render(fb);
 
         EventBits_t uxBits = xEventGroupWaitBits(gpio_events,
                                                  EXPECTED_BUTTONS,
@@ -111,7 +109,7 @@ void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
             SmartConfig(gpio_events);
             break;
         case Mode::sm_BackupLogic:
-            ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_BackupLogic not implemented");
+            Backup(gpio_events);
             break;
         case Mode::sm_RestoreLogic:
             ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_RestoreLogic not implemented");

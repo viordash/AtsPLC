@@ -99,6 +99,7 @@ bool backups_storage_load(const char *name, backups_storage *storage) {
 }
 
 void backups_storage_store(const char *name, backups_storage *storage) {
+    ESP_LOGI(TAG_B, "backups_storage_store load path:'%s', name:'%s'", path, name);
     char filename[256];
     snprintf(filename, sizeof(filename), "%s/%s", path, name);
 

@@ -22,16 +22,29 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
     bool files_stat[max_backup_files];
     GetBackupFilesStat(files_stat, max_backup_files);
 
+    ListBox listBox("Backup");
+
+    for (size_t i = 0; i < max_backup_files; i++) {
+        char buffer[32];
+        CreateBackupName(i, buffer);
+        if (files_stat[i]) {
+            strcat(buffer, " (stored)");
+        }
+        listBox.Insert(i, buffer);
+    }
+
+    listBox.Select(backup_fileno);
+
     while (true) {
-        RenderBackup(backup_fileno, files_stat, max_backup_files);
+        uint8_t *fb = begin_render();
+        listBox.Render(fb);
+        end_render(fb);
 
         EventBits_t uxBits = xEventGroupWaitBits(gpio_events,
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
                                                  service_mode_timeout_ms / portTICK_PERIOD_MS);
-
-        ESP_LOGI(TAG_ServiceModeHandler_Backup, "bits:0x%08X", uxBits);
 
         bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
         if (timeout) {
@@ -41,20 +54,23 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
 
         ButtonsPressType pressed_button = handle_buttons(uxBits);
         ESP_LOGI(TAG_ServiceModeHandler_Backup,
-                 "buttons_changed, pressed_button:%u",
-                 pressed_button);
+                 "buttons_changed, pressed_button:%u, bits:0x%08X",
+                 pressed_button,
+                 uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 backup_fileno--;
                 if (backup_fileno < 0) {
                     backup_fileno = max_backup_files - 1;
                 }
+                listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
                 backup_fileno++;
                 if (backup_fileno >= max_backup_files) {
                     backup_fileno = 0;
                 }
+                listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
                 CreateBackup(backup_fileno);
@@ -63,43 +79,6 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 break;
         }
     }
-}
-
-void ServiceModeHandler::RenderBackup(uint32_t fileno, bool *files_stat, size_t files_count) {
-    // char buffer[64];
-    // uint8_t x = 1;
-    // uint8_t y = 1;
-    // uint8_t height = get_text_f6X12_height();
-    // uint8_t *fb = begin_render();
-
-    // ESP_ERROR_CHECK(draw_text_f5X7(fb, x, y, buffer) <= 0);
-
-    // uint8_t marker_x = x;
-    // uint8_t marker_y = y;
-    // switch (fileno) {
-    //     case Mode::sm_SmartConfig:
-    //         marker_y += height * 1;
-    //         break;
-    //     case Mode::sm_BackupLogic:
-    //         marker_y += height * 2;
-    //         break;
-    //     case Mode::sm_RestoreLogic:
-    //         marker_y += height * 3;
-    //         break;
-    //     case Mode::sm_ResetToDefault:
-    //         marker_y += height * 4;
-    //         break;
-    // }
-    // int marker_width = draw_text_f6X12(fb, marker_x, marker_y, "\x01");
-    // ESP_ERROR_CHECK(marker_width <= 0);
-    // x += marker_width;
-
-    // ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "  Smart config") <= 0);
-    // ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "  Backup logic") <= 0);
-    // ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 3, "  Restore logic") <= 0);
-    // ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 4, "  Reset to default") <= 0);
-
-    // end_render(fb);
 }
 
 void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count) {
@@ -113,7 +92,7 @@ void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count
 }
 
 void ServiceModeHandler::CreateBackupName(uint32_t fileno, char *name) {
-    sprintf(name, "backup_%u", fileno);
+    sprintf(name, "ladder_%u", fileno);
 }
 
 void ServiceModeHandler::CreateBackup(uint32_t fileno) {
