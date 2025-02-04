@@ -39,7 +39,10 @@ class ServiceModeHandler {
     static void Backup(EventGroupHandle_t gpio_events);
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
     static void CreateBackupName(uint32_t fileno, char *name);
-    static void CreateBackup(uint32_t fileno);
+    static bool CreateBackup(uint32_t fileno);
+
+    static void Restore(EventGroupHandle_t gpio_events);
+    static bool DoRestore(uint32_t fileno);
 
   public:
     static void Start(EventGroupHandle_t gpio_events);

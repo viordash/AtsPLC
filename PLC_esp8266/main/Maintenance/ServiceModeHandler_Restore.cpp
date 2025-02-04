@@ -13,16 +13,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_ServiceModeHandler_Backup = "ServiceMode.Backup";
+static const char *TAG_ServiceModeHandler_Backup = "ServiceMode.Restore";
 
-void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_ServiceModeHandler_Backup, "execute");
 
     int backup_fileno = 0;
     bool files_stat[max_backup_files];
     GetBackupFilesStat(files_stat, max_backup_files);
 
-    ListBox listBox("Backup");
+    ListBox listBox("Restore");
 
     for (size_t i = 0; i < max_backup_files; i++) {
         char buffer[32];
@@ -73,7 +73,9 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
-                CreateBackup(backup_fileno);
+                if (files_stat[backup_fileno]) {
+                    DoRestore(backup_fileno);
+                }
                 return;
             default:
                 break;
@@ -81,56 +83,48 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
     }
 }
 
-void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count) {
-    backups_storage storage;
-    char backup_name[16];
-    for (uint32_t i = 0; i < files_count; i++) {
-        CreateBackupName(i, backup_name);
-        files_stat[i] = backups_storage_load(backup_name, &storage) && storage.size > 0
-                     && storage.version == BACKUPS_VERSION;
-    }
-}
-
-void ServiceModeHandler::CreateBackupName(uint32_t fileno, char *name) {
-    sprintf(name, "ladder_%u", fileno);
-}
-
-bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
+bool ServiceModeHandler::DoRestore(uint32_t fileno) {
     char backup_name[16];
     CreateBackupName(fileno, backup_name);
 
-    redundant_storage storage = redundant_storage_load(storage_0_partition,
-                                                       storage_0_path,
-                                                       storage_1_partition,
-                                                       storage_1_path,
-                                                       ladder_storage_name);
-
-    if (storage.size == 0) {
-        ESP_LOGE(TAG_Ladder, "Cannot read ladder program");
-        delete[] storage.data;
+    backups_storage backup_storage;
+    if (!backups_storage_load(backup_name, &backup_storage)) {
+        ESP_LOGE(TAG_Ladder, "Cannot restore '%s'", backup_name);
         return false;
     }
-    if (storage.version != LADDER_VERSION) {
+    if (backup_storage.size == 0) {
+        ESP_LOGE(TAG_Ladder, "Empty backup '%s'", backup_name);
+        delete[] backup_storage.data;
+        return false;
+    }
+    if (backup_storage.version != BACKUPS_VERSION) {
         ESP_LOGE(TAG_Ladder,
-                 "Wrong ladder program version,  0x%X<>0x%X",
-                 storage.version,
-                 LADDER_VERSION);
-        delete[] storage.data;
+                 "Wrong backup '%s' version,  0x%X<>0x%X",
+                 backup_name,
+                 backup_storage.version,
+                 BACKUPS_VERSION);
+        delete[] backup_storage.data;
         return false;
     }
+
+    redundant_storage storage;
+    storage.size = backup_storage.size;
+    storage.data = backup_storage.data;
+    storage.version = LADDER_VERSION;
+
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            ladder_storage_name,
+                            &storage);
 
     ESP_LOGI(TAG_Ladder,
-             "Load ver: 0x%X, size:%u, backup:'%s'",
+             "Store ver: 0x%X, size:%u, backup:'%s'",
              storage.version,
              (uint32_t)storage.size,
              backup_name);
 
-    backups_storage backup_storage;
-    backup_storage.data = storage.data;
-    backup_storage.size = storage.size;
-    backup_storage.version = BACKUPS_VERSION;
-    backups_storage_store(backup_name, &backup_storage);
-    
-    delete[] storage.data;
+    delete[] backup_storage.data;
     return true;
 }
