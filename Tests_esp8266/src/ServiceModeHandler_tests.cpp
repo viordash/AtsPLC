@@ -11,6 +11,7 @@
 #include "main/Maintenance/ServiceModeHandler.cpp"
 #include "main/Maintenance/ServiceModeHandler.h"
 #include "main/Maintenance/ServiceModeHandler_Backup.cpp"
+#include "main/Maintenance/ServiceModeHandler_ResetData.cpp"
 #include "main/Maintenance/ServiceModeHandler_Restore.cpp"
 #include "main/Maintenance/ServiceModeHandler_SmartConfig.cpp"
 
@@ -48,6 +49,12 @@ namespace {
         }
         static bool PublicMorozov_DoRestore(uint32_t fileno) {
             return DoRestore(fileno);
+        }
+        static ResetMode PublicMorozov_ChangeResetModeToPrev(ResetMode mode) {
+            return ChangeResetModeToPrev(mode);
+        }
+        static ResetMode PublicMorozov_ChangeResetModeToNext(ResetMode mode) {
+            return ChangeResetModeToNext(mode);
         }
     };
 } // namespace
@@ -182,4 +189,40 @@ TEST(ServiceModeHandlerTestsGroup, DoRestore_error_if_backup_version_is_other_th
 
 TEST(ServiceModeHandlerTestsGroup, DoRestore_error_if_no_backup) {
     CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoRestore(0));
+}
+
+TEST(ServiceModeHandlerTestsGroup, ChangeResetModeToPrev) {
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_FactoryReset,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToPrev(
+                    ServiceModeHandler::ResetMode::rd_Settings));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Backups,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToPrev(
+                    ServiceModeHandler::ResetMode::rd_FactoryReset));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Ladder,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToPrev(
+                    ServiceModeHandler::ResetMode::rd_Backups));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Settings,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToPrev(
+                    ServiceModeHandler::ResetMode::rd_Ladder));
+}
+
+TEST(ServiceModeHandlerTestsGroup, ChangeResetModeToNext) {
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Ladder,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
+                    ServiceModeHandler::ResetMode::rd_Settings));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Backups,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
+                    ServiceModeHandler::ResetMode::rd_Ladder));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_FactoryReset,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
+                    ServiceModeHandler::ResetMode::rd_Backups));
+
+    CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Settings,
+                TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
+                    ServiceModeHandler::ResetMode::rd_FactoryReset));
 }

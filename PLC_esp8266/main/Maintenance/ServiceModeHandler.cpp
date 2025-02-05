@@ -115,7 +115,7 @@ void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
             Restore(gpio_events);
             break;
         case Mode::sm_ResetToDefault:
-            ESP_LOGE(TAG_ServiceModeHandler, "Mode::sm_ResetToDefault not implemented");
+            ResetData(gpio_events);
             break;
     }
 }
