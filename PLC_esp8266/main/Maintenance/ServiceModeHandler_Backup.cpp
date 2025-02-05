@@ -67,7 +67,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 break;
             case ButtonsPressType::DOWN_PRESSED:
                 backup_fileno++;
-                if (backup_fileno >= max_backup_files) {
+                if ((size_t)backup_fileno >= max_backup_files) {
                     backup_fileno = 0;
                 }
                 listBox.Select(backup_fileno);
@@ -130,7 +130,7 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
     backup_storage.size = storage.size;
     backup_storage.version = BACKUPS_VERSION;
     backups_storage_store(backup_name, &backup_storage);
-    
+
     delete[] storage.data;
     return true;
 }

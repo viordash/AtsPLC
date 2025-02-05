@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_ServiceModeHandler_Backup = "ServiceMode.Restore";
+static const char *TAG_ServiceModeHandler_Restore = "ServiceMode.Restore";
 
 void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
-    ESP_LOGI(TAG_ServiceModeHandler_Backup, "execute");
+    ESP_LOGI(TAG_ServiceModeHandler_Restore, "execute");
 
     int backup_fileno = 0;
     bool files_stat[max_backup_files];
@@ -48,12 +48,12 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
 
         bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
         if (timeout) {
-            ESP_LOGI(TAG_ServiceModeHandler_Backup, "timeout, returns to main");
+            ESP_LOGI(TAG_ServiceModeHandler_Restore, "timeout, returns to main");
             return;
         }
 
         ButtonsPressType pressed_button = handle_buttons(uxBits);
-        ESP_LOGI(TAG_ServiceModeHandler_Backup,
+        ESP_LOGI(TAG_ServiceModeHandler_Restore,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
                  pressed_button,
                  uxBits);
@@ -67,7 +67,7 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                 break;
             case ButtonsPressType::DOWN_PRESSED:
                 backup_fileno++;
-                if (backup_fileno >= max_backup_files) {
+                if ((size_t)backup_fileno >= max_backup_files) {
                     backup_fileno = 0;
                 }
                 listBox.Select(backup_fileno);
