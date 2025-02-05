@@ -39,7 +39,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                                                  false,
                                                  service_mode_timeout_ms / portTICK_PERIOD_MS);
 
-        ESP_LOGI(TAG_ServiceModeHandler, "bits:0x%08X", uxBits);
+        ESP_LOGD(TAG_ServiceModeHandler, "bits:0x%08X", uxBits);
 
         bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
         if (timeout) {
@@ -48,7 +48,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
         }
 
         ButtonsPressType pressed_button = handle_buttons(uxBits);
-        ESP_LOGI(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
+        ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 mode = ChangeModeToPrev(mode);
