@@ -99,6 +99,18 @@ IRAM_ATTR int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *tex
                                OLED_COLOR_BLACK);
 }
 
+IRAM_ATTR int
+draw_text_f6X12_colored(uint8_t *fb, uint8_t x, uint8_t y, const char *text, bool inverse) {
+    return ssd1306_draw_string(&display.dev,
+                               fb,
+                               display.font_6X12,
+                               x,
+                               y,
+                               text,
+                               inverse ? OLED_COLOR_BLACK : OLED_COLOR_WHITE,
+                               inverse ? OLED_COLOR_WHITE : OLED_COLOR_BLACK);
+}
+
 IRAM_ATTR int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
     return ssd1306_draw_string(&display.dev,
                                fb,

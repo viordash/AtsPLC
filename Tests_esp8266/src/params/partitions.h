@@ -4,3 +4,5 @@
 #define storage_1_path "/tmp/storage_1"
 #define settings_storage_name "settings"
 #define ladder_storage_name "ladder"
+#define backups_storage_name "backups"
+#define backups_path "/tmp/backups"

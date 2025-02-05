@@ -34,6 +34,7 @@ void end_render(uint8_t *fb);
 int draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
 int draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
 int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f6X12_colored(uint8_t *fb, uint8_t x, uint8_t y, const char *text, bool inverse);
 int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
 
 int get_text_f4X7_height();

@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/Maintenance/backups_storage.cpp"
 #include "main/redundant_storage.cpp"
 #include "main/storage.cpp"
 
@@ -58,3 +59,6 @@
 #include "HttpServer/MainController.cpp"
 #include "HttpServer/UpdateController.cpp"
 #include "HttpServer/http_server.cpp"
+
+#include "main/Display/ListBox.cpp"
+#include "main/Display/LogsList.cpp"

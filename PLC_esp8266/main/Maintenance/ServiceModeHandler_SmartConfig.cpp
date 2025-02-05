@@ -14,7 +14,6 @@ static const char *TAG_ServiceModeHandler_SmartConfig = "ServiceMode.SC";
 
 void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
     ESP_LOGI(TAG_ServiceModeHandler_SmartConfig, "execute");
-    uint8_t *fb;
     LogsList logs_list("SmartConfig");
 
     bool success = false;
@@ -61,14 +60,10 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                 break;
         }
 
-        fb = begin_render();
+        uint8_t *fb = begin_render();
         logs_list.Render(fb);
         end_render(fb);
     }
-
-    uint8_t x = 1;
-    uint8_t y = 1;
-    uint8_t height = get_text_f6X12_height();
 
     const int show_logs_time_ms = 3000;
     xEventGroupWaitBits(gpio_events,
@@ -76,17 +71,6 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                         true,
                         false,
                         show_logs_time_ms / portTICK_PERIOD_MS);
-
-    fb = begin_render();
-    ESP_ERROR_CHECK(draw_text_f6X12(fb,
-                                    x,
-                                    y + height * 1,
-                                    success //
-                                        ? "SC completed!"
-                                        : "SC error!")
-                    <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") <= 0);
-    end_render(fb);
-
-    xEventGroupWaitBits(gpio_events, EXPECTED_BUTTONS, true, false, portMAX_DELAY);
+                        
+    ShowStatus(gpio_events, success, "SC completed!", "SC error!");
 }

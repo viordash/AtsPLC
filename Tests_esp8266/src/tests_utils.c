@@ -33,3 +33,18 @@ bool storage_1_exists() {
     struct stat st;
     return stat(filename, &st) == 0;
 }
+
+void create_backups_storage() {
+    mkdir(backups_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+}
+void remove_backups_storage() {
+    char cmd[256];
+    snprintf(cmd, sizeof(cmd), "rm -rf %s", backups_path);
+    system(cmd);
+}
+bool backups_storage_exists() {
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", backups_path, backups_storage_name);
+    struct stat st;
+    return stat(filename, &st) == 0;
+}
