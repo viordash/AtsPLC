@@ -44,6 +44,8 @@ class ServiceModeHandler {
     static void Restore(EventGroupHandle_t gpio_events);
     static bool DoRestore(uint32_t fileno);
 
+    static void ShowStatus(EventGroupHandle_t gpio_events, bool success, const char *success_message, const char *error_message);
+
   public:
     static void Start(EventGroupHandle_t gpio_events);
 };

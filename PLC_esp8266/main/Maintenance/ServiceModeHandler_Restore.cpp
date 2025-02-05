@@ -35,7 +35,9 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
 
     listBox.Select(backup_fileno);
 
-    while (true) {
+    bool success = false;
+    bool error = false;
+    while (!success && !error) {
         uint8_t *fb = begin_render();
         listBox.Render(fb);
         end_render(fb);
@@ -74,13 +76,17 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                 break;
             case ButtonsPressType::SELECT_PRESSED:
                 if (files_stat[backup_fileno]) {
-                    DoRestore(backup_fileno);
+                    success = DoRestore(backup_fileno);
+                    error = !success;
+                } else {
+                    error = true;
                 }
-                return;
+                break;
             default:
                 break;
         }
     }
+    ShowStatus(gpio_events, success, "Restore completed!", "Restore error!");
 }
 
 bool ServiceModeHandler::DoRestore(uint32_t fileno) {
