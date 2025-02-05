@@ -47,7 +47,7 @@ namespace {
             return CreateBackup(fileno);
         }
         static bool PublicMorozov_DoRestore(uint32_t fileno) {
-            DoRestore(fileno);
+            return DoRestore(fileno);
         }
     };
 } // namespace
@@ -116,6 +116,30 @@ TEST(ServiceModeHandlerTestsGroup, CreateBackup) {
     delete[] load_storage.data;
 }
 
+TEST(ServiceModeHandlerTestsGroup, CreateBackup_error_if_ladder_version_is_other_than_current) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+                       0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+                       0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
+
+    redundant_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = -1;
+
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            ladder_storage_name,
+                            &storage);
+
+    CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_CreateBackup(0));
+}
+
+TEST(ServiceModeHandlerTestsGroup, CreateBackup_error_if_no_ladder) {
+    CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_CreateBackup(0));
+}
+
 TEST(ServiceModeHandlerTestsGroup, DoRestore) {
     uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
                        0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
@@ -140,4 +164,22 @@ TEST(ServiceModeHandlerTestsGroup, DoRestore) {
     CHECK_EQUAL(sizeof(data), load_storage.size);
     CHECK_EQUAL(LADDER_VERSION, load_storage.version);
     delete[] load_storage.data;
+}
+
+TEST(ServiceModeHandlerTestsGroup, DoRestore_error_if_backup_version_is_other_than_current) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+                       0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+                       0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
+
+    backups_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = -1;
+    backups_storage_store("ladder_0", &storage);
+
+    CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoRestore(0));
+}
+
+TEST(ServiceModeHandlerTestsGroup, DoRestore_error_if_no_backup) {
+    CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoRestore(0));
 }
