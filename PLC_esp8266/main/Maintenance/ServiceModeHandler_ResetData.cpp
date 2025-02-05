@@ -111,7 +111,17 @@ ServiceModeHandler::ChangeResetModeToNext(ServiceModeHandler::ResetMode mode) {
 
 bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
                                      ServiceModeHandler::ResetMode mode) {
-    (void)gpio_events;
-    (void)mode;
+    ESP_LOGI(TAG_ServiceModeHandler_Reset, "DoResetData, mode:%d", (int)mode);
+
+    uint8_t x = 1;
+    uint8_t y = 1;
+    uint8_t height = get_text_f6X12_height();
+
+    uint8_t *fb = begin_render();
+    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "Press UP to continue") <= 0);
+    end_render(fb);
+    xEventGroupWaitBits(gpio_events, BUTTON_UP_IO_OPEN, true, false, portMAX_DELAY);
+    xEventGroupClearBits(gpio_events, EXPECTED_BUTTONS);
+
     return true;
 }
