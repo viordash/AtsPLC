@@ -32,6 +32,7 @@ class ServiceModeHandler {
   protected:
     static const int service_mode_timeout_ms = 120000;
     static const size_t max_backup_files = 4;
+    static const char *reset_data_names[];
 
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
@@ -49,7 +50,7 @@ class ServiceModeHandler {
     static void ResetData(EventGroupHandle_t gpio_events);
     static ResetMode ChangeResetModeToPrev(ResetMode mode);
     static ResetMode ChangeResetModeToNext(ResetMode mode);
-    static bool DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
+    static void DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
 
     static void ShowStatus(EventGroupHandle_t gpio_events,
                            bool success,
