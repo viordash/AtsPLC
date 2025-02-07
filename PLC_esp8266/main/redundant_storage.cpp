@@ -158,3 +158,26 @@ void redundant_storage_store(const char *partition_0,
     write_file(filename, storage);
     close_storage(partition_1);
 }
+
+void redundant_storage_delete(const char *partition_0,
+                              const char *path_0,
+                              const char *partition_1,
+                              const char *path_1,
+                              const char *name) {
+
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", path_0, name);
+
+    open_storage(partition_0, path_0);
+    if (remove(filename) != 0) {
+        ESP_LOGE(TAG_R, "Error deleting file '%s'", filename);
+    }
+    close_storage(partition_0);
+
+    snprintf(filename, sizeof(filename), "%s/%s", path_1, name);
+    open_storage(partition_1, path_1);
+    if (remove(filename) != 0) {
+        ESP_LOGE(TAG_R, "Error deleting file '%s'", filename);
+    }
+    close_storage(partition_1);
+}
