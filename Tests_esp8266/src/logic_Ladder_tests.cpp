@@ -409,6 +409,15 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
 }
 
+TEST(LogicLadderTestsGroup, Render__if_no_networks_then_create_ones_and_show_designer) {
+    TestableLadder testable;
+
+    CHECK_TRUE(testable.Render(frame_buffer));
+
+    CHECK_EQUAL(1, testable.size());
+    CHECK_TRUE(testable[0]->Selected());
+}
+
 TEST(LogicLadderTestsGroup, Delete_storage) {
     Ladder ladder_store([](int16_t, int16_t) {});
 

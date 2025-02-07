@@ -19,7 +19,7 @@ void Ladder::Load() {
 
     if (storage.version != LADDER_VERSION //
         || Deserialize(storage.data, storage.size) == 0) {
-        ESP_LOGI(TAG_Ladder, "load initial networks");
+        ESP_LOGI(TAG_Ladder, "Nothing to load");
         RemoveAll();
     }
     delete[] storage.data;

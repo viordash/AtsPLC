@@ -38,6 +38,14 @@ bool Ladder::DoAction() {
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
 
+    bool requires_at_least_one_network = size() == 0;
+    if (requires_at_least_one_network) {
+        ESP_LOGI(TAG_Ladder, "requires at least one network");
+        auto new_network = new Network(LogicItemState::lisActive);
+        Append(new_network);
+        new_network->Select();
+    }
+
     for (size_t i = view_top_index; i < size(); i++) {
         uint8_t network_number = i - view_top_index;
         if (network_number >= Ladder::MaxViewPortCount) {
