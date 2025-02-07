@@ -66,3 +66,26 @@ TEST(SettingsTestsGroup, store_load_settings) {
     CHECK_EQUAL(90123, settings.wifi_access_point.generation_time_ms);
     CHECK_TRUE(settings.wifi_access_point.ssid_hidden);
 }
+
+TEST(SettingsTestsGroup, delete_settings) {
+    settings.smartconfig.counter = 42;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+    settings.wifi_scanner.max_rssi = 100;
+    settings.wifi_scanner.min_rssi = -100;
+    settings.wifi_access_point.generation_time_ms = 90123;
+    settings.wifi_access_point.ssid_hidden = true;
+    store_settings();
+
+    delete_settings();
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(0, settings.smartconfig.counter);
+    STRCMP_EQUAL("", settings.wifi_station.ssid);
+    STRCMP_EQUAL("", settings.wifi_station.password);
+    CHECK_EQUAL(-26, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(-120, settings.wifi_scanner.min_rssi);
+    CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
+    CHECK_FALSE(settings.wifi_access_point.ssid_hidden);
+}

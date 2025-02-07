@@ -9,6 +9,7 @@ extern CurrentSettings::device_settings settings;
 
 void load_settings();
 void store_settings();
+void delete_settings();
 
 void lock_settings();
 void unlock_settings();
