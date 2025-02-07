@@ -230,21 +230,7 @@ TEST(LogicLadderTestsGroup, initial_load_when_empty_storage) {
     Ladder ladder_load([](int16_t, int16_t) {});
     ladder_load.Load();
 
-    CHECK_EQUAL(6, ladder_load.size());
-
-    auto network0 = ladder_load[0];
-    CHECK_EQUAL(4, network0->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network0)[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, (*network0)[3]->GetElementType());
-
-    auto network1 = ladder_load[1];
-    CHECK_EQUAL(4, network1->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network1)[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network1)[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, (*network1)[3]->GetElementType());
+    CHECK_EQUAL(0, ladder_load.size());
 }
 
 TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
@@ -262,21 +248,7 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 
     Ladder ladder_load([](int16_t, int16_t) {});
     ladder_load.Load();
-    CHECK_EQUAL(6, ladder_load.size());
-
-    auto network0 = ladder_load[0];
-    CHECK_EQUAL(4, network0->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network0)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network0)[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, (*network0)[3]->GetElementType());
-
-    auto network1 = ladder_load[1];
-    CHECK_EQUAL(4, network1->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, (*network1)[0]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_InputNO, (*network1)[1]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_TimerMSecs, (*network1)[2]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, (*network1)[3]->GetElementType());
+    CHECK_EQUAL(0, ladder_load.size());
 }
 
 TEST(LogicLadderTestsGroup, append_network) {
@@ -435,4 +407,24 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
+}
+
+TEST(LogicLadderTestsGroup, Delete_storage) {
+    Ladder ladder_store([](int16_t, int16_t) {});
+
+    auto network_store = new Network(LogicItemState::lisActive);
+    ladder_store.Append(network_store);
+
+    network_store->Append(new TestableInputNC(MapIO::DI));
+    network_store->Append(new TestableComparatorEq(5, MapIO::AI));
+    network_store->Append(new TestableTimerMSecs(12345));
+    network_store->Append(new TestableDirectOutput(MapIO::O1));
+    ladder_store.Store();
+
+    Ladder::DeleteStorage();
+
+    Ladder ladder_load([](int16_t, int16_t) {});
+    ladder_load.Load();
+
+    CHECK_EQUAL(0, ladder_load.size());
 }

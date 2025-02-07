@@ -21,7 +21,6 @@ void Ladder::Load() {
         || Deserialize(storage.data, storage.size) == 0) {
         ESP_LOGI(TAG_Ladder, "load initial networks");
         RemoveAll();
-        InitialLoad();
     }
     delete[] storage.data;
 }
@@ -117,4 +116,12 @@ size_t Ladder::Serialize(uint8_t *buffer, size_t buffer_size) {
     }
 
     return writed;
+}
+
+void Ladder::DeleteStorage() {
+    redundant_storage_delete(storage_0_partition,
+                             storage_0_path,
+                             storage_1_partition,
+                             storage_1_path,
+                             ladder_storage_name);
 }

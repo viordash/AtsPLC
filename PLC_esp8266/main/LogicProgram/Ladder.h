@@ -20,8 +20,6 @@ class Ladder : public std::vector<Network *> {
 
     f_UIStateChanged cb_UI_state_changed;
 
-    void InitialLoad();
-
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
 
@@ -55,6 +53,7 @@ class Ladder : public std::vector<Network *> {
 
     void Load();
     void Store();
+    static void DeleteStorage();
 
     void SetViewTopIndex(int16_t index);
     void SetSelectedNetworkIndex(int16_t index);
