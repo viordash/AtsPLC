@@ -137,6 +137,7 @@ void ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
             delete_settings();
             break;
         case ResetMode::rd_Ladder:
+            Ladder::DeleteStorage();
             break;
         case ResetMode::rd_Backups:
             break;

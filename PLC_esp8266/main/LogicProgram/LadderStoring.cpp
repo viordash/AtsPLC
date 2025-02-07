@@ -119,6 +119,7 @@ size_t Ladder::Serialize(uint8_t *buffer, size_t buffer_size) {
 }
 
 void Ladder::DeleteStorage() {
+    ESP_LOGI(TAG_Ladder, "Delete storage");
     redundant_storage_delete(storage_0_partition,
                              storage_0_path,
                              storage_1_partition,
