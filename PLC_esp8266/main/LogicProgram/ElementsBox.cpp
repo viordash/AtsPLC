@@ -31,7 +31,7 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool h
     source_element->BeginEditing();
     selected_index = 0;
     force_do_action_result = false;
-
+    state = source_element->state;
     CalcEntirePlaceWidth(source_element);
     place_width = source_element_width + fill_wire;
     Fill(source_element, hide_output_elements);

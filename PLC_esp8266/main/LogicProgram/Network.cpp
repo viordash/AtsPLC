@@ -351,7 +351,7 @@ void Network::AddSpaceForNewElement() {
     wire->SetWidth(wire_width);
     if (EnoughSpaceForNewElement(wire)) {
         ESP_LOGI(TAG_Network, "insert wire element");
-
+        LogicItemState wire_state = state;
         auto it = begin();
         while (it != end()) {
             auto element = *it;
@@ -361,8 +361,10 @@ void Network::AddSpaceForNewElement() {
             if (is_output_element) {
                 break;
             }
+            wire_state = element->state;
             it++;
         }
+        wire->state = wire_state;
         insert(it, wire);
 
     } else {

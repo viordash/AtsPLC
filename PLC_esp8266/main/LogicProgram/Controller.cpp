@@ -181,7 +181,7 @@ void Controller::ProcessTask(void *parm) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
         } else if (Controller::force_process_loop) {
-            ESP_LOGI(TAG_Controller, "force_process_loop");
+            ESP_LOGD(TAG_Controller, "force_process_loop");
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 200);
         }
         
