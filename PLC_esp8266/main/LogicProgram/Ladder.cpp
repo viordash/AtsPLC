@@ -98,7 +98,5 @@ void Ladder::AtLeastOneNetwork() {
         return;
     }
     ESP_LOGI(TAG_Ladder, "requires at least one network");
-    auto new_network = new Network(LogicItemState::lisActive);
-    Append(new_network);
-    new_network->Select();
+    HandleButtonSelect();
 }

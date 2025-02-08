@@ -29,6 +29,7 @@ extern "C" {
 class Controller {
   protected:
     static bool runned;
+    static bool force_process_loop;
     static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
     static Ladder *ladder;
