@@ -11,3 +11,4 @@ typedef struct {
 
 bool backups_storage_load(const char *name, backups_storage *storage);
 void backups_storage_store(const char *name, backups_storage *storage);
+void backups_storage_delete(const char *name);
