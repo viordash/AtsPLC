@@ -49,7 +49,6 @@ class Ladder : public std::vector<Network *> {
     void HandleButtonPageDown();
     void HandleButtonSelect();
     void HandleButtonOption();
-    bool ForcePeriodicRendering();
 
     void Load();
     void Store();

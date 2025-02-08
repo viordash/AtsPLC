@@ -35,7 +35,8 @@ static const char *TAG_Controller = "controller";
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
 
-bool Controller::runned = NULL;
+bool Controller::runned = false;
+bool Controller::force_process_loop = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
@@ -72,6 +73,11 @@ void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
         hotreload->view_top_index = view_top_index;
         hotreload->selected_network = selected_network;
         store_hotreload();
+        ESP_LOGD(TAG_Controller, "cb_UI_state_changed %d", selected_network);
+        Controller::force_process_loop = selected_network > -1;
+        if (Controller::force_process_loop) {
+            Controller::WakeupProcessTask();
+        }
     });
 
     Controller::runned = true;
@@ -118,7 +124,7 @@ void Controller::ProcessTask(void *parm) {
                         ? ESP_FAIL
                         : ESP_OK);
 
-    xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS);
+    xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK);
 
     const uint32_t first_iteration_delay = 0;
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
@@ -173,7 +179,11 @@ void Controller::ProcessTask(void *parm) {
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
+        } else if (Controller::force_process_loop) {
+            ESP_LOGI(TAG_Controller, "force_process_loop");
+            Controller::RequestWakeupMs((void *)Controller::ProcessTask, 200);
         }
+        
         need_render |= force_render;
         if (need_render) {
             need_render = false;
@@ -196,18 +206,14 @@ void Controller::RenderTask(void *parm) {
 
     ladder->AtLeastOneNetwork();
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
-        bool force_render = ladder->ForcePeriodicRendering();
-
         BaseType_t xResult =
             xTaskNotifyWait(0,
                             DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
                                 | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
                             &ulNotifiedValue,
-                            force_render //
-                                ? 200 / portTICK_PERIOD_MS
-                                : portMAX_DELAY);
+                            portMAX_DELAY);
 
-        if (!force_render && xResult != pdPASS) {
+        if (xResult != pdPASS) {
             ulNotifiedValue = {};
             ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -244,7 +250,7 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
-        if (force_render || (ulNotifiedValue & DO_RENDERING)) {
+        if ((ulNotifiedValue & DO_RENDERING)) {
             int64_t time_before_render = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
