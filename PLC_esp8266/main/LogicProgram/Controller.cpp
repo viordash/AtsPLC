@@ -192,6 +192,7 @@ void Controller::RenderTask(void *parm) {
 
     uint32_t ulNotifiedValue = {};
 
+    ladder->AtLeastOneNetwork();
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
         bool force_render = ladder->ForcePeriodicRendering();
 

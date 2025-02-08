@@ -39,7 +39,7 @@ class Ladder : public std::vector<Network *> {
 
     bool DoAction();
     bool Render(uint8_t *fb);
-
+    void AtLeastOneNetwork();
     void Append(Network *network);
     bool CanScrollAuto();
     void AutoScroll();
