@@ -112,6 +112,7 @@ void Controller::ProcessTask(void *parm) {
         ladder->SetViewTopIndex(hotreload->view_top_index);
         ladder->SetSelectedNetworkIndex(hotreload->selected_network);
     }
+    ladder->AtLeastOneNetwork();
 
     TaskHandle_t render_task_handle;
     ESP_ERROR_CHECK(xTaskCreate(RenderTask,
@@ -204,7 +205,6 @@ void Controller::RenderTask(void *parm) {
 
     uint32_t ulNotifiedValue = {};
 
-    ladder->AtLeastOneNetwork();
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
         BaseType_t xResult =
             xTaskNotifyWait(0,
