@@ -118,6 +118,8 @@ void Controller::ProcessTask(void *parm) {
                         ? ESP_FAIL
                         : ESP_OK);
 
+    xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS);
+
     const uint32_t first_iteration_delay = 0;
     processWakeupService->Request((void *)Controller::ProcessTask, first_iteration_delay);
     bool need_render = true;
