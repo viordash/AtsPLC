@@ -18,7 +18,7 @@ bool storage_1_exists();
 
 void create_backups_storage();
 void remove_backups_storage();
-bool backups_storage_exists();
+bool backups_storage_exists(const char *name);
 
 #ifdef __cplusplus
 }

@@ -43,6 +43,7 @@ class ServiceModeHandler {
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
     static void CreateBackupName(uint32_t fileno, char *name);
     static bool CreateBackup(uint32_t fileno);
+    static void DeleteBackupFiles(size_t files_count);
 
     static void Restore(EventGroupHandle_t gpio_events);
     static bool DoRestore(uint32_t fileno);

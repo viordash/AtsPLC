@@ -90,9 +90,9 @@ TEST(BackupsStorageTestsGroup, delete_storage) {
     mock("backups").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("backups").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
-    CHECK_TRUE(backups_storage_exists());
+    CHECK_TRUE(backups_storage_exists(backups_storage_name));
 
     backups_storage_delete(backups_storage_name);
 
-    CHECK_FALSE(backups_storage_exists());
+    CHECK_FALSE(backups_storage_exists(backups_storage_name));
 }

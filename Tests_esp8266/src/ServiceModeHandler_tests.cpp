@@ -56,6 +56,9 @@ namespace {
         static ResetMode PublicMorozov_ChangeResetModeToNext(ResetMode mode) {
             return ChangeResetModeToNext(mode);
         }
+        static void PublicMorozov_DeleteBackupFiles(size_t files_count) {
+            DeleteBackupFiles(files_count);
+        }
     };
 } // namespace
 
@@ -225,4 +228,28 @@ TEST(ServiceModeHandlerTestsGroup, ChangeResetModeToNext) {
     CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Settings,
                 TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
                     ServiceModeHandler::ResetMode::rd_FactoryReset));
+}
+
+TEST(ServiceModeHandlerTestsGroup, DeleteBackupFiles) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+                       0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+                       0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
+
+    redundant_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = LADDER_VERSION;
+
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            ladder_storage_name,
+                            &storage);
+
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(0));
+    CHECK_TRUE(backups_storage_exists("ladder_0"));
+
+    TestableServiceModeHandler::PublicMorozov_DeleteBackupFiles(4);
+    CHECK_FALSE(backups_storage_exists("ladder_0"));
 }

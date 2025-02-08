@@ -42,9 +42,9 @@ void remove_backups_storage() {
     snprintf(cmd, sizeof(cmd), "rm -rf %s", backups_path);
     system(cmd);
 }
-bool backups_storage_exists() {
+bool backups_storage_exists(const char * name) {
     char filename[256];
-    snprintf(filename, sizeof(filename), "%s/%s", backups_path, backups_storage_name);
+    snprintf(filename, sizeof(filename), "%s/%s", backups_path, name);
     struct stat st;
     return stat(filename, &st) == 0;
 }
