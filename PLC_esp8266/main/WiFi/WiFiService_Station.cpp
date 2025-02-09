@@ -115,7 +115,9 @@ void WiFiService::StationTask(RequestItem *request) {
 
         bool connected = (ulNotifiedValue & CONNECTED_BIT) != 0;
         if (connected) {
-            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP");
+            wifi_ap_record_t ap;
+            esp_wifi_sta_get_ap_info(&ap);
+            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP, rssi:%d", ap.rssi);
             SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
             start_http_server();
             connect_retries_num = 0;
