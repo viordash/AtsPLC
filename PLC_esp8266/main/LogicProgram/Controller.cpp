@@ -182,9 +182,10 @@ void Controller::ProcessTask(void *parm) {
             Controller::RequestWakeupMs((void *)Controller::ProcessTask, 0);
         } else if (Controller::force_process_loop) {
             ESP_LOGD(TAG_Controller, "force_process_loop");
-            Controller::RequestWakeupMs((void *)Controller::ProcessTask, 200);
+            const uint32_t process_loop_cycle_ms = 200;
+            Controller::RequestWakeupMs((void *)Controller::ProcessTask, process_loop_cycle_ms);
         }
-        
+
         need_render |= force_render;
         if (need_render) {
             need_render = false;
@@ -250,7 +251,7 @@ void Controller::RenderTask(void *parm) {
             ulNotifiedValue |= DO_RENDERING;
         }
 
-        if ((ulNotifiedValue & DO_RENDERING)) {
+        if (ulNotifiedValue & DO_RENDERING) {
             int64_t time_before_render = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
