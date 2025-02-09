@@ -51,7 +51,7 @@ class ServiceModeHandler {
     static void ResetData(EventGroupHandle_t gpio_events);
     static ResetMode ChangeResetModeToPrev(ResetMode mode);
     static ResetMode ChangeResetModeToNext(ResetMode mode);
-    static void DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
+    static bool DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
 
     static void ShowStatus(EventGroupHandle_t gpio_events,
                            bool success,

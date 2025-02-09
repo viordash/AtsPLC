@@ -128,6 +128,7 @@ void ServiceModeHandler::ShowStatus(EventGroupHandle_t gpio_events,
     uint8_t y = 1;
     uint8_t height = get_text_f6X12_height();
 
+    xEventGroupClearBits(gpio_events, EXPECTED_BUTTONS);
     uint8_t *fb = begin_render();
     ESP_ERROR_CHECK(draw_text_f6X12(fb,
                                     x,

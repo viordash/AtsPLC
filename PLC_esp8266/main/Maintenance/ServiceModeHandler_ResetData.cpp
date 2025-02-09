@@ -34,8 +34,9 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
 
     listBox.Select(mode);
 
-    bool runned = true;
-    while (runned) {
+    bool success = false;
+    bool error = false;
+    while (!success && !error) {
         uint8_t *fb = begin_render();
         listBox.Render(fb);
         end_render(fb);
@@ -67,14 +68,14 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
-                DoResetData(gpio_events, mode);
-                runned = false;
+                success = DoResetData(gpio_events, mode);
+                error = !success;
                 break;
             default:
                 break;
         }
     }
-    ShowStatus(gpio_events, true, "Completed!", "");
+    ShowStatus(gpio_events, success, "Completed!", "Canceled!");
     esp_restart();
 }
 
@@ -116,7 +117,7 @@ ServiceModeHandler::ChangeResetModeToNext(ServiceModeHandler::ResetMode mode) {
     return mode;
 }
 
-void ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
+bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
                                      ServiceModeHandler::ResetMode mode) {
     ESP_LOGI(TAG_ServiceModeHandler_Reset, "DoResetData, mode:%d", (int)mode);
 
@@ -129,8 +130,20 @@ void ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
     ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) <= 0);
     ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") <= 0);
     end_render(fb);
-    xEventGroupWaitBits(gpio_events, BUTTON_UP_IO_OPEN, true, false, portMAX_DELAY);
-    xEventGroupClearBits(gpio_events, EXPECTED_BUTTONS);
+    EventBits_t uxBits =
+        xEventGroupWaitBits(gpio_events,
+                            BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_OPEN | BUTTON_SELECT_IO_OPEN,
+                            true,
+                            false,
+                            portMAX_DELAY);
+
+    ESP_LOGI(TAG_ServiceModeHandler_Reset, "bits:0x%08X", uxBits);
+
+    bool button_up_released = (uxBits & BUTTON_UP_IO_OPEN) != 0;
+    if (!button_up_released) {
+        ESP_LOGI(TAG_ServiceModeHandler_Reset, "Canceled");
+        return false;
+    }
 
     switch (mode) {
         case ResetMode::rd_Settings:
@@ -143,6 +156,10 @@ void ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
             DeleteBackupFiles(max_backup_files);
             break;
         case ResetMode::rd_FactoryReset:
+            delete_settings();
+            Ladder::DeleteStorage();
+            DeleteBackupFiles(max_backup_files);
             break;
     }
+    return true;
 }
