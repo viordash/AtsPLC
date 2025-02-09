@@ -21,3 +21,9 @@ void redundant_storage_store(const char *partition_0,
                              const char *path_1,
                              const char *name,
                              redundant_storage *storage);
+
+void redundant_storage_delete(const char *partition_0,
+                              const char *path_0,
+                              const char *partition_1,
+                              const char *path_1,
+                              const char *name);

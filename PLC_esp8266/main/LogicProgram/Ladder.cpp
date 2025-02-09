@@ -37,7 +37,6 @@ bool Ladder::DoAction() {
 
 IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
     bool res = true;
-
     for (size_t i = view_top_index; i < size(); i++) {
         uint8_t network_number = i - view_top_index;
         if (network_number >= Ladder::MaxViewPortCount) {
@@ -92,4 +91,12 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
             break;
         }
     }
+}
+
+void Ladder::AtLeastOneNetwork() {
+    if (!empty()) {
+        return;
+    }
+    ESP_LOGI(TAG_Ladder, "requires at least one network");
+    HandleButtonSelect();
 }

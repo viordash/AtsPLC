@@ -85,6 +85,16 @@ void store_settings() {
                             &storage);
 }
 
+void delete_settings() {
+    redundant_storage_delete(storage_0_partition,
+                             storage_0_path,
+                             storage_1_partition,
+                             storage_1_path,
+                             settings_storage_name);
+
+    ESP_LOGI(TAG_settings, "deleted");
+}
+
 void lock_settings() {
     ESP_ERROR_CHECK(xSemaphoreTake(mutex, portMAX_DELAY) != pdTRUE ? ESP_ERR_NO_MEM : ESP_OK);
 }

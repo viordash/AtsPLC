@@ -107,3 +107,15 @@ void backups_storage_store(const char *name, backups_storage *storage) {
     write_file(filename, storage);
     close_storage(partition);
 }
+
+void backups_storage_delete(const char *name) {
+    ESP_LOGI(TAG_B, "backups_storage_delete load path:'%s', name:'%s'", path, name);
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", path, name);
+
+    open_storage(partition, path);
+    if (remove(filename) != 0) {
+        ESP_LOGE(TAG_B, "Error deleting file '%s'", filename);
+    }
+    close_storage(partition);
+}

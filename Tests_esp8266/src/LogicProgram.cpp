@@ -31,7 +31,6 @@
 #include "main/LogicProgram/Inputs/WiFiStation.cpp"
 #include "main/LogicProgram/Ladder.cpp"
 #include "main/LogicProgram/LadderDesigner.cpp"
-#include "main/LogicProgram/LadderInitial.cpp"
 #include "main/LogicProgram/LadderStoring.cpp"
 #include "main/LogicProgram/LogicElement.cpp"
 #include "main/LogicProgram/MapIO.cpp"

@@ -1,3 +1,5 @@
+#include "freertos/event_groups.h"
+#include "freertos/task.h"
 #include "CppUTestExt/MockSupport_c.h"
 #include "driver/adc.h"
 #include "driver/gpio.h"
@@ -6,8 +8,6 @@
 #include "esp_ota_ops.h"
 #include "esp_spiffs.h"
 #include "esp_wifi.h"
-#include "freertos/event_groups.h"
-#include "freertos/task.h"
 #include <stdlib.h>
 
 const char *WIFI_EVENT = "wifi_event";
@@ -468,4 +468,8 @@ void vTaskGetInfo(TaskHandle_t xTask,
     (void)xGetFreeStackSpace;
     (void)eState;
     mock_c()->actualCall("vTaskGetInfo");
+}
+
+void esp_restart(void) {
+    mock_c()->actualCall("esp_restart");
 }

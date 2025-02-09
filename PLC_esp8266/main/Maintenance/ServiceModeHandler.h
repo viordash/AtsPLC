@@ -27,9 +27,12 @@ class ServiceModeHandler {
         sm_ResetToDefault = 3
     };
 
+    enum ResetMode { rd_Settings = 0, rd_Ladder = 1, rd_Backups = 2, rd_FactoryReset = 3 };
+
   protected:
     static const int service_mode_timeout_ms = 120000;
     static const size_t max_backup_files = 4;
+    static const char *reset_data_names[];
 
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
@@ -40,11 +43,20 @@ class ServiceModeHandler {
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
     static void CreateBackupName(uint32_t fileno, char *name);
     static bool CreateBackup(uint32_t fileno);
+    static void DeleteBackupFiles(size_t files_count);
 
     static void Restore(EventGroupHandle_t gpio_events);
     static bool DoRestore(uint32_t fileno);
 
-    static void ShowStatus(EventGroupHandle_t gpio_events, bool success, const char *success_message, const char *error_message);
+    static void ResetData(EventGroupHandle_t gpio_events);
+    static ResetMode ChangeResetModeToPrev(ResetMode mode);
+    static ResetMode ChangeResetModeToNext(ResetMode mode);
+    static bool DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
+
+    static void ShowStatus(EventGroupHandle_t gpio_events,
+                           bool success,
+                           const char *success_message,
+                           const char *error_message);
 
   public:
     static void Start(EventGroupHandle_t gpio_events);

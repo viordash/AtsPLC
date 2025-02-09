@@ -138,3 +138,12 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
     delete[] storage.data;
     return true;
 }
+
+void ServiceModeHandler::DeleteBackupFiles(size_t files_count) {
+    ESP_LOGI(TAG_ServiceModeHandler_Backup, "delete backup files");
+    char backup_name[16];
+    for (uint32_t i = 0; i < files_count; i++) {
+        CreateBackupName(i, backup_name);
+        backups_storage_delete(backup_name);
+    }
+}
