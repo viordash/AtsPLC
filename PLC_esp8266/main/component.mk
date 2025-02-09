@@ -10,7 +10,7 @@ COMPONENT_SRCDIRS := . MigrateAnyData HttpServer Display Display/ssd1306 Display
 
 
 #use for main/settings.cpp
-DEVICE_VERSION:=20250107
+DEVICE_VERSION:=20250209
 DEVICE_VERSION_seconds:=$(shell date -d '$(DEVICE_VERSION)' +'%s')
 current_seconds:=$(shell date +'%s')
 minutes_since=$(shell echo "($(current_seconds) - $(DEVICE_VERSION_seconds)) / 60" | bc)
