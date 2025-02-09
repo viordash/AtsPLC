@@ -55,10 +55,11 @@ int8_t WiFiService::Scanning(RequestItem *request,
 
         for (int i = 0; i < number; i++) {
             ESP_LOGI(TAG_WiFiService_Scanner,
-                     "SSID:'%s', RSSI:%d, Channel:%d",
+                     "SSID:'%s', RSSI:%d, Channel:%d, reqSSID:'%s'",
                      ap_info[i].ssid,
                      ap_info[i].rssi,
-                     ap_info[i].primary);
+                     ap_info[i].primary,
+                     request->Payload.Scanner.ssid);
             if (strcmp((const char *)ap_info[i].ssid, (const char *)request->Payload.Scanner.ssid)
                     == 0
                 && ap_info[i].rssi > scanner_settings->min_rssi) {

@@ -26,7 +26,12 @@ void ControllerVariable::FetchValue() {
 
     uint8_t val;
     if (BindedToWiFi()) {
-        val = wifi_service->Scan(ssid);
+        bool wifi_sta_client = ssid == NULL;
+        if (!wifi_sta_client) {
+            val = wifi_service->Scan(ssid);
+        } else {
+            val = wifi_service->ConnectToStation();
+        }
     } else {
         val = out_value;
     }
@@ -67,7 +72,10 @@ void ControllerVariable::CancelReadingProcess() {
              BindedToWiFi(),
              required_reading);
     if (BindedToWiFi()) {
-        wifi_service->CancelScan(ssid);
+        bool wifi_sta_client = ssid == NULL;
+        if (!wifi_sta_client) {
+            wifi_service->CancelScan(ssid);
+        }
         value = LogicElement::MinValue;
         out_value = LogicElement::MinValue;
     }

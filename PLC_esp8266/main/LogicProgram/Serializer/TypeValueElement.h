@@ -22,8 +22,9 @@ enum TvElementType : uint8_t {
     et_DecOutput,
     et_Indicator,
     et_WiFiBinding,
-    et_WiFiStation
-};
+    et_WiFiStation,
+    et_WiFiStaBinding
+}; 
 
 struct __attribute__((packed)) TvElement {
     TvElementType type;
@@ -86,6 +87,8 @@ static inline bool IsIndicatorElement(TvElementType element_type) {
 static inline bool IsBindingElement(TvElementType element_type) {
     switch (element_type) {
         case et_WiFiBinding:
+            return true;
+        case et_WiFiStaBinding:
             return true;
         default:
             return false;

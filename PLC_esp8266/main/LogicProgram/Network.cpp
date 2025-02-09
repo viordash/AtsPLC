@@ -1,6 +1,7 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/ElementsBox.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
@@ -85,7 +86,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         auto element = *it;
         if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
             && Wire::TryToCast(element) == NULL && Indicator::TryToCast(element) == NULL
-            && WiFiBinding::TryToCast(element) == NULL && WiFiStation::TryToCast(element) == NULL) {
+            && WiFiBinding::TryToCast(element) == NULL && WiFiStaBinding::TryToCast(element) == NULL
+            && WiFiStation::TryToCast(element) == NULL) {
             break;
         }
         it++;
