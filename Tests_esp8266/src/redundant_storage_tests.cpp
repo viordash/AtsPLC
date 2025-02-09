@@ -118,8 +118,8 @@ TEST(RedundantStorageTestsGroup, second_storage_restored_when_load) {
 
     remove_storage_1();
     create_storage_1();
-    CHECK_EQUAL(true, storage_0_exists());
-    CHECK_EQUAL(false, storage_1_exists());
+    CHECK_EQUAL(true, storage_0_exists(settings_storage_name));
+    CHECK_EQUAL(false, storage_1_exists(settings_storage_name));
 
     mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
@@ -136,8 +136,8 @@ TEST(RedundantStorageTestsGroup, second_storage_restored_when_load) {
     CHECK_EQUAL(19, storage.version);
     delete[] storage.data;
 
-    CHECK_EQUAL(true, storage_0_exists());
-    CHECK_EQUAL(true, storage_1_exists());
+    CHECK_EQUAL(true, storage_0_exists(settings_storage_name));
+    CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
 }
 
 TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
@@ -159,8 +159,8 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
 
     remove_storage_0();
     create_storage_0();
-    CHECK_EQUAL(false, storage_0_exists());
-    CHECK_EQUAL(true, storage_1_exists());
+    CHECK_EQUAL(false, storage_0_exists(settings_storage_name));
+    CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
 
     mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
@@ -177,8 +177,8 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
     CHECK_EQUAL(42, storage.version);
     delete[] storage.data;
 
-    CHECK_EQUAL(true, storage_0_exists());
-    CHECK_EQUAL(true, storage_1_exists());
+    CHECK_EQUAL(true, storage_0_exists(settings_storage_name));
+    CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
 }
 
 TEST(RedundantStorageTestsGroup, delete_storage) {
@@ -205,8 +205,8 @@ TEST(RedundantStorageTestsGroup, delete_storage) {
     mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
-    CHECK_TRUE(storage_0_exists());
-    CHECK_TRUE(storage_1_exists());
+    CHECK_TRUE(storage_0_exists(settings_storage_name));
+    CHECK_TRUE(storage_1_exists(settings_storage_name));
 
     redundant_storage_delete(storage_0_partition,
                              storage_0_path,
@@ -214,6 +214,6 @@ TEST(RedundantStorageTestsGroup, delete_storage) {
                              storage_1_path,
                              settings_storage_name);
 
-    CHECK_FALSE(storage_0_exists());
-    CHECK_FALSE(storage_1_exists());
+    CHECK_FALSE(storage_0_exists(settings_storage_name));
+    CHECK_FALSE(storage_1_exists(settings_storage_name));
 }

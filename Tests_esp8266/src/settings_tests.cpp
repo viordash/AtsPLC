@@ -77,7 +77,14 @@ TEST(SettingsTestsGroup, delete_settings) {
     settings.wifi_access_point.ssid_hidden = true;
     store_settings();
 
+    CHECK_TRUE(storage_0_exists(settings_storage_name));
+    CHECK_TRUE(storage_1_exists(settings_storage_name));
+
     delete_settings();
+
+    CHECK_FALSE(storage_0_exists(settings_storage_name));
+    CHECK_FALSE(storage_1_exists(settings_storage_name));
+
     memset(&settings, 0, sizeof(settings));
     load_settings();
 
