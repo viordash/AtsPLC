@@ -27,10 +27,10 @@ namespace {
     };
 } // namespace
 
-TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_1_to_99999) {
+TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_50_to_99999) {
     TimerMSecs testable_0;
     testable_0.SetTime(0);
-    CHECK_EQUAL(1 * 1000LL, testable_0.GetTimeUs());
+    CHECK_EQUAL(50 * 1000LL, testable_0.GetTimeUs());
 
     TimerMSecs testable_99998;
     testable_99998.SetTime(99998);
@@ -140,9 +140,9 @@ TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
     TimerMSecs testable(1);
     testable.BeginEditing();
     testable.SelectPrior();
-    CHECK_EQUAL(51 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(100 * 1000L, testable.GetTimeUs());
     testable.SelectPrior();
-    CHECK_EQUAL(101 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(150 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99900);
     testable.SelectPrior();
@@ -161,9 +161,7 @@ TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
     testable.SelectNext();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
     testable.SelectNext();
-    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
-    testable.SelectNext();
-    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99999);
     testable.SelectNext();
@@ -178,9 +176,9 @@ TEST(LogicTimerMSecsTestsGroup, PageUp_changing_delay_time) {
     TimerMSecs testable(1);
     testable.BeginEditing();
     testable.PageUp();
-    CHECK_EQUAL(251 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(300 * 1000L, testable.GetTimeUs());
     testable.PageUp();
-    CHECK_EQUAL(501 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(550 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99700);
     testable.PageUp();
@@ -197,9 +195,9 @@ TEST(LogicTimerMSecsTestsGroup, PageDown_changing_IoAdr) {
     testable.PageDown();
     CHECK_EQUAL(100 * 1000L, testable.GetTimeUs());
     testable.PageDown();
-    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
     testable.PageDown();
-    CHECK_EQUAL(1 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
 
     testable.SetTime(99999);
     testable.PageDown();
