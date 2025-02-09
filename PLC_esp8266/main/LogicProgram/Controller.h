@@ -19,7 +19,6 @@ extern "C" {
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
 #include "WiFi/WiFiService.h"
-#include "WiFi/WiFiStationConnectStatus.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -65,6 +64,6 @@ class Controller {
 
     static void WakeupProcessTask();
 
-    static WiFiStationConnectStatus ConnectToWiFiStation();
+    static uint8_t ConnectToWiFiStation();
     static void DisconnectFromWiFiStation();
 };

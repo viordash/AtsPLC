@@ -18,7 +18,6 @@ static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService() {
-    station_connect_status = WiFiStationConnectStatus ::wscs_Error;
 }
 
 WiFiService::~WiFiService() {
@@ -29,7 +28,6 @@ void WiFiService::Start() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
     ESP_ERROR_CHECK(
         xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, &task_handle)
                 != pdPASS
@@ -63,13 +61,21 @@ bool WiFiService::Started() {
     return xTaskDetails.eCurrentState == eTaskState::eRunning;
 }
 
-WiFiStationConnectStatus WiFiService::ConnectToStation() {
-    auto status = GetWiFiStationConnectStatus();
+uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "ConnectToStation, status:%u", status);
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation");
     }
-    return status;
+    wifi_ap_record_t ap;
+    if (esp_wifi_sta_get_ap_info(&ap) != ESP_OK) {
+        ESP_LOGI(TAG_WiFiService, "ConnectToStation, no connection");
+        return LogicElement::MinValue;
+    }
+
+    CurrentSettings::wifi_scanner_settings scanner_settings = { 500, -26, -120 };
+    uint8_t rssi = ScaleRssiToPercent04(ap.rssi, &scanner_settings);
+    ESP_LOGI(TAG_WiFiService, "ConnectToStation, rssi:%d[%u]", ap.rssi, rssi);
+    return rssi;
 }
 
 void WiFiService::DisconnectFromStation() {
@@ -78,16 +84,6 @@ void WiFiService::DisconnectFromStation() {
     if (removed) {
         xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
-}
-
-void WiFiService::SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status) {
-    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    station_connect_status = new_status;
-}
-
-WiFiStationConnectStatus WiFiService::GetWiFiStationConnectStatus() {
-    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    return station_connect_status;
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {

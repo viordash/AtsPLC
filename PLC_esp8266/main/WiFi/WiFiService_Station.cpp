@@ -33,7 +33,6 @@ void WiFiService::StationTask(RequestItem *request) {
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
-        SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
         requests.RemoveStation();
         return;
     }
@@ -82,7 +81,6 @@ void WiFiService::StationTask(RequestItem *request) {
 
             const int retries_num_before_no_station = 3;
             if (connect_retries_num >= retries_num_before_no_station) {
-                SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_NoStation);
                 if (one_more_request) {
                     ESP_LOGI(TAG_WiFiService_Station,
                              "Stop connecting to station due to new request");
@@ -118,7 +116,6 @@ void WiFiService::StationTask(RequestItem *request) {
             wifi_ap_record_t ap;
             esp_wifi_sta_get_ap_info(&ap);
             ESP_LOGI(TAG_WiFiService_Station, "Connected to AP, rssi:%d", ap.rssi);
-            SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Connected);
             start_http_server();
             connect_retries_num = 0;
             has_connect = true;

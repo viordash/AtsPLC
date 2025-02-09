@@ -1,6 +1,5 @@
 #include "LogicProgram/Inputs/WiFiStation.h"
 #include "Display/bitmaps/wif_sta_active.h"
-#include "Display/bitmaps/wif_sta_error.h"
 #include "Display/bitmaps/wif_sta_inactive.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
@@ -13,7 +12,7 @@
 static const char *TAG_WiFiStation = "WiFiStation";
 
 WiFiStation::WiFiStation() : LogicElement() {
-    station_connect_status = WiFiStationConnectStatus::wscs_Error;
+    station_rssi = LogicElement::MinValue;
 }
 
 WiFiStation::~WiFiStation() {
@@ -26,22 +25,8 @@ WiFiStation::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
 
     const Bitmap *bitmap = &bitmap_passive;
 
-    switch (station_connect_status) {
-        case WiFiStationConnectStatus::wscs_Connected:
-            if (prev_elem_state == LogicItemState::lisActive) {
-                bitmap = &bitmap_active;
-            } else {
-                bitmap = &bitmap_passive;
-            }
-            break;
-
-        case WiFiStationConnectStatus::wscs_Error:
-            bitmap = &bitmap_error;
-            break;
-
-        default:
-            bitmap = &bitmap_passive;
-            break;
+    if (station_rssi > LogicElement::MinValue && prev_elem_state == LogicItemState::lisActive) {
+        bitmap = &bitmap_active;
     }
 
     if (prev_elem_state == LogicItemState::lisActive) {
@@ -81,8 +66,8 @@ bool WiFiStation::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
         Controller::DisconnectFromWiFiStation();
     } else if (prev_elem_state == LogicItemState::lisActive) {
-        station_connect_status = Controller::ConnectToWiFiStation();
-        if (station_connect_status == WiFiStationConnectStatus::wscs_Connected) {
+        station_rssi = Controller::ConnectToWiFiStation();
+        if (station_rssi > LogicElement::MinValue) {
             state = LogicItemState::lisActive;
         }
     }

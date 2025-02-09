@@ -362,11 +362,11 @@ void Controller::WakeupProcessTask() {
     xEventGroupSetBits(Controller::gpio_events, WAKEUP_PROCESS_TASK);
 }
 
-WiFiStationConnectStatus Controller::ConnectToWiFiStation() {
+uint8_t Controller::ConnectToWiFiStation() {
     if (Controller::wifi_service != NULL) {
         return Controller::wifi_service->ConnectToStation();
     }
-    return WiFiStationConnectStatus::wscs_Error;
+    return LogicElement::MinValue;;
 }
 
 void Controller::DisconnectFromWiFiStation() {

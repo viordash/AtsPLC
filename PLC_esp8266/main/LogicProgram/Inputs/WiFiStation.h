@@ -2,7 +2,6 @@
 
 #include "Display/display.h"
 #include "LogicProgram/LogicElement.h"
-#include "WiFi/WiFiStationConnectStatus.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -10,10 +9,8 @@ class WiFiStation : public LogicElement {
   private:
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
-    const static Bitmap bitmap_error;
-
   protected:
-    WiFiStationConnectStatus station_connect_status;
+    uint8_t station_rssi;
 
   public:
     typedef enum { //

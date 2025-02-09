@@ -473,3 +473,10 @@ void vTaskGetInfo(TaskHandle_t xTask,
 void esp_restart(void) {
     mock_c()->actualCall("esp_restart");
 }
+
+esp_err_t esp_wifi_sta_get_ap_info(wifi_ap_record_t *ap_info){
+    return mock_c()
+        ->actualCall("esp_wifi_sta_get_ap_info")
+        ->withOutputParameter("ap_info", ap_info)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
