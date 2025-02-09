@@ -117,13 +117,13 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     }
     top_left.x += bitmap.size.width + 1;
 
-    bool show_scales = editable_state == EditableElement::ElementState::des_Editing
+    bool show_edit_ssid = editable_state == EditableElement::ElementState::des_Editing
                     && (WiFiBinding::EditingPropertyId)editing_property_id
                            != WiFiBinding::EditingPropertyId::wbepi_None
                     && (WiFiBinding::EditingPropertyId)editing_property_id
                            != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
-    if (show_scales) {
+    if (show_edit_ssid) {
         res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
     } else {
         if (ssid_size <= 8) {
