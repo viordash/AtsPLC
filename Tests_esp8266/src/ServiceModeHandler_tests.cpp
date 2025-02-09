@@ -59,6 +59,10 @@ namespace {
         static void PublicMorozov_DeleteBackupFiles(size_t files_count) {
             DeleteBackupFiles(files_count);
         }
+        static bool PublicMorozov_DoResetData(EventGroupHandle_t gpio_events,
+                                              ServiceModeHandler::ResetMode mode) {
+            return DoResetData(gpio_events, mode);
+        }
     };
 } // namespace
 
@@ -252,4 +256,117 @@ TEST(ServiceModeHandlerTestsGroup, DeleteBackupFiles) {
 
     TestableServiceModeHandler::PublicMorozov_DeleteBackupFiles(4);
     CHECK_FALSE(backups_storage_exists("ladder_0"));
+}
+
+TEST(ServiceModeHandlerTestsGroup, DoResetData__FactoryReset) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+                       0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+                       0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
+
+    store_settings();
+
+    redundant_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = LADDER_VERSION;
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            ladder_storage_name,
+                            &storage);
+
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(0));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(1));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(2));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(3));
+
+    CHECK_TRUE(backups_storage_exists("ladder_0"));
+    CHECK_TRUE(backups_storage_exists("ladder_1"));
+    CHECK_TRUE(backups_storage_exists("ladder_2"));
+    CHECK_TRUE(backups_storage_exists("ladder_3"));
+    CHECK_TRUE(storage_0_exists(ladder_storage_name));
+    CHECK_TRUE(storage_1_exists(ladder_storage_name));
+    CHECK_TRUE(storage_0_exists(settings_storage_name));
+    CHECK_TRUE(storage_1_exists(settings_storage_name));
+
+    mock().enable();
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .ignoreOtherParameters()
+        .andReturnValue(BUTTON_UP_IO_OPEN);
+
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("backups").expectNCalls(4, "esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("backups").expectNCalls(4, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
+
+    EventGroupHandle_t gpio_events;
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_DoResetData(
+        gpio_events,
+        ServiceModeHandler::ResetMode::rd_FactoryReset));
+
+    CHECK_FALSE(backups_storage_exists("ladder_0"));
+    CHECK_FALSE(backups_storage_exists("ladder_1"));
+    CHECK_FALSE(backups_storage_exists("ladder_2"));
+    CHECK_FALSE(backups_storage_exists("ladder_3"));
+    CHECK_FALSE(storage_0_exists(settings_storage_name));
+    CHECK_FALSE(storage_1_exists(settings_storage_name));
+    CHECK_FALSE(storage_0_exists(ladder_storage_name));
+    CHECK_FALSE(storage_1_exists(ladder_storage_name));
+}
+
+TEST(ServiceModeHandlerTestsGroup, DoResetData__return_false_if_button_up_not_pressed) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+                       0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+                       0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
+
+    store_settings();
+    redundant_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = LADDER_VERSION;
+
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            ladder_storage_name,
+                            &storage);
+
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(0));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(1));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(2));
+    CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_CreateBackup(3));
+
+    CHECK_TRUE(backups_storage_exists("ladder_0"));
+    CHECK_TRUE(backups_storage_exists("ladder_1"));
+    CHECK_TRUE(backups_storage_exists("ladder_2"));
+    CHECK_TRUE(backups_storage_exists("ladder_3"));
+    CHECK_TRUE(storage_0_exists(ladder_storage_name));
+    CHECK_TRUE(storage_1_exists(ladder_storage_name));
+    CHECK_TRUE(storage_0_exists(settings_storage_name));
+    CHECK_TRUE(storage_1_exists(settings_storage_name));
+
+    mock().enable();
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .ignoreOtherParameters()
+        .andReturnValue(BUTTON_SELECT_IO_OPEN);
+
+    EventGroupHandle_t gpio_events;
+    CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoResetData(
+        gpio_events,
+        ServiceModeHandler::ResetMode::rd_FactoryReset));
+
+    CHECK_TRUE(backups_storage_exists("ladder_0"));
+    CHECK_TRUE(backups_storage_exists("ladder_1"));
+    CHECK_TRUE(backups_storage_exists("ladder_2"));
+    CHECK_TRUE(backups_storage_exists("ladder_3"));
+    CHECK_TRUE(storage_0_exists(settings_storage_name));
+    CHECK_TRUE(storage_1_exists(settings_storage_name));
+    CHECK_TRUE(storage_0_exists(ladder_storage_name));
+    CHECK_TRUE(storage_1_exists(ladder_storage_name));
 }
