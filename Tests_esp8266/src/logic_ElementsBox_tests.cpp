@@ -208,7 +208,7 @@ TEST(LogicElementsBoxTestsGroup,
 
             auto *element_as_TimerMSecs = TimerMSecs::TryToCast(element_as_commonTimer);
             if (element_as_TimerMSecs != NULL) {
-                CHECK_EQUAL(1000LL, element_as_TimerMSecs->GetTimeUs());
+                CHECK_EQUAL(50000LL, element_as_TimerMSecs->GetTimeUs());
                 matched++;
             }
         }

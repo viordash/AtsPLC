@@ -11,7 +11,7 @@ class TimerMSecs : public CommonTimer {
 
     static const uint32_t step_ms = 50;
     static const uint32_t faststep_ms = 250;
-    static const uint32_t min_delay_time_ms = 1;
+    static const uint32_t min_delay_time_ms = 50;
     static const uint32_t max_delay_time_ms = 99999;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
