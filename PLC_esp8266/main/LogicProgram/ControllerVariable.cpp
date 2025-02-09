@@ -75,6 +75,8 @@ void ControllerVariable::CancelReadingProcess() {
         bool wifi_sta_client = ssid == NULL;
         if (!wifi_sta_client) {
             wifi_service->CancelScan(ssid);
+        } else {
+            wifi_service->DisconnectFromStation();
         }
         value = LogicElement::MinValue;
         out_value = LogicElement::MinValue;

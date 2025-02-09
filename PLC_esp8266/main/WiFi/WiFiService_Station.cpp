@@ -1,4 +1,5 @@
 #include "HttpServer/http_server.h"
+#include "LogicProgram/LogicElement.h"
 #include "WiFiService.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
@@ -34,6 +35,7 @@ void WiFiService::StationTask(RequestItem *request) {
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
         requests.RemoveStation();
+        station_rssi = LogicElement::MinValue;
         return;
     }
 
@@ -49,10 +51,14 @@ void WiFiService::StationTask(RequestItem *request) {
 
     while (true) {
         if (!delay_before_reconnect) {
-            xTaskNotifyWait(0,
-                            CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
-                            &ulNotifiedValue,
-                            portMAX_DELAY);
+            const int scan_station_rssi_period_ms = 5000;
+            if (xTaskNotifyWait(0,
+                                CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
+                                &ulNotifiedValue,
+                                scan_station_rssi_period_ms / portTICK_PERIOD_MS)
+                != pdPASS) {
+                ObtainStationRssi();
+            }
         } else {
             delay_before_reconnect = false;
         }
@@ -75,12 +81,14 @@ void WiFiService::StationTask(RequestItem *request) {
                                   || connect_retries_num < max_retry_count);
             if (!retry_connect) {
                 ESP_LOGW(TAG_WiFiService_Station, "failed. unable reconnect");
+                station_rssi = LogicElement::MinValue;
                 break;
             }
             has_connect = false;
 
             const int retries_num_before_no_station = 3;
             if (connect_retries_num >= retries_num_before_no_station) {
+                station_rssi = LogicElement::MinValue;
                 if (one_more_request) {
                     ESP_LOGI(TAG_WiFiService_Station,
                              "Stop connecting to station due to new request");
@@ -113,12 +121,11 @@ void WiFiService::StationTask(RequestItem *request) {
 
         bool connected = (ulNotifiedValue & CONNECTED_BIT) != 0;
         if (connected) {
-            wifi_ap_record_t ap;
-            esp_wifi_sta_get_ap_info(&ap);
-            ESP_LOGI(TAG_WiFiService_Station, "Connected to AP, rssi:%d", ap.rssi);
             start_http_server();
             connect_retries_num = 0;
             has_connect = true;
+            ObtainStationRssi();
+            ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation, rssi:%u", station_rssi);
         }
 
         if (one_more_request && has_connect) {
@@ -141,6 +148,18 @@ void WiFiService::StationTask(RequestItem *request) {
 
     requests.RemoveStation();
     ESP_LOGD(TAG_WiFiService_Station, "finish");
+}
+
+void WiFiService::ObtainStationRssi() {
+    wifi_ap_record_t ap;
+    if (esp_wifi_sta_get_ap_info(&ap) != ESP_OK) {
+        ESP_LOGI(TAG_WiFiService_Station, "ObtainStationRssi, no connection");
+        return;
+    }
+
+    CurrentSettings::wifi_scanner_settings scanner_settings = { 500, -26, -120 };
+    station_rssi = ScaleRssiToPercent04(ap.rssi, &scanner_settings);
+    ESP_LOGD(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
 }
 
 void WiFiService::wifi_event_handler(void *arg,

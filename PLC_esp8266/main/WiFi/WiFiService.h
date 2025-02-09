@@ -31,6 +31,8 @@ class WiFiService {
     std::mutex scanned_ssid_lock_mutex;
     std::unordered_map<const char *, uint8_t> scanned_ssid;
 
+    uint8_t station_rssi;
+
     TaskHandle_t task_handle;
 
     std::mutex station_connect_status_lock_mutex;
@@ -38,6 +40,7 @@ class WiFiService {
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
     void StationTask(RequestItem *request);
+    void ObtainStationRssi();
 
     bool StartScan(const char *ssid, CurrentSettings::wifi_scanner_settings *scanner_settings);
     int8_t Scanning(RequestItem *request, CurrentSettings::wifi_scanner_settings *scanner_settings);

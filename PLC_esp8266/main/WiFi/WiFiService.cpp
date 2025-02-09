@@ -18,6 +18,7 @@ static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService() {
+    station_rssi = LogicElement::MinValue;
 }
 
 WiFiService::~WiFiService() {
@@ -66,16 +67,8 @@ uint8_t WiFiService::ConnectToStation() {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "ConnectToStation");
     }
-    wifi_ap_record_t ap;
-    if (esp_wifi_sta_get_ap_info(&ap) != ESP_OK) {
-        ESP_LOGI(TAG_WiFiService, "ConnectToStation, no connection");
-        return LogicElement::MinValue;
-    }
-
-    CurrentSettings::wifi_scanner_settings scanner_settings = { 500, -26, -120 };
-    uint8_t rssi = ScaleRssiToPercent04(ap.rssi, &scanner_settings);
-    ESP_LOGI(TAG_WiFiService, "ConnectToStation, rssi:%d[%u]", ap.rssi, rssi);
-    return rssi;
+    ESP_LOGD(TAG_WiFiService, "ConnectToStation, rssi:%u", station_rssi);
+    return station_rssi;
 }
 
 void WiFiService::DisconnectFromStation() {
