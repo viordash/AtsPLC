@@ -28,6 +28,8 @@ namespace MigrateSettings {
                 int32_t connect_max_retry_count;
                 uint32_t reconnect_delay_ms;
                 uint32_t scan_station_rssi_period_ms;
+                int8_t max_rssi;
+                int8_t min_rssi;
             } wifi_station_settings;
 
             typedef struct {
@@ -69,6 +71,8 @@ namespace MigrateSettings {
                 pPrevSettings->wifi_station.connect_max_retry_count;
             pCurrSettings->wifi_station.reconnect_delay_ms = 3000;
             pCurrSettings->wifi_station.scan_station_rssi_period_ms = 5000;
+            pCurrSettings->wifi_station.max_rssi = -26;
+            pCurrSettings->wifi_station.min_rssi = -120;
 
             memcpy(&pCurrSettings->wifi_scanner,
                    &pPrevSettings->wifi_scanner,
