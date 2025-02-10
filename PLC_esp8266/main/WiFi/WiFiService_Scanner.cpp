@@ -119,8 +119,9 @@ void WiFiService::ScannerTask(RequestItem *request) {
     StopScan();
 
     if (rssi > scanner_settings.min_rssi) {
-        AddSsidToScannedList(request->Payload.Scanner.ssid,
-                             ScaleRssiToPercent04(rssi, &scanner_settings));
+        AddSsidToScannedList(
+            request->Payload.Scanner.ssid,
+            ScaleRssiToPercent04(rssi, scanner_settings.max_rssi, scanner_settings.min_rssi));
     } else {
         RemoveSsidFromScannedList(request->Payload.Scanner.ssid);
     }
@@ -131,14 +132,11 @@ void WiFiService::ScannerTask(RequestItem *request) {
              "finish, ssid:%s, rssi:%d[%u]",
              request->Payload.Scanner.ssid,
              rssi,
-             ScaleRssiToPercent04(rssi, &scanner_settings));
+             ScaleRssiToPercent04(rssi, scanner_settings.max_rssi, scanner_settings.min_rssi));
 }
 
-uint8_t
-WiFiService::ScaleRssiToPercent04(int8_t rssi,
-                                  CurrentSettings::wifi_scanner_settings *scanner_settings) {
-    float fl = ((float)rssi - scanner_settings->min_rssi)
-             / (scanner_settings->max_rssi - scanner_settings->min_rssi);
+uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t min_rssi) {
+    float fl = ((float)rssi - min_rssi) / (max_rssi - min_rssi);
     fl = fl * (LogicElement::MaxValue - LogicElement::MinValue) + LogicElement::MinValue;
     if (fl < (float)LogicElement::MinValue) {
         fl = (float)LogicElement::MinValue;

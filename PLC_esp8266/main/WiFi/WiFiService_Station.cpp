@@ -21,6 +21,8 @@ void WiFiService::StationTask(RequestItem *request) {
 
     int connect_retries_num = 0;
     int32_t max_retry_count;
+    uint32_t reconnect_delay_ms;
+    uint32_t scan_station_rssi_period_ms;
     wifi_config_t wifi_config = {};
 
     SAFETY_SETTINGS({
@@ -29,6 +31,8 @@ void WiFiService::StationTask(RequestItem *request) {
                settings.wifi_station.password,
                sizeof(wifi_config.sta.password)); //
         max_retry_count = settings.wifi_station.connect_max_retry_count;
+        reconnect_delay_ms = settings.wifi_station.reconnect_delay_ms;
+        scan_station_rssi_period_ms = settings.wifi_station.scan_station_rssi_period_ms;
     });
 
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
@@ -51,7 +55,6 @@ void WiFiService::StationTask(RequestItem *request) {
 
     while (true) {
         if (!delay_before_reconnect) {
-            const int scan_station_rssi_period_ms = 5000;
             if (xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
@@ -105,12 +108,11 @@ void WiFiService::StationTask(RequestItem *request) {
             stop_http_server();
             Disconnect();
 
-            const TickType_t reconnect_delay = 3000 / portTICK_RATE_MS;
             delay_before_reconnect =
                 xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
-                                reconnect_delay)
+                                reconnect_delay_ms / portTICK_RATE_MS)
                 == pdFALSE;
             if (delay_before_reconnect) {
                 Connect(&wifi_config);
@@ -157,9 +159,11 @@ void WiFiService::ObtainStationRssi() {
         return;
     }
 
-    CurrentSettings::wifi_scanner_settings scanner_settings = { 500, -26, -120 };
-    station_rssi = ScaleRssiToPercent04(ap.rssi, &scanner_settings);
-    ESP_LOGD(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
+    CurrentSettings::wifi_station_settings wifi_station;
+    SAFETY_SETTINGS({ wifi_station = settings.wifi_station; });
+
+    station_rssi = ScaleRssiToPercent04(ap.rssi, wifi_station.max_rssi, wifi_station.min_rssi);
+    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
 }
 
 void WiFiService::wifi_event_handler(void *arg,
