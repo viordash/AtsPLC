@@ -73,7 +73,7 @@ namespace MigrateSettings {
             pCurrSettings->wifi_access_point.generation_time_ms = 20000;
             pCurrSettings->wifi_access_point.ssid_hidden = false;
 
-            ESP_LOGI("Settings_20250107", "Migrate to %08X\n", DataMigrate.Version);
+            ESP_LOGI("Settings_20250107", "Migrate to %08X", DataMigrate.Version);
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {

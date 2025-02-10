@@ -82,7 +82,7 @@ namespace MigrateSettings {
                    &pPrevSettings->wifi_access_point,
                    sizeof(pCurrSettings->wifi_access_point));
 
-            ESP_LOGI("Settings_20250209", "Migrate to %08X\n", DataMigrate.Version);
+            ESP_LOGI("Settings_20250209", "Migrate to %08X", DataMigrate.Version);
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {
