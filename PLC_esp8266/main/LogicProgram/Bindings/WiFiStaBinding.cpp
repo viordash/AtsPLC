@@ -16,12 +16,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_WiFiBinding = "WiFiStaBinding";
+static const char *TAG_WiFiStaBinding = "WiFiStaBinding";
 
 WiFiStaBinding::WiFiStaBinding() : LogicElement(), InputElement() {
 }
 
-WiFiStaBinding::WiFiStaBinding(const MapIO io_adr, const char *ssid) : WiFiStaBinding() {
+WiFiStaBinding::WiFiStaBinding(const MapIO io_adr) : WiFiStaBinding() {
     SetIoAdr(io_adr);
 }
 
@@ -53,7 +53,7 @@ bool WiFiStaBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
 
     if (state != prev_state) {
         any_changes = true;
-        ESP_LOGD(TAG_WiFiBinding, ".");
+        ESP_LOGD(TAG_WiFiStaBinding, ".");
     }
     return any_changes;
 }
@@ -171,7 +171,7 @@ WiFiStaBinding *WiFiStaBinding::TryToCast(LogicElement *logic_element) {
 }
 
 void WiFiStaBinding::SelectPrior() {
-    ESP_LOGI(TAG_WiFiBinding, "SelectPrior");
+    ESP_LOGI(TAG_WiFiStaBinding, "SelectPrior");
 
     switch (editing_property_id) {
         case WiFiStaBinding::EditingPropertyId::wsbepi_None:
@@ -193,7 +193,7 @@ void WiFiStaBinding::SelectPrior() {
 }
 
 void WiFiStaBinding::SelectNext() {
-    ESP_LOGI(TAG_WiFiBinding, "SelectNext");
+    ESP_LOGI(TAG_WiFiStaBinding, "SelectNext");
 
     switch (editing_property_id) {
         case WiFiStaBinding::EditingPropertyId::wsbepi_None:
@@ -221,7 +221,7 @@ void WiFiStaBinding::PageDown() {
 }
 
 void WiFiStaBinding::Change() {
-    ESP_LOGI(TAG_WiFiBinding, "Change editing_property_id:%d", editing_property_id);
+    ESP_LOGI(TAG_WiFiStaBinding, "Change editing_property_id:%d", editing_property_id);
 
     switch (editing_property_id) {
         case WiFiStaBinding::EditingPropertyId::wsbepi_None:

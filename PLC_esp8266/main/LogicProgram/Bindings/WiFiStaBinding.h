@@ -27,7 +27,7 @@ class WiFiStaBinding : public LogicElement, public InputElement, public LabeledL
     static const uint8_t Height = 22;
 
     explicit WiFiStaBinding();
-    explicit WiFiStaBinding(const MapIO io_adr, const char *ssid);
+    explicit WiFiStaBinding(const MapIO io_adr);
     virtual ~WiFiStaBinding();
 
     void SetIoAdr(const MapIO io_adr) override final;
