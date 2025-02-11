@@ -249,6 +249,8 @@ TEST(LogicWiFiServiceTestsGroup,
     mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
     mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
+    mock().expectNCalls(1, "esp_wifi_sta_get_ap_info").ignoreOtherParameters();
+
     TestableWiFiService testable;
 
     strcpy(settings.wifi_station.ssid, "test_ssid");

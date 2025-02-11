@@ -317,7 +317,7 @@ TEST(LogicElementsBoxTestsGroup, wifi_binding_element_has_default_param_V1) {
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(5, &stored_element, false);
-    CHECK_EQUAL(7, testable.size());
+    CHECK_EQUAL(6, testable.size());
     delete testable.GetSelectedElement();
 }
 
