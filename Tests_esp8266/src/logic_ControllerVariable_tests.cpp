@@ -33,6 +33,13 @@ namespace {
             return &value;
         }
     };
+
+    class TestableWiFiService : public WiFiService {
+      public:
+        WiFiRequests *PublicMorozov_Get_requests() {
+            return &requests;
+        }
+    };
 } // namespace
 
 TEST(LogicControllerVariableTestsGroup, Init_reset_value_and_set_required) {
@@ -174,4 +181,62 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_b
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
     CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_ConnectToStation) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    testable.BindToWiFi(&wifi_service, NULL);
+
+    testable.FetchValue();
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(RequestItemType::wqi_Station,
+                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+}
+
+TEST(LogicControllerVariableTestsGroup, CommitChanges_from_wifi_sta_client_does_nothing) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    TestableWiFiService wifi_service;
+    testable.BindToWiFi(&wifi_service, NULL);
+
+    testable.WriteValue(42);
+    testable.CommitChanges();
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicControllerVariableTestsGroup,
+     CancelReadingProcess_from_wifi_sta_client_calls_DisconnectFromStation) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::CANCEL_REQUEST_BIT)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    wifi_service.ConnectToStation();
+
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    testable.BindToWiFi(&wifi_service, NULL);
+
+    testable.CancelReadingProcess();
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
 }

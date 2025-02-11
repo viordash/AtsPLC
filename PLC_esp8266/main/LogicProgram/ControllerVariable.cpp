@@ -45,10 +45,13 @@ void ControllerVariable::CommitChanges() {
     required_writing = false;
     UpdateValue(out_value);
     if (BindedToWiFi()) {
-        if (out_value != LogicElement::MinValue) {
-            wifi_service->Generate(ssid);
-        } else {
-            wifi_service->CancelGenerate(ssid);
+        bool wifi_sta_client = ssid == NULL;
+        if (!wifi_sta_client) {
+            if (out_value != LogicElement::MinValue) {
+                wifi_service->Generate(ssid);
+            } else {
+                wifi_service->CancelGenerate(ssid);
+            }
         }
     }
 }
