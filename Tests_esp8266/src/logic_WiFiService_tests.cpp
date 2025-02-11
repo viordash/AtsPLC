@@ -51,9 +51,12 @@ namespace {
         bool PublicMorozov_FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
             return FindSsidInScannedList(ssid, rssi);
         }
-        uint8_t PublicMorozov_ScaleRssiToPercent04(int8_t rssi,
-                                                   CurrentSettings::wifi_scanner_settings *scanner_settings) {
-            return ScaleRssiToPercent04(rssi, scanner_settings);
+        uint8_t PublicMorozov_ScaleRssiToPercent04(
+            int8_t rssi,
+            CurrentSettings::wifi_scanner_settings *scanner_settings) {
+            return ScaleRssiToPercent04(rssi,
+                                        scanner_settings->max_rssi,
+                                        scanner_settings->min_rssi);
         }
     };
 } // namespace

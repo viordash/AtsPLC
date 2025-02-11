@@ -18,7 +18,7 @@
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
-WiFiService *wifi_service;
+static WiFiService *wifi_service;
 TEST_GROUP(LogicWiFiBindingTestsGroup){ //
                                         TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
