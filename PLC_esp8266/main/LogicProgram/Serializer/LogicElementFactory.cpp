@@ -11,7 +11,6 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/DecOutput.h"
 #include "LogicProgram/Outputs/DirectOutput.h"
 #include "LogicProgram/Outputs/IncOutput.h"
@@ -85,9 +84,6 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_WiFiStaBinding:
             element = new WiFiStaBinding();
-            break;
-        case et_WiFiStation:
-            element = new WiFiStation();
             break;
         default:
             break;

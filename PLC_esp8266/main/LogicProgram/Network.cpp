@@ -7,7 +7,6 @@
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
 #include "LogicProgram/Inputs/Indicator.h"
-#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
@@ -86,8 +85,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         auto element = *it;
         if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
             && Wire::TryToCast(element) == NULL && Indicator::TryToCast(element) == NULL
-            && WiFiBinding::TryToCast(element) == NULL && WiFiStaBinding::TryToCast(element) == NULL
-            && WiFiStation::TryToCast(element) == NULL) {
+            && WiFiBinding::TryToCast(element) == NULL
+            && WiFiStaBinding::TryToCast(element) == NULL) {
             break;
         }
         it++;
@@ -359,7 +358,8 @@ void Network::AddSpaceForNewElement() {
             auto element = *it;
             bool is_output_element =
                 CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
-                && Indicator::TryToCast(element) == NULL && WiFiStation::TryToCast(element) == NULL;
+                && Indicator::TryToCast(element) == NULL && WiFiBinding::TryToCast(element) == NULL
+                && WiFiStaBinding::TryToCast(element) == NULL;
             if (is_output_element) {
                 break;
             }

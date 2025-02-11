@@ -526,7 +526,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBo
 
     testable.SelectNext();
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_WiFiStation, expectedElementBox->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, expectedElementBox->GetElementType());
 
     delete elementBox->GetSelectedElement();
 }
