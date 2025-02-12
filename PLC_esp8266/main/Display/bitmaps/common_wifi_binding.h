@@ -1,6 +1,6 @@
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
 
-const Bitmap WiFiStaBinding::bitmap = { //
+const Bitmap CommonWiFiBinding::bitmap = { //
     { 24,                               // width
       16 },                             // height
     { 0x1C, 0x22, 0x41, 0x81, 0x02, 0x44, 0x28, 0xA0, 0x20, 0x40, 0x80, 0x00,

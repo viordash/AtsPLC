@@ -20,6 +20,7 @@
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/display.cpp"
+#include "main/LogicProgram/Bindings/CommonWiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiStaBinding.cpp"
 #include "main/LogicProgram/Controller.cpp"
