@@ -1,5 +1,6 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/ElementsBox.h"
@@ -85,8 +86,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         auto element = *it;
         if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
             && Wire::TryToCast(element) == NULL && Indicator::TryToCast(element) == NULL
-            && WiFiBinding::TryToCast(element) == NULL
-            && WiFiStaBinding::TryToCast(element) == NULL) {
+            && WiFiBinding::TryToCast(element) == NULL && WiFiStaBinding::TryToCast(element) == NULL
+            && WiFiApBinding::TryToCast(element) == NULL) {
             break;
         }
         it++;
@@ -359,7 +360,8 @@ void Network::AddSpaceForNewElement() {
             bool is_output_element =
                 CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
                 && Indicator::TryToCast(element) == NULL && WiFiBinding::TryToCast(element) == NULL
-                && WiFiStaBinding::TryToCast(element) == NULL;
+                && WiFiStaBinding::TryToCast(element) == NULL
+                && WiFiApBinding::TryToCast(element) == NULL;
             if (is_output_element) {
                 break;
             }

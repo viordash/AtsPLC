@@ -2,6 +2,7 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
@@ -165,6 +166,20 @@ bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBind
     return true;
 }
 
+bool ElementsBox::CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiApBinding *binding) {
+    if (binding == NULL) {
+        return false;
+    }
+
+    auto *source_element_as_wifi_binding = WiFiApBinding::TryToCast(source_element);
+    if (source_element_as_wifi_binding != NULL) {
+        binding->SetClientMac(source_element_as_wifi_binding->GetClientMac());
+        return true;
+    }
+    binding->SetClientMac("01:23:45:67:89:AB");
+    return true;
+}
+
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
 
@@ -180,6 +195,9 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
         return;
     }
     if (CopyParamsToWiFiBinding(source_element, WiFiBinding::TryToCast(new_element))) {
+        return;
+    }
+    if (CopyParamsToWiFiApBinding(source_element, WiFiApBinding::TryToCast(new_element))) {
         return;
     }
 
@@ -242,6 +260,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_Indicator, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiStaBinding, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_WiFiApBinding, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);

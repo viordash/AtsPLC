@@ -1,6 +1,7 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -84,6 +85,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_WiFiStaBinding:
             element = new WiFiStaBinding();
+            break;
+        case et_WiFiApBinding:
+            element = new WiFiApBinding();
             break;
         default:
             break;

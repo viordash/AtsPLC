@@ -22,8 +22,9 @@ enum TvElementType : uint8_t {
     et_DecOutput,
     et_Indicator,
     et_WiFiBinding,
-    et_WiFiStaBinding
-}; 
+    et_WiFiStaBinding,
+    et_WiFiApBinding
+};
 
 struct __attribute__((packed)) TvElement {
     TvElementType type;
