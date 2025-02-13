@@ -53,6 +53,7 @@ void WiFiService::StationTask(RequestItem *request) {
     uint32_t ulNotifiedValue = 0;
     Connect(&wifi_config);
 
+    bool cancel = false;
     while (true) {
         if (!delay_before_reconnect) {
             if (xTaskNotifyWait(0,
@@ -72,7 +73,7 @@ void WiFiService::StationTask(RequestItem *request) {
             break;
         }
 
-        bool cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_Station, "Cancel");
             break;
@@ -149,6 +150,9 @@ void WiFiService::StationTask(RequestItem *request) {
     }
 
     requests.RemoveStation();
+    if (!cancel) {
+        requests.Station();
+    }
     ESP_LOGD(TAG_WiFiService_Station, "finish");
 }
 

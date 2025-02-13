@@ -219,8 +219,9 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
     testable.PublicMorozov_StationTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup,
-     StationTask_and_if_one_more_request_and_connection_occured_then_break_loop) {
+TEST(
+    LogicWiFiServiceTestsGroup,
+    StationTask_and_if_one_more_request_and_connection_occured_then_break_loop_but_request_recreates_for_further_restart) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
@@ -262,7 +263,8 @@ TEST(LogicWiFiServiceTestsGroup,
 
     RequestItem request = { RequestItemType::wqi_Station, {} };
     testable.PublicMorozov_StationTask(&request);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_TRUE(testable.PublicMorozov_Get_requests()->Contains(&request));
 }
 
 TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
