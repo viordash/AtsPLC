@@ -9,11 +9,13 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Bindings/WiFiBinding.h"
+#include "main/LogicProgram/Bindings/WiFiStaBinding.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
 #include "main/LogicProgram/Inputs/ComparatorGr.h"
 #include "main/LogicProgram/Inputs/ComparatorLE.h"
 #include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
@@ -372,4 +374,136 @@ TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
                 *testable.PublicMorozov_Get_editing_property_id());
 
     CHECK_EQUAL(3, strlen(testable.GetSsid()));
+}
+
+TEST(LogicWiFiBindingTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(27, writed);
+
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
+}
+
+TEST(LogicWiFiBindingTestsGroup, Serialize_just_for_obtain_size) {
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    size_t writed = testable.Serialize(NULL, SIZE_MAX);
+    CHECK_EQUAL(27, writed);
+
+    writed = testable.Serialize(NULL, 0);
+    CHECK_EQUAL(27, writed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    TestableWiFiBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, writed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    strcpy((char *)&buffer[2], "test_ssid");
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(26, readed);
+
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    CHECK(&Controller::V3 == testable.Input);
+    STRCMP_EQUAL("test_ssid", testable.GetSsid());
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
+    uint8_t buffer[0] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    strcpy((char *)&buffer[2], "test_ssid");
+
+    TestableWiFiBinding testable;
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::V4 + 1);
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(26, readed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    buffer[2] = 0;
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[2], "");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[2], "ssid");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(26, readed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, GetElementType) {
+    TestableWiFiBinding testable;
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
+}
+
+TEST(LogicWiFiBindingTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(WiFiBinding::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(WiFiBinding::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorLs) == NULL);
+
+    WiFiStaBinding wiFiStaBinding;
+    CHECK_TRUE(WiFiBinding::TryToCast(&wiFiStaBinding) == NULL);
+
+    WiFiBinding wiFiBinding;
+    CHECK_TRUE(WiFiBinding::TryToCast(&wiFiBinding) == &wiFiBinding);
 }
