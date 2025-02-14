@@ -6,18 +6,27 @@
 
 class WiFiApBinding : public WiFiBinding {
   protected:
+    static const uint8_t max_password_size = 16;
+    static const uint8_t displayed_password_max_size = 8;
+    char password[max_password_size + 1];
+    uint8_t password_size;
+
     const AllowedIO GetAllowedInputs() override final;
+    bool RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y);
+    bool IsLastPasswordChar();
 
   public:
     typedef enum { //
         wbepi_None = WiFiBinding::EditingPropertyId::wbepi_None,
         wbepi_ConfigureIOAdr = WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
         wbepi_Ssid_First_Char,
-        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size
+        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size,
+        wbepi_Password_First_Char,
+        wbepi_Password_Last_Char = wbepi_Password_First_Char + max_password_size
     } EditingPropertyId;
 
     explicit WiFiApBinding();
-    explicit WiFiApBinding(const MapIO io_adr, const char *ssid);
+    explicit WiFiApBinding(const MapIO io_adr, const char *ssid, const char *password);
     virtual ~WiFiApBinding();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
@@ -36,4 +45,7 @@ class WiFiApBinding : public WiFiBinding {
     void PageDown() override;
     void Change() override;
     void Option() override;
+
+    const char *GetPassword();
+    void SetPassword(const char *password);
 };

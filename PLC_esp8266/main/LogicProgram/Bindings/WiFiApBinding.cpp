@@ -20,7 +20,9 @@ static const char *TAG_WiFiApBinding = "WiFiApBinding";
 WiFiApBinding::WiFiApBinding() : WiFiBinding() {
 }
 
-WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *ssid) : WiFiBinding(io_adr, ssid) {
+WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *ssid, const char *password)
+    : WiFiBinding(io_adr, ssid) {
+    SetPassword(password);
 }
 
 WiFiApBinding::~WiFiApBinding() {
@@ -65,18 +67,45 @@ WiFiApBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_
     top_left.x += LeftPadding + 22;
     top_left.x += bitmap.size.width + 1;
 
-    bool show_edit_ssid = editable_state == EditableElement::ElementState::des_Editing
-                       && (WiFiApBinding::EditingPropertyId)editing_property_id
-                              != WiFiApBinding::EditingPropertyId::wbepi_None
-                       && (WiFiApBinding::EditingPropertyId)editing_property_id
-                              != WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
+    switch (editing_property_id) {
+        case WiFiApBinding::EditingPropertyId::wbepi_None:
+        case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, "AP CLNT") > 0;
+            break;
 
-    if (show_edit_ssid) {
-        res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
-    } else {
-        res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, "AP CLNT") > 0;
+        default:
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                res = RenderEditedPassword(fb, top_left.x, top_left.y + 4);
+            }
+
+            break;
     }
     return res;
+}
+
+bool WiFiApBinding::RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y) {
+    char blink_ssid[displayed_ssid_max_size + 1];
+    int char_pos = editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
+
+    if (char_pos < displayed_ssid_max_size) {
+        strncpy(blink_ssid, ssid, sizeof(blink_ssid));
+    } else {
+        strncpy(blink_ssid, &ssid[char_pos - (displayed_ssid_max_size - 1)], sizeof(blink_ssid));
+        char_pos = displayed_ssid_max_size - 1;
+    }
+    blink_ssid[sizeof(blink_ssid) - 1] = 0;
+
+    if (Blinking_50()) {
+        blink_ssid[char_pos] = ' ';
+    }
+
+    if (draw_text_f4X7(fb, x + 3, y - 2, "SSID:") <= 0) {
+        return false;
+    }
+    return draw_text_f6X12(fb, x, y + 5, blink_ssid) > 0;
 }
 
 size_t WiFiApBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -84,15 +113,25 @@ size_t WiFiApBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (writed == 0) {
         return 0;
     }
+    // if (!Record::Write(&password, sizeof(password), buffer, buffer_size, &writed)) {
+    //     return 0;
+    // }
     return writed;
 }
 
 size_t WiFiApBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = WiFiBinding::Deserialize(buffer, buffer_size);
-
     if (readed == 0) {
         return 0;
     }
+    // char _password[sizeof(password)];
+    // if (!Record::Read(&_password, sizeof(_password), buffer, buffer_size, &readed)) {
+    //     return 0;
+    // }
+    // if (strlen(_password) == 0 || strlen(_password) >= sizeof(_password)) {
+    //     return 0;
+    // }
+    // SetPassword(_password);
 
     return readed;
 }
@@ -124,6 +163,11 @@ void WiFiApBinding::SelectPrior() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::SelectPrior();
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                SelectPriorSymbol(
+                    &password[editing_property_id
+                              - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char]);
             }
 
             break;
@@ -143,6 +187,11 @@ void WiFiApBinding::SelectNext() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::SelectNext();
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                SelectNextSymbol(
+                    &password[editing_property_id
+                              - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char]);
             }
             break;
     }
@@ -159,6 +208,11 @@ void WiFiApBinding::PageUp() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::PageUp();
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                password[editing_property_id
+                         - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                    place_new_char;
             }
             break;
     }
@@ -175,9 +229,20 @@ void WiFiApBinding::PageDown() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::PageDown();
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                password[editing_property_id
+                         - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                    place_new_char;
             }
             break;
     }
+}
+
+bool WiFiApBinding::IsLastPasswordChar() {
+    char ch =
+        password[editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char];
+    return ch == 0 || ch == place_new_char;
 }
 
 void WiFiApBinding::Change() {
@@ -193,6 +258,19 @@ void WiFiApBinding::Change() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::Change();
+            } else if (editing_property_id
+                           == WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char
+                       || IsLastPasswordChar()) {
+                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
+                EndEditing();
+            } else if (editing_property_id
+                       < WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                editing_property_id++;
+                if (IsLastPasswordChar()) {
+                    password[editing_property_id
+                             - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                        place_new_char;
+                }
             }
             break;
     }
@@ -202,8 +280,8 @@ void WiFiApBinding::Option() {
     ESP_LOGI(TAG_WiFiApBinding, "Option editing_property_id:%d", editing_property_id);
 
     switch (editing_property_id) {
-        case WiFiBinding::EditingPropertyId::wbepi_None:
-        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+        case WiFiApBinding::EditingPropertyId::wbepi_None:
+        case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
         case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
             WiFiBinding::Option();
             break;
@@ -211,12 +289,22 @@ void WiFiApBinding::Option() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 WiFiBinding::Option();
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
+                EndEditing();
             }
             break;
     }
 }
 
 void WiFiApBinding::EndEditing() {
+    password_size = 0;
+    while (password_size < sizeof(password) && password[password_size] != 0
+           && password[password_size] != place_new_char) {
+        password_size++;
+    }
+    password[password_size] = 0;
     WiFiBinding::EndEditing();
 }
 
@@ -225,3 +313,13 @@ const AllowedIO WiFiApBinding::GetAllowedInputs() {
     return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
 }
 
+const char *WiFiApBinding::GetPassword() {
+    return password;
+}
+
+void WiFiApBinding::SetPassword(const char *password) {
+    ESP_LOGI(TAG_WiFiApBinding, "SetPassword:%s", password);
+    strncpy(this->password, password, sizeof(this->password) - 1);
+    this->password[sizeof(this->password) - 1] = 0;
+    password_size = strlen(this->password);
+}
