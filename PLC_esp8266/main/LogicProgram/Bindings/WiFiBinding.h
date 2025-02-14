@@ -12,7 +12,7 @@ class WiFiBinding : public CommonWiFiBinding {
     char ssid[max_ssid_size + 1];
     uint8_t ssid_size;
 
-    const AllowedIO GetAllowedInputs() override final;
+    const AllowedIO GetAllowedInputs() override;
     void SelectPriorSymbol(char *symbol);
     void SelectNextSymbol(char *symbol);
 
@@ -35,9 +35,9 @@ class WiFiBinding : public CommonWiFiBinding {
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
-    size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
-    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;
-    TvElementType GetElementType() override final;
+    size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;
+    TvElementType GetElementType() override;
 
     static WiFiBinding *TryToCast(LogicElement *logic_element);
 

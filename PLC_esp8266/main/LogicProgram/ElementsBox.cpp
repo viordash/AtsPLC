@@ -173,10 +173,12 @@ bool ElementsBox::CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiAp
 
     auto *source_element_as_wifi_binding = WiFiApBinding::TryToCast(source_element);
     if (source_element_as_wifi_binding != NULL) {
-        binding->SetClientMac(source_element_as_wifi_binding->GetClientMac());
+        binding->SetSsid(source_element_as_wifi_binding->GetSsid());
+        // binding->SetClientMac(source_element_as_wifi_binding->GetClientMac());
         return true;
     }
-    binding->SetClientMac("01:23:45:67:89:AB");
+    binding->SetSsid("AtsPLC");
+    // binding->SetClientMac("01:23:45:67:89:AB");
     return true;
 }
 

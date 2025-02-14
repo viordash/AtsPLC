@@ -188,10 +188,9 @@ void WiFiBinding::SelectPrior() {
 
     switch (editing_property_id) {
         case WiFiBinding::EditingPropertyId::wbepi_None:
-        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr: {
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
             CommonWiFiBinding::SelectPrior();
             break;
-        }
 
         default:
             SelectPriorSymbol(

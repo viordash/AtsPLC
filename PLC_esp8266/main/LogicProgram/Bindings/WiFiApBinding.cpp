@@ -17,12 +17,10 @@
 
 static const char *TAG_WiFiApBinding = "WiFiApBinding";
 
-WiFiApBinding::WiFiApBinding() : CommonWiFiBinding() {
+WiFiApBinding::WiFiApBinding() : WiFiBinding() {
 }
 
-WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *client_mac)
-    : CommonWiFiBinding(io_adr) {
-    SetClientMac(client_mac);
+WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *ssid) : WiFiBinding(io_adr, ssid) {
 }
 
 WiFiApBinding::~WiFiApBinding() {
@@ -39,7 +37,7 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        // Controller::BindVariableToWiFi(GetIoAdr(), client_mac);
+        // Controller::BindVariableToWiFi(GetIoAdr(), ssid);
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
@@ -67,102 +65,49 @@ WiFiApBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_
     top_left.x += LeftPadding + 22;
     top_left.x += bitmap.size.width + 1;
 
-    bool show_edit_client_mac = editable_state == EditableElement::ElementState::des_Editing
-                             && (WiFiApBinding::EditingPropertyId)editing_property_id
-                                    != WiFiApBinding::EditingPropertyId::wbepi_None
-                             && (WiFiApBinding::EditingPropertyId)editing_property_id
-                                    != WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
+    bool show_edit_ssid = editable_state == EditableElement::ElementState::des_Editing
+                       && (WiFiApBinding::EditingPropertyId)editing_property_id
+                              != WiFiApBinding::EditingPropertyId::wbepi_None
+                       && (WiFiApBinding::EditingPropertyId)editing_property_id
+                              != WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
-    if (show_edit_client_mac) {
-        res = RenderEditedClientMac(fb, top_left.x, top_left.y + 4);
+    if (show_edit_ssid) {
+        res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
     } else {
         res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, "AP CLNT") > 0;
     }
     return res;
 }
 
-bool WiFiApBinding::RenderEditedClientMac(uint8_t *fb, uint8_t x, uint8_t y) {
-    char blink_client_mac[client_mac_size + 1];
-    int char_pos =
-        editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char;
-
-    if (char_pos < client_mac_size) {
-        strncpy(blink_client_mac, client_mac, sizeof(blink_client_mac));
-    } else {
-        strncpy(blink_client_mac,
-                &client_mac[char_pos - (client_mac_size - 1)],
-                sizeof(blink_client_mac));
-        char_pos = client_mac_size - 1;
-    }
-    blink_client_mac[sizeof(blink_client_mac) - 1] = 0;
-
-    if (Blinking_50()) {
-        blink_client_mac[char_pos] = ' ';
-    }
-
-    return draw_text_f6X12(fb, x, y + 2, blink_client_mac) > 0;
-}
-
 size_t WiFiApBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = CommonWiFiBinding::Serialize(buffer, buffer_size);
+    size_t writed = WiFiBinding::Serialize(buffer, buffer_size);
     if (writed == 0) {
-        return 0;
-    }
-    if (!Record::Write(&client_mac, sizeof(client_mac), buffer, buffer_size, &writed)) {
         return 0;
     }
     return writed;
 }
 
 size_t WiFiApBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = CommonWiFiBinding::Deserialize(buffer, buffer_size);
-    char _client_mac[sizeof(client_mac)];
+    size_t readed = WiFiBinding::Deserialize(buffer, buffer_size);
 
     if (readed == 0) {
         return 0;
     }
 
-    if (!Record::Read(&_client_mac, sizeof(_client_mac), buffer, buffer_size, &readed)) {
-        return 0;
-    }
-    if (strlen(_client_mac) == 0 || strlen(_client_mac) >= sizeof(_client_mac)) {
-        return 0;
-    }
-    SetClientMac(_client_mac);
     return readed;
 }
 
 TvElementType WiFiApBinding::GetElementType() {
-    return TvElementType::et_WiFiBinding;
+    return TvElementType::et_WiFiApBinding;
 }
 
 WiFiApBinding *WiFiApBinding::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
-        case TvElementType::et_WiFiBinding:
+        case TvElementType::et_WiFiApBinding:
             return static_cast<WiFiApBinding *>(logic_element);
 
         default:
             return NULL;
-    }
-}
-
-void WiFiApBinding::SelectPriorSymbol(char *symbol) {
-    if (*symbol > '!' && *symbol <= '~') {
-        *symbol = *symbol - 1;
-    } else if (*symbol != place_new_char) {
-        *symbol = place_new_char;
-    } else {
-        *symbol = '~';
-    }
-}
-
-void WiFiApBinding::SelectNextSymbol(char *symbol) {
-    if (*symbol >= '!' && *symbol < '~') {
-        *symbol = *symbol + 1;
-    } else if (*symbol != place_new_char) {
-        *symbol = place_new_char;
-    } else {
-        *symbol = '!';
     }
 }
 
@@ -171,15 +116,16 @@ void WiFiApBinding::SelectPrior() {
 
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
-        case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr: {
-            CommonWiFiBinding::SelectPrior();
+        case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::SelectPrior();
             break;
-        }
 
         default:
-            SelectPriorSymbol(
-                &client_mac[editing_property_id
-                            - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char]);
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::SelectPrior();
+            }
+
             break;
     }
 }
@@ -190,13 +136,14 @@ void WiFiApBinding::SelectNext() {
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-            CommonWiFiBinding::SelectNext();
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::SelectNext();
             break;
 
         default:
-            SelectNextSymbol(
-                &client_mac[editing_property_id
-                            - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char]);
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::SelectNext();
+            }
             break;
     }
 }
@@ -205,14 +152,14 @@ void WiFiApBinding::PageUp() {
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-        case WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char:
-            this->SelectPrior();
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::PageUp();
             break;
 
         default:
-            client_mac[editing_property_id
-                       - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char] =
-                place_new_char;
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::PageUp();
+            }
             break;
     }
 }
@@ -221,14 +168,14 @@ void WiFiApBinding::PageDown() {
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-        case WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char:
-            this->SelectNext();
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::PageDown();
             break;
 
         default:
-            client_mac[editing_property_id
-                       - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char] =
-                place_new_char;
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::PageDown();
+            }
             break;
     }
 }
@@ -238,38 +185,39 @@ void WiFiApBinding::Change() {
 
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
-            CommonWiFiBinding::Change();
-            break;
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-            editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char;
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::Change();
             break;
 
         default:
-            if (editing_property_id
-                == WiFiApBinding::EditingPropertyId::wbepi_ClientMac_Last_Char) {
-                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
-                EndEditing();
-            } else {
-                editing_property_id++;
-                char *ch =
-                    &client_mac[editing_property_id
-                                - WiFiApBinding::EditingPropertyId::wbepi_ClientMac_First_Char];
-                if (*ch == 0) {
-                    *ch = place_new_char;
-                }
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::Change();
+            }
+            break;
+    }
+}
+
+void WiFiApBinding::Option() {
+    ESP_LOGI(TAG_WiFiApBinding, "Option editing_property_id:%d", editing_property_id);
+
+    switch (editing_property_id) {
+        case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
+            WiFiBinding::Option();
+            break;
+
+        default:
+            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                WiFiBinding::Option();
             }
             break;
     }
 }
 
 void WiFiApBinding::EndEditing() {
-    // client_mac_size = 0;
-    // while (client_mac_size < sizeof(client_mac) && client_mac[client_mac_size] != 0
-    //        && client_mac[client_mac_size] != place_new_char) {
-    //     client_mac_size++;
-    // }
-    // client_mac[client_mac_size] = 0;
-    EditableElement::EndEditing();
+    WiFiBinding::EndEditing();
 }
 
 const AllowedIO WiFiApBinding::GetAllowedInputs() {
@@ -277,11 +225,3 @@ const AllowedIO WiFiApBinding::GetAllowedInputs() {
     return { allowedIO, sizeof(allowedIO) / sizeof(allowedIO[0]) };
 }
 
-const char *WiFiApBinding::GetClientMac() {
-    return client_mac;
-}
-
-void WiFiApBinding::SetClientMac(const char *client_mac) {
-    strncpy(this->client_mac, client_mac, sizeof(this->client_mac) - 1);
-    this->client_mac[sizeof(this->client_mac) - 1] = 0;
-}
