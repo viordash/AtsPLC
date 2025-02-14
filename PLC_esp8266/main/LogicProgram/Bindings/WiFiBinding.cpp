@@ -278,6 +278,21 @@ void WiFiBinding::Change() {
     }
 }
 
+void WiFiBinding::Option() {
+    ESP_LOGI(TAG_WiFiBinding, "Option editing_property_id:%d", editing_property_id);
+
+    switch (editing_property_id) {
+        case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+            break;
+
+        default:
+            editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
+            EndEditing();
+            break;
+    }
+}
+
 void WiFiBinding::EndEditing() {
     ssid_size = 0;
     while (ssid_size < sizeof(ssid) && ssid[ssid_size] != 0 && ssid[ssid_size] != place_new_char) {

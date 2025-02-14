@@ -47,6 +47,7 @@ class WiFiBinding : public CommonWiFiBinding {
     void PageUp() override;
     void PageDown() override;
     void Change() override;
+    void Option() override;
 
     const char *GetSsid();
     void SetSsid(const char *ssid);
