@@ -114,7 +114,10 @@ bool WiFiBinding::RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
         blink_ssid[char_pos] = ' ';
     }
 
-    return draw_text_f6X12(fb, x, y + 2, blink_ssid) > 0;
+    if (draw_text_f4X7(fb, x + 3, y - 2, "SSID:") <= 0) {
+        return false;
+    }
+    return draw_text_f6X12(fb, x, y + 5, blink_ssid) > 0;
 }
 
 size_t WiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
