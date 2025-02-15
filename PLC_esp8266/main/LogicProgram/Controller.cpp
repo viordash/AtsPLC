@@ -83,7 +83,7 @@ void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
                                 "ctrl_actions_task",
-                                2048 + 512,
+                                8192,
                                 NULL,
                                 3,
                                 &Controller::process_task_handle)
@@ -117,7 +117,7 @@ void Controller::ProcessTask(void *parm) {
     TaskHandle_t render_task_handle;
     ESP_ERROR_CHECK(xTaskCreate(RenderTask,
                                 "ctrl_render_task",
-                                2048,
+                                8192,
                                 NULL,
                                 tskIDLE_PRIORITY,
                                 &render_task_handle)
