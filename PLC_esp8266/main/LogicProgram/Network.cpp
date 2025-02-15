@@ -428,7 +428,17 @@ void Network::Option() {
     ESP_LOGI(TAG_Network, "Option, selected_element:%d", selected_element);
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->Option();
+            auto elementBox = static_cast<ElementsBox *>((*this)[selected_element]);
+            elementBox->Option();
+            if (elementBox->EditingCompleted()) {
+                elementBox->EndEditing();
+                auto editedElement = elementBox->GetSelectedElement();
+                delete elementBox;
+                (*this)[selected_element] = editedElement;
+
+                RemoveSpaceForNewElement();
+                AddSpaceForNewElement();
+            }
             return;
         }
     } else {
