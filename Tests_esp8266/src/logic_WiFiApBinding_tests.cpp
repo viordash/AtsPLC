@@ -216,6 +216,23 @@ TEST(LogicWiFiApBindingTestsGroup, Change__switching__editing_property_id) {
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (int i = 1; i < 12; i++) {
+        testable.Change();
+        CHECK_TRUE(testable.Editing());
+        CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char + i,
+                    *testable.PublicMorozov_Get_editing_property_id());
+    }
+
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.Change();
     CHECK_FALSE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
@@ -394,6 +411,7 @@ TEST(LogicWiFiApBindingTestsGroup, ssid_trimmed_after_editing) {
 
     testable.Option();
     testable.Option();
+    testable.Option();
     CHECK_FALSE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
@@ -424,7 +442,8 @@ TEST(LogicWiFiApBindingTestsGroup, password_trimmed_after_editing) {
     const char *place_new_char = "pas\x02word_16_char";
     STRCMP_EQUAL(place_new_char, testable.GetPassword());
 
-    testable.Change();
+    testable.Option();
+    testable.Option();
     CHECK_FALSE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
@@ -438,14 +457,16 @@ TEST(LogicWiFiApBindingTestsGroup, Serialize) {
     testable.SetIoAdr(MapIO::V2);
     testable.SetSsid("ssid");
     testable.SetPassword("secret");
+    testable.SetMac("0123456789AB");
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(44, writed);
+    CHECK_EQUAL(57, writed);
 
     CHECK_EQUAL(TvElementType::et_WiFiApBinding, *((TvElementType *)&buffer[0]));
     CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
     STRCMP_EQUAL("ssid", (char *)&buffer[2]);
     STRCMP_EQUAL("secret", (char *)&buffer[27]);
+    STRCMP_EQUAL("0123456789AB", (char *)&buffer[44]);
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Serialize_just_for_obtain_size) {
@@ -453,12 +474,13 @@ TEST(LogicWiFiApBindingTestsGroup, Serialize_just_for_obtain_size) {
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("ssid");
     testable.SetPassword("secret");
+    testable.SetMac("0123456789AB");
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
-    CHECK_EQUAL(44, writed);
+    CHECK_EQUAL(57, writed);
 
     writed = testable.Serialize(NULL, 0);
-    CHECK_EQUAL(44, writed);
+    CHECK_EQUAL(57, writed);
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
@@ -467,6 +489,7 @@ TEST(LogicWiFiApBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("ssid");
     testable.SetPassword("secret");
+    testable.SetMac("0123456789AB");
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -478,16 +501,18 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize) {
     *((MapIO *)&buffer[1]) = MapIO::V3;
     strcpy((char *)&buffer[2], "test_ssid");
     strcpy((char *)&buffer[27], "test_secret");
+    strcpy((char *)&buffer[44], "0123456789AB");
 
     TestableWiFiApBinding testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(43, readed);
+    CHECK_EQUAL(56, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
     CHECK(&Controller::V3 == testable.Input);
     STRCMP_EQUAL("test_ssid", testable.GetSsid());
     STRCMP_EQUAL("test_secret", testable.GetPassword());
+    STRCMP_EQUAL("0123456789AB", testable.GetMac());
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
@@ -505,6 +530,7 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
     strcpy((char *)&buffer[2], "test_ssid");
     strcpy((char *)&buffer[27], "test_secret");
+    strcpy((char *)&buffer[44], "0123456789AB");
 
     TestableWiFiApBinding testable;
 
@@ -518,7 +544,7 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 
     *((MapIO *)&buffer[1]) = MapIO::DI;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(43, readed);
+    CHECK_EQUAL(56, readed);
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
@@ -527,6 +553,7 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
     *((MapIO *)&buffer[1]) = MapIO::V3;
     buffer[2] = 0;
     strcpy((char *)&buffer[27], "test_secret");
+    strcpy((char *)&buffer[44], "0123456789AB");
 
     TestableWiFiApBinding testable;
 
@@ -539,7 +566,7 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
 
     strcpy((char *)&buffer[2], "ssid");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(43, readed);
+    CHECK_EQUAL(56, readed);
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_password_return_zero) {
@@ -548,6 +575,7 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_password_return_zero) 
     *((MapIO *)&buffer[1]) = MapIO::V3;
     strcpy((char *)&buffer[2], "ssid");
     buffer[27] = 0;
+    strcpy((char *)&buffer[44], "0123456789AB");
 
     TestableWiFiApBinding testable;
 
@@ -560,7 +588,29 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_password_return_zero) 
 
     strcpy((char *)&buffer[27], "test_secret");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(43, readed);
+    CHECK_EQUAL(56, readed);
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_mac_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    strcpy((char *)&buffer[2], "ssid");
+    strcpy((char *)&buffer[27], "test_secret");
+    buffer[44] = 0;
+
+    TestableWiFiApBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[44], "");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[44], "0123456789AB");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(56, readed);
 }
 
 TEST(LogicWiFiApBindingTestsGroup, GetElementType) {
@@ -601,4 +651,20 @@ TEST(LogicWiFiApBindingTestsGroup, SetPassword) {
     TestableWiFiApBinding testable;
     testable.SetPassword("secret");
     STRCMP_EQUAL("secret", testable.GetPassword());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, SetMac) {
+    TestableWiFiApBinding testable;
+    testable.SetMac("");
+    STRCMP_EQUAL("************", testable.GetMac());
+    testable.SetMac("0");
+    STRCMP_EQUAL("0***********", testable.GetMac());
+    testable.SetMac("01234");
+    STRCMP_EQUAL("01234*******", testable.GetMac());
+    testable.SetMac("0123456789");
+    STRCMP_EQUAL("0123456789**", testable.GetMac());
+    testable.SetMac("0123456789AB");
+    STRCMP_EQUAL("0123456789AB", testable.GetMac());
+    testable.SetMac("0123456789ABCDEF");
+    STRCMP_EQUAL("0123456789AB", testable.GetMac());
 }

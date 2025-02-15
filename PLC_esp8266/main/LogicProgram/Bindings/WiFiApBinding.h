@@ -11,9 +11,18 @@ class WiFiApBinding : public WiFiBinding {
     char password[max_password_size + 1];
     uint8_t password_size;
 
+    static const char mac_wild_char = '*';
+    static const uint8_t mac_size = 12;
+    static const uint8_t displayed_mac_max_size = 8;
+    char mac[mac_size + 1];
+
     const AllowedIO GetAllowedInputs() override final;
     bool RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y);
     bool IsLastPasswordChar();
+
+    void SelectPriorMacSymbol(char *symbol);
+    void SelectNextMacSymbol(char *symbol);
+    bool RenderEditedMac(uint8_t *fb, uint8_t x, uint8_t y);
 
   public:
     typedef enum { //
@@ -22,7 +31,9 @@ class WiFiApBinding : public WiFiBinding {
         wbepi_Ssid_First_Char,
         wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size,
         wbepi_Password_First_Char,
-        wbepi_Password_Last_Char = wbepi_Password_First_Char + max_password_size
+        wbepi_Password_Last_Char = wbepi_Password_First_Char + max_password_size,
+        wbepi_Mac_First_Char,
+        wbepi_Mac_Last_Char = wbepi_Mac_First_Char + mac_size
     } EditingPropertyId;
 
     explicit WiFiApBinding();
@@ -48,4 +59,6 @@ class WiFiApBinding : public WiFiBinding {
 
     const char *GetPassword();
     void SetPassword(const char *password);
+    const char *GetMac();
+    void SetMac(const char *mac);
 };

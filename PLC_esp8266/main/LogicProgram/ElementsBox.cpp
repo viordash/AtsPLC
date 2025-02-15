@@ -175,6 +175,7 @@ bool ElementsBox::CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiAp
     if (source_element_as_wifi_binding != NULL) {
         binding->SetSsid(source_element_as_wifi_binding->GetSsid());
         binding->SetPassword("ats-PLC0");
+        binding->SetMac("************");
         return true;
     }
 
@@ -182,10 +183,12 @@ bool ElementsBox::CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiAp
     if (source_element_as_wifi_ap_binding != NULL) {
         binding->SetSsid(source_element_as_wifi_ap_binding->GetSsid());
         binding->SetPassword(source_element_as_wifi_ap_binding->GetPassword());
+        binding->SetMac(source_element_as_wifi_ap_binding->GetMac());
         return true;
     }
     binding->SetSsid("AtsPLC");
     binding->SetPassword("ats-PLC0");
+    binding->SetMac("************");
     return true;
 }
 

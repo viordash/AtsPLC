@@ -1,11 +1,4 @@
 #include "LogicProgram/Bindings/WiFiApBinding.h"
-#include "LogicProgram/Inputs/ComparatorEq.h"
-#include "LogicProgram/Inputs/ComparatorGE.h"
-#include "LogicProgram/Inputs/ComparatorGr.h"
-#include "LogicProgram/Inputs/ComparatorLE.h"
-#include "LogicProgram/Inputs/ComparatorLs.h"
-#include "LogicProgram/Inputs/InputNC.h"
-#include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -39,11 +32,11 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        // Controller::BindVariableToWiFi(GetIoAdr(), ssid);
+        Controller::BindVariableToWiFi(GetIoAdr(), ssid);
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
-        // Controller::UnbindVariable(GetIoAdr());
+        Controller::UnbindVariable(GetIoAdr());
     }
 
     if (state != prev_state) {
@@ -79,6 +72,9 @@ WiFiApBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
                 res = RenderEditedPassword(fb, top_left.x, top_left.y + 4);
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                res = RenderEditedMac(fb, top_left.x, top_left.y + 4);
             }
 
             break;
@@ -111,12 +107,37 @@ bool WiFiApBinding::RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y) {
     return draw_text_f6X12(fb, x, y + 5, blink_password) > 0;
 }
 
+bool WiFiApBinding::RenderEditedMac(uint8_t *fb, uint8_t x, uint8_t y) {
+    char blink_mac[displayed_mac_max_size + 1];
+    int char_pos = editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
+
+    if (char_pos < displayed_mac_max_size) {
+        strncpy(blink_mac, mac, sizeof(blink_mac));
+    } else {
+        strncpy(blink_mac, &mac[char_pos - (displayed_mac_max_size - 1)], sizeof(blink_mac));
+        char_pos = displayed_mac_max_size - 1;
+    }
+    blink_mac[sizeof(blink_mac) - 1] = 0;
+
+    if (Blinking_50()) {
+        blink_mac[char_pos] = ' ';
+    }
+
+    if (draw_text_f4X7(fb, x + 3, y - 2, "MAC:") <= 0) {
+        return false;
+    }
+    return draw_text_f6X12(fb, x, y + 5, blink_mac) > 0;
+}
+
 size_t WiFiApBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = WiFiBinding::Serialize(buffer, buffer_size);
     if (writed == 0) {
         return 0;
     }
     if (!Record::Write(&password, sizeof(password), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!Record::Write(&mac, sizeof(mac), buffer, buffer_size, &writed)) {
         return 0;
     }
     return writed;
@@ -135,6 +156,15 @@ size_t WiFiApBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     SetPassword(_password);
+
+    char _mac[sizeof(mac)];
+    if (!Record::Read(&_mac, sizeof(_mac), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (strlen(_mac) == 0 || strlen(_mac) != sizeof(_mac) - 1) {
+        return 0;
+    }
+    SetMac(_mac);
     return readed;
 }
 
@@ -149,6 +179,30 @@ WiFiApBinding *WiFiApBinding::TryToCast(LogicElement *logic_element) {
 
         default:
             return NULL;
+    }
+}
+
+void WiFiApBinding::SelectPriorMacSymbol(char *symbol) {
+    if ((*symbol > '0' && *symbol <= '9') || (*symbol > 'A' && *symbol <= 'F')) {
+        *symbol = *symbol - 1;
+    } else if (*symbol == mac_wild_char) {
+        *symbol = 'F';
+    } else if (*symbol == 'A') {
+        *symbol = '9';
+    } else {
+        *symbol = mac_wild_char;
+    }
+}
+
+void WiFiApBinding::SelectNextMacSymbol(char *symbol) {
+    if ((*symbol >= '0' && *symbol < '9') || (*symbol >= 'A' && *symbol < 'F')) {
+        *symbol = *symbol + 1;
+    } else if (*symbol == '9') {
+        *symbol = 'A';
+    } else if (*symbol == mac_wild_char) {
+        *symbol = '0';
+    } else {
+        *symbol = mac_wild_char;
     }
 }
 
@@ -170,6 +224,11 @@ void WiFiApBinding::SelectPrior() {
                 SelectPriorSymbol(
                     &password[editing_property_id
                               - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char]);
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                SelectPriorMacSymbol(
+                    &mac[editing_property_id
+                         - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char]);
             }
 
             break;
@@ -194,6 +253,10 @@ void WiFiApBinding::SelectNext() {
                 SelectNextSymbol(
                     &password[editing_property_id
                               - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char]);
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                SelectNextMacSymbol(&mac[editing_property_id
+                                         - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char]);
             }
             break;
     }
@@ -215,6 +278,10 @@ void WiFiApBinding::PageUp() {
                 password[editing_property_id
                          - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
                     place_new_char;
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                mac[editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char] =
+                    mac_wild_char;
             }
             break;
     }
@@ -236,6 +303,10 @@ void WiFiApBinding::PageDown() {
                 password[editing_property_id
                          - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
                     place_new_char;
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                mac[editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char] =
+                    mac_wild_char;
             }
             break;
     }
@@ -272,8 +343,7 @@ void WiFiApBinding::Change() {
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
                 if (IsLastPasswordChar()) {
-                    editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
-                    EndEditing();
+                    editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
                 } else {
                     editing_property_id++;
                     if (IsLastPasswordChar()) {
@@ -282,6 +352,12 @@ void WiFiApBinding::Change() {
                             place_new_char;
                     }
                 }
+            } else if (editing_property_id
+                       < WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
+                editing_property_id++;
+            } else {
+                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
+                EndEditing();
             }
             break;
     }
@@ -301,6 +377,9 @@ void WiFiApBinding::Option() {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
                 EndEditing();
             }
@@ -328,8 +407,20 @@ const char *WiFiApBinding::GetPassword() {
 }
 
 void WiFiApBinding::SetPassword(const char *password) {
-    ESP_LOGI(TAG_WiFiApBinding, "SetPassword:%s", password);
     strncpy(this->password, password, sizeof(this->password) - 1);
     this->password[sizeof(this->password) - 1] = 0;
     password_size = strlen(this->password);
+}
+
+const char *WiFiApBinding::GetMac() {
+    return mac;
+}
+
+void WiFiApBinding::SetMac(const char *mac) {
+    size_t s_len = strlen(mac);
+    for (size_t i = 0; i < sizeof(this->mac) - 1; i++) {
+        char ch = i < s_len ? toupper(mac[i]) : mac_wild_char;
+        this->mac[i] = ch;
+    }
+    this->mac[sizeof(this->mac) - 1] = 0;
 }
