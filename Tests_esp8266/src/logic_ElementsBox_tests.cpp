@@ -58,7 +58,7 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          false);
-    CHECK_EQUAL(18, testable.size());
+    CHECK_EQUAL(19, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -71,12 +71,13 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[12]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, testable[13]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[14]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_IncOutput, testable[15]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[16]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[17]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[13]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[14]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[16]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[17]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[18]->GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -85,7 +86,7 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          true);
-    CHECK_EQUAL(13, testable.size());
+    CHECK_EQUAL(14, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -98,7 +99,8 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[13]->GetElementType());
     delete testable.GetSelectedElement();
 }
 
@@ -395,6 +397,8 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
@@ -430,6 +434,8 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectPrior();

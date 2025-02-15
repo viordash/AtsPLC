@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Bindings/WiFiApBinding.h"
 #include "main/LogicProgram/Bindings/WiFiBinding.h"
 #include "main/LogicProgram/Bindings/WiFiStaBinding.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
@@ -21,8 +22,9 @@
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 static WiFiService *wifi_service;
-TEST_GROUP(LogicWiFiBindingTestsGroup){ //
-                                        TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+TEST_GROUP(LogicWiFiApBindingTestsGroup){
+    //
+    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -42,11 +44,11 @@ TEST_TEARDOWN() {
 ;
 
 namespace {
-    class TestableWiFiBinding : public WiFiBinding {
+    class TestableWiFiApBinding : public WiFiApBinding {
       public:
-        TestableWiFiBinding() : WiFiBinding() {
+        TestableWiFiApBinding() : WiFiApBinding() {
         }
-        virtual ~TestableWiFiBinding() {
+        virtual ~TestableWiFiApBinding() {
         }
 
         const char *GetLabel() {
@@ -64,20 +66,23 @@ namespace {
         uint8_t *PublicMorozov_Get_ssid_size() {
             return &ssid_size;
         }
+        uint8_t *PublicMorozov_Get_password_size() {
+            return &password_size;
+        }
     };
 } // namespace
 
-TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, DoAction_skip_when_incoming_passive) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
-TEST(LogicWiFiBindingTestsGroup,
+TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -85,7 +90,7 @@ TEST(LogicWiFiBindingTestsGroup,
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 }
 
-TEST(LogicWiFiBindingTestsGroup,
+TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -93,7 +98,7 @@ TEST(LogicWiFiBindingTestsGroup,
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToWiFi(wifi_service, "test_ssid");
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
@@ -103,14 +108,14 @@ TEST(LogicWiFiBindingTestsGroup,
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }
 
-TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
+TEST(LogicWiFiApBindingTestsGroup, DoAction_change_state_only_by_reason) {
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
         .withUnsignedIntParameter("ulValue", 0)
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
@@ -146,8 +151,8 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }
 
-TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, ssid_changing) {
+    TestableWiFiApBinding testable;
 
     testable.SetSsid("test");
     STRCMP_EQUAL("test", testable.GetSsid());
@@ -162,55 +167,55 @@ TEST(LogicWiFiBindingTestsGroup, ssid_changing) {
     CHECK_EQUAL(24, *testable.PublicMorozov_Get_ssid_size());
 }
 
-TEST(LogicWiFiBindingTestsGroup, Change__switching__editing_property_id) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, Change__switching__editing_property_id) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("ssid_with_size_of_24_chs");
     CHECK_FALSE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding ::EditingPropertyId::wbepi_None,
+    CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.BeginEditing();
     testable.Change();
     CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
                 *testable.PublicMorozov_Get_editing_property_id());
     testable.Change();
     CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     for (int i = 1; i < 24; i++) {
         testable.Change();
         CHECK_TRUE(testable.Editing());
-        CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + i,
+        CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + i,
                     *testable.PublicMorozov_Get_editing_property_id());
     }
 
     testable.Change();
     CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.Change();
     CHECK_FALSE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_None,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     CHECK_EQUAL(24, strlen(testable.GetSsid()));
 }
 
-TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
+TEST(LogicWiFiApBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     volatile uint64_t os_us = 0x80000;
     mock()
         .expectNCalls(24, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("ssid_with_size_of_24_chs");
 
-    int property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
+    int property_id = WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char;
     for (size_t i = 0; i < 24; i++) {
         *testable.PublicMorozov_Get_editing_property_id() = property_id++;
         CHECK_TRUE(
@@ -220,8 +225,8 @@ TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     }
 }
 
-TEST(LogicWiFiBindingTestsGroup, SelectNext_changing_IoAdr) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, SelectNext_changing_IoAdr) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.BeginEditing();
     testable.Change();
@@ -237,8 +242,8 @@ TEST(LogicWiFiBindingTestsGroup, SelectNext_changing_IoAdr) {
     CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
 }
 
-TEST(LogicWiFiBindingTestsGroup, SelectPrior_changing_IoAdr) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.BeginEditing();
     testable.Change();
@@ -254,13 +259,13 @@ TEST(LogicWiFiBindingTestsGroup, SelectPrior_changing_IoAdr) {
     CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
 }
 
-TEST(LogicWiFiBindingTestsGroup, SelectNext_ssid_0) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, SelectNext_ssid_0) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("!");
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     for (char ch = '!'; ch <= '~'; ch++) {
@@ -272,13 +277,13 @@ TEST(LogicWiFiBindingTestsGroup, SelectNext_ssid_0) {
     STRCMP_EQUAL(place_new_char, testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, SelectPrior_ssid_0) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, SelectPrior_ssid_0) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("~");
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     for (char ch = '~'; ch >= '!'; ch--) {
@@ -290,27 +295,27 @@ TEST(LogicWiFiBindingTestsGroup, SelectPrior_ssid_0) {
     STRCMP_EQUAL(place_new_char, testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, PageUp_change_first_ssid_symbol_to_prior_char) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, PageUp_change_first_ssid_symbol_to_prior_char) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("test");
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.PageUp();
     STRCMP_EQUAL("sest", testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, PageUp_change_ssid_symbol_to__new_char) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, PageUp_change_ssid_symbol_to__new_char) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("test");
     testable.Change();
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.PageUp();
@@ -318,27 +323,27 @@ TEST(LogicWiFiBindingTestsGroup, PageUp_change_ssid_symbol_to__new_char) {
     STRCMP_EQUAL(place_new_char, testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, PageDown_change_first_ssid_symbol_to_next_char) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, PageDown_change_first_ssid_symbol_to_next_char) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("test");
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.PageDown();
     STRCMP_EQUAL("uest", testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, PageDown_change_ssid_symbol_to__new_char) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, PageDown_change_ssid_symbol_to__new_char) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("test");
     testable.Change();
     testable.Change();
     testable.Change();
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + 1,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.PageDown();
@@ -346,12 +351,12 @@ TEST(LogicWiFiBindingTestsGroup, PageDown_change_ssid_symbol_to__new_char) {
     STRCMP_EQUAL(place_new_char, testable.GetSsid());
 }
 
-TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, ssid_trimmed_after_editing) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
     testable.SetSsid("ssid_with_size_of_24_chs");
     CHECK_FALSE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding ::EditingPropertyId::wbepi_None,
+    CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.BeginEditing();
@@ -361,7 +366,7 @@ TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
     testable.Change();
     testable.Change();
     CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char + 3,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + 3,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     testable.PageDown();
@@ -370,78 +375,87 @@ TEST(LogicWiFiBindingTestsGroup, ssid_trimmed_after_editing) {
 
     testable.Change();
     CHECK_FALSE(testable.Editing());
-    CHECK_EQUAL(WiFiBinding::EditingPropertyId::wbepi_None,
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     CHECK_EQUAL(3, strlen(testable.GetSsid()));
 }
 
-TEST(LogicWiFiBindingTestsGroup, Serialize) {
+TEST(LogicWiFiApBindingTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V2);
     testable.SetSsid("ssid");
+    testable.SetPassword("secret");
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
-    CHECK_EQUAL(27, writed);
+    CHECK_EQUAL(44, writed);
 
-    CHECK_EQUAL(TvElementType::et_WiFiBinding, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, *((TvElementType *)&buffer[0]));
     CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
     STRCMP_EQUAL("ssid", (char *)&buffer[2]);
+    STRCMP_EQUAL("secret", (char *)&buffer[27]);
 }
 
-TEST(LogicWiFiBindingTestsGroup, Serialize_just_for_obtain_size) {
-    TestableWiFiBinding testable;
+TEST(LogicWiFiApBindingTestsGroup, Serialize_just_for_obtain_size) {
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("ssid");
+    testable.SetPassword("secret");
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
-    CHECK_EQUAL(27, writed);
+    CHECK_EQUAL(44, writed);
 
     writed = testable.Serialize(NULL, 0);
-    CHECK_EQUAL(27, writed);
+    CHECK_EQUAL(44, writed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
+TEST(LogicWiFiApBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[1] = {};
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("ssid");
+    testable.SetPassword("secret");
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, Deserialize) {
+TEST(LogicWiFiApBindingTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
     *((MapIO *)&buffer[1]) = MapIO::V3;
     strcpy((char *)&buffer[2], "test_ssid");
+    strcpy((char *)&buffer[27], "test_secret");
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(26, readed);
+    CHECK_EQUAL(43, readed);
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
     CHECK(&Controller::V3 == testable.Input);
     STRCMP_EQUAL("test_ssid", testable.GetSsid());
+    STRCMP_EQUAL("test_secret", testable.GetPassword());
 }
 
-TEST(LogicWiFiBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
 
     size_t readed = testable.Deserialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, readed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
     strcpy((char *)&buffer[2], "test_ssid");
+    strcpy((char *)&buffer[27], "test_secret");
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
 
     *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
@@ -453,16 +467,17 @@ TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
 
     *((MapIO *)&buffer[1]) = MapIO::DI;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(26, readed);
+    CHECK_EQUAL(43, readed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
     uint8_t buffer[256] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
     *((MapIO *)&buffer[1]) = MapIO::V3;
     buffer[2] = 0;
+    strcpy((char *)&buffer[27], "test_secret");
 
-    TestableWiFiBinding testable;
+    TestableWiFiApBinding testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
@@ -473,39 +488,67 @@ TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
 
     strcpy((char *)&buffer[2], "ssid");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(26, readed);
+    CHECK_EQUAL(43, readed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, GetElementType) {
-    TestableWiFiBinding testable;
-    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_password_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    strcpy((char *)&buffer[2], "ssid");
+    buffer[27] = 0;
+
+    TestableWiFiApBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[27], "");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[27], "test_secret");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(43, readed);
 }
 
-TEST(LogicWiFiBindingTestsGroup, TryToCast) {
+
+TEST(LogicWiFiApBindingTestsGroup, GetElementType) {
+    TestableWiFiApBinding testable;
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, TryToCast) {
     InputNC inputNC;
-    CHECK_TRUE(WiFiBinding::TryToCast(&inputNC) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&inputNC) == NULL);
 
     InputNO inputNO;
-    CHECK_TRUE(WiFiBinding::TryToCast(&inputNO) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&inputNO) == NULL);
 
     ComparatorEq comparatorEq;
-    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorEq) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&comparatorEq) == NULL);
 
     ComparatorGE comparatorGE;
-    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorGE) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&comparatorGE) == NULL);
 
     ComparatorGr comparatorGr;
-    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorGr) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&comparatorGr) == NULL);
 
     ComparatorLE comparatorLE;
-    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorLE) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&comparatorLE) == NULL);
 
     ComparatorLs comparatorLs;
-    CHECK_TRUE(WiFiBinding::TryToCast(&comparatorLs) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&comparatorLs) == NULL);
 
     WiFiStaBinding wiFiStaBinding;
-    CHECK_TRUE(WiFiBinding::TryToCast(&wiFiStaBinding) == NULL);
+    CHECK_TRUE(WiFiApBinding::TryToCast(&wiFiStaBinding) == NULL);
 
-    WiFiBinding wiFiBinding;
-    CHECK_TRUE(WiFiBinding::TryToCast(&wiFiBinding) == &wiFiBinding);
+    WiFiApBinding wiFiBinding;
+    CHECK_TRUE(WiFiApBinding::TryToCast(&wiFiBinding) == &wiFiBinding);
+}
+
+TEST(LogicWiFiApBindingTestsGroup, SetPassword) {
+    TestableWiFiApBinding testable;
+    testable.SetPassword("secret");
+    STRCMP_EQUAL("secret", testable.GetPassword());
 }
