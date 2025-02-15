@@ -274,13 +274,13 @@ void WiFiApBinding::Change() {
                 if (IsLastPasswordChar()) {
                     editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
                     EndEditing();
-                }
-
-                editing_property_id++;
-                if (IsLastPasswordChar()) {
-                    password[editing_property_id
-                             - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
-                        place_new_char;
+                } else {
+                    editing_property_id++;
+                    if (IsLastPasswordChar()) {
+                        password[editing_property_id
+                                 - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                            place_new_char;
+                    }
                 }
             }
             break;
@@ -293,13 +293,12 @@ void WiFiApBinding::Option() {
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-        case WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char:
             WiFiBinding::Option();
             break;
 
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
-                WiFiBinding::Option();
+                editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
