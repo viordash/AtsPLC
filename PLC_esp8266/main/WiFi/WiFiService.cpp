@@ -101,16 +101,16 @@ void WiFiService::CancelScan(const char *ssid) {
     }
 }
 
-void WiFiService::Generate(const char *ssid) {
+void WiFiService::AccessPoint(const char *ssid) {
     if (requests.AccessPoint(ssid)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "Generate, ssid:%s", ssid);
+        ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
     }
 }
 
-void WiFiService::CancelGenerate(const char *ssid) {
+void WiFiService::CancelAccessPoint(const char *ssid) {
     bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelGenerate, ssid:%s, removed:%d", ssid, removed);
+    ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
         xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }

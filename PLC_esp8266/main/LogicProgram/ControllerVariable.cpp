@@ -48,9 +48,9 @@ void ControllerVariable::CommitChanges() {
         bool wifi_sta_client = ssid == NULL;
         if (!wifi_sta_client) {
             if (out_value != LogicElement::MinValue) {
-                wifi_service->Generate(ssid);
+                wifi_service->AccessPoint(ssid);
             } else {
-                wifi_service->CancelGenerate(ssid);
+                wifi_service->CancelAccessPoint(ssid);
             }
         }
     }

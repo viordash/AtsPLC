@@ -144,7 +144,7 @@ TEST(LogicWiFiServiceTestsGroup, CancelScan) {
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
+TEST(LogicWiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(3, "xTaskGenericNotify")
@@ -154,19 +154,19 @@ TEST(LogicWiFiServiceTestsGroup, Generate_requests_are_unique) {
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
-    testable.Generate("ssid_0");
+    testable.AccessPoint("ssid_0");
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.Generate("ssid_1");
+    testable.AccessPoint("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.Generate("ssid_1");
+    testable.AccessPoint("ssid_1");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.Generate("ssid_0");
+    testable.AccessPoint("ssid_0");
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.Generate("ssid_2");
+    testable.AccessPoint("ssid_2");
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
 
@@ -808,8 +808,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_s
 
     const char *ssid_0 = "test_0";
     const char *passw_0 = "1234";
-    RequestItem request = { RequestItemType::wqi_AccessPoint };
-    request.Payload.AccessPoint.ssid = ssid_0;
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     request.Payload.AccessPoint.password = passw_0;
     testable.PublicMorozov_AccessPointTask(&request);
 }
