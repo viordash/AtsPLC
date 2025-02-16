@@ -18,6 +18,8 @@ struct RequestItem {
         } Scanner;
         struct {
             const char *ssid;
+            const char *password;
+            const char *mac;
         } AccessPoint;
     } Payload;
 };

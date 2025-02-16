@@ -47,6 +47,10 @@ class WiFiService {
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
+    static void ap_wifi_event_handler(void *arg,
+                                      esp_event_base_t event_base,
+                                      int32_t event_id,
+                                      void *event_data);
 
     static void Task(void *parm);
     static void
