@@ -243,6 +243,20 @@ bool WiFiBinding::IsLastSsidChar() {
     return ch == 0 || ch == place_new_char;
 }
 
+bool WiFiBinding::ChangeSsid() {
+    if (editing_property_id == WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char
+        || IsLastSsidChar()) {
+        return false;
+    }
+
+    editing_property_id++;
+    if (IsLastSsidChar()) {
+        ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+            place_new_char;
+    }
+    return true;
+}
+
 void WiFiBinding::Change() {
     ESP_LOGI(TAG_WiFiBinding, "Change editing_property_id:%d", editing_property_id);
 
@@ -252,18 +266,17 @@ void WiFiBinding::Change() {
             break;
         case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
             editing_property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
+            if (IsLastSsidChar()) {
+                ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+                    place_new_char;
+            }
             break;
 
         default:
-            if (editing_property_id == WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char
-                || IsLastSsidChar()) {
-                editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
-                EndEditing();
-            } else {
-                editing_property_id++;
-                if (IsLastSsidChar()) {
-                    ssid[editing_property_id
-                         - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] = place_new_char;
+            if (editing_property_id <= WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                if (!ChangeSsid()) {
+                    editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
+                    EndEditing();
                 }
             }
             break;

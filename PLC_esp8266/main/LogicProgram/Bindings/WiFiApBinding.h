@@ -19,6 +19,7 @@ class WiFiApBinding : public WiFiBinding {
     const AllowedIO GetAllowedInputs() override final;
     bool RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y);
     bool IsLastPasswordChar();
+    bool ChangePassword();
 
     void SelectPriorMacSymbol(char *symbol);
     void SelectNextMacSymbol(char *symbol);
@@ -28,12 +29,12 @@ class WiFiApBinding : public WiFiBinding {
     typedef enum { //
         wbepi_None = WiFiBinding::EditingPropertyId::wbepi_None,
         wbepi_ConfigureIOAdr = WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
-        wbepi_Ssid_First_Char,
-        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size,
+        wbepi_Ssid_First_Char = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char,
+        wbepi_Ssid_Last_Char = WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char,
         wbepi_Password_First_Char,
-        wbepi_Password_Last_Char = wbepi_Password_First_Char + max_password_size,
+        wbepi_Password_Last_Char = wbepi_Password_First_Char + max_password_size - 1,
         wbepi_Mac_First_Char,
-        wbepi_Mac_Last_Char = wbepi_Mac_First_Char + mac_size
+        wbepi_Mac_Last_Char = wbepi_Mac_First_Char + mac_size - 1
     } EditingPropertyId;
 
     explicit WiFiApBinding();

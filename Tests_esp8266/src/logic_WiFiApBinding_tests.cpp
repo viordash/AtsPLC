@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Bindings/WiFiApBinding.h"
-#include "main/LogicProgram/Bindings/WiFiBinding.h"
 #include "main/LogicProgram/Bindings/WiFiStaBinding.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
@@ -170,8 +169,9 @@ TEST(LogicWiFiApBindingTestsGroup, ssid_changing) {
 TEST(LogicWiFiApBindingTestsGroup, Change__switching__editing_property_id) {
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    testable.SetSsid("ssid_with_size_of_24_chs");
-    testable.SetPassword("password_16_char");
+    testable.SetSsid("");
+    testable.SetPassword("");
+    testable.SetMac("");
     CHECK_FALSE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
@@ -182,63 +182,179 @@ TEST(LogicWiFiApBindingTestsGroup, Change__switching__editing_property_id) {
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
                 *testable.PublicMorozov_Get_editing_property_id());
     testable.Change();
-    CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char,
-                *testable.PublicMorozov_Get_editing_property_id());
 
-    for (int i = 1; i < 24; i++) {
-        testable.Change();
+    for (int i = 0; i < 23; i++) {
         CHECK_TRUE(testable.Editing());
         CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + i,
                     *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
     }
-
-    testable.Change();
     CHECK_TRUE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
-
+    testable.SelectNext();
     testable.Change();
-    CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char,
-                *testable.PublicMorozov_Get_editing_property_id());
 
-    for (int i = 1; i < 16; i++) {
-        testable.Change();
+    for (int i = 0; i < 15; i++) {
         CHECK_TRUE(testable.Editing());
         CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char + i,
                     *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
     }
-
-    testable.Change();
     CHECK_TRUE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
-
+    testable.SelectNext();
     testable.Change();
-    CHECK_TRUE(testable.Editing());
-    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char,
-                *testable.PublicMorozov_Get_editing_property_id());
 
-    for (int i = 1; i < 12; i++) {
-        testable.Change();
+    for (int i = 0; i < 11; i++) {
         CHECK_TRUE(testable.Editing());
         CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char + i,
                     *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
     }
-
-    testable.Change();
     CHECK_TRUE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char,
                 *testable.PublicMorozov_Get_editing_property_id());
-
+    testable.SelectNext();
     testable.Change();
+
     CHECK_FALSE(testable.Editing());
     CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
                 *testable.PublicMorozov_Get_editing_property_id());
 
     CHECK_EQUAL(24, strlen(testable.GetSsid()));
+    STRCMP_EQUAL("!!!!!!!!!!!!!!!!!!!!!!!!", testable.GetSsid());
+
     CHECK_EQUAL(16, strlen(testable.GetPassword()));
+    STRCMP_EQUAL("!!!!!!!!!!!!!!!!", testable.GetPassword());
+
+    CHECK_EQUAL(12, strlen(testable.GetMac()));
+    STRCMP_EQUAL("000000000000", testable.GetMac());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Ssid_with_partial_length) {
+    TestableWiFiApBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("");
+    testable.SetPassword("");
+    testable.SetMac("");
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+
+    for (int i = 0; i < 5; i++) {
+        CHECK_TRUE(testable.Editing());
+        CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + i,
+                    *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
+    }
+
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char + 5,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Option();
+    testable.Option();
+    testable.Option();
+
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL(5, strlen(testable.GetSsid()));
+    STRCMP_EQUAL("!!!!!", testable.GetSsid());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Password_with_partial_length) {
+    TestableWiFiApBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.SetPassword("");
+    testable.SetMac("");
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    testable.Option();
+
+    for (int i = 0; i < 5; i++) {
+        CHECK_TRUE(testable.Editing());
+        CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char + i,
+                    *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
+    }
+
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char + 5,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Option();
+    testable.Option();
+
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL(5, strlen(testable.GetPassword()));
+    STRCMP_EQUAL("!!!!!", testable.GetPassword());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Mac_cannot_be_partial) {
+    TestableWiFiApBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.SetSsid("test");
+    testable.SetPassword("1234");
+    testable.SetMac("");
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding ::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    testable.BeginEditing();
+    testable.Change();
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Change();
+    testable.Option();
+    testable.Option();
+
+    for (int i = 0; i < 6; i++) {
+        CHECK_TRUE(testable.Editing());
+        CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char + i,
+                    *testable.PublicMorozov_Get_editing_property_id());
+        testable.SelectNext();
+        testable.Change();
+    }
+
+    CHECK_TRUE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char + 6,
+                *testable.PublicMorozov_Get_editing_property_id());
+    testable.Option();
+    testable.Option();
+
+    CHECK_FALSE(testable.Editing());
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_None,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL(12, strlen(testable.GetMac()));
+    STRCMP_EQUAL("000000******", testable.GetMac());
 }
 
 TEST(LogicWiFiApBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {

@@ -318,6 +318,20 @@ bool WiFiApBinding::IsLastPasswordChar() {
     return ch == 0 || ch == place_new_char;
 }
 
+bool WiFiApBinding::ChangePassword() {
+    if (editing_property_id == WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char
+        || IsLastPasswordChar()) {
+        return false;
+    }
+
+    editing_property_id++;
+    if (IsLastPasswordChar()) {
+        password[editing_property_id
+                 - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] = place_new_char;
+    }
+    return true;
+}
+
 void WiFiApBinding::Change() {
     ESP_LOGI(TAG_WiFiApBinding, "Change editing_property_id:%d", editing_property_id);
 
@@ -328,29 +342,20 @@ void WiFiApBinding::Change() {
             break;
 
         default:
-            if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
-                if (IsLastSsidChar()) {
+            if (editing_property_id <= WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                if (!ChangeSsid()) {
                     editing_property_id =
                         WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
-                } else {
-                    editing_property_id++;
-                    if (IsLastSsidChar()) {
-                        ssid[editing_property_id
-                             - WiFiApBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
-                            place_new_char;
-                    }
-                }
-            } else if (editing_property_id
-                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
-                if (IsLastPasswordChar()) {
-                    editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
-                } else {
-                    editing_property_id++;
                     if (IsLastPasswordChar()) {
                         password[editing_property_id
                                  - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
                             place_new_char;
                     }
+                }
+            } else if (editing_property_id
+                       <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
+                if (!ChangePassword()) {
+                    editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
                 }
             } else if (editing_property_id
                        < WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
@@ -375,9 +380,20 @@ void WiFiApBinding::Option() {
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
+                if (IsLastPasswordChar()) {
+                    password[editing_property_id
+                             - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                        place_new_char;
+                }
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
+                if (IsLastPasswordChar()) {
+                    password[editing_property_id
+                             - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
+                        place_new_char;
+                }
+
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;

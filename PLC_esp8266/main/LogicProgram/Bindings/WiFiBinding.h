@@ -19,13 +19,14 @@ class WiFiBinding : public CommonWiFiBinding {
     bool RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage);
     bool RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y);
     bool IsLastSsidChar();
+    bool ChangeSsid();
 
   public:
     typedef enum { //
         wbepi_None = CommonWiFiBinding::EditingPropertyId::cwbepi_None,
         wbepi_ConfigureIOAdr = CommonWiFiBinding::EditingPropertyId::cwbepi_ConfigureIOAdr,
         wbepi_Ssid_First_Char,
-        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size
+        wbepi_Ssid_Last_Char = wbepi_Ssid_First_Char + max_ssid_size - 1
     } EditingPropertyId;
 
     explicit WiFiBinding();
