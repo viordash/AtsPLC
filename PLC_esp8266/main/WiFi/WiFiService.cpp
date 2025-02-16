@@ -35,7 +35,6 @@ void WiFiService::Start() {
             ? ESP_FAIL
             : ESP_OK);
 
-    ConnectToStation();
     ESP_LOGW(TAG_WiFiService, "Start, task_handle:%p", task_handle);
 }
 
