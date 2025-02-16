@@ -208,20 +208,12 @@ void WiFiService::ip_event_handler(void *arg,
                                    esp_event_base_t event_base,
                                    int32_t event_id,
                                    void *event_data) {
+    (void)event_base;
+    (void)event_id;
+
     auto wifi_service = static_cast<WiFiService *>(arg);
     auto event = (ip_event_got_ip_t *)event_data;
 
-    switch (event_id) {
-        case IP_EVENT_STA_GOT_IP:
-            ESP_LOGD(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
-            xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
-            return;
-
-        default:
-            ESP_LOGW(TAG_WiFiService_Station,
-                     "unhandled event, event_base:%s, event_id:%d",
-                     event_base,
-                     event_id);
-            break;
-    }
+    ESP_LOGD(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+    xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
 }
