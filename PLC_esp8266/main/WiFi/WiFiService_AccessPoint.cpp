@@ -15,7 +15,7 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern CurrentSettings::device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
-
+    AccessPointEventArg ap_event_arg = { this, request->Payload.AccessPoint.ssid };
     CurrentSettings::wifi_access_point_settings access_point_settings;
     SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
 
@@ -55,8 +55,13 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,
                                                WIFI_EVENT_AP_STACONNECTED,
-                                               &ap_wifi_event_handler,
-                                               this));
+                                               &ap_connect_wifi_event_handler,
+                                               &ap_event_arg));
+
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,
+                                               WIFI_EVENT_AP_STADISCONNECTED,
+                                               &ap_disconnect_wifi_event_handler,
+                                               &ap_event_arg));
 
     ESP_ERROR_CHECK(esp_wifi_start());
 
@@ -69,7 +74,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     while (true) {
         bool notify_wait_timeout =
             xTaskNotifyWait(0,
-                            CANCEL_REQUEST_BIT | CONNECTED_BIT,
+                            CANCEL_REQUEST_BIT,
                             &ulNotifiedValue,
                             access_point_settings.generation_time_ms / portTICK_RATE_MS)
             == pdFALSE;
@@ -93,27 +98,17 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                      request->Payload.AccessPoint.ssid);
             break;
         }
-
-        bool connected = (ulNotifiedValue & CONNECTED_BIT) != 0;
-        if (connected) {
-            wifi_sta_list_t sta_list;
-            if (esp_wifi_ap_get_sta_list(&sta_list) == ESP_OK) {
-                ESP_LOGI(TAG_WiFiService_AccessPoint, "devices connected: %d", sta_list.num);
-                for (int i = 0; i < sta_list.num; i++) {
-                    ESP_LOGI(TAG_WiFiService_AccessPoint,
-                             "%d. " MACSTR,
-                             i,
-                             MAC2STR(sta_list.sta[i].mac));
-                }
-            }
-        }
     }
 
     esp_wifi_stop();
 
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT,
                                                  WIFI_EVENT_AP_STACONNECTED,
-                                                 &ap_wifi_event_handler));
+                                                 &ap_connect_wifi_event_handler));
+
+    ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT,
+                                                 WIFI_EVENT_AP_STADISCONNECTED,
+                                                 &ap_disconnect_wifi_event_handler));
 
     requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
     if (!cancel) {
@@ -127,15 +122,74 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     ESP_LOGD(TAG_WiFiService_AccessPoint, "finish");
 }
 
-void WiFiService::ap_wifi_event_handler(void *arg,
-                                        esp_event_base_t event_base,
-                                        int32_t event_id,
-                                        void *event_data) {
+void WiFiService::ap_connect_wifi_event_handler(void *arg,
+                                                esp_event_base_t event_base,
+                                                int32_t event_id,
+                                                void *event_data) {
     (void)event_base;
     (void)event_id;
-    auto wifi_service = static_cast<WiFiService *>(arg);
+    auto ap_event_arg = static_cast<AccessPointEventArg *>(arg);
     auto event = (wifi_event_ap_staconnected_t *)event_data;
 
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "client mac :" MACSTR, MAC2STR(event->mac));
-    xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "connect client aid:%u, mac:" MACSTR,
+             event->aid,
+             MAC2STR(event->mac));
+
+    ap_event_arg->service->AddApClient(ap_event_arg->ssid);
+}
+
+void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
+                                                   esp_event_base_t event_base,
+                                                   int32_t event_id,
+                                                   void *event_data) {
+    (void)event_base;
+    (void)event_id;
+    auto ap_event_arg = static_cast<AccessPointEventArg *>(arg);
+    auto event = (wifi_event_ap_stadisconnected_t *)event_data;
+
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "disconnect client aid:%u, mac:" MACSTR,
+             event->aid,
+             MAC2STR(event->mac));
+
+    ap_event_arg->service->RemoveApClient(ap_event_arg->ssid);
+}
+
+void WiFiService::AddApClient(const char *ssid) {
+    std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
+    auto it = ap_clients.insert({ ssid, 1 });
+    if (!it.second) {
+        it.first->second++;
+    }
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "AddApClient, ssid_cnt: %u, size:%u",
+             (unsigned)it.first->second,
+             (unsigned)ap_clients.size());
+}
+
+bool WiFiService::FindApClient(const char *ssid, size_t *count) {
+    std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
+    auto it = ap_clients.find(ssid);
+    bool found = it != ap_clients.end();
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
+    if (found) {
+        *count = it->second;
+    }
+    return found;
+}
+
+void WiFiService::RemoveApClient(const char *ssid) {
+    std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
+    auto it = ap_clients.find(ssid);
+    bool found = it != ap_clients.end();
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
+    if (found) {
+        if (it->second > 1) {
+            it->second--;
+        } else {
+            ap_clients.erase(ssid);
+        }
+    }
+    ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClient, cnt:%u", (unsigned)ap_clients.size());
 }

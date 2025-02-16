@@ -24,6 +24,11 @@ extern "C" {
 #include <unordered_map>
 
 class WiFiService {
+    struct AccessPointEventArg {
+        WiFiService *service;
+        const char *ssid;
+    };
+
   public:
   protected:
     WiFiRequests requests;
@@ -32,6 +37,9 @@ class WiFiService {
     std::unordered_map<const char *, uint8_t> scanned_ssid;
 
     uint8_t station_rssi;
+
+    std::mutex ap_clients_lock_mutex;
+    std::unordered_map<const char *, size_t> ap_clients;
 
     TaskHandle_t task_handle;
 
@@ -47,10 +55,14 @@ class WiFiService {
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
-    static void ap_wifi_event_handler(void *arg,
-                                      esp_event_base_t event_base,
-                                      int32_t event_id,
-                                      void *event_data);
+    static void ap_connect_wifi_event_handler(void *arg,
+                                              esp_event_base_t event_base,
+                                              int32_t event_id,
+                                              void *event_data);
+    static void ap_disconnect_wifi_event_handler(void *arg,
+                                                 esp_event_base_t event_base,
+                                                 int32_t event_id,
+                                                 void *event_data);
 
     static void Task(void *parm);
     static void
@@ -62,6 +74,10 @@ class WiFiService {
     void AddScannedSsid(const char *ssid, uint8_t rssi);
     bool FindScannedSsid(const char *ssid, uint8_t *rssi);
     void RemoveScannedSsid(const char *ssid);
+
+    void AddApClient(const char *ssid);
+    bool FindApClient(const char *ssid, size_t *count);
+    void RemoveApClient(const char *ssid);
 
   public:
     static const int STOP_BIT = BIT0;
@@ -82,6 +98,6 @@ class WiFiService {
     uint8_t Scan(const char *ssid);
     void CancelScan(const char *ssid);
 
-    void AccessPoint(const char *ssid, const char *password, const char *mac);
+    size_t AccessPoint(const char *ssid, const char *password, const char *mac);
     void CancelAccessPoint(const char *ssid);
 };

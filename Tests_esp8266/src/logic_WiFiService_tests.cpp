@@ -58,6 +58,15 @@ namespace {
                                         scanner_settings->max_rssi,
                                         scanner_settings->min_rssi);
         }
+        void PublicMorozov_AddApClient(const char *ssid) {
+            AddApClient(ssid);
+        }
+        bool PublicMorozov_FindApClient(const char *ssid, size_t *count) {
+            return FindApClient(ssid, count);
+        }
+        void PublicMorozov_RemoveApClient(const char *ssid) {
+            RemoveApClient(ssid);
+        }
     };
 } // namespace
 
@@ -555,14 +564,13 @@ TEST(
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifVal, sizeof(notifVal))
         .ignoreOtherParameters();
 
@@ -588,22 +596,20 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifVal = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifVal, sizeof(notifVal))
         .ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::STOP_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -628,14 +634,13 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::STOP_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -658,14 +663,13 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_r
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::STOP_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -691,14 +695,13 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -724,13 +727,12 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests)
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .ignoreOtherParameters()
         .andReturnValue(pdFALSE);
 
@@ -758,14 +760,13 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_denies_access_if_configured_as_
 
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -791,14 +792,13 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_s
 
     mock().expectOneCall("esp_wifi_start");
     mock().expectOneCall("esp_wifi_stop");
-    mock().expectOneCall("esp_event_handler_register").ignoreOtherParameters();
-    mock().expectOneCall("esp_event_handler_unregister").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
 
     uint32_t notifStop = WiFiService::CANCEL_REQUEST_BIT;
     mock()
         .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::CANCEL_REQUEST_BIT | WiFiService::CONNECTED_BIT)
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
@@ -840,4 +840,48 @@ TEST(LogicWiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_ex
     testable.PublicMorozov_AddScannedSsid(ssid_0, 19);
     CHECK_TRUE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
     CHECK_EQUAL(19, rssi);
+}
+
+TEST(LogicWiFiServiceTestsGroup, AddApClient_increase_clients_count_on_every_addition) {
+    TestableWiFiService testable;
+
+    size_t count;
+    const char *ssid_0 = "test_0";
+
+    testable.PublicMorozov_AddApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(1, count);
+
+    testable.PublicMorozov_AddApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(2, count);
+
+    testable.PublicMorozov_AddApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(3, count);
+}
+
+TEST(LogicWiFiServiceTestsGroup,
+     RemoveApClient_decrease_clients_count_on_every_removing_and_erase_when_down_to_zero) {
+    TestableWiFiService testable;
+
+    size_t count;
+    const char *ssid_0 = "test_0";
+
+    testable.PublicMorozov_AddApClient(ssid_0);
+    testable.PublicMorozov_AddApClient(ssid_0);
+    testable.PublicMorozov_AddApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(3, count);
+
+    testable.PublicMorozov_RemoveApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(2, count);
+
+    testable.PublicMorozov_RemoveApClient(ssid_0);
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    CHECK_EQUAL(1, count);
+
+    testable.PublicMorozov_RemoveApClient(ssid_0);
+    CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid_0, &count));
 }
