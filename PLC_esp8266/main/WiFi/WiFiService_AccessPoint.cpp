@@ -34,7 +34,10 @@ void WiFiService::AccessPointTask(RequestItem *request) {
              secure_client ? request->Payload.AccessPoint.password : "",
              secure_client ? request->Payload.AccessPoint.mac : "");
 
-    wifi_config.ap.authmode = secure_client ? WIFI_AUTH_WPA2_WPA3_PSK : WIFI_AUTH_OPEN;
+    wifi_config.ap.authmode = secure_client ? WIFI_AUTH_WPA2_PSK : WIFI_AUTH_OPEN;
+    if (secure_client) {
+        strcpy((char *)wifi_config.ap.password, request->Payload.AccessPoint.password);
+    }
     wifi_config.ap.max_connection = secure_client ? 4 : 0;
     wifi_config.ap.ssid_hidden = access_point_settings.ssid_hidden;
 
@@ -55,11 +58,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                                                &ap_wifi_event_handler,
                                                this));
 
-    err = esp_wifi_start();
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_start err 0x%X", err);
-        return;
-    }
+    ESP_ERROR_CHECK(esp_wifi_start());
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "generating ssid:'%s'...",
@@ -118,7 +117,9 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
     if (!cancel) {
-        requests.AccessPoint(request->Payload.AccessPoint.ssid);
+        requests.AccessPoint(request->Payload.AccessPoint.ssid,
+                             request->Payload.AccessPoint.password,
+                             request->Payload.AccessPoint.mac);
     }
 
     Controller::WakeupProcessTask();

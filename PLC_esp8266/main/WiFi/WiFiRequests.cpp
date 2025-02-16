@@ -66,8 +66,10 @@ bool WiFiRequests::RemoveScanner(const char *ssid) {
     return exists;
 }
 
-bool WiFiRequests::AccessPoint(const char *ssid) {
+bool WiFiRequests::AccessPoint(const char *ssid, const char *password, const char *mac) {
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
+    request.Payload.AccessPoint.password = password;
+    request.Payload.AccessPoint.mac = mac;
     std::lock_guard<std::mutex> lock(lock_mutex);
     auto item = Find(&request);
     bool new_req = item == end();

@@ -82,6 +82,6 @@ class WiFiService {
     uint8_t Scan(const char *ssid);
     void CancelScan(const char *ssid);
 
-    void AccessPoint(const char *ssid);
+    void AccessPoint(const char *ssid, const char *password, const char *mac);
     void CancelAccessPoint(const char *ssid);
 };

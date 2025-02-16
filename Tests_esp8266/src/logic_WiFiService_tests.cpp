@@ -154,19 +154,19 @@ TEST(LogicWiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
 
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 
-    testable.AccessPoint("ssid_0");
+    testable.AccessPoint("ssid_0", NULL, NULL);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.AccessPoint("ssid_1");
+    testable.AccessPoint("ssid_1", NULL, NULL);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.AccessPoint("ssid_1");
+    testable.AccessPoint("ssid_1", NULL, NULL);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.AccessPoint("ssid_0");
+    testable.AccessPoint("ssid_0", NULL, NULL);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
 
-    testable.AccessPoint("ssid_2");
+    testable.AccessPoint("ssid_2", NULL, NULL);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
 
@@ -572,7 +572,7 @@ TEST(
 
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
-    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_1);
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_1, NULL, NULL);
 
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -612,7 +612,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
     mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
-    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0);
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0, NULL, NULL);
 
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -740,7 +740,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests)
 
     const char *ssid_0 = "test_0";
     testable.PublicMorozov_Get_requests()->Station();
-    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0);
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0, NULL, NULL);
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
 }

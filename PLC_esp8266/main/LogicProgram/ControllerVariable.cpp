@@ -48,7 +48,7 @@ void ControllerVariable::CommitChanges() {
         bool wifi_sta_client = ssid == NULL;
         if (!wifi_sta_client) {
             if (out_value != LogicElement::MinValue) {
-                wifi_service->AccessPoint(ssid);
+                wifi_service->AccessPoint(ssid, password, mac);
             } else {
                 wifi_service->CancelAccessPoint(ssid);
             }

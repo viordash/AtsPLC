@@ -101,8 +101,8 @@ void WiFiService::CancelScan(const char *ssid) {
     }
 }
 
-void WiFiService::AccessPoint(const char *ssid) {
-    if (requests.AccessPoint(ssid)) {
+void WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
+    if (requests.AccessPoint(ssid, password, mac)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
     }
