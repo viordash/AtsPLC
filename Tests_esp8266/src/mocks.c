@@ -298,7 +298,8 @@ esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf) {
     return mock_c()
         ->actualCall("esp_wifi_set_config")
         ->withIntParameters("interface", interface)
-        ->withPointerParameters("conf", conf)
+        ->withStringParameters("conf_ap_passw", (const char *)conf->ap.password)
+        ->withUnsignedIntParameters("conf_ap_max_connection", conf->ap.max_connection)
         ->returnIntValueOrDefault(ESP_OK);
 }
 
@@ -474,9 +475,16 @@ void esp_restart(void) {
     mock_c()->actualCall("esp_restart");
 }
 
-esp_err_t esp_wifi_sta_get_ap_info(wifi_ap_record_t *ap_info){
+esp_err_t esp_wifi_sta_get_ap_info(wifi_ap_record_t *ap_info) {
     return mock_c()
         ->actualCall("esp_wifi_sta_get_ap_info")
         ->withOutputParameter("ap_info", ap_info)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t esp_wifi_ap_get_sta_list(wifi_sta_list_t *sta) {
+    return mock_c()
+        ->actualCall("esp_wifi_ap_get_sta_list")
+        ->withOutputParameter("sta", sta)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
