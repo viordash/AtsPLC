@@ -698,6 +698,34 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
                      "AccessPoint cannot be restarted");
 }
 
+TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests) {
+    TestableWiFiService testable;
+
+    mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
+    mock()
+        .expectOneCall("esp_wifi_set_config")
+        .withIntParameter("interface", ESP_IF_WIFI_AP)
+        .ignoreOtherParameters();
+    mock().expectOneCall("esp_wifi_start");
+    mock().expectOneCall("esp_wifi_stop");
+
+    mock()
+        .expectNCalls(1, "xTaskNotifyWait")
+        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
+        .ignoreOtherParameters()
+        .andReturnValue(pdFALSE);
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    const char *ssid_0 = "test_0";
+    testable.PublicMorozov_Get_requests()->Station();
+    testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0);
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    testable.PublicMorozov_AccessPointTask(&request);
+}
+
 TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     TestableWiFiService testable;
     CurrentSettings::wifi_scanner_settings scanner_settings = { 0, -26, -120 };

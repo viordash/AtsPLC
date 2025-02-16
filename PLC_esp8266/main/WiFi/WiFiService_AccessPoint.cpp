@@ -64,8 +64,8 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
         ESP_LOGD(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
 
-        if (notify_wait_timeout) {
-            ESP_LOGD(TAG_WiFiService_AccessPoint, "timeout");
+        if (notify_wait_timeout && requests.OneMoreInQueue()) {
+            ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");
             break;
         }
 
