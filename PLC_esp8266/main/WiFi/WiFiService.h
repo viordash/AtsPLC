@@ -59,9 +59,9 @@ class WiFiService {
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
     uint8_t ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t min_rssi);
-    void AddSsidToScannedList(const char *ssid, uint8_t rssi);
-    bool FindSsidInScannedList(const char *ssid, uint8_t *rssi);
-    void RemoveSsidFromScannedList(const char *ssid);
+    void AddScannedSsid(const char *ssid, uint8_t rssi);
+    bool FindScannedSsid(const char *ssid, uint8_t *rssi);
+    void RemoveScannedSsid(const char *ssid);
 
   public:
     static const int STOP_BIT = BIT0;

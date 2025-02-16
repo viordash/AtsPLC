@@ -80,7 +80,7 @@ void WiFiService::DisconnectFromStation() {
 
 uint8_t WiFiService::Scan(const char *ssid) {
     uint8_t rssi;
-    bool found = FindSsidInScannedList(ssid, &rssi);
+    bool found = FindScannedSsid(ssid, &rssi);
     if (!found) {
         rssi = LogicElement::MinValue;
     }
@@ -93,7 +93,7 @@ uint8_t WiFiService::Scan(const char *ssid) {
 }
 
 void WiFiService::CancelScan(const char *ssid) {
-    RemoveSsidFromScannedList(ssid);
+    RemoveScannedSsid(ssid);
     bool removed = requests.RemoveScanner(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%d", ssid, removed);
     if (removed) {

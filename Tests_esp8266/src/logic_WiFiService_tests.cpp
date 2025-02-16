@@ -45,11 +45,11 @@ namespace {
         void PublicMorozov_AccessPointTask(RequestItem *request) {
             AccessPointTask(request);
         }
-        void PublicMorozov_AddSsidToScannedList(const char *ssid, uint8_t rssi) {
-            AddSsidToScannedList(ssid, rssi);
+        void PublicMorozov_AddScannedSsid(const char *ssid, uint8_t rssi) {
+            AddScannedSsid(ssid, rssi);
         }
-        bool PublicMorozov_FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
-            return FindSsidInScannedList(ssid, rssi);
+        bool PublicMorozov_FindScannedSsid(const char *ssid, uint8_t *rssi) {
+            return FindScannedSsid(ssid, rssi);
         }
         uint8_t PublicMorozov_ScaleRssiToPercent04(
             int8_t rssi,
@@ -117,7 +117,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
     CHECK_EQUAL(LogicElement::MinValue, testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 
-    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 42);
+    testable.PublicMorozov_AddScannedSsid(ssid_0, 42);
 
     CHECK_EQUAL(42, testable.Scan(ssid_0));
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
@@ -489,7 +489,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     uint8_t rssi;
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_FALSE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
 }
 
 TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_is_usable) {
@@ -535,11 +535,11 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
     uint8_t rssi;
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid_0 } };
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_FALSE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_FALSE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
 
     ap_records.rssi = -119;
     testable.PublicMorozov_ScannerTask(&request);
-    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    CHECK_TRUE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
     CHECK_EQUAL(2, rssi);
 }
 
@@ -827,17 +827,17 @@ TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127, &scanner_settings));
 }
 
-TEST(LogicWiFiServiceTestsGroup, AddSsidToScannedList_update_rssi_if_record_already_exists) {
+TEST(LogicWiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_exists) {
     TestableWiFiService testable;
 
     uint8_t rssi;
     const char *ssid_0 = "test_0";
 
-    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 42);
-    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    testable.PublicMorozov_AddScannedSsid(ssid_0, 42);
+    CHECK_TRUE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
     CHECK_EQUAL(42, rssi);
 
-    testable.PublicMorozov_AddSsidToScannedList(ssid_0, 19);
-    CHECK_TRUE(testable.PublicMorozov_FindSsidInScannedList(ssid_0, &rssi));
+    testable.PublicMorozov_AddScannedSsid(ssid_0, 19);
+    CHECK_TRUE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
     CHECK_EQUAL(19, rssi);
 }

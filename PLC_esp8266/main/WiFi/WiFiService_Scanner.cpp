@@ -119,11 +119,11 @@ void WiFiService::ScannerTask(RequestItem *request) {
     StopScan();
 
     if (rssi > scanner_settings.min_rssi) {
-        AddSsidToScannedList(
+        AddScannedSsid(
             request->Payload.Scanner.ssid,
             ScaleRssiToPercent04(rssi, scanner_settings.max_rssi, scanner_settings.min_rssi));
     } else {
-        RemoveSsidFromScannedList(request->Payload.Scanner.ssid);
+        RemoveScannedSsid(request->Payload.Scanner.ssid);
     }
     requests.RemoveScanner(request->Payload.Scanner.ssid);
     Controller::WakeupProcessTask();
@@ -146,32 +146,32 @@ uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t m
     return (uint8_t)fl;
 }
 
-void WiFiService::AddSsidToScannedList(const char *ssid, uint8_t rssi) {
+void WiFiService::AddScannedSsid(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     auto it = scanned_ssid.insert({ ssid, rssi });
     if (!it.second) {
         it.first->second = rssi;
     }
     ESP_LOGD(TAG_WiFiService_Scanner,
-             "AddSsidToScannedList, cnt:%u",
+             "AddScannedSsid, cnt:%u",
              (unsigned)scanned_ssid.size());
 }
 
-bool WiFiService::FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
+bool WiFiService::FindScannedSsid(const char *ssid, uint8_t *rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     auto it = scanned_ssid.find(ssid);
     bool found = it != scanned_ssid.end();
-    ESP_LOGD(TAG_WiFiService_Scanner, "FindSsidInScannedList, found:%u", found);
+    ESP_LOGD(TAG_WiFiService_Scanner, "FindScannedSsid, found:%u", found);
     if (found) {
         *rssi = it->second;
     }
     return found;
 }
 
-void WiFiService::RemoveSsidFromScannedList(const char *ssid) {
+void WiFiService::RemoveScannedSsid(const char *ssid) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     scanned_ssid.erase(ssid);
     ESP_LOGD(TAG_WiFiService_Scanner,
-             "RemoveSsidFromScannedList, cnt:%u",
+             "RemoveScannedSsid, cnt:%u",
              (unsigned)scanned_ssid.size());
 }
