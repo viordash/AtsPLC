@@ -32,7 +32,7 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        Controller::BindVariableToWiFi(GetIoAdr(), ssid);
+        Controller::BindVariableToSecureWiFi(GetIoAdr(), GetSsid(), GetPassword(), GetMac());
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;

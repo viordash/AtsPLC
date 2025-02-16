@@ -10,13 +10,20 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
   protected:
     WiFiService *wifi_service;
     const char *ssid;
+    const char *password;
+    const char *mac;
 
   public:
     explicit ControllerVariable();
     void Init() override;
     void FetchValue() override;
     void CommitChanges() override;
-    void BindToWiFi(WiFiService *wifi_service, const char *ssid);
+    void BindToSecureWiFi(WiFiService *wifi_service,
+                          const char *ssid,
+                          const char *password,
+                          const char *mac);
+    void BindToInsecureWiFi(WiFiService *wifi_service, const char *ssid);
+    void BindToStaWiFi(WiFiService *wifi_service);
     void Unbind();
     bool BindedToWiFi();
 

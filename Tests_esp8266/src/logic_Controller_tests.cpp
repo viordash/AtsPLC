@@ -152,10 +152,10 @@ TEST(LogicControllerTestsGroup,
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    Controller::BindVariableToWiFi(MapIO::V1, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V2, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V3, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V4, "test_ssid");
+    Controller::BindVariableToInsecureWiFi(MapIO::V1, "test_ssid");
+    Controller::BindVariableToInsecureWiFi(MapIO::V2, "test_ssid");
+    Controller::BindVariableToInsecureWiFi(MapIO::V3, "test_ssid");
+    Controller::BindVariableToInsecureWiFi(MapIO::V4, "test_ssid");
 
     CHECK_EQUAL(0, wifi_service->PublicMorozov_Get_requests()->size());
 

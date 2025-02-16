@@ -304,27 +304,71 @@ void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
 }
 
-void Controller::BindVariableToWiFi(const MapIO io_adr, const char *ssid) {
+void Controller::BindVariableToSecureWiFi(const MapIO io_adr,
+                                          const char *ssid,
+                                          const char *password,
+                                          const char *mac) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
     switch (io_adr) {
         case MapIO::V1:
-            if (Controller::wifi_service != NULL) {
-                Controller::V1.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V1.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V2:
-            if (Controller::wifi_service != NULL) {
-                Controller::V2.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V2.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V3:
-            if (Controller::wifi_service != NULL) {
-                Controller::V3.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V3.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V4:
-            if (Controller::wifi_service != NULL) {
-                Controller::V4.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V4.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::BindVariableToStaWiFi(const MapIO io_adr) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToStaWiFi(Controller::wifi_service);
             break;
 
         default:
@@ -366,7 +410,7 @@ uint8_t Controller::ConnectToWiFiStation() {
     if (Controller::wifi_service != NULL) {
         return Controller::wifi_service->ConnectToStation();
     }
-    return LogicElement::MinValue;;
+    return LogicElement::MinValue;
 }
 
 void Controller::DisconnectFromWiFiStation() {

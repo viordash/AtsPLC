@@ -56,9 +56,28 @@ void ControllerVariable::CommitChanges() {
     }
 }
 
-void ControllerVariable::BindToWiFi(WiFiService *wifi_service, const char *ssid) {
+void ControllerVariable::BindToSecureWiFi(WiFiService *wifi_service,
+                                          const char *ssid,
+                                          const char *password,
+                                          const char *mac) {
     this->wifi_service = wifi_service;
     this->ssid = ssid;
+    this->password = password;
+    this->mac = mac;
+}
+
+void ControllerVariable::BindToInsecureWiFi(WiFiService *wifi_service, const char *ssid) {
+    this->wifi_service = wifi_service;
+    this->ssid = ssid;
+    this->password = NULL;
+    this->mac = NULL;
+}
+
+void ControllerVariable::BindToStaWiFi(WiFiService *wifi_service) {
+    this->wifi_service = wifi_service;
+    this->ssid = NULL;
+    this->password = NULL;
+    this->mac = NULL;
 }
 
 void ControllerVariable::Unbind() {

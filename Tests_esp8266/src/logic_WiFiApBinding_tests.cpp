@@ -99,7 +99,7 @@ TEST(LogicWiFiApBindingTestsGroup,
 
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
-    Controller::V1.BindToWiFi(wifi_service, "test_ssid");
+    Controller::V1.BindToInsecureWiFi(wifi_service, "test_ssid");
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));

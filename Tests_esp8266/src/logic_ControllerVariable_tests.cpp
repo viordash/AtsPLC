@@ -175,7 +175,7 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_b
     CHECK_EQUAL(42, *testable.PublicMorozov_Get_out_value());
 
     WiFiService wifi_service;
-    testable.BindToWiFi(&wifi_service, "test");
+    testable.BindToInsecureWiFi(&wifi_service, "test");
 
     testable.CancelReadingProcess();
     CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
@@ -194,7 +194,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_Co
         .ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
-    testable.BindToWiFi(&wifi_service, NULL);
+    testable.BindToStaWiFi(&wifi_service);
 
     testable.FetchValue();
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
@@ -207,7 +207,7 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_from_wifi_sta_client_does_
     testable.Init();
 
     TestableWiFiService wifi_service;
-    testable.BindToWiFi(&wifi_service, NULL);
+    testable.BindToStaWiFi(&wifi_service);
 
     testable.WriteValue(42);
     testable.CommitChanges();
@@ -235,7 +235,7 @@ TEST(LogicControllerVariableTestsGroup,
     wifi_service.ConnectToStation();
 
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
-    testable.BindToWiFi(&wifi_service, NULL);
+    testable.BindToStaWiFi(&wifi_service);
 
     testable.CancelReadingProcess();
     CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());

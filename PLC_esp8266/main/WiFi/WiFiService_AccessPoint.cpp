@@ -100,7 +100,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             wifi_sta_list_t sta_list;
             if (esp_wifi_ap_get_sta_list(&sta_list) == ESP_OK) {
                 ESP_LOGI(TAG_WiFiService_AccessPoint, "devices connected: %d", sta_list.num);
-                for (size_t i = 0; i < sta_list.num; i++) {
+                for (int i = 0; i < sta_list.num; i++) {
                     ESP_LOGI(TAG_WiFiService_AccessPoint,
                              "%d. " MACSTR,
                              i,

@@ -59,7 +59,13 @@ class Controller {
     static void RemoveRequestWakeupMs(void *id);
     static void RemoveExpiredWakeupRequests();
 
-    static void BindVariableToWiFi(const MapIO io_adr, const char *ssid);
+    static void BindVariableToSecureWiFi(const MapIO io_adr,
+                                         const char *ssid,
+                                         const char *password,
+                                         const char *mac);
+    static void BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid);
+    static void BindVariableToStaWiFi(const MapIO io_adr);
+
     static void UnbindVariable(const MapIO io_adr);
 
     static void WakeupProcessTask();

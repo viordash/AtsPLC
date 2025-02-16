@@ -37,7 +37,7 @@ bool WiFiStaBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        Controller::BindVariableToWiFi(GetIoAdr(), NULL);
+        Controller::BindVariableToStaWiFi(GetIoAdr());
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
