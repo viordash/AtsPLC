@@ -202,7 +202,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_Co
                 (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
 }
 
-TEST(LogicControllerVariableTestsGroup, CommitChanges_from_wifi_sta_client_does_nothing) {
+TEST(LogicControllerVariableTestsGroup, CommitChanges_for_wifi_sta_client_does_nothing) {
     TestableControllerVariable testable;
     testable.Init();
 
@@ -236,6 +236,133 @@ TEST(LogicControllerVariableTestsGroup,
 
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
     testable.BindToStaWiFi(&wifi_service);
+
+    testable.CancelReadingProcess();
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scanner) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    testable.BindToInsecureWiFi(&wifi_service, "any_ssid");
+
+    testable.FetchValue();
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(RequestItemType::wqi_Scanner,
+                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+}
+
+TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_AccessPoint) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    testable.BindToInsecureWiFi(&wifi_service, "any_ssid");
+
+    testable.WriteValue(42);
+    testable.CommitChanges();
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
+                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+}
+
+TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_calls_CancelScan) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::CANCEL_REQUEST_BIT)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    const char *ssid = "any_ssid";
+    wifi_service.Scan(ssid);
+
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    testable.BindToInsecureWiFi(&wifi_service, ssid);
+
+    testable.CancelReadingProcess();
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessPoint) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    testable.BindToSecureWiFi(&wifi_service, "any_ssid", "pass", "************");
+
+    testable.FetchValue();
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
+                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+}
+
+TEST(LogicControllerVariableTestsGroup, CommitChanges_for_SecureWiFi_does_nothing) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    TestableWiFiService wifi_service;
+    testable.BindToSecureWiFi(&wifi_service, "any_ssid", "pass", "************");
+
+    testable.WriteValue(42);
+    testable.CommitChanges();
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicControllerVariableTestsGroup,
+     CancelReadingProcess_from_SecureWiFi_calls_CancelAccessPoint) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", 0)
+        .withIntParameter("eAction", eNotifyAction::eNoAction)
+        .ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::CANCEL_REQUEST_BIT)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+
+    TestableWiFiService wifi_service;
+    const char *ssid = "any_ssid";
+    const char *password = "pass";
+    const char *mac = "************";
+    wifi_service.AccessPoint(ssid, password, mac);
+
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    testable.BindToSecureWiFi(&wifi_service, ssid, password, mac);
 
     testable.CancelReadingProcess();
     CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());

@@ -26,9 +26,13 @@ void ControllerVariable::FetchValue() {
 
     uint8_t val;
     if (BindedToWiFi()) {
-        bool wifi_sta_client = ssid == NULL;
-        if (!wifi_sta_client) {
+        bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+
+        if (insecure_scan) {
             val = wifi_service->Scan(ssid);
+        } else if (secure_ap) {
+            val = wifi_service->AccessPoint(ssid, password, mac);
         } else {
             val = wifi_service->ConnectToStation();
         }
@@ -46,12 +50,19 @@ void ControllerVariable::CommitChanges() {
     UpdateValue(out_value);
     if (BindedToWiFi()) {
         bool wifi_sta_client = ssid == NULL;
-        if (!wifi_sta_client) {
-            if (out_value != LogicElement::MinValue) {
-                wifi_service->AccessPoint(ssid, password, mac);
-            } else {
-                wifi_service->CancelAccessPoint(ssid);
-            }
+        if (wifi_sta_client) {
+            return;
+        }
+
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+        if (secure_ap) {
+            return;
+        }
+
+        if (out_value != LogicElement::MinValue) {
+            wifi_service->AccessPoint(ssid, password, mac);
+        } else {
+            wifi_service->CancelAccessPoint(ssid);
         }
     }
 }
@@ -94,9 +105,13 @@ void ControllerVariable::CancelReadingProcess() {
              BindedToWiFi(),
              required_reading);
     if (BindedToWiFi()) {
-        bool wifi_sta_client = ssid == NULL;
-        if (!wifi_sta_client) {
+        bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+
+        if (insecure_scan) {
             wifi_service->CancelScan(ssid);
+        } else if (secure_ap) {
+            wifi_service->CancelAccessPoint(ssid);
         } else {
             wifi_service->DisconnectFromStation();
         }
