@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "main/utils.cpp"
+#include "main/utils.h"
 
 TEST_GROUP(UtilsTestsGroup){ //
                              TEST_SETUP(){}

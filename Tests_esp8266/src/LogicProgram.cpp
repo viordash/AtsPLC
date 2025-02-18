@@ -21,8 +21,8 @@
 #include "main/Display/MapIOIndicator.cpp"
 #include "main/Display/display.cpp"
 #include "main/LogicProgram/Bindings/CommonWiFiBinding.cpp"
-#include "main/LogicProgram/Bindings/WiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiApBinding.cpp"
+#include "main/LogicProgram/Bindings/WiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiStaBinding.cpp"
 #include "main/LogicProgram/Controller.cpp"
 #include "main/LogicProgram/InputElement.cpp"
@@ -63,3 +63,5 @@
 
 #include "main/Display/ListBox.cpp"
 #include "main/Display/LogsList.cpp"
+
+#include "main/utils.cpp"

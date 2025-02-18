@@ -784,3 +784,51 @@ TEST(LogicWiFiApBindingTestsGroup, SetMac) {
     testable.SetMac("0123456789ABCDEF");
     STRCMP_EQUAL("0123456789AB", testable.GetMac());
 }
+
+TEST(LogicWiFiApBindingTestsGroup, ClientMacMatches) {
+    TestableWiFiApBinding testable;
+
+    const uint8_t mac[6] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB };
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("************", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0***********", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("01**********", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("012*********", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123********", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("01234*******", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("012345******", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456*****", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("01234567****", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("012345678***", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456789**", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456789A*", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456789ab", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("*123456789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("**23456789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("***3456789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("****456789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("*****56789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("******6789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("*******789AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("********89AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("*********9AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("**********AB", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("***********B", mac));
+
+    const uint8_t mac_1[6] = { 0x01, 0x22, 0x44, 0x66, 0x88, 0xAA };
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0*2*4*6*8*A*", mac_1));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0*2*4*6*8*A*", mac_1));
+
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("1123456789AB", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("123456789AB0", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("23456789AB01", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("3456789AB012", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("456789AB0123", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("56789AB01234", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("6789AB012345", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("789AB0123456", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("89AB01234567", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("9AB012345678", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("AB0123456789", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("B0123456789A", mac));
+}

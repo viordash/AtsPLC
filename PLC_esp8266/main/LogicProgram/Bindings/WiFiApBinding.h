@@ -62,4 +62,6 @@ class WiFiApBinding : public WiFiBinding {
     void SetPassword(const char *password);
     const char *GetMac();
     void SetMac(const char *mac);
+
+    static bool ClientMacMatches(const char *mask, const uint8_t mac[6]);
 };

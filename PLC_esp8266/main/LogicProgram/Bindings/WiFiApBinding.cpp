@@ -4,6 +4,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -439,4 +440,30 @@ void WiFiApBinding::SetMac(const char *mac) {
         this->mac[i] = ch;
     }
     this->mac[sizeof(this->mac) - 1] = 0;
+}
+
+bool WiFiApBinding::ClientMacMatches(const char *mask, const uint8_t mac[6]) {
+    int i = 0;
+    while (i < mac_size) {
+        uint8_t mac_b = mac[i / 2];
+        char mask_h = mask[i++];
+        if (mask_h == 0) {
+            return false;
+        }
+        char mask_l = mask[i++];
+        if (mask_l == 0) {
+            return false;
+        }
+
+        uint8_t dec_h = (mac_b >> 4) & 0x0F;
+        uint8_t dec_l = mac_b & 0x0F;
+
+        if (mask_h != mac_wild_char && hexchar_to_dec(mask_h) != dec_h) {
+            return false;
+        }
+        if (mask_l != mac_wild_char && hexchar_to_dec(mask_l) != dec_l) {
+            return false;
+        }
+    }
+    return true;
 }

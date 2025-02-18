@@ -27,6 +27,7 @@ class WiFiService {
     struct AccessPointEventArg {
         WiFiService *service;
         const char *ssid;
+        const char *mac;
     };
 
   public:

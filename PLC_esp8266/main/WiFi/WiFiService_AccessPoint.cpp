@@ -1,4 +1,5 @@
 
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Controller.h"
 #include "WiFiService.h"
 #include "esp_log.h"
@@ -15,7 +16,9 @@ static const char *TAG_WiFiService_AccessPoint = "WiFiService.AccessPoint";
 extern CurrentSettings::device_settings settings;
 
 void WiFiService::AccessPointTask(RequestItem *request) {
-    AccessPointEventArg ap_event_arg = { this, request->Payload.AccessPoint.ssid };
+    AccessPointEventArg ap_event_arg = { this,
+                                         request->Payload.AccessPoint.ssid,
+                                         request->Payload.AccessPoint.mac };
     CurrentSettings::wifi_access_point_settings access_point_settings;
     SAFETY_SETTINGS({ access_point_settings = settings.wifi_access_point; });
 
@@ -119,7 +122,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     Controller::WakeupProcessTask();
 
-    ESP_LOGD(TAG_WiFiService_AccessPoint, "finish");
+    ESP_LOGI(TAG_WiFiService_AccessPoint, "finish");
 }
 
 void WiFiService::ap_connect_wifi_event_handler(void *arg,
@@ -132,11 +135,14 @@ void WiFiService::ap_connect_wifi_event_handler(void *arg,
     auto event = (wifi_event_ap_staconnected_t *)event_data;
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "connect client aid:%u, mac:" MACSTR,
+             "connect client aid:%u, mac:" MACSTR ", mask:%s",
              event->aid,
-             MAC2STR(event->mac));
+             MAC2STR(event->mac),
+             ap_event_arg->mac);
 
-    ap_event_arg->service->AddApClient(ap_event_arg->ssid);
+    if (WiFiApBinding::ClientMacMatches(ap_event_arg->mac, event->mac)) {
+        ap_event_arg->service->AddApClient(ap_event_arg->ssid);
+    }
 }
 
 void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
@@ -149,11 +155,14 @@ void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
     auto event = (wifi_event_ap_stadisconnected_t *)event_data;
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "disconnect client aid:%u, mac:" MACSTR,
+             "disconnect client aid:%u, mac:" MACSTR ", mask:%s",
              event->aid,
-             MAC2STR(event->mac));
+             MAC2STR(event->mac),
+             ap_event_arg->mac);
 
-    ap_event_arg->service->RemoveApClient(ap_event_arg->ssid);
+    if (WiFiApBinding::ClientMacMatches(ap_event_arg->mac, event->mac)) {
+        ap_event_arg->service->RemoveApClient(ap_event_arg->ssid);
+    }
 }
 
 void WiFiService::AddApClient(const char *ssid) {
