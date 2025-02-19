@@ -201,9 +201,15 @@ static void task(void *parm) {
 }
 
 void start_smartconfig() {
+    ESP_LOGI(TAG, "start_smartconfig");
     service.event = xEventGroupCreate();
     ESP_ERROR_CHECK(xTaskCreate(task, "smartconfig_task", 2048, NULL, 3, NULL) != pdPASS ? ESP_FAIL
                                                                                          : ESP_OK);
+}
+
+void finish_smartconfig() {
+    vEventGroupDelete(service.event);
+    ESP_LOGI(TAG, "finish_smartconfig");
 }
 
 enum SmartconfigStatus smartconfig_status() {

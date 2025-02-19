@@ -14,3 +14,7 @@ enum SmartconfigStatus smartconfig_status() {
 void start_smartconfig() {
     mock().actualCall("start_smartconfig");
 }
+
+void finish_smartconfig() {
+    mock().actualCall("finish_smartconfig");
+}
