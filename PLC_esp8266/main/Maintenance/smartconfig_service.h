@@ -17,4 +17,5 @@ enum SmartconfigStatus {
 };
 
 void start_smartconfig();
+void finish_smartconfig();
 enum SmartconfigStatus smartconfig_status();
