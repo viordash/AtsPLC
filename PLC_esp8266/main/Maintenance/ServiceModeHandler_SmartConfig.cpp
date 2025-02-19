@@ -71,6 +71,7 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                         true,
                         false,
                         show_logs_time_ms / portTICK_PERIOD_MS);
-                        
+
     ShowStatus(gpio_events, success, "SC completed!", "SC error!");
+    finish_smartconfig();
 }
