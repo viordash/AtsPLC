@@ -81,12 +81,6 @@ TEST(LogicWiFiStaBindingTestsGroup,
 
 TEST(LogicWiFiStaBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToStaWiFi(wifi_service);
@@ -98,12 +92,6 @@ TEST(LogicWiFiStaBindingTestsGroup,
 }
 
 TEST(LogicWiFiStaBindingTestsGroup, DoAction_change_state_only_by_reason) {
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 

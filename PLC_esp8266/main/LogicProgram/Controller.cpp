@@ -393,13 +393,6 @@ void Controller::UnbindVariable(const MapIO io_adr) {
         default:
             break;
     }
-
-    if (!Controller::V1.BindedToWiFi() && !Controller::V2.BindedToWiFi()
-        && !Controller::V3.BindedToWiFi() && !Controller::V4.BindedToWiFi()) {
-        if (Controller::wifi_service != NULL) {
-            Controller::ConnectToWiFiStation();
-        }
-    }
 }
 
 void Controller::WakeupProcessTask() {
