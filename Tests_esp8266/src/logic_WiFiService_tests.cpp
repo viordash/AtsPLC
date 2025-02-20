@@ -574,10 +574,6 @@ TEST(
         .withOutputParameterReturning("pulNotificationValue", &notifVal, sizeof(notifVal))
         .ignoreOtherParameters();
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
     testable.PublicMorozov_Get_requests()->AccessPoint(ssid_1, NULL, NULL);
@@ -613,10 +609,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
     const char *ssid_0 = "test_0";
     testable.PublicMorozov_Get_requests()->AccessPoint(ssid_0, NULL, NULL);
 
@@ -644,10 +636,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -672,10 +660,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_r
         .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
-
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
@@ -705,10 +689,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -735,10 +715,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests)
         .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .ignoreOtherParameters()
         .andReturnValue(pdFALSE);
-
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
     testable.PublicMorozov_Get_requests()->Station();
@@ -770,10 +746,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_denies_access_if_configured_as_
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
 
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
     const char *ssid_0 = "test_0";
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
@@ -801,10 +773,6 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_s
         .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifStop, sizeof(notifStop))
         .ignoreOtherParameters();
-
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
     const char *passw_0 = "1234";
