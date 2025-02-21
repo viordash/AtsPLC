@@ -1,4 +1,5 @@
 #include "HttpServer/http_server.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicElement.h"
 #include "WiFiService.h"
 #include "esp_log.h"
@@ -86,6 +87,7 @@ void WiFiService::StationTask(RequestItem *request) {
             if (!retry_connect) {
                 ESP_LOGW(TAG_WiFiService_Station, "failed. unable reconnect");
                 station_rssi = LogicElement::MinValue;
+                Controller::WakeupProcessTask();
                 break;
             }
             has_connect = false;
@@ -93,6 +95,7 @@ void WiFiService::StationTask(RequestItem *request) {
             const int retries_num_before_no_station = 3;
             if (connect_retries_num >= retries_num_before_no_station) {
                 station_rssi = LogicElement::MinValue;
+                Controller::WakeupProcessTask();
                 if (one_more_request) {
                     ESP_LOGI(TAG_WiFiService_Station,
                              "Stop connecting to station due to new request");
@@ -128,6 +131,7 @@ void WiFiService::StationTask(RequestItem *request) {
             connect_retries_num = 0;
             has_connect = true;
             ObtainStationRssi();
+            Controller::WakeupProcessTask();
             ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation, rssi:%u", station_rssi);
         }
 

@@ -273,6 +273,10 @@ TEST(
 
     mock().expectNCalls(1, "esp_wifi_sta_get_ap_info").ignoreOtherParameters();
 
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiService testable;
 
     strcpy(settings.wifi_station.ssid, "test_ssid");
