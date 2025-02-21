@@ -24,13 +24,13 @@ extern "C" {
 #include <unordered_map>
 
 class WiFiService {
+  public:
     struct AccessPointEventArg {
         WiFiService *service;
         const char *ssid;
         const char *mac;
     };
 
-  public:
   protected:
     WiFiRequests requests;
 
@@ -52,7 +52,9 @@ class WiFiService {
     void ObtainStationRssi();
 
     bool StartScan(const char *ssid, CurrentSettings::wifi_scanner_settings *scanner_settings);
-    int8_t Scanning(RequestItem *request, CurrentSettings::wifi_scanner_settings *scanner_settings);
+    int8_t Scanning(RequestItem *request,
+                    CurrentSettings::wifi_scanner_settings *scanner_settings,
+                    bool *canceled);
     void StopScan();
     void ScannerTask(RequestItem *request);
     void AccessPointTask(RequestItem *request);
