@@ -67,6 +67,18 @@ namespace {
         void PublicMorozov_RemoveApClient(const char *ssid) {
             RemoveApClient(ssid);
         }
+        static void PublicMorozov_ap_connect_wifi_event_handler(void *arg,
+                                                                esp_event_base_t event_base,
+                                                                int32_t event_id,
+                                                                void *event_data) {
+            ap_connect_wifi_event_handler(arg, event_base, event_id, event_data);
+        }
+        static void PublicMorozov_ap_disconnect_wifi_event_handler(void *arg,
+                                                                   esp_event_base_t event_base,
+                                                                   int32_t event_id,
+                                                                   void *event_data) {
+            ap_disconnect_wifi_event_handler(arg, event_base, event_id, event_data);
+        }
     };
 } // namespace
 
@@ -357,10 +369,6 @@ TEST(
         .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::CANCEL_REQUEST_BIT)
         .withOutputParameterReturning("pulNotificationValue", &notifVal, sizeof(notifVal))
         .ignoreOtherParameters();
-
-    char buffer[32];
-    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
-    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
@@ -852,4 +860,52 @@ TEST(LogicWiFiServiceTestsGroup,
 
     testable.PublicMorozov_RemoveApClient(ssid_0);
     CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+}
+
+TEST(LogicWiFiServiceTestsGroup,
+     AccessPoint_when_connect_then_calls_WakeupProcessTask_and_add_connected_client) {
+    TestableWiFiService testable;
+
+    const char *ssid = "test";
+    const char *mac = "0123456789ABCDEF";
+
+    WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
+    wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    TestableWiFiService::PublicMorozov_ap_connect_wifi_event_handler(&ap_event_arg,
+                                                                     NULL,
+                                                                     0,
+                                                                     &event_data);
+
+    size_t count;
+    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid, &count));
+    CHECK_EQUAL(1, count);
+}
+
+TEST(LogicWiFiServiceTestsGroup,
+     AccessPoint_when_disconnect_then_calls_WakeupProcessTask_and_remove_connected_client) {
+    TestableWiFiService testable;
+
+    const char *ssid = "test";
+    const char *mac = "0123456789ABCDEF";
+
+    WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
+    wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.PublicMorozov_AddApClient(ssid);
+
+    TestableWiFiService::PublicMorozov_ap_disconnect_wifi_event_handler(&ap_event_arg,
+                                                                        NULL,
+                                                                        0,
+                                                                        &event_data);
+    size_t count;
+    CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid, &count));
 }
