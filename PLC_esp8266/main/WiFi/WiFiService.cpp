@@ -184,6 +184,6 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
 
 void WiFiService::Disconnect() {
     ESP_LOGD(TAG_WiFiService, "Disconnect");
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
-    ESP_ERROR_CHECK(esp_wifi_stop());
+    esp_wifi_disconnect();
+    esp_wifi_stop();
 }

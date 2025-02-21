@@ -49,7 +49,7 @@ class WiFiService {
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
     void StationTask(RequestItem *request);
-    void ObtainStationRssi();
+    bool ObtainStationRssi();
 
     bool StartScan(const char *ssid, CurrentSettings::wifi_scanner_settings *scanner_settings);
     int8_t Scanning(RequestItem *request,

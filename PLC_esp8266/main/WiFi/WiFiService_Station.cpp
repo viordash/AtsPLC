@@ -62,7 +62,9 @@ void WiFiService::StationTask(RequestItem *request) {
                                 &ulNotifiedValue,
                                 scan_station_rssi_period_ms / portTICK_PERIOD_MS)
                 != pdPASS) {
-                ObtainStationRssi();
+                if (!ObtainStationRssi()) {
+                    ulNotifiedValue = FAILED_BIT;
+                }
             }
         } else {
             delay_before_reconnect = false;
@@ -130,8 +132,9 @@ void WiFiService::StationTask(RequestItem *request) {
             start_http_server();
             connect_retries_num = 0;
             has_connect = true;
-            ObtainStationRssi();
-            Controller::WakeupProcessTask();
+            if (ObtainStationRssi()) {
+                Controller::WakeupProcessTask();
+            }
             ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation, rssi:%u", station_rssi);
         }
 
@@ -160,11 +163,11 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_LOGD(TAG_WiFiService_Station, "finish");
 }
 
-void WiFiService::ObtainStationRssi() {
+bool WiFiService::ObtainStationRssi() {
     wifi_ap_record_t ap;
     if (esp_wifi_sta_get_ap_info(&ap) != ESP_OK) {
         ESP_LOGI(TAG_WiFiService_Station, "ObtainStationRssi, no connection");
-        return;
+        return false;
     }
 
     CurrentSettings::wifi_station_settings wifi_station;
@@ -172,6 +175,7 @@ void WiFiService::ObtainStationRssi() {
 
     station_rssi = ScaleRssiToPercent04(ap.rssi, wifi_station.max_rssi, wifi_station.min_rssi);
     ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
+    return true;
 }
 
 void WiFiService::wifi_event_handler(void *arg,
