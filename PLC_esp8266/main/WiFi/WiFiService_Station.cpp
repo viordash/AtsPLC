@@ -50,13 +50,12 @@ void WiFiService::StationTask(RequestItem *request) {
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
     bool has_connect = false;
-    bool delay_before_reconnect = false;
     uint32_t ulNotifiedValue = 0;
     Connect(&wifi_config);
 
     bool cancel = false;
     while (true) {
-        if (!delay_before_reconnect) {
+        if (ulNotifiedValue == 0) {
             if (xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
@@ -66,23 +65,24 @@ void WiFiService::StationTask(RequestItem *request) {
                     ulNotifiedValue = FAILED_BIT;
                 }
             }
-        } else {
-            delay_before_reconnect = false;
         }
         ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
+        uint32_t notified_event = ulNotifiedValue;
+        ulNotifiedValue = 0;
 
-        bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
+        bool to_stop = (notified_event & STOP_BIT) != 0;
         if (to_stop) {
             break;
         }
 
-        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        cancel = (notified_event & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_Station, "Cancel");
             break;
         }
+
         bool one_more_request = requests.OneMoreInQueue();
-        bool any_failure = (ulNotifiedValue & FAILED_BIT) != 0;
+        bool any_failure = (notified_event & FAILED_BIT) != 0;
         if (any_failure) {
             bool retry_connect = (max_retry_count == INFINITY_CONNECT_RETRY
                                   || connect_retries_num < max_retry_count);
@@ -114,7 +114,7 @@ void WiFiService::StationTask(RequestItem *request) {
             stop_http_server();
             Disconnect();
 
-            delay_before_reconnect =
+            bool delay_before_reconnect =
                 xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
@@ -127,7 +127,7 @@ void WiFiService::StationTask(RequestItem *request) {
             continue;
         }
 
-        bool connected = (ulNotifiedValue & CONNECTED_BIT) != 0;
+        bool connected = (notified_event & CONNECTED_BIT) != 0;
         if (connected) {
             start_http_server();
             connect_retries_num = 0;
