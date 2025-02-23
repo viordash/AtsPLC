@@ -314,7 +314,6 @@ void Network::Change() {
         auto elementBox = new ElementsBox(fill_wire, source_element, hide_output_elements);
         elementBox->BeginEditing();
         (*this)[selected_element] = elementBox;
-        delete source_element;
 
     } else if ((*this)[selected_element]->Editing()) {
         auto elementBox = static_cast<ElementsBox *>((*this)[selected_element]);
@@ -340,7 +339,6 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
         elementBox.size() == 0
         || (elementBox.size() == 1
             && elementBox.GetSelectedElement()->GetElementType() == TvElementType::et_Wire);
-    delete elementBox.GetSelectedElement();
     return !not_enough;
 }
 

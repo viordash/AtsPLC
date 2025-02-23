@@ -225,6 +225,8 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         uint8_t *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
         selected_index = size();
+        push_back(source_element);
+        return;
     }
 
     auto new_element = LogicElementFactory::Create(element_type);
