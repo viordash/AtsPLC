@@ -141,6 +141,8 @@ void WiFiService::ap_connect_wifi_event_handler(void *arg,
     if (WiFiApBinding::ClientMacMatches(ap_event_arg->mac, event->mac)) {
         ap_event_arg->service->AddApClient(ap_event_arg->ssid);
         Controller::WakeupProcessTask();
+    } else {
+        esp_wifi_deauth_sta(event->aid);
     }
 }
 

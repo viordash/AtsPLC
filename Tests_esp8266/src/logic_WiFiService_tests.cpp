@@ -871,7 +871,7 @@ TEST(LogicWiFiServiceTestsGroup,
     TestableWiFiService testable;
 
     const char *ssid = "test";
-    const char *mac = "0123456789ABCDEF";
+    const char *mac = "0123456789AB";
 
     WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
     wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
@@ -895,7 +895,7 @@ TEST(LogicWiFiServiceTestsGroup,
     TestableWiFiService testable;
 
     const char *ssid = "test";
-    const char *mac = "0123456789ABCDEF";
+    const char *mac = "0123456789AB";
 
     WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
     wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
@@ -912,4 +912,24 @@ TEST(LogicWiFiServiceTestsGroup,
                                                                         &event_data);
     size_t count;
     CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid, &count));
+}
+
+TEST(LogicWiFiServiceTestsGroup, AccessPoint_reject_connection_for_unknown_mac) {
+    TestableWiFiService testable;
+
+    const char *ssid = "test";
+    const char *mac = "012345678900";
+
+    WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
+    wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 42 };
+
+    mock()
+        .expectNCalls(1, "esp_wifi_deauth_sta")
+        .withUnsignedIntParameter("aid", 42)
+        .ignoreOtherParameters();
+
+    TestableWiFiService::PublicMorozov_ap_connect_wifi_event_handler(&ap_event_arg,
+                                                                     NULL,
+                                                                     0,
+                                                                     &event_data);
 }

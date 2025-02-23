@@ -488,3 +488,10 @@ esp_err_t esp_wifi_ap_get_sta_list(wifi_sta_list_t *sta) {
         ->withOutputParameter("sta", sta)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
+
+esp_err_t esp_wifi_deauth_sta(uint16_t aid) {
+    return mock_c()
+        ->actualCall("esp_wifi_deauth_sta")
+        ->withUnsignedIntParameters("aid", aid)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
