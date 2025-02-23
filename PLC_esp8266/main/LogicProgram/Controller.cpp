@@ -20,12 +20,6 @@ static const char *TAG_Controller = "controller";
 // #define STOP_PROCESS_TASK BIT1
 #define STOP_RENDER_TASK BIT2
 #define DO_RENDERING BIT3
-#define DO_SCROLL_UP BIT4
-#define DO_SCROLL_DOWN BIT5
-#define DO_SELECT BIT6
-#define DO_SELECT_OPTION BIT7
-#define DO_SCROLL_PAGE_UP BIT8
-#define DO_SCROLL_PAGE_DOWN BIT9
 
 #define GPIO_EVENTS_ALL_BITS                                                                       \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
@@ -149,22 +143,28 @@ void Controller::ProcessTask(void *parm) {
             ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
+                    ladder->HandleButtonUp();
+                    force_render = true;
                     break;
                 case ButtonsPressType::UP_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_UP, eNotifyAction::eSetBits);
+                    ladder->HandleButtonPageUp();
+                    force_render = true;
                     break;
                 case ButtonsPressType::DOWN_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
+                    ladder->HandleButtonDown();
+                    force_render = true;
                     break;
                 case ButtonsPressType::DOWN_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
+                    ladder->HandleButtonPageDown();
+                    force_render = true;
                     break;
                 case ButtonsPressType::SELECT_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
+                    ladder->HandleButtonSelect();
+                    force_render = true;
                     break;
                 case ButtonsPressType::SELECT_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SELECT_OPTION, eNotifyAction::eSetBits);
+                    ladder->HandleButtonOption();
+                    force_render = true;
                     break;
                 default:
                     break;
@@ -208,47 +208,13 @@ void Controller::RenderTask(void *parm) {
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
         BaseType_t xResult =
-            xTaskNotifyWait(0,
-                            DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
-                                | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
-                            &ulNotifiedValue,
-                            portMAX_DELAY);
+            xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
 
         if (xResult != pdPASS) {
             ulNotifiedValue = {};
             ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
             continue;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_UP) {
-            ladder->HandleButtonUp();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_PAGE_UP) {
-            ladder->HandleButtonPageUp();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_DOWN) {
-            ladder->HandleButtonDown();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_PAGE_DOWN) {
-            ladder->HandleButtonPageDown();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SELECT) {
-            ladder->HandleButtonSelect();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SELECT_OPTION) {
-            ladder->HandleButtonOption();
-            ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_RENDERING) {
