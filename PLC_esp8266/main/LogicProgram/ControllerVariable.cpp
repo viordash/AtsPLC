@@ -10,7 +10,7 @@
 static const char *TAG_ControllerVariable = "ControllerVariable";
 
 ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBaseOutput() {
-    Unbind();
+    this->wifi_service = NULL;
 }
 
 void ControllerVariable::Init() {
@@ -92,6 +92,7 @@ void ControllerVariable::BindToStaWiFi(WiFiService *wifi_service) {
 }
 
 void ControllerVariable::Unbind() {
+    CancelReadingProcess();
     this->wifi_service = NULL;
 }
 

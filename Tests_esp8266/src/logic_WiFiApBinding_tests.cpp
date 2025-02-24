@@ -19,8 +19,8 @@
 #include "main/LogicProgram/Inputs/InputNO.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
-
 static WiFiService *wifi_service;
+
 TEST_GROUP(LogicWiFiApBindingTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));

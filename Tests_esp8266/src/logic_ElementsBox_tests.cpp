@@ -17,15 +17,22 @@
 #include "main/LogicProgram/Wire.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static WiFiService *wifi_service;
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
-Controller::Start(NULL, NULL);
+wifi_service = new WiFiService();
+Controller::Start(NULL, wifi_service);
 }
 
 TEST_TEARDOWN() {
+    Controller::V1.Unbind();
+    Controller::V2.Unbind();
+    Controller::V3.Unbind();
+    Controller::V4.Unbind();
     Controller::Stop();
+    delete wifi_service;
     mock().enable();
 }
 }
@@ -472,4 +479,61 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) 
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.BeginEditing();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiApBinding_calls_DetachElement) {
+    auto stored_element = new WiFiApBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->SetSsid("ssid");
+    stored_element->SetPassword("secret");
+    stored_element->SetMac("0123456789AB");
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiBinding_calls_DetachElement) {
+    auto stored_element = new WiFiBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiStaBinding_calls_DetachElement) {
+    auto stored_element = new WiFiStaBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
 }

@@ -4,6 +4,7 @@
 #include "Display/display.h"
 #include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
@@ -47,6 +48,39 @@ ElementsBox::~ElementsBox() {
         erase(it);
         ESP_LOGD(TAG_ElementsBox, "delete elem: %p", element);
         delete element;
+    }
+}
+
+void ElementsBox::DetachElement(LogicElement *element) {
+    ESP_LOGD(TAG_ElementsBox, "attempt of detach element with type:%u", element->GetElementType());
+    auto *wifi_binding = WiFiBinding::TryToCast(element);
+    if (wifi_binding != NULL) {
+        if (wifi_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox,
+                     "detach WiFiBinding, '%s', ssid:%s",
+                     wifi_binding->GetLabel(),
+                     wifi_binding->GetSsid());
+        }
+        return;
+    }
+
+    auto *wifi_ap_binding = WiFiApBinding::TryToCast(element);
+    if (wifi_ap_binding != NULL) {
+        if (wifi_ap_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox,
+                     "detach WiFiApBinding, '%s', ssid:%s",
+                     wifi_ap_binding->GetLabel(),
+                     wifi_ap_binding->GetSsid());
+        }
+        return;
+    }
+
+    auto *wifi_sta_binding = WiFiStaBinding::TryToCast(element);
+    if (wifi_sta_binding != NULL) {
+        if (wifi_sta_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox, "detach WiFiStaBinding, '%s'", wifi_sta_binding->GetLabel());
+        }
+        return;
     }
 }
 
@@ -330,6 +364,8 @@ void ElementsBox::SelectPrior() {
         GetSelectedElement()->SelectPrior();
         return;
     }
+
+    DetachElement((*this)[selected_index]);
     selected_index++;
     if (selected_index >= (int)size()) {
         selected_index = 0;
@@ -351,8 +387,8 @@ void ElementsBox::SelectNext() {
         return;
     }
 
+    DetachElement((*this)[selected_index]);
     selected_index--;
-
     if (selected_index < 0) {
         selected_index = size() - 1;
     }

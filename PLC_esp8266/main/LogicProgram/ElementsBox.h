@@ -21,6 +21,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     int selected_index;
     bool force_do_action_result;
 
+    void DetachElement(LogicElement *element);
     void CalcEntirePlaceWidth(LogicElement *source_element);
     void Fill(LogicElement *source_element, bool hide_output_elements);
     void AppendStandartElement(LogicElement *source_element,
