@@ -35,7 +35,8 @@ bool WiFiService::StartScan(const char *ssid,
 }
 
 int8_t WiFiService::Scanning(RequestItem *request,
-                             CurrentSettings::wifi_scanner_settings *scanner_settings) {
+                             CurrentSettings::wifi_scanner_settings *scanner_settings,
+                             bool *canceled) {
     esp_err_t err;
 
     wifi_ap_record_t ap_info[1] = {};
@@ -55,10 +56,11 @@ int8_t WiFiService::Scanning(RequestItem *request,
 
         for (int i = 0; i < number; i++) {
             ESP_LOGI(TAG_WiFiService_Scanner,
-                     "SSID:'%s', RSSI:%d, Channel:%d",
+                     "SSID:'%s', RSSI:%d, Channel:%d, reqSSID:'%s'",
                      ap_info[i].ssid,
                      ap_info[i].rssi,
-                     ap_info[i].primary);
+                     ap_info[i].primary,
+                     request->Payload.Scanner.ssid);
             if (strcmp((const char *)ap_info[i].ssid, (const char *)request->Payload.Scanner.ssid)
                     == 0
                 && ap_info[i].rssi > scanner_settings->min_rssi) {
@@ -87,9 +89,9 @@ int8_t WiFiService::Scanning(RequestItem *request,
             break;
         }
 
-        bool cancel = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0
-                   && !requests.Contains(request);
-        if (cancel) {
+        *canceled = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0
+                 && !requests.Contains(request);
+        if (*canceled) {
             ESP_LOGI(TAG_WiFiService_Scanner,
                      "Cancel request, ssid:%s",
                      request->Payload.Scanner.ssid);
@@ -112,32 +114,33 @@ void WiFiService::ScannerTask(RequestItem *request) {
 
     int8_t rssi = scanner_settings.min_rssi;
 
+    bool canceled = false;
     if (StartScan(request->Payload.Scanner.ssid, &scanner_settings)) {
-        rssi = Scanning(request, &scanner_settings);
+        rssi = Scanning(request, &scanner_settings, &canceled);
     }
     StopScan();
 
     if (rssi > scanner_settings.min_rssi) {
-        AddSsidToScannedList(request->Payload.Scanner.ssid,
-                             ScaleRssiToPercent04(rssi, &scanner_settings));
+        AddScannedSsid(
+            request->Payload.Scanner.ssid,
+            ScaleRssiToPercent04(rssi, scanner_settings.max_rssi, scanner_settings.min_rssi));
     } else {
-        RemoveSsidFromScannedList(request->Payload.Scanner.ssid);
+        RemoveScannedSsid(request->Payload.Scanner.ssid);
     }
     requests.RemoveScanner(request->Payload.Scanner.ssid);
-    Controller::WakeupProcessTask();
+    if (!canceled) {
+        Controller::WakeupProcessTask();
+    }
 
     ESP_LOGD(TAG_WiFiService_Scanner,
              "finish, ssid:%s, rssi:%d[%u]",
              request->Payload.Scanner.ssid,
              rssi,
-             ScaleRssiToPercent04(rssi, &scanner_settings));
+             ScaleRssiToPercent04(rssi, scanner_settings.max_rssi, scanner_settings.min_rssi));
 }
 
-uint8_t
-WiFiService::ScaleRssiToPercent04(int8_t rssi,
-                                  CurrentSettings::wifi_scanner_settings *scanner_settings) {
-    float fl = ((float)rssi - scanner_settings->min_rssi)
-             / (scanner_settings->max_rssi - scanner_settings->min_rssi);
+uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t min_rssi) {
+    float fl = ((float)rssi - min_rssi) / (max_rssi - min_rssi);
     fl = fl * (LogicElement::MaxValue - LogicElement::MinValue) + LogicElement::MinValue;
     if (fl < (float)LogicElement::MinValue) {
         fl = (float)LogicElement::MinValue;
@@ -147,32 +150,28 @@ WiFiService::ScaleRssiToPercent04(int8_t rssi,
     return (uint8_t)fl;
 }
 
-void WiFiService::AddSsidToScannedList(const char *ssid, uint8_t rssi) {
+void WiFiService::AddScannedSsid(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     auto it = scanned_ssid.insert({ ssid, rssi });
     if (!it.second) {
         it.first->second = rssi;
     }
-    ESP_LOGD(TAG_WiFiService_Scanner,
-             "AddSsidToScannedList, cnt:%u",
-             (unsigned)scanned_ssid.size());
+    ESP_LOGD(TAG_WiFiService_Scanner, "AddScannedSsid, cnt:%u", (unsigned)scanned_ssid.size());
 }
 
-bool WiFiService::FindSsidInScannedList(const char *ssid, uint8_t *rssi) {
+bool WiFiService::FindScannedSsid(const char *ssid, uint8_t *rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     auto it = scanned_ssid.find(ssid);
     bool found = it != scanned_ssid.end();
-    ESP_LOGD(TAG_WiFiService_Scanner, "FindSsidInScannedList, found:%u", found);
+    ESP_LOGD(TAG_WiFiService_Scanner, "FindScannedSsid, found:%u", found);
     if (found) {
         *rssi = it->second;
     }
     return found;
 }
 
-void WiFiService::RemoveSsidFromScannedList(const char *ssid) {
+void WiFiService::RemoveScannedSsid(const char *ssid) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     scanned_ssid.erase(ssid);
-    ESP_LOGD(TAG_WiFiService_Scanner,
-             "RemoveSsidFromScannedList, cnt:%u",
-             (unsigned)scanned_ssid.size());
+    ESP_LOGD(TAG_WiFiService_Scanner, "RemoveScannedSsid, cnt:%u", (unsigned)scanned_ssid.size());
 }

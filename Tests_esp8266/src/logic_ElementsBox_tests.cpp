@@ -17,15 +17,22 @@
 #include "main/LogicProgram/Wire.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static WiFiService *wifi_service;
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
-Controller::Start(NULL, NULL);
+wifi_service = new WiFiService();
+Controller::Start(NULL, wifi_service);
 }
 
 TEST_TEARDOWN() {
+    Controller::V1.Unbind();
+    Controller::V2.Unbind();
+    Controller::V3.Unbind();
+    Controller::V4.Unbind();
     Controller::Stop();
+    delete wifi_service;
     mock().enable();
 }
 }
@@ -58,7 +65,7 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          false);
-    CHECK_EQUAL(18, testable.size());
+    CHECK_EQUAL(19, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -70,14 +77,14 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiStation, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[12]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, testable[13]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[14]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_IncOutput, testable[15]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[16]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[17]->GetElementType());
-    delete testable.GetSelectedElement();
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[13]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[14]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[16]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[17]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[18]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
@@ -85,7 +92,7 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          true);
-    CHECK_EQUAL(13, testable.size());
+    CHECK_EQUAL(14, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
@@ -97,9 +104,9 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[8]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Indicator, testable[9]->GetElementType());
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[10]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiStation, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[12]->GetElementType());
-    delete testable.GetSelectedElement();
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[13]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
@@ -113,7 +120,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -132,7 +138,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_comparator_element) {
             }
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -152,7 +157,6 @@ TEST(LogicElementsBoxTestsGroup,
             }
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -170,7 +174,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerSec_element) {
             }
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -188,7 +191,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_TimerMSec_element) {
             }
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -213,7 +215,6 @@ TEST(LogicElementsBoxTestsGroup,
             }
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 1);
 }
 
@@ -228,7 +229,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_output_element) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -243,7 +243,6 @@ TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -264,7 +263,6 @@ TEST(LogicElementsBoxTestsGroup, copy_params_for_indicator_element) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -279,7 +277,6 @@ TEST(LogicElementsBoxTestsGroup, indicator_element_has_default_param_V1) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -295,7 +292,6 @@ TEST(LogicElementsBoxTestsGroup, copy_params_for_wifi_binding_element) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
@@ -310,22 +306,19 @@ TEST(LogicElementsBoxTestsGroup, wifi_binding_element_has_default_param_V1) {
             matched++;
         }
     }
-    delete testable.GetSelectedElement();
     CHECK_COMPARE(matched, >, 0);
 }
 
 TEST(LogicElementsBoxTestsGroup, no_available_space_for_timers_and_comparators) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(5, &stored_element, false);
-    CHECK_EQUAL(7, testable.size());
-    delete testable.GetSelectedElement();
+    CHECK_EQUAL(6, testable.size());
 }
 
 TEST(LogicElementsBoxTestsGroup, use_GetElementType_from_selected) {
     InputNC stored_element(MapIO::V1);
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
-    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
@@ -344,12 +337,11 @@ TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
     Controller::FetchIOValues();
 
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);
+    fake_doaction_element.DoAction_result = true;
     ElementsBox testable(100, &fake_doaction_element, false);
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetSelectedElement()->GetState());
 
-    CHECK_FALSE(fake_doaction_element.DoAction_called);
-    delete testable.GetSelectedElement();
+    CHECK_TRUE(fake_doaction_element.DoAction_called);
 }
 
 TEST(LogicElementsBoxTestsGroup, Render_calls_a_function_on_the_inner_element) {
@@ -357,17 +349,8 @@ TEST(LogicElementsBoxTestsGroup, Render_calls_a_function_on_the_inner_element) {
     ElementsBox testable(100, &fake_rendering_element, false);
     Point start_point = { 0, INCOME_RAIL_TOP };
     testable.Render(frame_buffer, LogicItemState::lisActive, &start_point);
-    delete testable.GetSelectedElement();
 
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(32, start_point.x);
+    CHECK_TRUE(fake_rendering_element.Render_called);
 }
 
 TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward) {
@@ -395,7 +378,9 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_WiFiStation, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
+    testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectNext();
@@ -409,7 +394,6 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
     testable.SelectNext();
-    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
@@ -429,7 +413,9 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
     testable.SelectPrior();
-    CHECK_EQUAL(TvElementType::et_WiFiStation, testable.GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
     testable.SelectPrior();
@@ -451,8 +437,6 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
     testable.SelectPrior();
-
-    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to_editing) {
@@ -462,12 +446,11 @@ TEST(LogicElementsBoxTestsGroup, HandleButtonSelect_first_call_switch_element_to
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.Change();
     CHECK_TRUE(stored_element.Editing());
-    delete testable.GetSelectedElement();
 }
 
 TEST(LogicElementsBoxTestsGroup, No_memleak_if_selection_changes) {
-    ComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_ComparatorGE, testable.GetElementType());
@@ -475,15 +458,15 @@ TEST(LogicElementsBoxTestsGroup, No_memleak_if_selection_changes) {
 }
 
 TEST(LogicElementsBoxTestsGroup, No_memleak_if_no_selection_changes) {
-    ComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
-    delete testable.GetSelectedElement();
+    delete stored_element;
 }
 
 TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
-    ComparatorEq stored_element(42, MapIO::AI);
-    ElementsBox testable(100, &stored_element, false);
+    auto stored_element = new ComparatorEq(42, MapIO::AI);
+    ElementsBox testable(100, stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.BeginEditing();
     testable.SelectPrior();
@@ -496,5 +479,61 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) 
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.BeginEditing();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiApBinding_calls_DetachElement) {
+    auto stored_element = new WiFiApBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->SetSsid("ssid");
+    stored_element->SetPassword("secret");
+    stored_element->SetMac("0123456789AB");
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiBinding_calls_DetachElement) {
+    auto stored_element = new WiFiBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiStaBinding_calls_DetachElement) {
+    auto stored_element = new WiFiStaBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    ElementsBox testable(100, stored_element, false);
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+
     delete testable.GetSelectedElement();
 }

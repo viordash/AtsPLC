@@ -9,3 +9,7 @@ void LabeledLogicItem::SetLabel(const char *label) {
     this->label = label;
     this->label_width = 0;
 }
+
+const char *LabeledLogicItem::GetLabel() {
+    return this->label;
+}

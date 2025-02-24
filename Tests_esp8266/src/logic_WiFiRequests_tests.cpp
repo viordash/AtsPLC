@@ -127,9 +127,9 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     const char *ssid_1 = "test_1";
 
     testable.Scan(ssid_0);
-    testable.AccessPoint(ssid_0);
+    testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Scan(ssid_1);
-    testable.AccessPoint(ssid_1);
+    testable.AccessPoint(ssid_1, NULL, NULL);
     CHECK_EQUAL(4, testable.size());
 
     RequestItem request;
@@ -160,7 +160,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
     const char *ssid_0 = "test_0";
 
     testable.Scan(ssid_0);
-    testable.AccessPoint(ssid_0);
+    testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Station();
     CHECK_EQUAL(3, testable.size());
 
@@ -179,7 +179,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveAccessPoint) {
     const char *ssid_0 = "test_0";
 
     testable.Scan(ssid_0);
-    testable.AccessPoint(ssid_0);
+    testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Station();
     CHECK_EQUAL(3, testable.size());
 
@@ -199,10 +199,10 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveScanner) {
     const char *ssid_0_but_diff_address = "test_0";
     const char *ssid_1 = "test_1";
 
-    testable.AccessPoint(ssid_0);
+    testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Scan(ssid_0);
     testable.Scan(ssid_1);
-    testable.AccessPoint(ssid_1);
+    testable.AccessPoint(ssid_1, NULL, NULL);
     testable.Station();
     CHECK_EQUAL(5, testable.size());
 

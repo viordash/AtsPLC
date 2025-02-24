@@ -11,7 +11,6 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Network.h"
 #include "LogicProgram/Outputs/DecOutput.h"

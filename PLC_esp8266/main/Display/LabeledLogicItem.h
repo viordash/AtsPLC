@@ -12,4 +12,5 @@ class LabeledLogicItem {
     void SetLabel(const char *label);
 
   public:
+    const char *GetLabel();
 };

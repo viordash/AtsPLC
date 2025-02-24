@@ -7,12 +7,12 @@
 #include <unistd.h>
 
 namespace MigrateSettings {
-    namespace v20250107 {
+    namespace v20250209 {
         inline int GetSizeOfCurrentData();
         inline void MigrateUp(void *pCurr, void *pPrev);
         inline void MigrateDown(void *pCurr, void *pPrev);
 
-        const TDataMigrate DataMigrate = { 0x20250107,
+        const TDataMigrate DataMigrate = { 0x20250209,
                                            MigrateUp,
                                            MigrateDown,
                                            GetSizeOfCurrentData };
@@ -26,6 +26,10 @@ namespace MigrateSettings {
                 char ssid[32];
                 char password[64];
                 int32_t connect_max_retry_count;
+                uint32_t reconnect_delay_ms;
+                uint32_t scan_station_rssi_period_ms;
+                int8_t max_rssi;
+                int8_t min_rssi;
             } wifi_station_settings;
 
             typedef struct {
@@ -53,45 +57,57 @@ namespace MigrateSettings {
 
         inline void MigrateUp(void *pCurr, void *pPrev) {
             auto pCurrSettings = (Snapshot::device_settings *)pCurr;
-            auto pPrevSettings = (Initial::Snapshot::device_settings *)pPrev;
+            auto pPrevSettings = (v20250107::Snapshot::device_settings *)pPrev;
 
             pCurrSettings->smartconfig.counter = pPrevSettings->smartconfig.counter;
 
             memcpy(pCurrSettings->wifi_station.ssid,
-                   pPrevSettings->wifi.ssid,
+                   pPrevSettings->wifi_station.ssid,
                    sizeof(pCurrSettings->wifi_station.ssid));
             memcpy(pCurrSettings->wifi_station.password,
-                   pPrevSettings->wifi.password,
+                   pPrevSettings->wifi_station.password,
                    sizeof(pCurrSettings->wifi_station.password));
             pCurrSettings->wifi_station.connect_max_retry_count =
-                pPrevSettings->wifi.connect_max_retry_count;
+                pPrevSettings->wifi_station.connect_max_retry_count;
+            pCurrSettings->wifi_station.reconnect_delay_ms = 3000;
+            pCurrSettings->wifi_station.scan_station_rssi_period_ms = 5000;
+            pCurrSettings->wifi_station.max_rssi = -26;
+            pCurrSettings->wifi_station.min_rssi = -120;
 
-            pCurrSettings->wifi_scanner.per_channel_scan_time_ms = 500;
-            pCurrSettings->wifi_scanner.max_rssi = -26;
-            pCurrSettings->wifi_scanner.min_rssi = -120;
+            memcpy(&pCurrSettings->wifi_scanner,
+                   &pPrevSettings->wifi_scanner,
+                   sizeof(pCurrSettings->wifi_scanner));
 
-            pCurrSettings->wifi_access_point.generation_time_ms = 20000;
-            pCurrSettings->wifi_access_point.ssid_hidden = false;
+            memcpy(&pCurrSettings->wifi_access_point,
+                   &pPrevSettings->wifi_access_point,
+                   sizeof(pCurrSettings->wifi_access_point));
 
-            ESP_LOGI("Settings_20250107", "Migrate to %08X", DataMigrate.Version);
+            ESP_LOGI("Settings_20250209", "Migrate to %08X", DataMigrate.Version);
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {
             auto pCurrSettings = (Snapshot::device_settings *)pCurr;
-            auto pPrevSettings = (Initial::Snapshot::device_settings *)pPrev;
+            auto pPrevSettings = (v20250107::Snapshot::device_settings *)pPrev;
 
             pPrevSettings->smartconfig.counter = pCurrSettings->smartconfig.counter;
 
-            memcpy(pPrevSettings->wifi.ssid,
+            memcpy(pPrevSettings->wifi_station.ssid,
                    pCurrSettings->wifi_station.ssid,
-                   sizeof(pPrevSettings->wifi.ssid));
-            memcpy(pPrevSettings->wifi.password,
+                   sizeof(pPrevSettings->wifi_station.ssid));
+            memcpy(pPrevSettings->wifi_station.password,
                    pCurrSettings->wifi_station.password,
-                   sizeof(pPrevSettings->wifi.password));
-
-            pPrevSettings->wifi.connect_max_retry_count =
+                   sizeof(pPrevSettings->wifi_station.password));
+            pPrevSettings->wifi_station.connect_max_retry_count =
                 pCurrSettings->wifi_station.connect_max_retry_count;
+
+            memcpy(&pPrevSettings->wifi_scanner,
+                   &pCurrSettings->wifi_scanner,
+                   sizeof(pPrevSettings->wifi_scanner));
+
+            memcpy(&pPrevSettings->wifi_access_point,
+                   &pCurrSettings->wifi_access_point,
+                   sizeof(pPrevSettings->wifi_access_point));
         }
 
-    } // namespace v20250107
+    } // namespace v20250209
 } // namespace MigrateSettings

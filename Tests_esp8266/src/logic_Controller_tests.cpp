@@ -143,32 +143,6 @@ TEST(LogicControllerTestsGroup, FetchIOValues_V4_mandatory_after_init) {
     CHECK_EQUAL(42, Controller::V4.PeekValue());
 }
 
-TEST(LogicControllerTestsGroup,
-     UnbindVariable_for_last_variable_also_send_ConnectToStation_request_to_wifi_service) {
-
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
-
-    Controller::BindVariableToWiFi(MapIO::V1, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V2, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V3, "test_ssid");
-    Controller::BindVariableToWiFi(MapIO::V4, "test_ssid");
-
-    CHECK_EQUAL(0, wifi_service->PublicMorozov_Get_requests()->size());
-
-    Controller::UnbindVariable(MapIO::V1);
-    Controller::UnbindVariable(MapIO::V2);
-    Controller::UnbindVariable(MapIO::V3);
-    Controller::UnbindVariable(MapIO::V4);
-
-    CHECK_EQUAL(1, wifi_service->PublicMorozov_Get_requests()->size());
-    CHECK_EQUAL(RequestItemType::wqi_Station,
-                wifi_service->PublicMorozov_Get_requests()->front().Type);
-}
-
 TEST(LogicControllerTestsGroup, WakeupProcessTask) {
     char buffer[32];
     sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);

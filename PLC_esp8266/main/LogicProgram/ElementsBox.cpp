@@ -2,7 +2,9 @@
 #include "LogicProgram/ElementsBox.h"
 #include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
@@ -12,7 +14,6 @@
 #include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Wire.h"
@@ -47,6 +48,39 @@ ElementsBox::~ElementsBox() {
         erase(it);
         ESP_LOGD(TAG_ElementsBox, "delete elem: %p", element);
         delete element;
+    }
+}
+
+void ElementsBox::DetachElement(LogicElement *element) {
+    ESP_LOGD(TAG_ElementsBox, "attempt of detach element with type:%u", element->GetElementType());
+    auto *wifi_binding = WiFiBinding::TryToCast(element);
+    if (wifi_binding != NULL) {
+        if (wifi_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox,
+                     "detach WiFiBinding, '%s', ssid:%s",
+                     wifi_binding->GetLabel(),
+                     wifi_binding->GetSsid());
+        }
+        return;
+    }
+
+    auto *wifi_ap_binding = WiFiApBinding::TryToCast(element);
+    if (wifi_ap_binding != NULL) {
+        if (wifi_ap_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox,
+                     "detach WiFiApBinding, '%s', ssid:%s",
+                     wifi_ap_binding->GetLabel(),
+                     wifi_ap_binding->GetSsid());
+        }
+        return;
+    }
+
+    auto *wifi_sta_binding = WiFiStaBinding::TryToCast(element);
+    if (wifi_sta_binding != NULL) {
+        if (wifi_sta_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox, "detach WiFiStaBinding, '%s'", wifi_sta_binding->GetLabel());
+        }
+        return;
     }
 }
 
@@ -166,6 +200,32 @@ bool ElementsBox::CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBind
     return true;
 }
 
+bool ElementsBox::CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiApBinding *binding) {
+    if (binding == NULL) {
+        return false;
+    }
+
+    auto *source_element_as_wifi_binding = WiFiBinding::TryToCast(source_element);
+    if (source_element_as_wifi_binding != NULL) {
+        binding->SetSsid(source_element_as_wifi_binding->GetSsid());
+        binding->SetPassword("ats-PLC0");
+        binding->SetMac("************");
+        return true;
+    }
+
+    auto *source_element_as_wifi_ap_binding = WiFiApBinding::TryToCast(source_element);
+    if (source_element_as_wifi_ap_binding != NULL) {
+        binding->SetSsid(source_element_as_wifi_ap_binding->GetSsid());
+        binding->SetPassword(source_element_as_wifi_ap_binding->GetPassword());
+        binding->SetMac(source_element_as_wifi_ap_binding->GetMac());
+        return true;
+    }
+    binding->SetSsid("AtsPLC");
+    binding->SetPassword("ats-PLC0");
+    binding->SetMac("************");
+    return true;
+}
+
 void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
                                               LogicElement *new_element) {
 
@@ -183,6 +243,9 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
     if (CopyParamsToWiFiBinding(source_element, WiFiBinding::TryToCast(new_element))) {
         return;
     }
+    if (CopyParamsToWiFiApBinding(source_element, WiFiApBinding::TryToCast(new_element))) {
+        return;
+    }
 
     auto as_wire = Wire::TryToCast(new_element);
     if (as_wire != NULL) {
@@ -196,6 +259,8 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         uint8_t *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
         selected_index = size();
+        push_back(source_element);
+        return;
     }
 
     auto new_element = LogicElementFactory::Create(element_type);
@@ -242,7 +307,8 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_ComparatorLs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Indicator, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiBinding, frame_buffer);
-    AppendStandartElement(source_element, TvElementType::et_WiFiStation, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_WiFiStaBinding, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_WiFiApBinding, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);
@@ -298,6 +364,8 @@ void ElementsBox::SelectPrior() {
         GetSelectedElement()->SelectPrior();
         return;
     }
+
+    DetachElement((*this)[selected_index]);
     selected_index++;
     if (selected_index >= (int)size()) {
         selected_index = 0;
@@ -319,8 +387,8 @@ void ElementsBox::SelectNext() {
         return;
     }
 
+    DetachElement((*this)[selected_index]);
     selected_index--;
-
     if (selected_index < 0) {
         selected_index = size() - 1;
     }

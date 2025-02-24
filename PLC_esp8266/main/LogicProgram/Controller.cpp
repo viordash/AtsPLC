@@ -20,12 +20,6 @@ static const char *TAG_Controller = "controller";
 // #define STOP_PROCESS_TASK BIT1
 #define STOP_RENDER_TASK BIT2
 #define DO_RENDERING BIT3
-#define DO_SCROLL_UP BIT4
-#define DO_SCROLL_DOWN BIT5
-#define DO_SELECT BIT6
-#define DO_SELECT_OPTION BIT7
-#define DO_SCROLL_PAGE_UP BIT8
-#define DO_SCROLL_PAGE_DOWN BIT9
 
 #define GPIO_EVENTS_ALL_BITS                                                                       \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
@@ -83,7 +77,7 @@ void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
                                 "ctrl_actions_task",
-                                2048 + 512,
+                                4096,
                                 NULL,
                                 3,
                                 &Controller::process_task_handle)
@@ -117,7 +111,7 @@ void Controller::ProcessTask(void *parm) {
     TaskHandle_t render_task_handle;
     ESP_ERROR_CHECK(xTaskCreate(RenderTask,
                                 "ctrl_render_task",
-                                2048,
+                                4096,
                                 NULL,
                                 tskIDLE_PRIORITY,
                                 &render_task_handle)
@@ -149,22 +143,28 @@ void Controller::ProcessTask(void *parm) {
             ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_UP, eNotifyAction::eSetBits);
+                    ladder->HandleButtonUp();
+                    force_render = true;
                     break;
                 case ButtonsPressType::UP_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_UP, eNotifyAction::eSetBits);
+                    ladder->HandleButtonPageUp();
+                    force_render = true;
                     break;
                 case ButtonsPressType::DOWN_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_DOWN, eNotifyAction::eSetBits);
+                    ladder->HandleButtonDown();
+                    force_render = true;
                     break;
                 case ButtonsPressType::DOWN_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SCROLL_PAGE_DOWN, eNotifyAction::eSetBits);
+                    ladder->HandleButtonPageDown();
+                    force_render = true;
                     break;
                 case ButtonsPressType::SELECT_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SELECT, eNotifyAction::eSetBits);
+                    ladder->HandleButtonSelect();
+                    force_render = true;
                     break;
                 case ButtonsPressType::SELECT_LONG_PRESSED:
-                    xTaskNotify(render_task_handle, DO_SELECT_OPTION, eNotifyAction::eSetBits);
+                    ladder->HandleButtonOption();
+                    force_render = true;
                     break;
                 default:
                     break;
@@ -208,47 +208,13 @@ void Controller::RenderTask(void *parm) {
 
     while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
         BaseType_t xResult =
-            xTaskNotifyWait(0,
-                            DO_RENDERING | DO_SCROLL_UP | DO_SCROLL_DOWN | DO_SCROLL_PAGE_UP
-                                | DO_SCROLL_PAGE_DOWN | DO_SELECT | DO_SELECT_OPTION,
-                            &ulNotifiedValue,
-                            portMAX_DELAY);
+            xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
 
         if (xResult != pdPASS) {
             ulNotifiedValue = {};
             ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
             continue;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_UP) {
-            ladder->HandleButtonUp();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_PAGE_UP) {
-            ladder->HandleButtonPageUp();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_DOWN) {
-            ladder->HandleButtonDown();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SCROLL_PAGE_DOWN) {
-            ladder->HandleButtonPageDown();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SELECT) {
-            ladder->HandleButtonSelect();
-            ulNotifiedValue |= DO_RENDERING;
-        }
-
-        if (ulNotifiedValue & DO_SELECT_OPTION) {
-            ladder->HandleButtonOption();
-            ulNotifiedValue |= DO_RENDERING;
         }
 
         if (ulNotifiedValue & DO_RENDERING) {
@@ -304,27 +270,71 @@ void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
 }
 
-void Controller::BindVariableToWiFi(const MapIO io_adr, const char *ssid) {
+void Controller::BindVariableToSecureWiFi(const MapIO io_adr,
+                                          const char *ssid,
+                                          const char *password,
+                                          const char *mac) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
     switch (io_adr) {
         case MapIO::V1:
-            if (Controller::wifi_service != NULL) {
-                Controller::V1.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V1.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V2:
-            if (Controller::wifi_service != NULL) {
-                Controller::V2.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V2.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V3:
-            if (Controller::wifi_service != NULL) {
-                Controller::V3.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V3.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
             break;
         case MapIO::V4:
-            if (Controller::wifi_service != NULL) {
-                Controller::V4.BindToWiFi(Controller::wifi_service, ssid);
-            }
+            Controller::V4.BindToSecureWiFi(Controller::wifi_service, ssid, password, mac);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToInsecureWiFi(Controller::wifi_service, ssid);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::BindVariableToStaWiFi(const MapIO io_adr) {
+    if (Controller::wifi_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToStaWiFi(Controller::wifi_service);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToStaWiFi(Controller::wifi_service);
             break;
 
         default:
@@ -349,24 +359,17 @@ void Controller::UnbindVariable(const MapIO io_adr) {
         default:
             break;
     }
-
-    if (!Controller::V1.BindedToWiFi() && !Controller::V2.BindedToWiFi()
-        && !Controller::V3.BindedToWiFi() && !Controller::V4.BindedToWiFi()) {
-        if (Controller::wifi_service != NULL) {
-            Controller::ConnectToWiFiStation();
-        }
-    }
 }
 
 void Controller::WakeupProcessTask() {
     xEventGroupSetBits(Controller::gpio_events, WAKEUP_PROCESS_TASK);
 }
 
-WiFiStationConnectStatus Controller::ConnectToWiFiStation() {
+uint8_t Controller::ConnectToWiFiStation() {
     if (Controller::wifi_service != NULL) {
         return Controller::wifi_service->ConnectToStation();
     }
-    return WiFiStationConnectStatus::wscs_Error;
+    return LogicElement::MinValue;
 }
 
 void Controller::DisconnectFromWiFiStation() {

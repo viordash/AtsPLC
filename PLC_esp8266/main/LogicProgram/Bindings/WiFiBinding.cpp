@@ -1,12 +1,4 @@
 #include "LogicProgram/Bindings/WiFiBinding.h"
-#include "Display/bitmaps/wifi_binding.h"
-#include "LogicProgram/Inputs/ComparatorEq.h"
-#include "LogicProgram/Inputs/ComparatorGE.h"
-#include "LogicProgram/Inputs/ComparatorGr.h"
-#include "LogicProgram/Inputs/ComparatorLE.h"
-#include "LogicProgram/Inputs/ComparatorLs.h"
-#include "LogicProgram/Inputs/InputNC.h"
-#include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -18,20 +10,14 @@
 
 static const char *TAG_WiFiBinding = "WiFiBinding";
 
-WiFiBinding::WiFiBinding() : LogicElement(), InputElement() {
+WiFiBinding::WiFiBinding() : CommonWiFiBinding() {
 }
 
-WiFiBinding::WiFiBinding(const MapIO io_adr, const char *ssid) : WiFiBinding() {
-    SetIoAdr(io_adr);
+WiFiBinding::WiFiBinding(const MapIO io_adr, const char *ssid) : CommonWiFiBinding(io_adr) {
     SetSsid(ssid);
 }
 
 WiFiBinding::~WiFiBinding() {
-}
-
-void WiFiBinding::SetIoAdr(const MapIO io_adr) {
-    InputElement::SetIoAdr(io_adr);
-    SetLabel(MapIONames[io_adr]);
 }
 
 bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
@@ -45,7 +31,7 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        Controller::BindVariableToWiFi(GetIoAdr(), ssid);
+        Controller::BindVariableToInsecureWiFi(GetIoAdr(), GetSsid());
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
@@ -61,69 +47,25 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
 IRAM_ATTR bool
 WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
-    } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
-    }
-
-    start_point->x += LeftPadding;
-
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
-    bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                              && (WiFiBinding::EditingPropertyId)editing_property_id
-                                     == WiFiBinding::EditingPropertyId::wbepi_None
-                              && Blinking_50();
-    if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
-    }
-
-    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                               && (WiFiBinding::EditingPropertyId)editing_property_id
-                                      == WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr
-                               && Blinking_50();
-    res =
-        blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
+    bool res = CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
     if (!res) {
         return res;
     }
-    top_left.x += 22;
-    if (!blink_body_on_editing) {
-        draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap);
-    }
+
+    top_left.x += LeftPadding + 22;
     top_left.x += bitmap.size.width + 1;
 
-    bool show_scales = editable_state == EditableElement::ElementState::des_Editing
-                    && (WiFiBinding::EditingPropertyId)editing_property_id
-                           != WiFiBinding::EditingPropertyId::wbepi_None
-                    && (WiFiBinding::EditingPropertyId)editing_property_id
-                           != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
+    bool show_edit_ssid = editable_state == EditableElement::ElementState::des_Editing
+                       && (WiFiBinding::EditingPropertyId)editing_property_id
+                              != WiFiBinding::EditingPropertyId::wbepi_None
+                       && (WiFiBinding::EditingPropertyId)editing_property_id
+                              != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
-    if (show_scales) {
+    if (show_edit_ssid) {
         res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
     } else {
         if (ssid_size <= 8) {
@@ -132,16 +74,9 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
             res = RenderSsidWithElipsis(fb, top_left.x, top_left.y + 6, 3);
         }
     }
-
-    if (!res) {
-        return res;
-    }
-
-    start_point->x += Width;
-
-    res = EditableElement::Render(fb, start_point);
     return res;
 }
+
 bool WiFiBinding::RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage) {
     char elipsis = ssid[leverage];
     ssid[leverage] = 0;
@@ -172,18 +107,15 @@ bool WiFiBinding::RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
         blink_ssid[char_pos] = ' ';
     }
 
-    return draw_text_f6X12(fb, x, y + 2, blink_ssid) > 0;
+    if (draw_text_f4X7(fb, x + 3, y - 2, "SSID:") <= 0) {
+        return false;
+    }
+    return draw_text_f6X12(fb, x, y + 5, blink_ssid) > 0;
 }
 
 size_t WiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
-    size_t writed = 0;
-    TvElement tvElement;
-    tvElement.type = GetElementType();
-    if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
-        return 0;
-    }
-    auto io_adr = GetIoAdr();
-    if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
+    size_t writed = CommonWiFiBinding::Serialize(buffer, buffer_size);
+    if (writed == 0) {
         return 0;
     }
     if (!Record::Write(&ssid, sizeof(ssid), buffer, buffer_size, &writed)) {
@@ -193,24 +125,19 @@ size_t WiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
 }
 
 size_t WiFiBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
-    size_t readed = 0;
-    MapIO _io_adr;
+    size_t readed = CommonWiFiBinding::Deserialize(buffer, buffer_size);
     char _ssid[sizeof(ssid)];
 
-    if (!Record::Read(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
+    if (readed == 0) {
         return 0;
     }
-    if (!ValidateMapIO(_io_adr)) {
-        return 0;
-    }
+
     if (!Record::Read(&_ssid, sizeof(_ssid), buffer, buffer_size, &readed)) {
         return 0;
     }
     if (strlen(_ssid) == 0 || strlen(_ssid) >= sizeof(_ssid)) {
         return 0;
     }
-
-    SetIoAdr(_io_adr);
     SetSsid(_ssid);
     return readed;
 }
@@ -254,17 +181,9 @@ void WiFiBinding::SelectPrior() {
 
     switch (editing_property_id) {
         case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+            CommonWiFiBinding::SelectPrior();
             break;
-        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr: {
-            auto allowed_inputs = GetAllowedInputs();
-            auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-            io_adr--;
-            if (io_adr < 0) {
-                io_adr = allowed_inputs.count - 1;
-            }
-            SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
-            break;
-        }
 
         default:
             SelectPriorSymbol(
@@ -278,17 +197,9 @@ void WiFiBinding::SelectNext() {
 
     switch (editing_property_id) {
         case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+            CommonWiFiBinding::SelectNext();
             break;
-        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr: {
-            auto allowed_inputs = GetAllowedInputs();
-            auto io_adr = FindAllowedIO(&allowed_inputs, GetIoAdr());
-            io_adr++;
-            if (io_adr >= (int)allowed_inputs.count) {
-                io_adr = 0;
-            }
-            SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
-            break;
-        }
 
         default:
             SelectNextSymbol(
@@ -332,33 +243,59 @@ bool WiFiBinding::IsLastSsidChar() {
     return ch == 0 || ch == place_new_char;
 }
 
+bool WiFiBinding::ChangeSsid() {
+    if (editing_property_id == WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char
+        || IsLastSsidChar()) {
+        return false;
+    }
+
+    editing_property_id++;
+    if (IsLastSsidChar()) {
+        ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+            place_new_char;
+    }
+    return true;
+}
+
 void WiFiBinding::Change() {
     ESP_LOGI(TAG_WiFiBinding, "Change editing_property_id:%d", editing_property_id);
 
     switch (editing_property_id) {
         case WiFiBinding::EditingPropertyId::wbepi_None:
-            editing_property_id = WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
+            CommonWiFiBinding::Change();
             break;
         case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
             editing_property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
+            if (IsLastSsidChar()) {
+                ssid[editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] =
+                    place_new_char;
+            }
             break;
 
         default:
-            if (editing_property_id == WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char
-                || IsLastSsidChar()) {
-                editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
-                EndEditing();
-            } else {
-                editing_property_id++;
-                if (IsLastSsidChar()) {
-                    ssid[editing_property_id
-                         - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char] = place_new_char;
+            if (editing_property_id <= WiFiBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
+                if (!ChangeSsid()) {
+                    editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
+                    EndEditing();
                 }
             }
             break;
     }
 }
+
 void WiFiBinding::Option() {
+    ESP_LOGI(TAG_WiFiBinding, "Option editing_property_id:%d", editing_property_id);
+
+    switch (editing_property_id) {
+        case WiFiBinding::EditingPropertyId::wbepi_None:
+        case WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
+            break;
+
+        default:
+            editing_property_id = WiFiBinding::EditingPropertyId::wbepi_None;
+            EndEditing();
+            break;
+    }
 }
 
 void WiFiBinding::EndEditing() {

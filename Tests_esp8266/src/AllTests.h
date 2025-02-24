@@ -57,8 +57,12 @@ IMPORT_TEST_GROUP(LogicControllerDITestsGroup);
 IMPORT_TEST_GROUP(LogicWiFiServiceTestsGroup);
 IMPORT_TEST_GROUP(LogicWiFiRequestsTestsGroup);
 
-IMPORT_TEST_GROUP(LogicWiFiStationTestsGroup);
-
 IMPORT_TEST_GROUP(ServiceModeHandlerTestsGroup);
 
 IMPORT_TEST_GROUP(BackupsStorageTestsGroup);
+
+IMPORT_TEST_GROUP(LogicWiFiBindingTestsGroup);
+IMPORT_TEST_GROUP(LogicWiFiApBindingTestsGroup);
+IMPORT_TEST_GROUP(LogicWiFiStaBindingTestsGroup);
+
+IMPORT_TEST_GROUP(UtilsTestsGroup);
