@@ -18,6 +18,8 @@ struct RequestItem {
         } Scanner;
         struct {
             const char *ssid;
+            const char *password;
+            const char *mac;
         } AccessPoint;
     } Payload;
 };
@@ -35,7 +37,7 @@ class WiFiRequests : public std::list<RequestItem> {
     bool Scan(const char *ssid);
     bool RemoveScanner(const char *ssid);
 
-    bool AccessPoint(const char *ssid);
+    bool AccessPoint(const char *ssid, const char *password, const char *mac);
     bool RemoveAccessPoint(const char *ssid);
 
     bool Station();

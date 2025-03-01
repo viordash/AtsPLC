@@ -10,7 +10,7 @@
 static const char *TAG_ControllerVariable = "ControllerVariable";
 
 ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBaseOutput() {
-    Unbind();
+    this->wifi_service = NULL;
 }
 
 void ControllerVariable::Init() {
@@ -26,7 +26,16 @@ void ControllerVariable::FetchValue() {
 
     uint8_t val;
     if (BindedToWiFi()) {
-        val = wifi_service->Scan(ssid);
+        bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+
+        if (insecure_scan) {
+            val = wifi_service->Scan(ssid);
+        } else if (secure_ap) {
+            val = wifi_service->AccessPoint(ssid, password, mac);
+        } else {
+            val = wifi_service->ConnectToStation();
+        }
     } else {
         val = out_value;
     }
@@ -40,20 +49,50 @@ void ControllerVariable::CommitChanges() {
     required_writing = false;
     UpdateValue(out_value);
     if (BindedToWiFi()) {
+        bool wifi_sta_client = ssid == NULL;
+        if (wifi_sta_client) {
+            return;
+        }
+
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+        if (secure_ap) {
+            return;
+        }
+
         if (out_value != LogicElement::MinValue) {
-            wifi_service->Generate(ssid);
+            wifi_service->AccessPoint(ssid, password, mac);
         } else {
-            wifi_service->CancelGenerate(ssid);
+            wifi_service->CancelAccessPoint(ssid);
         }
     }
 }
 
-void ControllerVariable::BindToWiFi(WiFiService *wifi_service, const char *ssid) {
+void ControllerVariable::BindToSecureWiFi(WiFiService *wifi_service,
+                                          const char *ssid,
+                                          const char *password,
+                                          const char *mac) {
     this->wifi_service = wifi_service;
     this->ssid = ssid;
+    this->password = password;
+    this->mac = mac;
+}
+
+void ControllerVariable::BindToInsecureWiFi(WiFiService *wifi_service, const char *ssid) {
+    this->wifi_service = wifi_service;
+    this->ssid = ssid;
+    this->password = NULL;
+    this->mac = NULL;
+}
+
+void ControllerVariable::BindToStaWiFi(WiFiService *wifi_service) {
+    this->wifi_service = wifi_service;
+    this->ssid = NULL;
+    this->password = NULL;
+    this->mac = NULL;
 }
 
 void ControllerVariable::Unbind() {
+    CancelReadingProcess();
     this->wifi_service = NULL;
 }
 
@@ -67,7 +106,16 @@ void ControllerVariable::CancelReadingProcess() {
              BindedToWiFi(),
              required_reading);
     if (BindedToWiFi()) {
-        wifi_service->CancelScan(ssid);
+        bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
+        bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
+
+        if (insecure_scan) {
+            wifi_service->CancelScan(ssid);
+        } else if (secure_ap) {
+            wifi_service->CancelAccessPoint(ssid);
+        } else {
+            wifi_service->DisconnectFromStation();
+        }
         value = LogicElement::MinValue;
         out_value = LogicElement::MinValue;
     }

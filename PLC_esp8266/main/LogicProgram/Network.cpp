@@ -1,12 +1,13 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/ElementsBox.h"
 #include "LogicProgram/Inputs/CommonComparator.h"
 #include "LogicProgram/Inputs/CommonInput.h"
 #include "LogicProgram/Inputs/CommonTimer.h"
 #include "LogicProgram/Inputs/Indicator.h"
-#include "LogicProgram/Inputs/WiFiStation.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
@@ -85,7 +86,8 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
         auto element = *it;
         if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
             && Wire::TryToCast(element) == NULL && Indicator::TryToCast(element) == NULL
-            && WiFiBinding::TryToCast(element) == NULL && WiFiStation::TryToCast(element) == NULL) {
+            && WiFiBinding::TryToCast(element) == NULL && WiFiStaBinding::TryToCast(element) == NULL
+            && WiFiApBinding::TryToCast(element) == NULL) {
             break;
         }
         it++;
@@ -312,7 +314,6 @@ void Network::Change() {
         auto elementBox = new ElementsBox(fill_wire, source_element, hide_output_elements);
         elementBox->BeginEditing();
         (*this)[selected_element] = elementBox;
-        delete source_element;
 
     } else if ((*this)[selected_element]->Editing()) {
         auto elementBox = static_cast<ElementsBox *>((*this)[selected_element]);
@@ -338,7 +339,6 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
         elementBox.size() == 0
         || (elementBox.size() == 1
             && elementBox.GetSelectedElement()->GetElementType() == TvElementType::et_Wire);
-    delete elementBox.GetSelectedElement();
     return !not_enough;
 }
 
@@ -357,7 +357,9 @@ void Network::AddSpaceForNewElement() {
             auto element = *it;
             bool is_output_element =
                 CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
-                && Indicator::TryToCast(element) == NULL && WiFiStation::TryToCast(element) == NULL;
+                && Indicator::TryToCast(element) == NULL && WiFiBinding::TryToCast(element) == NULL
+                && WiFiStaBinding::TryToCast(element) == NULL
+                && WiFiApBinding::TryToCast(element) == NULL;
             if (is_output_element) {
                 break;
             }
@@ -424,7 +426,17 @@ void Network::Option() {
     ESP_LOGI(TAG_Network, "Option, selected_element:%d", selected_element);
     if (selected_element >= 0) {
         if ((*this)[selected_element]->Editing()) {
-            static_cast<ElementsBox *>((*this)[selected_element])->Option();
+            auto elementBox = static_cast<ElementsBox *>((*this)[selected_element]);
+            elementBox->Option();
+            if (elementBox->EditingCompleted()) {
+                elementBox->EndEditing();
+                auto editedElement = elementBox->GetSelectedElement();
+                delete elementBox;
+                (*this)[selected_element] = editedElement;
+
+                RemoveSpaceForNewElement();
+                AddSpaceForNewElement();
+            }
             return;
         }
     } else {

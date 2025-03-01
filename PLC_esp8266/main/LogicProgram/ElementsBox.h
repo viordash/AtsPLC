@@ -12,6 +12,7 @@ class CommonComparator;
 class CommonOutput;
 class Indicator;
 class WiFiBinding;
+class WiFiApBinding;
 
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
   protected:
@@ -20,6 +21,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     int selected_index;
     bool force_do_action_result;
 
+    void DetachElement(LogicElement *element);
     void CalcEntirePlaceWidth(LogicElement *source_element);
     void Fill(LogicElement *source_element, bool hide_output_elements);
     void AppendStandartElement(LogicElement *source_element,
@@ -31,6 +33,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
     bool CopyParamsToIndicator(LogicElement *source_element, Indicator *indicator);
     bool CopyParamsToWiFiBinding(LogicElement *source_element, WiFiBinding *binding);
+    bool CopyParamsToWiFiApBinding(LogicElement *source_element, WiFiApBinding *binding);
     void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:

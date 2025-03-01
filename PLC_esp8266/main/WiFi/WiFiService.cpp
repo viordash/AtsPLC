@@ -18,7 +18,7 @@ static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService() {
-    station_connect_status = WiFiStationConnectStatus ::wscs_Error;
+    station_rssi = LogicElement::MinValue;
 }
 
 WiFiService::~WiFiService() {
@@ -29,14 +29,12 @@ void WiFiService::Start() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    SetWiFiStationConnectStatus(WiFiStationConnectStatus::wscs_Error);
     ESP_ERROR_CHECK(
         xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, &task_handle)
                 != pdPASS
             ? ESP_FAIL
             : ESP_OK);
 
-    ConnectToStation();
     ESP_LOGW(TAG_WiFiService, "Start, task_handle:%p", task_handle);
 }
 
@@ -63,13 +61,13 @@ bool WiFiService::Started() {
     return xTaskDetails.eCurrentState == eTaskState::eRunning;
 }
 
-WiFiStationConnectStatus WiFiService::ConnectToStation() {
-    auto status = GetWiFiStationConnectStatus();
+uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "ConnectToStation, status:%u", status);
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation");
     }
-    return status;
+    ESP_LOGD(TAG_WiFiService, "ConnectToStation, rssi:%u", station_rssi);
+    return station_rssi;
 }
 
 void WiFiService::DisconnectFromStation() {
@@ -80,19 +78,9 @@ void WiFiService::DisconnectFromStation() {
     }
 }
 
-void WiFiService::SetWiFiStationConnectStatus(WiFiStationConnectStatus new_status) {
-    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    station_connect_status = new_status;
-}
-
-WiFiStationConnectStatus WiFiService::GetWiFiStationConnectStatus() {
-    std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    return station_connect_status;
-}
-
 uint8_t WiFiService::Scan(const char *ssid) {
     uint8_t rssi;
-    bool found = FindSsidInScannedList(ssid, &rssi);
+    bool found = FindScannedSsid(ssid, &rssi);
     if (!found) {
         rssi = LogicElement::MinValue;
     }
@@ -105,7 +93,7 @@ uint8_t WiFiService::Scan(const char *ssid) {
 }
 
 void WiFiService::CancelScan(const char *ssid) {
-    RemoveSsidFromScannedList(ssid);
+    RemoveScannedSsid(ssid);
     bool removed = requests.RemoveScanner(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
@@ -113,16 +101,18 @@ void WiFiService::CancelScan(const char *ssid) {
     }
 }
 
-void WiFiService::Generate(const char *ssid) {
-    if (requests.AccessPoint(ssid)) {
+size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
+    if (requests.AccessPoint(ssid, password, mac)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "Generate, ssid:%s", ssid);
+        ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
     }
+    return GetApClientsCount(ssid);
 }
 
-void WiFiService::CancelGenerate(const char *ssid) {
+void WiFiService::CancelAccessPoint(const char *ssid) {
+    RemoveApClients(ssid);
     bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelGenerate, ssid:%s, removed:%d", ssid, removed);
+    ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s, removed:%d", ssid, removed);
     if (removed) {
         xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
@@ -188,6 +178,6 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
 
 void WiFiService::Disconnect() {
     ESP_LOGD(TAG_WiFiService, "Disconnect");
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
-    ESP_ERROR_CHECK(esp_wifi_stop());
+    esp_wifi_disconnect();
+    esp_wifi_stop();
 }

@@ -19,7 +19,6 @@ extern "C" {
 #include "LogicProgram/Ladder.h"
 #include "LogicProgram/ProcessWakeupService.h"
 #include "WiFi/WiFiService.h"
-#include "WiFi/WiFiStationConnectStatus.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -60,11 +59,17 @@ class Controller {
     static void RemoveRequestWakeupMs(void *id);
     static void RemoveExpiredWakeupRequests();
 
-    static void BindVariableToWiFi(const MapIO io_adr, const char *ssid);
+    static void BindVariableToSecureWiFi(const MapIO io_adr,
+                                         const char *ssid,
+                                         const char *password,
+                                         const char *mac);
+    static void BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid);
+    static void BindVariableToStaWiFi(const MapIO io_adr);
+
     static void UnbindVariable(const MapIO io_adr);
 
     static void WakeupProcessTask();
 
-    static WiFiStationConnectStatus ConnectToWiFiStation();
+    static uint8_t ConnectToWiFiStation();
     static void DisconnectFromWiFiStation();
 };

@@ -1,3 +1,6 @@
+
+#include "rom/ets_sys.h"
+
 #define LOG_LEVEL_ALL 0
 #define LOG_LEVEL_VERBOSE 1
 #define LOG_LEVEL_DEBUG 2
