@@ -139,7 +139,9 @@ void WiFiService::ap_connect_wifi_event_handler(void *arg,
              ap_event_arg->mac);
 
     if (WiFiApBinding::ClientMacMatches(ap_event_arg->mac, event->mac)) {
-        ap_event_arg->service->AddApClient(ap_event_arg->ssid);
+        t_mac mac = {};
+        memcpy(&mac, &event->mac, sizeof(event->mac));
+        ap_event_arg->service->AddApClient(ap_event_arg->ssid, mac);
         Controller::WakeupProcessTask();
     } else {
         esp_wifi_deauth_sta(event->aid);
@@ -162,45 +164,53 @@ void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
              ap_event_arg->mac);
 
     if (WiFiApBinding::ClientMacMatches(ap_event_arg->mac, event->mac)) {
-        ap_event_arg->service->RemoveApClient(ap_event_arg->ssid);
+        t_mac mac = {};
+        memcpy(&mac, &event->mac, sizeof(event->mac));
+        ap_event_arg->service->RemoveApClient(ap_event_arg->ssid, mac);
         Controller::WakeupProcessTask();
     }
 }
 
-void WiFiService::AddApClient(const char *ssid) {
+void WiFiService::AddApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
-    auto it = ap_clients.insert({ ssid, 1 });
+    auto it = ap_clients.insert({ ssid, { mac } });
     if (!it.second) {
-        it.first->second++;
+        it.first->second.insert(mac);
     }
     ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "AddApClient, ssid_cnt: %u, size:%u",
-             (unsigned)it.first->second,
-             (unsigned)ap_clients.size());
+             "AddApClient, ssid_cnt: %u, ssid_clients:%u",
+             (unsigned)ap_clients.size(),
+             (unsigned)it.first->second.size());
 }
 
-bool WiFiService::FindApClient(const char *ssid, size_t *count) {
+size_t WiFiService::GetApClientsCount(const char *ssid) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     auto it = ap_clients.find(ssid);
     bool found = it != ap_clients.end();
     ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
     if (found) {
-        *count = it->second;
+        return it->second.size();
     }
-    return found;
+    return 0;
 }
 
-void WiFiService::RemoveApClient(const char *ssid) {
+void WiFiService::RemoveApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     auto it = ap_clients.find(ssid);
     bool found = it != ap_clients.end();
     ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
     if (found) {
-        if (it->second > 1) {
-            it->second--;
-        } else {
+        it->second.erase(mac);
+        bool empty_ssid_to_be_delete = it->second.size() == 0;
+        if (empty_ssid_to_be_delete) {
             ap_clients.erase(ssid);
         }
     }
     ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClient, cnt:%u", (unsigned)ap_clients.size());
+}
+
+void WiFiService::RemoveApClients(const char *ssid) {
+    std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
+    ap_clients.erase(ssid);
+    ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClients, cnt:%u", (unsigned)ap_clients.size());
 }

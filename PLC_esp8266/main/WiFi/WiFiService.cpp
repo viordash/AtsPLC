@@ -102,21 +102,15 @@ void WiFiService::CancelScan(const char *ssid) {
 }
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
-    size_t count;
-    bool found = FindApClient(ssid, &count);
-    if (!found) {
-        count = 0;
-    }
-
     if (requests.AccessPoint(ssid, password, mac)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
     }
-    return count;
+    return GetApClientsCount(ssid);
 }
 
 void WiFiService::CancelAccessPoint(const char *ssid) {
-    RemoveApClient(ssid);
+    RemoveApClients(ssid);
     bool removed = requests.RemoveAccessPoint(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s, removed:%d", ssid, removed);
     if (removed) {

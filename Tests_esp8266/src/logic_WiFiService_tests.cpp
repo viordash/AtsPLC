@@ -58,14 +58,17 @@ namespace {
                                         scanner_settings->max_rssi,
                                         scanner_settings->min_rssi);
         }
-        void PublicMorozov_AddApClient(const char *ssid) {
-            AddApClient(ssid);
+        void PublicMorozov_AddApClient(const char *ssid, t_mac mac) {
+            AddApClient(ssid, mac);
         }
-        bool PublicMorozov_FindApClient(const char *ssid, size_t *count) {
-            return FindApClient(ssid, count);
+        size_t PublicMorozov_GetApClientsCount(const char *ssid) {
+            return GetApClientsCount(ssid);
         }
-        void PublicMorozov_RemoveApClient(const char *ssid) {
-            RemoveApClient(ssid);
+        void PublicMorozov_RemoveApClient(const char *ssid, t_mac mac) {
+            RemoveApClient(ssid, mac);
+        }
+        void PublicMorozov_RemoveApClients(const char *ssid) {
+            RemoveApClients(ssid);
         }
         static void PublicMorozov_ap_connect_wifi_event_handler(void *arg,
                                                                 esp_event_base_t event_base,
@@ -78,6 +81,11 @@ namespace {
                                                                    int32_t event_id,
                                                                    void *event_data) {
             ap_disconnect_wifi_event_handler(arg, event_base, event_id, event_data);
+        }
+
+        std::unordered_map<const char *, std::unordered_set<t_mac>> &
+        PublicMorozov_Get_ap_clients() {
+            return ap_clients;
         }
     };
 } // namespace
@@ -825,45 +833,121 @@ TEST(LogicWiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_ex
 TEST(LogicWiFiServiceTestsGroup, AddApClient_increase_clients_count_on_every_addition) {
     TestableWiFiService testable;
 
-    size_t count;
     const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    const WiFiService::t_mac mac_0 = { 0x0123456789AB };
+    const WiFiService::t_mac mac_1 = { 0x0123456789AC };
+    const WiFiService::t_mac mac_2 = { 0x0123456789AD };
 
-    testable.PublicMorozov_AddApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(1, count);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_0));
 
-    testable.PublicMorozov_AddApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(2, count);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_1);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
 
-    testable.PublicMorozov_AddApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(3, count);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    testable.PublicMorozov_AddApClient(ssid_1, mac_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_1));
+
+    testable.PublicMorozov_AddApClient(ssid_1, mac_1);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_1));
+
+    testable.PublicMorozov_AddApClient(ssid_1, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_1));
+}
+
+TEST(LogicWiFiServiceTestsGroup, set_of_ap_clients_is_unique) {
+    TestableWiFiService testable;
+
+    const char *ssid_0 = "test_0";
+    const WiFiService::t_mac mac_0 = { 0x0123456789AB };
+    const WiFiService::t_mac mac_1 = { 0x0123456789AC };
+
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_0));
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    testable.PublicMorozov_AddApClient(ssid_0, mac_1);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
+    testable.PublicMorozov_AddApClient(ssid_0, mac_1);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    testable.PublicMorozov_RemoveApClient(ssid_0, mac_0);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_0));
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
 }
 
 TEST(LogicWiFiServiceTestsGroup,
-     RemoveApClient_decrease_clients_count_on_every_removing_and_erase_when_down_to_zero) {
+     RemoveApClient_decrease_clients_count_and_erase_ssid_when_down_to_zero) {
     TestableWiFiService testable;
 
-    size_t count;
     const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    const WiFiService::t_mac mac_0 = { 0x0123456789AB };
+    const WiFiService::t_mac mac_1 = { 0x0123456789AC };
+    const WiFiService::t_mac mac_2 = { 0x0123456789AD };
 
-    testable.PublicMorozov_AddApClient(ssid_0);
-    testable.PublicMorozov_AddApClient(ssid_0);
-    testable.PublicMorozov_AddApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(3, count);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_1);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_0));
 
-    testable.PublicMorozov_RemoveApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(2, count);
+    testable.PublicMorozov_AddApClient(ssid_1, mac_0);
+    testable.PublicMorozov_AddApClient(ssid_1, mac_1);
+    testable.PublicMorozov_AddApClient(ssid_1, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_1));
 
-    testable.PublicMorozov_RemoveApClient(ssid_0);
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid_0, &count));
-    CHECK_EQUAL(1, count);
+    testable.PublicMorozov_RemoveApClient(ssid_0, mac_0);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
+    testable.PublicMorozov_RemoveApClient(ssid_1, mac_0);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_1));
 
-    testable.PublicMorozov_RemoveApClient(ssid_0);
-    CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid_0, &count));
+    testable.PublicMorozov_RemoveApClient(ssid_0, mac_1);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_0));
+    testable.PublicMorozov_RemoveApClient(ssid_1, mac_1);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid_1));
+
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_ap_clients().size());
+
+    testable.PublicMorozov_RemoveApClient(ssid_0, mac_2);
+    CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_ap_clients().size());
+
+    testable.PublicMorozov_RemoveApClient(ssid_1, mac_2);
+    CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid_1));
+
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_ap_clients().size());
+}
+
+TEST(LogicWiFiServiceTestsGroup, RemoveApClients) {
+    TestableWiFiService testable;
+
+    const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+    const WiFiService::t_mac mac_0 = { 0x0123456789AB };
+    const WiFiService::t_mac mac_1 = { 0x0123456789AC };
+    const WiFiService::t_mac mac_2 = { 0x0123456789AD };
+
+    testable.PublicMorozov_AddApClient(ssid_0, mac_0);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_1);
+    testable.PublicMorozov_AddApClient(ssid_0, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    testable.PublicMorozov_AddApClient(ssid_1, mac_0);
+    testable.PublicMorozov_AddApClient(ssid_1, mac_1);
+    testable.PublicMorozov_AddApClient(ssid_1, mac_2);
+    CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_1));
+
+    testable.PublicMorozov_RemoveApClients(ssid_0);
+    CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid_0));
+
+    testable.PublicMorozov_RemoveApClients(ssid_1);
+    CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid_1));
 }
 
 TEST(LogicWiFiServiceTestsGroup,
@@ -871,7 +955,7 @@ TEST(LogicWiFiServiceTestsGroup,
     TestableWiFiService testable;
 
     const char *ssid = "test";
-    const char *mac = "0123456789AB";
+    const char *mac = "01**********";
 
     WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
     wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
@@ -885,9 +969,7 @@ TEST(LogicWiFiServiceTestsGroup,
                                                                      0,
                                                                      &event_data);
 
-    size_t count;
-    CHECK_TRUE(testable.PublicMorozov_FindApClient(ssid, &count));
-    CHECK_EQUAL(1, count);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid));
 }
 
 TEST(LogicWiFiServiceTestsGroup,
@@ -895,7 +977,7 @@ TEST(LogicWiFiServiceTestsGroup,
     TestableWiFiService testable;
 
     const char *ssid = "test";
-    const char *mac = "0123456789AB";
+    const char *mac = "01**********";
 
     WiFiService::AccessPointEventArg ap_event_arg = { &testable, ssid, mac };
     wifi_event_ap_staconnected_t event_data = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0 };
@@ -904,14 +986,15 @@ TEST(LogicWiFiServiceTestsGroup,
     sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
     mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
-    testable.PublicMorozov_AddApClient(ssid);
+    WiFiService::t_mac t_mac = {};
+    memcpy(&t_mac, &event_data.mac, sizeof(event_data.mac));
+    testable.PublicMorozov_AddApClient(ssid, t_mac);
 
     TestableWiFiService::PublicMorozov_ap_disconnect_wifi_event_handler(&ap_event_arg,
                                                                         NULL,
                                                                         0,
                                                                         &event_data);
-    size_t count;
-    CHECK_FALSE(testable.PublicMorozov_FindApClient(ssid, &count));
+    CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid));
 }
 
 TEST(LogicWiFiServiceTestsGroup, AccessPoint_reject_connection_for_unknown_mac) {
