@@ -89,7 +89,9 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
     if (prev_elem_state == LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        if (Controller::RequestWakeupMs(this, update_period_ms)) {
+        if (Controller::RequestWakeupMs(this,
+                                        update_period_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Normal)) {
             any_changes = true;
 
             switch (editing_property_id) {

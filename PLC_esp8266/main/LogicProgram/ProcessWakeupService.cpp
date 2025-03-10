@@ -10,7 +10,9 @@
 
 static const char *TAG_ProcessWakeupService = "ProcessWakeupService";
 
-bool ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
+bool ProcessWakeupService::Request(void *id,
+                                   uint32_t delay_ms,
+                                   ProcessWakeupRequestPriority priority) {
     bool request_already_in = ids.find(id) != ids.end();
     if (request_already_in) {
         ESP_LOGD(TAG_ProcessWakeupService,
@@ -24,7 +26,7 @@ bool ProcessWakeupService::Request(void *id, uint32_t delay_ms) {
     auto current_time = (uint64_t)esp_timer_get_time();
     auto next_time = current_time + (delay_ms * 1000);
 
-    requests.insert({ id, next_time });
+    requests.insert({ id, next_time, priority });
     ids.insert(id);
 
     ESP_LOGD(TAG_ProcessWakeupService,

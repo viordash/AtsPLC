@@ -8,9 +8,18 @@
 #include <unistd.h>
 #include <unordered_set>
 
+enum ProcessWakeupRequestPriority {
+    pwrp_Idle,
+    pwrp_Low,
+    pwrp_Normal,
+    pwrp_High,
+    pwrp_Highest,
+};
+
 struct ProcessWakeupRequestData {
     void *id;
     uint64_t next_time;
+    ProcessWakeupRequestPriority priority;
 };
 
 struct ProcessWakeupRequestDataCmp {
@@ -41,7 +50,7 @@ class ProcessWakeupService {
     std::unordered_set<void *> ids;
 
   public:
-    bool Request(void *id, uint32_t delay_ms);
+    bool Request(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
     void RemoveRequest(void *id);
     uint32_t Get();
     int RemoveExpired();
