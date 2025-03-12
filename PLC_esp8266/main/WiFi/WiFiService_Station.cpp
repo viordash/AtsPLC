@@ -107,7 +107,8 @@ void WiFiService::StationTask(RequestItem *request) {
 
             connect_retries_num++;
             ESP_LOGI(TAG_WiFiService_Station,
-                     "failed. reconnect, num:%d of %d",
+                     "'%s' failed. reconnect, num:%d of %d",
+                     settings.wifi_station.ssid,
                      connect_retries_num,
                      max_retry_count);
 
