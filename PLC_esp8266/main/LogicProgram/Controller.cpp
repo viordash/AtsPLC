@@ -124,7 +124,7 @@ void Controller::ProcessTask(void *parm) {
     const uint32_t first_iteration_delay = 0;
     Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                 first_iteration_delay,
-                                ProcessWakeupRequestPriority::pwrp_Highest);
+                                ProcessWakeupRequestPriority::pwrp_Critical);
     bool need_render = true;
     while (Controller::runned) {
         EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
@@ -183,13 +183,13 @@ void Controller::ProcessTask(void *parm) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions");
             Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                         0,
-                                        ProcessWakeupRequestPriority::pwrp_Idle);
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
         } else if (Controller::force_process_loop) {
             ESP_LOGD(TAG_Controller, "force_process_loop");
             const uint32_t process_loop_cycle_ms = 200;
             Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                         process_loop_cycle_ms,
-                                        ProcessWakeupRequestPriority::pwrp_Low);
+                                        ProcessWakeupRequestPriority::pwrp_Idle);
         }
 
         need_render |= force_render;

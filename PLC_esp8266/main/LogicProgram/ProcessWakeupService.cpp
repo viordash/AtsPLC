@@ -26,7 +26,24 @@ bool ProcessWakeupService::Request(void *id,
     auto current_time = (uint64_t)esp_timer_get_time();
     auto next_time = current_time + (delay_ms * 1000);
 
-    requests.insert({ id, next_time, priority });
+    ProcessWakeupRequestData request = { id, next_time, priority };
+    auto upper = requests.upper_bound(request);
+    if (upper != requests.end()) {
+        auto upper_req = *upper;
+        bool request_can_be_joined = request.priority == ProcessWakeupRequestPriority::pwrp_Idle
+                                  && (upper_req.next_time - next_time) < idle_dead_band_us;
+        if (request_can_be_joined) {
+            ESP_LOGD(TAG_ProcessWakeupService,
+                     "Request is skipped in:%u, %p, diff:%d, next:%u",
+                     delay_ms,
+                     id,
+                     (int32_t)(upper_req.next_time - next_time),
+                     (uint32_t)upper_req.next_time);
+            request.next_time = upper_req.next_time;
+        }
+    }
+
+    requests.insert(request);
     ids.insert(id);
 
     ESP_LOGD(TAG_ProcessWakeupService,

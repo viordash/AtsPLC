@@ -53,18 +53,18 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_are_unique_by_id) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
-    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
-    testable.Request((void *)1, 11, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 11, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
-    testable.Request((void *)2, 21, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)2, 21, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)3, 10, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)3, 10, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
-    testable.Request((void *)4, 20, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)4, 20, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
 }
 
@@ -76,10 +76,10 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_returns_true_if_successfully_added
 
     TestableProcessWakeupService testable;
 
-    CHECK_TRUE(testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Normal));
-    CHECK_FALSE(testable.Request((void *)1, 11, ProcessWakeupRequestPriority::pwrp_Normal));
-    CHECK_TRUE(testable.Request((void *)2, 10, ProcessWakeupRequestPriority::pwrp_Normal));
-    CHECK_FALSE(testable.Request((void *)2, 11, ProcessWakeupRequestPriority::pwrp_Normal));
+    CHECK_TRUE(testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_FALSE(testable.Request((void *)1, 11, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_TRUE(testable.Request((void *)2, 10, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_FALSE(testable.Request((void *)2, 11, ProcessWakeupRequestPriority::pwrp_Critical));
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 }
 
@@ -91,10 +91,10 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)2, 2000, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)3, 100, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)1, 1000, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)4, 1000, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)2, 2000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)3, 100, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)1, 1000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)4, 1000, ProcessWakeupRequestPriority::pwrp_Critical);
 
     CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(0).id);
@@ -103,7 +103,7 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(3).id);
 
     os_us = (uint32_t)INT32_MAX + 1000;
-    testable.Request((void *)5, 50, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)5, 50, ProcessWakeupRequestPriority::pwrp_Critical);
 
     CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(0).id);
@@ -116,13 +116,13 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
     os_us = UINT32_MAX;
-    testable.Request((void *)6, 10, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)6, 10, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
     CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
 
     os_us = 999;
-    testable.Request((void *)7, 10, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)7, 10, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
     CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
@@ -137,9 +137,9 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)3, 30, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)3, 30, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
     CHECK_EQUAL((void *)1, testable.PublicMorozov_Get_request(0).id);
     CHECK_EQUAL((void *)2, testable.PublicMorozov_Get_request(1).id);
@@ -166,9 +166,9 @@ TEST(ProcessWakeupServiceTestsGroup, Remove_not_exists_request) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)3, 30, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 10, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)2, 20, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)3, 30, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 
     testable.RemoveRequest((void *)4);
@@ -186,11 +186,11 @@ TEST(ProcessWakeupServiceTestsGroup, Get_returns_early_tick) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 200, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)2, 1000, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)3, 300, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)4, 40, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)5, 400, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 200, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)2, 1000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)3, 300, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)4, 40, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)5, 400, ProcessWakeupRequestPriority::pwrp_Critical);
 
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(4, ticksToWait);
@@ -214,32 +214,32 @@ TEST(ProcessWakeupServiceTestsGroup, Requested_round_ticks_to_up) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 215, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 215, ProcessWakeupRequestPriority::pwrp_Critical);
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(22, ticksToWait);
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)2, 210, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)2, 210, ProcessWakeupRequestPriority::pwrp_Critical);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)3, 209, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)3, 209, ProcessWakeupRequestPriority::pwrp_Critical);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)4, 205, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)4, 205, ProcessWakeupRequestPriority::pwrp_Critical);
     ticksToWait = testable.Get();
     CHECK_EQUAL(21, ticksToWait);
     CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)5, 201, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)5, 201, ProcessWakeupRequestPriority::pwrp_Critical);
     ticksToWait = testable.Get();
     CHECK_EQUAL(20, ticksToWait);
     CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
 
-    testable.Request((void *)6, 200, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)6, 200, ProcessWakeupRequestPriority::pwrp_Critical);
     ticksToWait = testable.Get();
     CHECK_EQUAL(20, ticksToWait);
     CHECK_EQUAL(6, testable.PublicMorozov_Get_requests_size());
@@ -253,7 +253,7 @@ TEST(ProcessWakeupServiceTestsGroup, Request_zero) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request(NULL, 0, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request(NULL, 0, ProcessWakeupRequestPriority::pwrp_Critical);
     os_us = 51616;
     auto ticksToWait = testable.Get();
     CHECK_EQUAL(0, ticksToWait);
@@ -267,8 +267,8 @@ TEST(ProcessWakeupServiceTestsGroup, RemoveExpired) {
 
     TestableProcessWakeupService testable;
 
-    testable.Request((void *)1, 100, ProcessWakeupRequestPriority::pwrp_Normal);
-    testable.Request((void *)2, 200, ProcessWakeupRequestPriority::pwrp_Normal);
+    testable.Request((void *)1, 100, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)2, 200, ProcessWakeupRequestPriority::pwrp_Critical);
     testable.println();
     CHECK_EQUAL(2, testable.PublicMorozov_Get_requests_size());
 
@@ -324,4 +324,31 @@ TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
 
     timespan = ProcessWakeupRequestDataCmp::GetTimespan(0, UINT64_MAX);
     CHECK_EQUAL(-1, timespan);
+}
+
+TEST(ProcessWakeupServiceTestsGroup, Idle_requests_can_be_joined_next_time_if_soon) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(6, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableProcessWakeupService testable;
+
+    CHECK_TRUE(testable.Request((void *)1, 100, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_TRUE(testable.Request((void *)2, 200, ProcessWakeupRequestPriority::pwrp_Critical));
+
+    CHECK_TRUE(testable.Request((void *)30, 0, ProcessWakeupRequestPriority::pwrp_Idle));
+    CHECK_EQUAL((void *)30, testable.PublicMorozov_Get_request(0).id);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_request(0).next_time);
+
+    CHECK_TRUE(testable.Request((void *)31, 1, ProcessWakeupRequestPriority::pwrp_Idle));
+    CHECK_EQUAL((void *)31, testable.PublicMorozov_Get_request(2).id);
+    CHECK_EQUAL(100 * 1000, testable.PublicMorozov_Get_request(2).next_time);
+
+    os_us = 10 * 1000;
+    testable.RemoveExpired();
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
+    os_us = 100 * 1000;
+    testable.RemoveExpired();
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 }

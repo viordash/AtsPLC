@@ -15,7 +15,7 @@ void ControllerAI::FetchValue() {
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI,
                                      read_adc_max_period_ms,
-                                     ProcessWakeupRequestPriority::pwrp_Normal)) {
+                                     ProcessWakeupRequestPriority::pwrp_Idle)) {
         return;
     }
     required_reading = false;

@@ -10,10 +10,7 @@
 
 enum ProcessWakeupRequestPriority {
     pwrp_Idle,
-    pwrp_Low,
-    pwrp_Normal,
-    pwrp_High,
-    pwrp_Highest,
+    pwrp_Critical,
 };
 
 struct ProcessWakeupRequestData {
@@ -45,6 +42,7 @@ struct ProcessWakeupRequestDataCmp {
 
 class ProcessWakeupService {
   protected:
+    static const uint64_t idle_dead_band_us = 100000;
     static const uint32_t default_delay = -1;
     std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> requests;
     std::unordered_set<void *> ids;

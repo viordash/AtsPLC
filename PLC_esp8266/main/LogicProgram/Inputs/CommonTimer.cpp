@@ -27,7 +27,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         Controller::RemoveRequestWakeupMs(this);
         Controller::RequestWakeupMs(this,
                                     delay_time_us / 1000LL,
-                                    ProcessWakeupRequestPriority::pwrp_High);
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
     }
 
     bool any_changes = false;
@@ -40,7 +40,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         bool timer_completed =
             Controller::RequestWakeupMs(this,
                                         delay_time_us / 1000LL,
-                                        ProcessWakeupRequestPriority::pwrp_High);
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
         if (timer_completed) {
             state = LogicItemState::lisActive;
         }
