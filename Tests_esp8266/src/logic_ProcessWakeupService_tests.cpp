@@ -329,26 +329,34 @@ TEST(ProcessWakeupServiceTestsGroup, GetTimespan) {
 TEST(ProcessWakeupServiceTestsGroup, Idle_requests_can_be_joined_next_time_if_soon) {
     volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(6, "esp_timer_get_time")
+        .expectNCalls(8, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableProcessWakeupService testable;
 
-    CHECK_TRUE(testable.Request((void *)1, 100, ProcessWakeupRequestPriority::pwrp_Critical));
-    CHECK_TRUE(testable.Request((void *)2, 200, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_TRUE(testable.Request((void *)1, 200, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_TRUE(testable.Request((void *)2, 300, ProcessWakeupRequestPriority::pwrp_Idle));
 
-    CHECK_TRUE(testable.Request((void *)30, 0, ProcessWakeupRequestPriority::pwrp_Idle));
+    CHECK_TRUE(testable.Request((void *)30, 100, ProcessWakeupRequestPriority::pwrp_Idle));
     CHECK_EQUAL((void *)30, testable.PublicMorozov_Get_request(0).id);
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_request(0).next_time);
+    CHECK_EQUAL(100 * 1000, testable.PublicMorozov_Get_request(0).next_time);
 
-    CHECK_TRUE(testable.Request((void *)31, 1, ProcessWakeupRequestPriority::pwrp_Idle));
+    CHECK_TRUE(testable.Request((void *)31, 101, ProcessWakeupRequestPriority::pwrp_Idle));
     CHECK_EQUAL((void *)31, testable.PublicMorozov_Get_request(2).id);
-    CHECK_EQUAL(100 * 1000, testable.PublicMorozov_Get_request(2).next_time);
+    CHECK_EQUAL(200 * 1000, testable.PublicMorozov_Get_request(2).next_time);
 
-    os_us = 10 * 1000;
+    CHECK_TRUE(testable.Request((void *)32, 201, ProcessWakeupRequestPriority::pwrp_Idle));
+    CHECK_EQUAL((void *)32, testable.PublicMorozov_Get_request(4).id);
+    CHECK_EQUAL(300 * 1000, testable.PublicMorozov_Get_request(4).next_time);
+
+    CHECK_TRUE(testable.Request((void *)3, 299, ProcessWakeupRequestPriority::pwrp_Critical));
+    CHECK_EQUAL((void *)3, testable.PublicMorozov_Get_request(3).id);
+    CHECK_EQUAL(299 * 1000, testable.PublicMorozov_Get_request(3).next_time);
+
+    os_us = 110 * 1000;
+    testable.RemoveExpired();
+    CHECK_EQUAL(5, testable.PublicMorozov_Get_requests_size());
+    os_us = 200 * 1000;
     testable.RemoveExpired();
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
-    os_us = 100 * 1000;
-    testable.RemoveExpired();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests_size());
 }

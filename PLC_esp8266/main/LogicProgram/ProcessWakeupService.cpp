@@ -34,7 +34,7 @@ bool ProcessWakeupService::Request(void *id,
                                   && (upper_req.next_time - next_time) < idle_dead_band_us;
         if (request_can_be_joined) {
             ESP_LOGD(TAG_ProcessWakeupService,
-                     "Request is skipped in:%u, %p, diff:%d, next:%u",
+                     "Request is joined in:%u, %p, diff:%d, next:%u",
                      delay_ms,
                      id,
                      (int32_t)(upper_req.next_time - next_time),
