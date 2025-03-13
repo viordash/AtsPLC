@@ -114,6 +114,22 @@ void ElementsBox::CopyParamsToInputElement(LogicElement *source_element, InputEl
     input->SetIoAdr(io_adr);
 }
 
+bool ElementsBox::CopyParamsToCommonOutputElement(LogicElement *source_element,
+                                                  CommonOutput *common_output) {
+    if (common_output == NULL) {
+        return false;
+    }
+    MapIO io_adr = MapIO::V1;
+
+    auto *source_element_as_output = CommonOutput::TryToCast(source_element);
+    if (source_element_as_output != NULL) {
+        io_adr = source_element_as_output->GetIoAdr();
+    }
+
+    common_output->SetIoAdr(io_adr);
+    return true;
+}
+
 bool ElementsBox::CopyParamsToCommonComparator(LogicElement *source_element,
                                                CommonComparator *common_comparator) {
     if (common_comparator == NULL) {
@@ -231,6 +247,9 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
 
     CopyParamsToInputElement(source_element, InputElement::TryToCast(new_element));
 
+    if (CopyParamsToCommonOutputElement(source_element, CommonOutput::TryToCast(new_element))) {
+        return;
+    }
     if (CopyParamsToCommonComparator(source_element, CommonComparator::TryToCast(new_element))) {
         return;
     }

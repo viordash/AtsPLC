@@ -28,6 +28,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
                                TvElementType element_type,
                                uint8_t *frame_buffer);
     void CopyParamsToInputElement(LogicElement *source_element, InputElement *input);
+    bool CopyParamsToCommonOutputElement(LogicElement *source_element, CommonOutput *common_output);
     bool CopyParamsToCommonComparator(LogicElement *source_element,
                                       CommonComparator *common_comparator);
     bool CopyParamsToCommonTimer(LogicElement *source_element, CommonTimer *common_timer);
