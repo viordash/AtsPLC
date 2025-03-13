@@ -33,47 +33,47 @@ TEST_GROUP(LogicInputElementTestsGroup){ //
 
 TEST(LogicInputElementTestsGroup, TryToCast) {
     InputNC inputNC;
-    CHECK_TRUE(InputElement::TryToCast(&inputNC) == &inputNC);
+    CHECK(InputElement::TryToCast(&inputNC) == &inputNC);
 
     InputNO inputNO;
-    CHECK_TRUE(InputElement::TryToCast(&inputNO) == &inputNO);
+    CHECK(InputElement::TryToCast(&inputNO) == &inputNO);
 
     ComparatorEq comparatorEq;
-    CHECK_TRUE(InputElement::TryToCast(&comparatorEq) == &comparatorEq);
+    CHECK(InputElement::TryToCast(&comparatorEq) == &comparatorEq);
 
     ComparatorGE comparatorGE;
-    CHECK_TRUE(InputElement::TryToCast(&comparatorGE) == &comparatorGE);
+    CHECK(InputElement::TryToCast(&comparatorGE) == &comparatorGE);
 
     ComparatorGr comparatorGr;
-    CHECK_TRUE(InputElement::TryToCast(&comparatorGr) == &comparatorGr);
+    CHECK(InputElement::TryToCast(&comparatorGr) == &comparatorGr);
 
     ComparatorLE comparatorLE;
-    CHECK_TRUE(InputElement::TryToCast(&comparatorLE) == &comparatorLE);
+    CHECK(InputElement::TryToCast(&comparatorLE) == &comparatorLE);
 
     ComparatorLs comparatorLs;
-    CHECK_TRUE(InputElement::TryToCast(&comparatorLs) == &comparatorLs);
+    CHECK(InputElement::TryToCast(&comparatorLs) == &comparatorLs);
 
     TimerMSecs timerMSecs;
-    CHECK_TRUE(InputElement::TryToCast(&timerMSecs) == NULL);
+    CHECK(InputElement::TryToCast(&timerMSecs) == NULL);
 
     TimerSecs timerSecs;
-    CHECK_TRUE(InputElement::TryToCast(&timerSecs) == NULL);
+    CHECK(InputElement::TryToCast(&timerSecs) == NULL);
 
     DirectOutput directOutput;
-    CHECK_TRUE(InputElement::TryToCast(&directOutput) == &directOutput);
+    CHECK(InputElement::TryToCast(&directOutput) == NULL);
 
     SetOutput setOutput;
-    CHECK_TRUE(InputElement::TryToCast(&setOutput) == &setOutput);
+    CHECK(InputElement::TryToCast(&setOutput) == NULL);
 
     ResetOutput resetOutput;
-    CHECK_TRUE(InputElement::TryToCast(&resetOutput) == &resetOutput);
+    CHECK(InputElement::TryToCast(&resetOutput) == NULL);
 
     IncOutput incOutput;
-    CHECK_TRUE(InputElement::TryToCast(&incOutput) == &incOutput);
+    CHECK(InputElement::TryToCast(&incOutput) == NULL);
 
     DecOutput decOutput;
-    CHECK_TRUE(InputElement::TryToCast(&decOutput) == &decOutput);
+    CHECK(InputElement::TryToCast(&decOutput) == NULL);
 
     WiFiBinding wiFiBinding;
-    CHECK_TRUE(InputElement::TryToCast(&wiFiBinding) == &wiFiBinding);
+    CHECK(InputElement::TryToCast(&wiFiBinding) == &wiFiBinding);
 }

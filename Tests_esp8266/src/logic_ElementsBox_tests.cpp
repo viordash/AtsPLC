@@ -537,3 +537,17 @@ TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiStaBinding_calls_DetachElemen
 
     delete testable.GetSelectedElement();
 }
+
+TEST(LogicElementsBoxTestsGroup, output_elements_will_not_accept_address_which_is_only_for_inputs) {
+    int matched = 0;
+    Indicator stored_element(MapIO::AI);
+    ElementsBox testable(100, &stored_element, false);
+    for (auto *element : testable) {
+        auto *element_as_commonOutput = CommonOutput::TryToCast(element);
+        if (element_as_commonOutput != NULL) {
+            CHECK_EQUAL(MapIO::V1, element_as_commonOutput->GetIoAdr());
+            matched++;
+        }
+    }
+    CHECK_EQUAL(5, matched);
+}
