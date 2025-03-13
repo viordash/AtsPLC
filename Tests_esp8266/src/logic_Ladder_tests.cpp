@@ -66,10 +66,12 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
+        Point start_point = {};
+
         bool Render(uint8_t *fb, uint8_t network_number) override {
             (void)fb;
             (void)network_number;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(&start_point);
         }
     };
 
@@ -87,8 +89,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -106,8 +107,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
         uint8_t PublicMorozov_GetReference() {
             return ref_percent04;
@@ -128,8 +128,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
         uint64_t PublicMorozov_GetDelayTimeUs() {
             return delay_time_us;
@@ -149,8 +148,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 } // namespace

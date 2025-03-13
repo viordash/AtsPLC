@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/Common.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -7,20 +8,22 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-   class MonitorLogicElement {
-      public:
-        bool DoAction_called = false;
-        bool DoAction_result = false;
-        bool Render_called = false;
-        bool Render_result = true;
+class MonitorLogicElement {
+  public:
+    Point Render_start_point = {};
+    bool DoAction_called = false;
+    bool DoAction_result = false;
+    bool Render_called = false;
+    bool Render_result = true;
 
-        bool DoAction() {
-            DoAction_called = true;
-            return DoAction_result;
-        }
+    bool DoAction() {
+        DoAction_called = true;
+        return DoAction_result;
+    }
 
-        bool Render() {
-            Render_called = true;
-            return Render_result;
-        }
-    };
+    bool Render(const Point *start_point) {
+        Render_start_point = *start_point;
+        Render_called = true;
+        return Render_result;
+    }
+};

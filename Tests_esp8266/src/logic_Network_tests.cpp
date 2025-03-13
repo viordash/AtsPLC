@@ -65,8 +65,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -83,8 +82,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -102,8 +100,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -120,8 +117,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -138,8 +134,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -156,8 +151,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
@@ -174,8 +168,7 @@ namespace {
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            return MonitorLogicElement::Render(start_point);
         }
     };
 } // namespace
@@ -235,7 +228,6 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
-    testable.Append(new TestableIndicator);
 
     CHECK_TRUE(testable.Render(frame_buffer, 0));
 
@@ -345,6 +337,32 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
     CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableTimerMSecs *>(testable[2])->Render_called);
     CHECK_FALSE(static_cast<TestableDirectOutput *>(testable[3])->Render_called);
+}
+
+TEST(LogicNetworkTestsGroup,
+     Render_inputs_starts_from_start_point_and_render_outputs_starts_from_end) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+    testable.Append(new TestableTimerMSecs());
+    testable.Append(new TestableDirectOutput);
+
+    CHECK_TRUE(testable.Render(frame_buffer, 0));
+
+    CHECK_TRUE(static_cast<TestableInputNC *>(testable[0])->Render_called);
+    CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);
+    CHECK_TRUE(static_cast<TestableTimerMSecs *>(testable[2])->Render_called);
+    CHECK_TRUE(static_cast<TestableDirectOutput *>(testable[3])->Render_called);
+
+    CHECK_EQUAL(INCOME_RAIL_WIDTH,
+                static_cast<TestableInputNC *>(testable[0])->Render_start_point.x);
+    CHECK_EQUAL(INCOME_RAIL_WIDTH,
+                static_cast<TestableComparatorEq *>(testable[1])->Render_start_point.x);
+    CHECK_EQUAL(INCOME_RAIL_WIDTH,
+                static_cast<TestableTimerMSecs *>(testable[2])->Render_start_point.x);
+    CHECK_EQUAL(OUTCOME_RAIL_RIGHT,
+                static_cast<TestableDirectOutput *>(testable[3])->Render_start_point.x);
 }
 
 TEST(LogicNetworkTestsGroup, Serialize) {

@@ -52,9 +52,8 @@ namespace {
 
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
-            (void)prev_elem_state;
-            (void)start_point;
-            return MonitorLogicElement::Render();
+            (void)prev_elem_state;            
+            return MonitorLogicElement::Render(start_point);
         }
     };
 
