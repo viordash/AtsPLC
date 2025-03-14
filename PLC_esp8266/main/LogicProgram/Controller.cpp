@@ -126,6 +126,7 @@ void Controller::ProcessTask(void *parm) {
                                 first_iteration_delay,
                                 ProcessWakeupRequestPriority::pwrp_Critical);
     bool need_render = true;
+    bool repeated_changes = false;
     while (Controller::runned) {
         EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
@@ -180,16 +181,28 @@ void Controller::ProcessTask(void *parm) {
         need_render |= inputs_changed;
         need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
-            ESP_LOGD(TAG_Controller, "any_changes_in_actions");
-            Controller::RequestWakeupMs((void *)Controller::ProcessTask,
-                                        0,
-                                        ProcessWakeupRequestPriority::pwrp_Critical);
-        } else if (Controller::force_process_loop) {
-            ESP_LOGD(TAG_Controller, "force_process_loop");
-            const uint32_t process_loop_cycle_ms = 200;
-            Controller::RequestWakeupMs((void *)Controller::ProcessTask,
-                                        process_loop_cycle_ms,
-                                        ProcessWakeupRequestPriority::pwrp_Idle);
+            ESP_LOGD(TAG_Controller, "any_changes_in_actions %u", repeated_changes);
+            Controller::RemoveRequestWakeupMs((void *)Controller::ProcessTask);
+            if (!repeated_changes) {
+                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
+                                            0,
+                                            ProcessWakeupRequestPriority::pwrp_Critical);
+            } else {
+                const uint32_t repeated_changes_cycle_ms = 10;
+                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
+                                            repeated_changes_cycle_ms,
+                                            ProcessWakeupRequestPriority::pwrp_Idle);
+            }
+            repeated_changes = true;
+        } else {
+            repeated_changes = false;
+            if (Controller::force_process_loop) {
+                ESP_LOGD(TAG_Controller, "force_process_loop");
+                const uint32_t process_loop_cycle_ms = 200;
+                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
+                                            process_loop_cycle_ms,
+                                            ProcessWakeupRequestPriority::pwrp_Idle);
+            }
         }
 
         need_render |= force_render;
