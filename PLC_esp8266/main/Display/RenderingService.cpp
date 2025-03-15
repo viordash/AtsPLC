@@ -44,8 +44,6 @@ void RenderingService::Task(void *parm) {
             continue;
         }
 
-        arg->service->UpdateLoopTime();
-
         if (ulNotifiedValue & DO_RENDERING) {
             int64_t time_before_render = esp_timer_get_time();
             uint8_t *fb = begin_render();
@@ -70,10 +68,11 @@ void RenderingService::Start(Ladder *ladder) {
     if (task_handle != NULL) {
         return;
     }
-    task_arg = { this, ladder };
     UpdateLoopTime();
+
+    task_arg = { this, ladder };
     ESP_ERROR_CHECK(
-        xTaskCreate(Task, "ctrl_render_task", 4096, ladder, tskIDLE_PRIORITY, &task_handle)
+        xTaskCreate(Task, "ctrl_render_task", 4096, &task_arg, tskIDLE_PRIORITY, &task_handle)
                 != pdPASS
             ? ESP_FAIL
             : ESP_OK);
@@ -92,29 +91,34 @@ void RenderingService::Do(uint32_t next_awake_time_interval) {
         return;
     }
     if (Skip(next_awake_time_interval)) {
+        ESP_LOGI(TAG_RenderingService, "do skip");
         return;
     }
     ESP_LOGI(TAG_RenderingService, "do");
+    UpdateLoopTime();
     xTaskNotify(task_handle, DO_RENDERING, eNotifyAction::eSetBits);
 }
 
 void RenderingService::UpdateLoopTime() {
-    std::lock_guard<std::mutex> lock(loop_time_mutex);
     loop_time_us = esp_timer_get_time();
 }
 
 bool RenderingService::Skip(uint32_t next_awake_time_interval) {
-    if (next_awake_time_interval > min_period_ms) {
+    if (next_awake_time_interval >= min_period_ms / portTICK_PERIOD_MS) {
+        ESP_LOGD(TAG_RenderingService, "Skip, --------- n:%u", next_awake_time_interval);
         return false;
     }
 
     auto current_time = (uint64_t)esp_timer_get_time();
-    {
-        std::lock_guard<std::mutex> lock(loop_time_mutex);
-        int64_t loop_timespan = current_time - loop_time_us;
-        if (loop_timespan > min_period_ms) {
-            return false;
-        }
+    int64_t loop_timespan = current_time - loop_time_us;
+
+    ESP_LOGD(TAG_RenderingService,
+             "Skip, n:%u, l:%d",
+             next_awake_time_interval,
+             (int32_t)(loop_timespan / 1000));
+
+    if (loop_timespan < min_period_ms * 1000) {
+        return true;
     }
-    return true;
+    return false;
 }

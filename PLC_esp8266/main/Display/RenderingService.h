@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #include "Display/Common.h"
-#include <mutex>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -24,7 +23,6 @@ class RenderingService {
 
   protected:
     const uint32_t min_period_ms = 150;
-    std::mutex loop_time_mutex;
     uint64_t loop_time_us;
 
     TaskArg task_arg;
