@@ -2,9 +2,11 @@
 
 #include "LogicProgram/Controller.h"
 #include "Display/Common.h"
+#include "Display/RenderingService.h"
 #include "Display/display.h"
+#include "LogicProgram/Ladder.h"
 #include "LogicProgram/LogicProgram.h"
-#include "LogicProgram/StatusBar.h"
+#include "WiFi/WiFiService.h"
 #include "buttons.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -37,6 +39,7 @@ TaskHandle_t Controller::process_task_handle = NULL;
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
+RenderingService *Controller::rendering_service = NULL;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -47,9 +50,12 @@ ControllerVariable Controller::V2;
 ControllerVariable Controller::V3;
 ControllerVariable Controller::V4;
 
-void Controller::Start(EventGroupHandle_t gpio_events, void *wifi_service) {
+void Controller::Start(EventGroupHandle_t gpio_events,
+                       WiFiService *wifi_service,
+                       RenderingService *rendering_service) {
     Controller::gpio_events = gpio_events;
-    Controller::wifi_service = (WiFiService *)wifi_service;
+    Controller::wifi_service = wifi_service;
+    Controller::rendering_service = rendering_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -108,24 +114,13 @@ void Controller::ProcessTask(void *parm) {
     }
     ladder->AtLeastOneNetwork();
 
-    TaskHandle_t render_task_handle;
-    ESP_ERROR_CHECK(xTaskCreate(RenderTask,
-                                "ctrl_render_task",
-                                4096,
-                                NULL,
-                                tskIDLE_PRIORITY,
-                                &render_task_handle)
-                            != pdPASS
-                        ? ESP_FAIL
-                        : ESP_OK);
-
+    rendering_service->Start(ladder);
     xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK);
 
     const uint32_t first_iteration_delay = 0;
     Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                 first_iteration_delay,
                                 ProcessWakeupRequestPriority::pwrp_Critical);
-    bool need_render = true;
     bool repeated_changes = false;
     while (Controller::runned) {
         EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
@@ -139,7 +134,7 @@ void Controller::ProcessTask(void *parm) {
         ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
-        bool force_render = uxBits == 0;
+        bool force_render = false;
 
         if (buttons_changed) {
             ButtonsPressType pressed_button = handle_buttons(uxBits);
@@ -178,8 +173,6 @@ void Controller::ProcessTask(void *parm) {
         bool any_changes_in_actions = ladder->DoAction();
         CommitChanges();
 
-        need_render |= inputs_changed;
-        need_render |= any_changes_in_actions;
         if (any_changes_in_actions) {
             ESP_LOGD(TAG_Controller, "any_changes_in_actions %u", repeated_changes);
             Controller::RemoveRequestWakeupMs((void *)Controller::ProcessTask);
@@ -205,55 +198,14 @@ void Controller::ProcessTask(void *parm) {
             }
         }
 
-        need_render |= force_render;
-        if (need_render) {
-            need_render = false;
-            xTaskNotify(render_task_handle, DO_RENDERING, eNotifyAction::eSetBits);
+        if (inputs_changed || any_changes_in_actions || force_render
+            || Controller::force_process_loop) {
+            rendering_service->Do();
         }
     }
 
-    xTaskNotify(render_task_handle, STOP_RENDER_TASK, eNotifyAction::eSetBits);
+    rendering_service->Stop();
     ESP_LOGI(TAG_Controller, "stop process task");
-    vTaskDelete(NULL);
-}
-
-void Controller::RenderTask(void *parm) {
-    (void)parm;
-    ESP_LOGI(TAG_Controller, "start render task");
-
-    StatusBar statusBar(0);
-
-    uint32_t ulNotifiedValue = {};
-
-    while (Controller::runned || (ulNotifiedValue & STOP_RENDER_TASK)) {
-        BaseType_t xResult =
-            xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
-
-        if (xResult != pdPASS) {
-            ulNotifiedValue = {};
-            ESP_LOGE(TAG_Controller, "render task notify error, res:%d", xResult);
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            continue;
-        }
-
-        if (ulNotifiedValue & DO_RENDERING) {
-            int64_t time_before_render = esp_timer_get_time();
-            uint8_t *fb = begin_render();
-            statusBar.Render(fb);
-            ladder->Render(fb);
-            end_render(fb);
-
-            int64_t time_after_render = esp_timer_get_time();
-            static int64_t loop_time = 0;
-            ESP_LOGD(TAG_Controller,
-                     "r %d ms (%d ms)",
-                     (int)((time_after_render - loop_time) / 1000),
-                     (int)((time_after_render - time_before_render) / 1000));
-            loop_time = time_after_render;
-        }
-    }
-
-    ESP_LOGI(TAG_Controller, "stop render task");
     vTaskDelete(NULL);
 }
 

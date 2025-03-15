@@ -9,6 +9,7 @@ extern "C" {
 }
 #endif
 
+#include "Display/RenderingService.h"
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
 #include "Maintenance/ServiceModeHandler.h"
@@ -74,7 +75,8 @@ void app_main() {
 
     WiFiService wifi_service;
     wifi_service.Start();
-    Controller::Start(gpio_events, &wifi_service);
+    RenderingService rendering_service;
+    Controller::Start(gpio_events, &wifi_service, &rendering_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
     printf("mem: %u\n", free_mem);

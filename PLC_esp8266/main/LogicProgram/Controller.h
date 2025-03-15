@@ -16,15 +16,17 @@ extern "C" {
 #include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/ControllerDO.h"
 #include "LogicProgram/ControllerVariable.h"
-#include "LogicProgram/Ladder.h"
+#include "LogicProgram/MapIO.h"
 #include "LogicProgram/ProcessWakeupService.h"
-#include "WiFi/WiFiService.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+class RenderingService;
+class WiFiService;
+class Ladder;
 class Controller {
   protected:
     static bool runned;
@@ -34,17 +36,19 @@ class Controller {
     static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
     static WiFiService *wifi_service;
+    static RenderingService *rendering_service;
 
   public:
     static const int WAKEUP_PROCESS_TASK = BIT15;
 
-    static void Start(EventGroupHandle_t gpio_events, void *wifi_service);
+    static void Start(EventGroupHandle_t gpio_events,
+                      WiFiService *wifi_service,
+                      RenderingService *rendering_service);
     static void Stop();
     static void FetchIOValues();
     static void CommitChanges();
 
     static void ProcessTask(void *parm);
-    static void RenderTask(void *parm);
 
     static ControllerDI DI;
     static ControllerAI AI;
