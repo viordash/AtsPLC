@@ -36,14 +36,14 @@ bool IncOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
 
     if (state != prev_state) {
         if (state == LogicItemState::lisActive) {
-            uint8_t prev_val = Input->ReadValue();
+            uint8_t prev_val = Input->PeekValue();
             if (prev_val < LogicElement::MaxValue) {
                 prev_val++;
             }
             Output->WriteValue(prev_val);
         }
         any_changes = true;
-        ESP_LOGD(TAG_IncOutput, ". %u", Input->ReadValue());
+        ESP_LOGD(TAG_IncOutput, ". %u", Input->PeekValue());
     }
 
     return any_changes;
