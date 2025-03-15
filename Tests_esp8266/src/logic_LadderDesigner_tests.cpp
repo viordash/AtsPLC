@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Ladder.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
 
@@ -572,6 +573,4 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_change
     CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
     CHECK_FALSE(testable[0]->Editing());
     CHECK_FALSE(testable[0]->Selected());
-
-
 }

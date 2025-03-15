@@ -186,11 +186,11 @@ BaseType_t xTaskCreate(
     (void)usStackDepth;
     (void)pvParameters;
     (void)uxPriority;
-    (void)pxCreatedTask;
 
     return mock_c()
         ->actualCall("xTaskCreate")
         ->withStringParameters("pcName", pcName)
+        ->withOutputParameter("pxCreatedTask", pxCreatedTask)
         ->returnIntValueOrDefault(pdPASS);
 }
 

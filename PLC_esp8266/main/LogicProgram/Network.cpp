@@ -84,10 +84,7 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     auto it = begin();
     while (res && it != end()) {
         auto element = *it;
-        if (CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
-            && Wire::TryToCast(element) == NULL && Indicator::TryToCast(element) == NULL
-            && WiFiBinding::TryToCast(element) == NULL && WiFiStaBinding::TryToCast(element) == NULL
-            && WiFiApBinding::TryToCast(element) == NULL) {
+        if (CommonOutput::TryToCast(element) != NULL) {
             break;
         }
         it++;

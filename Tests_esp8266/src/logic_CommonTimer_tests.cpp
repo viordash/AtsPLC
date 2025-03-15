@@ -32,7 +32,7 @@ TEST_GROUP(LogicCommonTimerTestsGroup){ //
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL);
+Controller::Start(NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
