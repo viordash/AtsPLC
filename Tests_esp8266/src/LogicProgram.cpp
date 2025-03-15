@@ -19,6 +19,7 @@
 #include "main/Display/EditableElement.cpp"
 #include "main/Display/LabeledLogicItem.cpp"
 #include "main/Display/MapIOIndicator.cpp"
+#include "main/Display/RenderingService.cpp"
 #include "main/Display/display.cpp"
 #include "main/LogicProgram/Bindings/CommonWiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiApBinding.cpp"

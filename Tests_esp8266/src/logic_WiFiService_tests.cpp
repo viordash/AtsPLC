@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "LogicProgram/LogicElement.h"
 #include "main/LogicProgram/Controller.h"
 #include "main/WiFi/WiFiService.h"
 #include "main/settings.h"
@@ -16,7 +17,7 @@ TEST_GROUP(LogicWiFiServiceTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL);
+Controller::Start(NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {

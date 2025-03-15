@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
+class LogicElement;
 class InputElement {
   protected:
   public:

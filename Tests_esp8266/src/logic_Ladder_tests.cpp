@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/LogicProgram/Ladder.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
 

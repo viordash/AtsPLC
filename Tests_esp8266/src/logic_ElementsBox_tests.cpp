@@ -23,7 +23,7 @@ TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service);
+Controller::Start(NULL, wifi_service, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -52,7 +52,7 @@ namespace {
 
         bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
-            (void)prev_elem_state;            
+            (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
         }
     };
