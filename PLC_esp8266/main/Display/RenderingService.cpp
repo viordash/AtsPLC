@@ -18,6 +18,7 @@ static const char *TAG_RenderingService = "RenderingService";
 
 RenderingService::RenderingService() {
     task_handle = NULL;
+    task_arg = {};
 }
 
 RenderingService::~RenderingService() {
@@ -27,7 +28,8 @@ RenderingService::~RenderingService() {
 void RenderingService::Task(void *parm) {
     ESP_LOGI(TAG_RenderingService, "start task");
 
-    Ladder *ladder = (Ladder *)parm;
+    TaskArg *arg = (TaskArg *)parm;
+
     StatusBar statusBar(0);
     uint32_t ulNotifiedValue = {};
 
@@ -42,11 +44,13 @@ void RenderingService::Task(void *parm) {
             continue;
         }
 
+        arg->service->UpdateLoopTime();
+
         if (ulNotifiedValue & DO_RENDERING) {
             int64_t time_before_render = esp_timer_get_time();
             uint8_t *fb = begin_render();
             statusBar.Render(fb);
-            ladder->Render(fb);
+            arg->ladder->Render(fb);
             end_render(fb);
 
             int64_t time_after_render = esp_timer_get_time();
@@ -66,6 +70,8 @@ void RenderingService::Start(Ladder *ladder) {
     if (task_handle != NULL) {
         return;
     }
+    task_arg = { this, ladder };
+    UpdateLoopTime();
     ESP_ERROR_CHECK(
         xTaskCreate(Task, "ctrl_render_task", 4096, ladder, tskIDLE_PRIORITY, &task_handle)
                 != pdPASS
@@ -80,11 +86,35 @@ void RenderingService::Stop() {
     xTaskNotify(task_handle, STOP_RENDER_TASK, eNotifyAction::eSetBits);
     task_handle = NULL;
 }
-    
-void RenderingService::Do() {
+
+void RenderingService::Do(uint32_t next_awake_time_interval) {
     if (task_handle == NULL) {
+        return;
+    }
+    if (Skip(next_awake_time_interval)) {
         return;
     }
     ESP_LOGI(TAG_RenderingService, "do");
     xTaskNotify(task_handle, DO_RENDERING, eNotifyAction::eSetBits);
+}
+
+void RenderingService::UpdateLoopTime() {
+    std::lock_guard<std::mutex> lock(loop_time_mutex);
+    loop_time_us = esp_timer_get_time();
+}
+
+bool RenderingService::Skip(uint32_t next_awake_time_interval) {
+    if (next_awake_time_interval > min_period_ms) {
+        return false;
+    }
+
+    auto current_time = (uint64_t)esp_timer_get_time();
+    {
+        std::lock_guard<std::mutex> lock(loop_time_mutex);
+        int64_t loop_timespan = current_time - loop_time_us;
+        if (loop_timespan > min_period_ms) {
+            return false;
+        }
+    }
+    return true;
 }
