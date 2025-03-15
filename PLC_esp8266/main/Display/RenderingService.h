@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include "Display/Common.h"
+#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -20,22 +21,20 @@ class RenderingService {
         RenderingService *service;
         Ladder *ladder;
     };
+    static const int STOP_RENDER_TASK = BIT0;
+    static const int DO_RENDERING = BIT1;
 
   protected:
-    const uint32_t min_period_ms = 150;
-    uint64_t loop_time_us;
-
+    std::atomic<bool> on_rendering;
     TaskArg task_arg;
 
     TaskHandle_t task_handle;
     static void Task(void *param);
-    void UpdateLoopTime();
-    bool Skip(uint32_t next_awake_time_interval);
 
   public:
     RenderingService();
     ~RenderingService();
     void Start(Ladder *ladder);
     void Stop();
-    void Do(uint32_t next_awake_time_interval);
+    void Do();
 };

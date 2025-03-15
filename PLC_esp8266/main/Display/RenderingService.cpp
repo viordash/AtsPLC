@@ -4,7 +4,6 @@
 #include "LogicProgram/StatusBar.h"
 #include "esp_attr.h"
 #include "esp_err.h"
-#include "esp_event.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <stdio.h>
@@ -12,9 +11,6 @@
 #include <string.h>
 
 static const char *TAG_RenderingService = "RenderingService";
-
-#define STOP_RENDER_TASK BIT2
-#define DO_RENDERING BIT3
 
 RenderingService::RenderingService() {
     task_handle = NULL;
@@ -34,6 +30,7 @@ void RenderingService::Task(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while ((ulNotifiedValue & STOP_RENDER_TASK) == 0) {
+        arg->service->on_rendering = false;
         BaseType_t xResult =
             xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
 
@@ -53,13 +50,14 @@ void RenderingService::Task(void *parm) {
 
             int64_t time_after_render = esp_timer_get_time();
             static int64_t loop_time = 0;
-            ESP_LOGI(TAG_RenderingService,
+            ESP_LOGD(TAG_RenderingService,
                      "r %d ms (%d ms)",
                      (int)((time_after_render - loop_time) / 1000),
                      (int)((time_after_render - time_before_render) / 1000));
             loop_time = time_after_render;
         }
     }
+    arg->service->on_rendering = false;
     ESP_LOGI(TAG_RenderingService, "stop task");
     vTaskDelete(NULL);
 }
@@ -68,7 +66,7 @@ void RenderingService::Start(Ladder *ladder) {
     if (task_handle != NULL) {
         return;
     }
-    UpdateLoopTime();
+    on_rendering = false;
 
     task_arg = { this, ladder };
     ESP_ERROR_CHECK(
@@ -86,39 +84,15 @@ void RenderingService::Stop() {
     task_handle = NULL;
 }
 
-void RenderingService::Do(uint32_t next_awake_time_interval) {
+void RenderingService::Do() {
     if (task_handle == NULL) {
         return;
     }
-    if (Skip(next_awake_time_interval)) {
-        ESP_LOGI(TAG_RenderingService, "do skip");
+    if (on_rendering) {
+        ESP_LOGD(TAG_RenderingService, "do skip");
         return;
     }
-    ESP_LOGI(TAG_RenderingService, "do");
-    UpdateLoopTime();
+    ESP_LOGD(TAG_RenderingService, "do");
+    on_rendering = true;
     xTaskNotify(task_handle, DO_RENDERING, eNotifyAction::eSetBits);
-}
-
-void RenderingService::UpdateLoopTime() {
-    loop_time_us = esp_timer_get_time();
-}
-
-bool RenderingService::Skip(uint32_t next_awake_time_interval) {
-    if (next_awake_time_interval >= min_period_ms / portTICK_PERIOD_MS) {
-        ESP_LOGD(TAG_RenderingService, "Skip, --------- n:%u", next_awake_time_interval);
-        return false;
-    }
-
-    auto current_time = (uint64_t)esp_timer_get_time();
-    int64_t loop_timespan = current_time - loop_time_us;
-
-    ESP_LOGD(TAG_RenderingService,
-             "Skip, n:%u, l:%d",
-             next_awake_time_interval,
-             (int32_t)(loop_timespan / 1000));
-
-    if (loop_timespan < min_period_ms * 1000) {
-        return true;
-    }
-    return false;
 }

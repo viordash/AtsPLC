@@ -11,6 +11,7 @@
 #include "LogicProgram/LogicElement.h"
 #include "main/Display/RenderingService.h"
 #include "main/LogicProgram/Controller.h"
+#include "main/LogicProgram/Ladder.h"
 #include "main/settings.h"
 
 TEST_GROUP(LogicRenderingServiceTestsGroup){ //
@@ -22,48 +23,39 @@ TEST_GROUP(LogicRenderingServiceTestsGroup){ //
 namespace {
     class TestableRenderingService : public RenderingService {
       public:
-        const uint32_t min_period_ticks = 15;
-        void PublicMorozov_UpdateLoopTime() {
-            UpdateLoopTime();
-        }
-        bool PublicMorozov_Skip(uint32_t next_awake_time_interval) {
-            return Skip(next_awake_time_interval);
+        std::atomic<bool> &PublicMorozov_Get_on_rendering() {
+            return on_rendering;
         }
     };
 } // namespace
 
-TEST(LogicRenderingServiceTestsGroup, Skip_rendering_when_time_interval_is_too_short) {
+TEST(LogicRenderingServiceTestsGroup, Calls_rendering_only_once_until_task_is_completed) {
     TestableRenderingService testable;
 
-    volatile uint64_t os_us = 0;
+    TaskHandle_t *task_handle;
     mock()
-        .expectNCalls(6, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+        .expectOneCall("xTaskCreate")
+        .withOutputParameterReturning("pxCreatedTask", &task_handle, sizeof(task_handle))
+        .ignoreOtherParameters();
 
-    testable.PublicMorozov_UpdateLoopTime();
-    CHECK_TRUE(testable.PublicMorozov_Skip(testable.min_period_ticks - 1));
-
-    os_us = (testable.min_period_ticks * portTICK_PERIOD_MS * 1000) + 1;
-    CHECK_FALSE(testable.PublicMorozov_Skip(testable.min_period_ticks - 1));
-
-    os_us = __UINT64_MAX__;
-    testable.PublicMorozov_UpdateLoopTime();
-    os_us = (testable.min_period_ticks * portTICK_PERIOD_MS * 1000) - 2;
-    CHECK_TRUE(testable.PublicMorozov_Skip(testable.min_period_ticks - 1));
-
-    os_us = (testable.min_period_ticks * portTICK_PERIOD_MS * 1000) - 1;
-    CHECK_FALSE(testable.PublicMorozov_Skip(testable.min_period_ticks - 1));
-}
-
-TEST(LogicRenderingServiceTestsGroup, Dont_skip_rendering_when_next_time_is_far) {
-    TestableRenderingService testable;
-    CHECK_FALSE(testable.PublicMorozov_Skip(testable.min_period_ticks));
-
-    volatile uint64_t os_us = 0;
     mock()
-        .expectNCalls(2, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", RenderingService::DO_RENDERING)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
 
-    testable.PublicMorozov_UpdateLoopTime();
-    CHECK_TRUE(testable.PublicMorozov_Skip(testable.min_period_ticks - 1));
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", RenderingService::STOP_RENDER_TASK)
+        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+
+    Ladder ladder([](int16_t view_top_index, int16_t selected_network) {});
+    testable.Start(&ladder);
+    CHECK_FALSE(testable.PublicMorozov_Get_on_rendering());
+    testable.Do();
+    CHECK_TRUE(testable.PublicMorozov_Get_on_rendering());
+
+    testable.Do();
+    CHECK_TRUE(testable.PublicMorozov_Get_on_rendering());
 }

@@ -200,7 +200,7 @@ void Controller::ProcessTask(void *parm) {
 
         if (inputs_changed || any_changes_in_actions || force_render
             || Controller::force_process_loop) {
-            rendering_service->Do(processWakeupService->Get());
+            rendering_service->Do();
         }
     }
 
