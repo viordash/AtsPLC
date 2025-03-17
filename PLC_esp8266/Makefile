@@ -47,7 +47,7 @@ code_check:
 	clang --version
 	clang-format --version
 	@echo "----------------------- versions <<<<"
-	@CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
+	CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
 		--enable severity:CRITICAL --enable severity:HIGH --enable severity:MEDIUM --enable severity:STYLE --no-missing-checker-error \
 		--disable cppcheck-missingIncludeSystem \
 		--disable security.insecureAPI.DeprecatedOrUnsafeBufferHandling \
@@ -57,4 +57,4 @@ code_check:
 		--disable cppcheck-preprocessorErrorDirective \
 		--skip CodeChecker.skipfile \
 		--output build/CodeChecker/check_static/reports --clean	|| true
-	@CodeChecker parse --export html --output build/CodeChecker/reports/check_static build/CodeChecker/check_static/reports > /dev/null 2>&1	
+	CodeChecker parse --export html --output build/CodeChecker/reports/check_static build/CodeChecker/check_static/reports > /dev/null 2>&1	
