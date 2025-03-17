@@ -23,7 +23,6 @@ jobs:
         pip install CodeChecker
         pip install clang-format
 
-
     - name: Check code format
       working-directory: ./PLC_esp8266
       run: make check_format
