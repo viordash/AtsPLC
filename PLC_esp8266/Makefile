@@ -40,6 +40,13 @@ check_format:
 
 code_check:
 	# Static analysis
+	@echo "----------------------- versions >>>>"
+	CodeChecker version
+	cppcheck --version
+	clang-tidy --version
+	clang --version
+	clang-format --version
+	@echo "----------------------- versions <<<<"
 	@CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
 		--enable severity:CRITICAL --enable severity:HIGH --enable severity:MEDIUM --enable severity:STYLE --no-missing-checker-error \
 		--disable cppcheck-missingIncludeSystem \
