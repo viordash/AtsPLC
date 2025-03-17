@@ -14,7 +14,6 @@ class DirectOutput : public CommonOutput {
     const AllowedIO GetAllowedOutputs() override final;
 
   protected:
-
   public:
     explicit DirectOutput();
     DirectOutput(const MapIO io_adr);
