@@ -36,8 +36,6 @@ bool Controller::force_process_loop = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-
-
 Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
