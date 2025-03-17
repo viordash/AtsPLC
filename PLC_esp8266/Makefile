@@ -37,3 +37,17 @@ apply_format:
 
 check_format:
 	@clang-format --style=file:.clang-format $(CF_SOURCES) $(CF_SOURCES_CXX) $(CF_HEADERS) --Werror --dry-run
+
+code_check:
+	# Static analysis
+	@CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
+		--enable severity:CRITICAL --enable severity:HIGH --enable severity:MEDIUM --enable severity:STYLE --no-missing-checker-error \
+		--disable cppcheck-missingIncludeSystem \
+		--disable security.insecureAPI.DeprecatedOrUnsafeBufferHandling \
+		--disable clang-diagnostic-declaration-after-statement \
+		--disable android-cloexec-accept \
+		--disable clang-diagnostic-padded \
+		--disable cppcheck-preprocessorErrorDirective \
+		--skip CodeChecker.skipfile \
+		--output build/CodeChecker/check_static/reports --clean	|| true
+	@CodeChecker parse --export html --output build/CodeChecker/reports/check_static build/CodeChecker/check_static/reports > /dev/null 2>&1	
