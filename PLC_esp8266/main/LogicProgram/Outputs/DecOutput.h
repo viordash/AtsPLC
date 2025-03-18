@@ -15,7 +15,7 @@ class DecOutput : public CommonOutput {
 
   public:
     explicit DecOutput();
-    DecOutput(const MapIO io_adr);
+    explicit DecOutput(const MapIO io_adr);
     ~DecOutput();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

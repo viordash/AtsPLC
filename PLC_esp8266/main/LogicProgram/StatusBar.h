@@ -19,7 +19,10 @@ class StatusBar {
 
   public:
     explicit StatusBar(uint8_t y);
+    StatusBar(const StatusBar&) = delete;
     virtual ~StatusBar();
+
+    StatusBar & operator=(const StatusBar&) = delete;
 
     bool Render(uint8_t *fb);
 };

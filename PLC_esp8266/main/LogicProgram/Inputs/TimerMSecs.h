@@ -18,7 +18,7 @@ class TimerMSecs : public CommonTimer {
 
   public:
     explicit TimerMSecs();
-    TimerMSecs(uint32_t delay_time_ms);
+    explicit TimerMSecs(uint32_t delay_time_ms);
     ~TimerMSecs();
 
     void SetTime(uint32_t delay_time_ms);
