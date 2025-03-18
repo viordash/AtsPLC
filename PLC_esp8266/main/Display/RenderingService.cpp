@@ -24,7 +24,7 @@ RenderingService::~RenderingService() {
 void RenderingService::Task(void *parm) {
     ESP_LOGI(TAG_RenderingService, "start task");
 
-    TaskArg *arg = (TaskArg *)parm;
+    TaskArg *arg = static_cast<TaskArg *>(parm);
 
     StatusBar statusBar(0);
     uint32_t ulNotifiedValue = {};
