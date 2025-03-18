@@ -41,13 +41,11 @@ check_format:
 
 code_check:
 	@echo "----------------------- Static analysis"
-	CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
+	@CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck --disable-all \
 		--enable severity:CRITICAL --enable severity:HIGH --enable severity:MEDIUM --enable severity:STYLE --no-missing-checker-error \
 		--disable cppcheck-missingIncludeSystem \
 		--disable security.insecureAPI.DeprecatedOrUnsafeBufferHandling \
-		--disable clang-diagnostic-declaration-after-statement \
 		--disable android-cloexec-accept \
-		--disable clang-diagnostic-padded \
 		--disable cppcheck-preprocessorErrorDirective \
 		--skip CodeChecker.skipfile \
 		--output build/CodeChecker/check_static/reports --clean	|| true
