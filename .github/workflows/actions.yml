@@ -20,8 +20,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get -y install cppcheck clang-tidy clang
-        pip install CodeChecker
         pip install clang-format
+        pip install CodeChecker
 
     - name: Check code format
       working-directory: ./PLC_esp8266
