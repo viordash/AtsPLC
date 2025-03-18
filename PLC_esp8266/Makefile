@@ -36,17 +36,11 @@ apply_format:
 	@clang-format --style=file:.clang-format $(CF_SOURCES) $(CF_SOURCES_CXX) $(CF_HEADERS) -i
 
 check_format:
+	@echo "----------------------- check_format"
 	@clang-format --style=file:.clang-format $(CF_SOURCES) $(CF_SOURCES_CXX) $(CF_HEADERS) --Werror --dry-run
 
 code_check:
-	# Static analysis
-	@echo "----------------------- versions >>>>"
-	CodeChecker version
-	cppcheck --version
-	clang-tidy --version
-	clang --version
-	clang-format --version
-	@echo "----------------------- versions <<<<"
+	@echo "----------------------- Static analysis"
 	CodeChecker check --build "make -j$$(nproc) project_prepare && make -j$$(nproc) clean && make -j$$(nproc) size" --analyzers cppcheck clangsa clang-tidy --ctu --disable-all \
 		--enable severity:CRITICAL --enable severity:HIGH --enable severity:MEDIUM --enable severity:STYLE --no-missing-checker-error \
 		--disable cppcheck-missingIncludeSystem \
