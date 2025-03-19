@@ -15,14 +15,12 @@ class TimerSecs : public CommonTimer {
     static const uint32_t min_delay_time_s = 1;
     static const uint32_t max_delay_time_s = 99999;
 
-    uint64_t force_render_time_us;
-
     const Bitmap *GetCurrentBitmap(LogicItemState state) override final;
 
   protected:
   public:
     explicit TimerSecs();
-    TimerSecs(uint32_t delay_time_s);
+    explicit TimerSecs(uint32_t delay_time_s);
     ~TimerSecs();
 
     void SetTime(uint32_t delay_time_s);

@@ -91,7 +91,7 @@ CommonWiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *st
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);    
+    res = EditableElement::Render(fb, start_point);
     return res;
 }
 

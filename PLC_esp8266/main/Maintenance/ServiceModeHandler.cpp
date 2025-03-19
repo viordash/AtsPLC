@@ -20,7 +20,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
     char buffer[64];
     Mode mode = Mode::sm_SmartConfig;
 
-    sprintf(buffer, "v%08X.%u", DEVICE_SETTINGS_VERSION, BUILD_NUMBER);
+    sprintf(buffer, "v%08X.%u", DEVICE_SETTINGS_VERSION, (unsigned)BUILD_NUMBER);
     ListBox listBox(buffer);
     listBox.Insert(0, "Smart config");
     listBox.Insert(1, "Backup logic");

@@ -1,7 +1,7 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
-#include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"

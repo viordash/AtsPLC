@@ -14,7 +14,7 @@ class InputNO : public CommonInput {
 
   public:
     explicit InputNO();
-    InputNO(const MapIO io_adr);
+    explicit InputNO(const MapIO io_adr);
     ~InputNO();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;

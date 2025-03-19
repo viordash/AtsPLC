@@ -13,7 +13,6 @@ class ResetOutput : public CommonOutput {
     const AllowedIO GetAllowedOutputs() override final;
 
   protected:
-
   public:
     explicit ResetOutput();
     explicit ResetOutput(const MapIO io_adr);

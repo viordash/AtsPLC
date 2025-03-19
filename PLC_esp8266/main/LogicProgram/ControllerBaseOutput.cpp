@@ -5,7 +5,7 @@
 #include <string.h>
 
 ControllerBaseOutput::ControllerBaseOutput() {
-    Init();
+    ControllerBaseOutput::Init();
 }
 
 ControllerBaseOutput::~ControllerBaseOutput() {

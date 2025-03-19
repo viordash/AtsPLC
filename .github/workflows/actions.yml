@@ -2,11 +2,39 @@ name: Ats PLC
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "CodeStyle-CodeQuality" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "CodeStyle-CodeQuality" ]
 
 jobs:
+  Analysis-and-Style:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      working-directory: ./PLC_esp8266
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install cppcheck clang-tidy clang
+        pip install clang-format
+        pip install CodeChecker
+
+    - name: Requirements pip
+      working-directory: ./SDK/ESP8266_RTOS_SDK
+      run: python -m pip install --user -r requirements.txt
+
+    - name: Check code format
+      working-directory: ./PLC_esp8266
+      run: make check_format
+
+    - name: Static analysis
+      working-directory: ./PLC_esp8266
+      run: make code_check
+
   Tests-esp-idf:
     runs-on: ubuntu-22.04
 

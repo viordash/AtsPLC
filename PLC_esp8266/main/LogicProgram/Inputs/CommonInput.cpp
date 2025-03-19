@@ -38,9 +38,9 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
                                && Blinking_50() && label_width > 0;
     if (!blink_label_on_editing) {
         label_width = draw_text_f6X12(fb,
-                           start_point->x + LeftPadding,
-                           start_point->y - get_text_f6X12_height(),
-                           label);
+                                      start_point->x + LeftPadding,
+                                      start_point->y - get_text_f6X12_height(),
+                                      label);
         res = label_width > 0;
     }
     if (!res) {
@@ -50,10 +50,7 @@ CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb,
-                                  start_point->x,
-                                  start_point->y,
-                                  label_width + LeftPadding);
+        res = draw_active_network(fb, start_point->x, start_point->y, label_width + LeftPadding);
     } else {
         res = draw_passive_network(fb,
                                    start_point->x,
