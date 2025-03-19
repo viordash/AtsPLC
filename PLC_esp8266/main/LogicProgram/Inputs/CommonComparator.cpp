@@ -16,6 +16,9 @@
 static const char *TAG_CommonComparator = "CommonComparator";
 
 CommonComparator::CommonComparator() : CommonInput() {
+    str_reference[0] = 0;
+    ref_percent04 = 0;
+    str_size = 0;
 }
 
 CommonComparator::CommonComparator(uint8_t ref_percent04, const MapIO io_adr) : CommonInput() {

@@ -11,6 +11,8 @@
 static const char *TAG_WiFiBinding = "WiFiBinding";
 
 WiFiBinding::WiFiBinding() : CommonWiFiBinding() {
+    ssid[0] = 0;
+    ssid_size = 0;
 }
 
 WiFiBinding::WiFiBinding(const MapIO io_adr, const char *ssid) : CommonWiFiBinding(io_adr) {

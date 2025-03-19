@@ -19,6 +19,7 @@ extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService() {
     station_rssi = LogicElement::MinValue;
+    task_handle = NULL;
 }
 
 WiFiService::~WiFiService() {

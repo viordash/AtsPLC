@@ -13,6 +13,8 @@ static const char *TAG_CommonTimer = "CommonTimer";
 
 CommonTimer::CommonTimer() : LogicElement() {
     this->delay_time_us = 0;
+    str_time[0] = 0;
+    str_size = 0;
 }
 
 CommonTimer::~CommonTimer() {

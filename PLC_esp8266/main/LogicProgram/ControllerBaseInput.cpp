@@ -5,7 +5,7 @@
 #include <string.h>
 
 ControllerBaseInput::ControllerBaseInput() {
-    Init();
+    ControllerBaseInput::Init();
 }
 
 ControllerBaseInput::~ControllerBaseInput() {

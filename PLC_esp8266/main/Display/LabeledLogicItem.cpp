@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+LabeledLogicItem::LabeledLogicItem() {
+    SetLabel(NULL);
+}
+
 void LabeledLogicItem::SetLabel(const char *label) {
     this->label = label;
     this->label_width = 0;

@@ -12,6 +12,9 @@
 static const char *TAG_WiFiApBinding = "WiFiApBinding";
 
 WiFiApBinding::WiFiApBinding() : WiFiBinding() {
+    password[0] = 0;
+    password_size = 0;
+    mac[0] = 0;
 }
 
 WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *ssid, const char *password)

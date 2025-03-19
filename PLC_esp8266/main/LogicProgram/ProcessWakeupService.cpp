@@ -88,7 +88,7 @@ println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &r
         pos += sprintf(&buffer[pos], "%s", (first ? first = false, "" : ", "));
         pos += sprintf(&buffer[pos], "%p|%u", x.id, (uint32_t)(x.next_time / 1000));
     }
-    pos += sprintf(&buffer[pos], "]");
+    printf(&buffer[pos], "]");
     return buffer;
 }
 
