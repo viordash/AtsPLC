@@ -11,7 +11,8 @@ class EditableElement {
     typedef enum { //
         des_Regular,
         des_Selected,
-        des_Editing
+        des_Editing,
+        des_Moving
     } ElementState;
 
     typedef enum { //
@@ -44,6 +45,7 @@ class EditableElement {
     bool Selected();
     bool Editing();
     bool InEditingProperty();
+    bool Moving();
 
     virtual void SelectPrior() = 0;
     virtual void SelectNext() = 0;

@@ -39,6 +39,9 @@ EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
     if (network->Selected()) {
         return EditableElement::ElementState::des_Selected;
     }
+    if (network->Moving()) {
+        return EditableElement::ElementState::des_Moving;
+    }
     ESP_LOGE(TAG_Ladder, "GetDesignState, unexpected network (id:%d) state", selected_network);
     return EditableElement::ElementState::des_Regular;
 }
@@ -80,6 +83,10 @@ void Ladder::HandleButtonUp() {
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->SelectPrior();
+            return;
+
+        case EditableElement::ElementState::des_Moving:
+            // (*this)[selected_network]->SelectPrior();
             return;
     }
 }
@@ -144,11 +151,13 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->Select();
             break;
 
-        case EditableElement::ElementState::des_Editing: {
-            auto network = (*this)[selected_network];
-            network->SelectNext();
+        case EditableElement::ElementState::des_Editing:
+            (*this)[selected_network]->SelectNext();
             return;
-        }
+
+        case EditableElement::ElementState::des_Moving:
+            // (*this)[selected_network]->SelectNext();
+            return;
     }
 }
 
@@ -223,6 +232,14 @@ void Ladder::HandleButtonOption() {
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->Option();
+            break;
+
+        case EditableElement::ElementState::des_Selected:
+            (*this)[selected_network]->SwitchToMoving();
+            break;
+
+        case EditableElement::ElementState::des_Moving:
+            (*this)[selected_network]->EndEditing();
             break;
 
         default:

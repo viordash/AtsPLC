@@ -45,4 +45,5 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     int GetSelectedElement();
 
     void SwitchState();
+    void SwitchToMoving();
 };

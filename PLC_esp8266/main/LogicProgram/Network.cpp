@@ -461,3 +461,8 @@ void Network::SwitchState() {
             break;
     }
 }
+
+void Network::SwitchToMoving() {
+    ESP_LOGI(TAG_Network, "SwitchToMoving");
+    editable_state = EditableElement::ElementState::des_Moving;
+}
