@@ -2,9 +2,10 @@ name: Ats PLC
 
 on:
   push:
-    branches: [ "CodeStyle-CodeQuality" ]
+    branches: 
+       - '**'
   pull_request:
-    branches: [ "CodeStyle-CodeQuality" ]
+    branches: [ "main" ]
 
 jobs:
   Analysis-and-Style:
