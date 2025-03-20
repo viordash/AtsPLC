@@ -20,7 +20,7 @@ void Ladder::AutoScroll() {
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)size(); i++) {
         auto network = (*this)[i];
-        if (network->Selected() || network->Editing()) {
+        if (network->Selected() || network->Editing() || network->Moving()) {
             return i;
         }
     }
@@ -185,7 +185,7 @@ void Ladder::HandleButtonSelect() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGD(TAG_Ladder,
+    ESP_LOGI(TAG_Ladder,
              "HandleButtonSelect, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              (unsigned)view_top_index,
@@ -215,6 +215,10 @@ void Ladder::HandleButtonSelect() {
                 cb_UI_state_changed(view_top_index, -1);
             }
             return;
+
+        case EditableElement::ElementState::des_Moving:
+            (*this)[selected_network]->EndEditing();
+            break;
 
         default:
             break;

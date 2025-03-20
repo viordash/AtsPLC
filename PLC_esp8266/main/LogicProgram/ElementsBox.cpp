@@ -1,6 +1,5 @@
 
 #include "LogicProgram/ElementsBox.h"
-#include "Display/bitmaps/element_cursor_3.h"
 #include "Display/display.h"
 #include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"

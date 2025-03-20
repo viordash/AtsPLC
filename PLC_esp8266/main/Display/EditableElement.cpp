@@ -2,6 +2,7 @@
 #include "Display/bitmaps/element_cursor_0.h"
 #include "Display/bitmaps/element_cursor_1.h"
 #include "Display/bitmaps/element_cursor_2.h"
+#include "Display/bitmaps/moving_up_down.h"
 #include "Display/display.h"
 #include "EditableElement.h"
 #include "LogicProgram/Controller.h"
@@ -50,12 +51,17 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
             } else {
                 bitmap = &EditableElement::bitmap_selecting_blink_1;
             }
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
+            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
             break;
 
         case EditableElement::ElementState::des_Editing:
             bitmap = &EditableElement::bitmap_selecting_blink_2;
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 1, bitmap);
+            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
+            break;
+
+        case EditableElement::ElementState::des_Moving:
+            bitmap = &EditableElement::bitmap_moving_up_down;
+            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
             break;
 
         default:
