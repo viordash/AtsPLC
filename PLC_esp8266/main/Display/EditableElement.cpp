@@ -77,7 +77,6 @@ bool EditableElement::Moving() {
     return editable_state == EditableElement::ElementState::des_Moving;
 }
 
-
 bool EditableElement::Blinking_50() {
     const int blink_timer_us = 0x80000;
     return (esp_timer_get_time() & blink_timer_us) == blink_timer_us;
