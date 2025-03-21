@@ -17,6 +17,7 @@
 #include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/ResetOutput.h"
 #include "LogicProgram/Outputs/SetOutput.h"
+#include "LogicProgram/Settings/SettingsElement.h"
 #include "LogicProgram/Wire.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -88,6 +89,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_WiFiApBinding:
             element = new WiFiApBinding();
+            break;
+        case et_Settings:
+            element = new SettingsElement();
             break;
         default:
             break;
