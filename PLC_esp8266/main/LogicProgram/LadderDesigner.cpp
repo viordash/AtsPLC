@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,7 +87,18 @@ void Ladder::HandleButtonUp() {
             return;
 
         case EditableElement::ElementState::des_Moving:
-            // (*this)[selected_network]->SelectPrior();
+            if (selected_network > 0) {
+                std::swap(at(selected_network), at(selected_network - 1));
+            }
+
+            if (selected_network > view_top_index) {
+                selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
+            } else if (view_top_index > 0) {
+                view_top_index--;
+                selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
+            }
             return;
     }
 }
@@ -156,7 +168,17 @@ void Ladder::HandleButtonDown() {
             return;
 
         case EditableElement::ElementState::des_Moving:
-            // (*this)[selected_network]->SelectNext();
+            if (selected_network + 1 < size()) {
+                std::swap(at(selected_network), at(selected_network + 1));
+            }
+            if (selected_network == view_top_index) {
+                selected_network++;
+                cb_UI_state_changed(view_top_index, selected_network);
+            } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
+                view_top_index++;
+                selected_network++;
+                cb_UI_state_changed(view_top_index, selected_network);
+            }
             return;
     }
 }
@@ -218,6 +240,7 @@ void Ladder::HandleButtonSelect() {
 
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
+            Store();
             break;
 
         default:
