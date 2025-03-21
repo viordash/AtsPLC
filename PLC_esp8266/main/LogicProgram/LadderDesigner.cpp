@@ -168,7 +168,7 @@ void Ladder::HandleButtonDown() {
             return;
 
         case EditableElement::ElementState::des_Moving:
-            if (selected_network + 1 < size()) {
+            if (selected_network + 1 < (int)size()) {
                 std::swap(at(selected_network), at(selected_network + 1));
             }
             if (selected_network == view_top_index) {
