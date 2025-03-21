@@ -574,3 +574,115 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_change
     CHECK_FALSE(testable[0]->Editing());
     CHECK_FALSE(testable[0]->Selected());
 }
+
+TEST(
+    LogicLadderDesignerTestsGroup,
+    HandleButtonOption_if_network_is_selected_then_movement_starts_and_stops_after_next_press_button) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+    testable.HandleButtonSelect();
+
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->Moving());
+
+    testable.HandleButtonOption();
+    CHECK_FALSE(testable[0]->Moving());
+
+    testable.HandleButtonSelect();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->Moving());
+
+    testable.HandleButtonSelect();
+    CHECK_FALSE(testable[0]->Moving());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    auto network3 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    network2->Append(new InputNC(MapIO::DI));
+    network3->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+    testable.Append(network3);
+
+    *testable.PublicMorozov_Get_view_top_index() = 3;
+
+    testable.HandleButtonSelect();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[3]->Moving());
+
+    testable.HandleButtonUp();
+    CHECK_EQUAL(testable[2], network3);
+    CHECK_EQUAL(testable[3], network2);
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.HandleButtonUp();
+    CHECK_EQUAL(testable[1], network3);
+    CHECK_EQUAL(testable[2], network1);
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.HandleButtonUp();
+    CHECK_EQUAL(testable[0], network3);
+    CHECK_EQUAL(testable[1], network0);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());    
+
+    testable.HandleButtonUp();
+    CHECK_EQUAL(testable[0], network3);
+    CHECK_EQUAL(testable[1], network0);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    auto network3 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    network2->Append(new InputNC(MapIO::DI));
+    network3->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+    testable.Append(network3);
+
+    *testable.PublicMorozov_Get_view_top_index() = 0;
+
+    testable.HandleButtonSelect();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->Moving());
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(testable[0], network1);
+    CHECK_EQUAL(testable[1], network0);
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(testable[1], network2);
+    CHECK_EQUAL(testable[2], network0);
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index()); 
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(testable[2], network3);
+    CHECK_EQUAL(testable[3], network0);
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index()); 
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(testable[2], network3);
+    CHECK_EQUAL(testable[3], network0);
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(testable[2], network3);
+    CHECK_EQUAL(testable[3], network0);
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+}

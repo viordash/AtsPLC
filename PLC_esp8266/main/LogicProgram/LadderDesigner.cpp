@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +21,7 @@ void Ladder::AutoScroll() {
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)size(); i++) {
         auto network = (*this)[i];
-        if (network->Selected() || network->Editing()) {
+        if (network->Selected() || network->Editing() || network->Moving()) {
             return i;
         }
     }
@@ -38,6 +39,9 @@ EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
     }
     if (network->Selected()) {
         return EditableElement::ElementState::des_Selected;
+    }
+    if (network->Moving()) {
+        return EditableElement::ElementState::des_Moving;
     }
     ESP_LOGE(TAG_Ladder, "GetDesignState, unexpected network (id:%d) state", selected_network);
     return EditableElement::ElementState::des_Regular;
@@ -80,6 +84,21 @@ void Ladder::HandleButtonUp() {
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->SelectPrior();
+            return;
+
+        case EditableElement::ElementState::des_Moving:
+            if (selected_network > 0) {
+                std::swap(at(selected_network), at(selected_network - 1));
+            }
+
+            if (selected_network > view_top_index) {
+                selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
+            } else if (view_top_index > 0) {
+                view_top_index--;
+                selected_network--;
+                cb_UI_state_changed(view_top_index, selected_network);
+            }
             return;
     }
 }
@@ -144,11 +163,23 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->Select();
             break;
 
-        case EditableElement::ElementState::des_Editing: {
-            auto network = (*this)[selected_network];
-            network->SelectNext();
+        case EditableElement::ElementState::des_Editing:
+            (*this)[selected_network]->SelectNext();
             return;
-        }
+
+        case EditableElement::ElementState::des_Moving:
+            if (selected_network + 1 < (int)size()) {
+                std::swap(at(selected_network), at(selected_network + 1));
+            }
+            if (selected_network == view_top_index) {
+                selected_network++;
+                cb_UI_state_changed(view_top_index, selected_network);
+            } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
+                view_top_index++;
+                selected_network++;
+                cb_UI_state_changed(view_top_index, selected_network);
+            }
+            return;
     }
 }
 
@@ -176,7 +207,7 @@ void Ladder::HandleButtonSelect() {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
-    ESP_LOGD(TAG_Ladder,
+    ESP_LOGI(TAG_Ladder,
              "HandleButtonSelect, %u, view_top_index:%u, selected_network:%d",
              (unsigned)design_state,
              (unsigned)view_top_index,
@@ -207,6 +238,11 @@ void Ladder::HandleButtonSelect() {
             }
             return;
 
+        case EditableElement::ElementState::des_Moving:
+            (*this)[selected_network]->EndEditing();
+            Store();
+            break;
+
         default:
             break;
     }
@@ -223,6 +259,14 @@ void Ladder::HandleButtonOption() {
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->Option();
+            break;
+
+        case EditableElement::ElementState::des_Selected:
+            (*this)[selected_network]->SwitchToMoving();
+            break;
+
+        case EditableElement::ElementState::des_Moving:
+            (*this)[selected_network]->EndEditing();
             break;
 
         default:

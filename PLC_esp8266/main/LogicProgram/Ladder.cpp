@@ -90,6 +90,10 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
         case EditableElement::ElementState::des_Editing: {
             break;
         }
+
+        case EditableElement::ElementState::des_Moving: {
+            break;
+        }
     }
 }
 

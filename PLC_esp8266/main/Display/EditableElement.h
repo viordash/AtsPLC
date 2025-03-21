@@ -11,7 +11,8 @@ class EditableElement {
     typedef enum { //
         des_Regular,
         des_Selected,
-        des_Editing
+        des_Editing,
+        des_Moving
     } ElementState;
 
     typedef enum { //
@@ -25,7 +26,7 @@ class EditableElement {
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;
     const static Bitmap bitmap_selecting_blink_2;
-    const static Bitmap bitmap_selecting_blink_3;
+    const static Bitmap bitmap_moving_up_down;
 
     bool Render(uint8_t *fb, Point *start_point);
 
@@ -44,6 +45,7 @@ class EditableElement {
     bool Selected();
     bool Editing();
     bool InEditingProperty();
+    bool Moving();
 
     virtual void SelectPrior() = 0;
     virtual void SelectNext() = 0;
