@@ -87,11 +87,6 @@ size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
 
 size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
-    MapIO _io_adr;
-
-    if (!Record::Read(&_io_adr, sizeof(_io_adr), buffer, buffer_size, &readed)) {
-        return 0;
-    }
 
     return readed;
 }
@@ -141,6 +136,7 @@ void SettingsElement::Change() {
             break;
 
         default:
+            EndEditing();
             break;
     }
 }
