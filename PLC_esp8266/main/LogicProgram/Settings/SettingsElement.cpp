@@ -138,14 +138,85 @@ size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&tvElement, sizeof(tvElement), buffer, buffer_size, &writed)) {
         return 0;
     }
-
+    if (!Record::Write(&discriminator, sizeof(discriminator), buffer, buffer_size, &writed)) {
+        return 0;
+    }
+    if (!Record::Write(&value, sizeof(value), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
 size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
+    Discriminator _discriminator;
+    if (!Record::Read(&_discriminator, sizeof(_discriminator), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateDiscriminator(&_discriminator)) {
+        return 0;
+    }
 
+    Value _value;
+    if (!Record::Read(&_value, sizeof(_value), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateValue(&_discriminator, &_value)) {
+        return 0;
+    }
+
+    this->discriminator = _discriminator;
+    this->value = _value;
     return readed;
+}
+
+bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
+    switch (*discriminator) {
+        case t_wifi_station_settings_ssid:
+        case t_wifi_station_settings_password:
+        case t_wifi_station_settings_connect_max_retry_count:
+        case t_wifi_station_settings_reconnect_delay_ms:
+        case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_max_rssi:
+        case t_wifi_station_settings_min_rssi:
+        case t_wifi_scanner_settings_per_channel_scan_time_ms:
+        case t_wifi_scanner_settings_max_rssi:
+        case t_wifi_scanner_settings_min_rssi:
+        case t_wifi_access_point_settings_generation_time_ms:
+        case t_wifi_access_point_settings_ssid_hidden:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool SettingsElement::ValidateValue(Discriminator *discriminator, Value *value) {
+    switch (*discriminator) {
+        case t_wifi_station_settings_ssid:
+        case t_wifi_station_settings_password: {
+            size_t len = strnlen(value->string_value, sizeof(value->string_value));
+            return len > 0 && len < sizeof(value->string_value);
+        }
+
+        case t_wifi_station_settings_connect_max_retry_count:
+        case t_wifi_station_settings_reconnect_delay_ms:
+        case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_max_rssi:
+        case t_wifi_station_settings_min_rssi:
+        case t_wifi_scanner_settings_max_rssi:
+        case t_wifi_scanner_settings_min_rssi:
+        case t_wifi_scanner_settings_per_channel_scan_time_ms:
+        case t_wifi_access_point_settings_generation_time_ms:
+        return true;
+
+        case t_wifi_access_point_settings_ssid_hidden:
+            return (int)value->bool_value == 0 or (int)value->bool_value == 1;
+
+        default:
+            return false;
+    }
+    return false;
 }
 
 void SettingsElement::SelectPrior() {

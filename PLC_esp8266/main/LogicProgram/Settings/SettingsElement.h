@@ -12,7 +12,8 @@ class SettingsElement : public LogicElement {
     static const uint8_t str_value_size = 64;
     typedef union {
         char string_value[str_value_size + 1];
-        int32_t int_value;
+        int8_t int8_value;
+        int32_t int32_value;
         uint32_t uint_value;
         bool bool_value;
     } Value;
@@ -35,9 +36,11 @@ class SettingsElement : public LogicElement {
     } Discriminator;
 
   protected:
-    Value value;
     Discriminator discriminator;
+    Value value;
     bool RenderValue(uint8_t *fb, uint8_t x, uint8_t y);
+    bool ValidateDiscriminator(Discriminator *discriminator);
+    bool ValidateValue(Discriminator *discriminator, Value *value);
 
   public:
     typedef enum { //
