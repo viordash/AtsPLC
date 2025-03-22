@@ -10,6 +10,10 @@
 
 static const char *TAG_SettingsElement = "SettingsElement";
 
+const static char *TargetNames[] = { "wifi_sta_ssid", "wifi_sta_pass", "wifi_sta_retry" };
+static_assert(sizeof(TargetNames) / sizeof(TargetNames[0]) == SettingsElement::Target::t_max,
+              "TargetNames != enum Target");
+
 SettingsElement::SettingsElement() : LogicElement() {
 }
 

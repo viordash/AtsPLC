@@ -9,7 +9,37 @@
 
 class SettingsElement : public LogicElement {
   protected:
+    static const uint8_t str_value_size = 64;
+
+    typedef union {
+        char string_value[str_value_size + 1];
+        int32_t int_value;
+        uint32_t uint_value;
+        bool bool_value;
+    } Value;
+
+    Value value;
+
   public:
+    typedef enum { //
+        t_wifi_station_settings_ssid = 0,
+        t_wifi_station_settings_password,
+        t_wifi_station_settings_connect_max_retry_count,
+        t_wifi_station_settings_reconnect_delay_ms,
+        t_wifi_station_settings_scan_station_rssi_period_ms,
+        t_wifi_station_settings_max_rssi,
+        t_wifi_station_settings_min_rssi,
+
+        t_wifi_scanner_settings_per_channel_scan_time_ms,
+        t_wifi_scanner_settings_max_rssi,
+        t_wifi_scanner_settings_min_rssi,
+
+        t_wifi_access_point_settings_generation_time_ms,
+        t_wifi_access_point_settings_ssid_hidden,
+
+        t_max
+    } Target;
+
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,
         cwbepi_SelectParameter
