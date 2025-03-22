@@ -4,17 +4,37 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include <map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static const char *TAG_SettingsElement = "SettingsElement";
 
-const static char *TargetNames[] = { "wifi_sta_ssid", "wifi_sta_pass", "wifi_sta_retry" };
-static_assert(sizeof(TargetNames) / sizeof(TargetNames[0]) == SettingsElement::Target::t_max,
-              "TargetNames != enum Target");
+static std::map<SettingsElement::Discriminator, const char *> DiscriminatorNames = {
+    { SettingsElement::Discriminator::t_wifi_station_settings_ssid, "w_sta_ssid" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_password, "w_sta_passw" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
+      "w_sta_retry_cnt" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms,
+      "w_sta_recon_delay" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms,
+      "w_sta_scan_rssi_period" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_max_rssi, "w_sta_max_rssi" },
+    { SettingsElement::Discriminator::t_wifi_station_settings_min_rssi, "w_sta_min_rssi" },
+    { SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms,
+      "w_scan_chan_time" },
+    { SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi, "w_scan_max_rssi" },
+    { SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi, "w_scan_min_rssi" },
+    { SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms,
+      "w_ap_gener_time" },
+    { SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden,
+      "w_ap_ssid_hidden" },
+};
 
 SettingsElement::SettingsElement() : LogicElement() {
+    memset(&value, 0, sizeof(value));
+    discriminator = Discriminator::t_wifi_station_settings_ssid;
 }
 
 SettingsElement::~SettingsElement() {
@@ -74,7 +94,40 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     start_point->x += Width;
 
     res = EditableElement::Render(fb, start_point);
+    if (!res) {
+        return res;
+    }
+
+    top_left.x += LeftPadding;
+
+    switch (editing_property_id) {
+        case SettingsElement::EditingPropertyId::cwbepi_None:
+        case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
+            const char *name = DiscriminatorNames[discriminator];
+            res = draw_text_f4X7(fb, top_left.x + 3, top_left.y - 2, name) > 0;
+            if (!res) {
+                return false;
+            }
+            res = RenderValue(fb, top_left.x, top_left.y);
+            if (!res) {
+                return res;
+            }
+        }
+
+        default:
+            break;
+    }
     return res;
+}
+
+bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
+    switch (discriminator) {
+        case Discriminator::t_wifi_station_settings_ssid:
+            return draw_text_f6X12(fb, x, y + 5, "value.string") > 0;
+        default:
+            break;
+    }
+    return false;
 }
 
 size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -101,10 +154,9 @@ void SettingsElement::SelectPrior() {
     switch (editing_property_id) {
         case SettingsElement::EditingPropertyId::cwbepi_None:
             break;
-        case SettingsElement::EditingPropertyId::cwbepi_SelectParameter: {
+        case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator:
 
             break;
-        }
 
         default:
             break;
@@ -117,10 +169,9 @@ void SettingsElement::SelectNext() {
     switch (editing_property_id) {
         case SettingsElement::EditingPropertyId::cwbepi_None:
             break;
-        case SettingsElement::EditingPropertyId::cwbepi_SelectParameter: {
+        case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator:
 
             break;
-        }
 
         default:
             break;
@@ -136,7 +187,7 @@ void SettingsElement::PageDown() {
 void SettingsElement::Change() {
     switch (editing_property_id) {
         case SettingsElement::EditingPropertyId::cwbepi_None:
-            editing_property_id = SettingsElement::EditingPropertyId::cwbepi_SelectParameter;
+            editing_property_id = SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator;
             break;
 
         default:

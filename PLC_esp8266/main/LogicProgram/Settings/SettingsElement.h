@@ -8,9 +8,8 @@
 #include <unistd.h>
 
 class SettingsElement : public LogicElement {
-  protected:
+  public:
     static const uint8_t str_value_size = 64;
-
     typedef union {
         char string_value[str_value_size + 1];
         int32_t int_value;
@@ -18,9 +17,6 @@ class SettingsElement : public LogicElement {
         bool bool_value;
     } Value;
 
-    Value value;
-
-  public:
     typedef enum { //
         t_wifi_station_settings_ssid = 0,
         t_wifi_station_settings_password,
@@ -35,14 +31,19 @@ class SettingsElement : public LogicElement {
         t_wifi_scanner_settings_min_rssi,
 
         t_wifi_access_point_settings_generation_time_ms,
-        t_wifi_access_point_settings_ssid_hidden,
+        t_wifi_access_point_settings_ssid_hidden
+    } Discriminator;
 
-        t_max
-    } Target;
+  protected:
+    Value value;
+    Discriminator discriminator;
+    bool RenderValue(uint8_t *fb, uint8_t x, uint8_t y);
 
+  public:
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,
-        cwbepi_SelectParameter
+        cwbepi_SelectDiscriminator,
+        cwbepi_SetValue
     } EditingPropertyId;
 
     static const uint8_t LeftPadding = 12;
