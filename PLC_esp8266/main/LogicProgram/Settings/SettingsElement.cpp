@@ -33,7 +33,8 @@ static std::map<SettingsElement::Discriminator, const char *> DiscriminatorNames
 };
 
 SettingsElement::SettingsElement() : LogicElement() {
-    memset(&value, 0, sizeof(value));
+    value[0] = 0;
+    value_size = 0;
     discriminator = Discriminator::t_wifi_station_settings_ssid;
 }
 
@@ -100,34 +101,78 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
 
     top_left.x += LeftPadding;
 
-    switch (editing_property_id) {
-        case SettingsElement::EditingPropertyId::cwbepi_None:
-        case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
-            const char *name = DiscriminatorNames[discriminator];
-            res = draw_text_f4X7(fb, top_left.x + 3, top_left.y - 2, name) > 0;
-            if (!res) {
-                return false;
-            }
-            res = RenderValue(fb, top_left.x, top_left.y);
-            if (!res) {
-                return res;
-            }
-        }
+    bool show_edit_value = editable_state == EditableElement::ElementState::des_Editing
+                        && (SettingsElement::EditingPropertyId)editing_property_id
+                               != SettingsElement::EditingPropertyId::cwbepi_None
+                        && (SettingsElement::EditingPropertyId)editing_property_id
+                               != SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator;
 
-        default:
-            break;
+    if (show_edit_value) {
+        res = RenderEditedValue(fb, top_left.x, top_left.y + 4);
+    } else {
+        if (value_size <= displayed_value_max_size) {
+            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, value) > 0;
+        } else {
+            res = RenderValueWithElipsis(fb, top_left.x, top_left.y + 6, 3);
+        }
     }
+
+    // switch (editing_property_id) {
+    //     case SettingsElement::EditingPropertyId::cwbepi_None:
+    //     case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
+    //         const char *name = DiscriminatorNames[discriminator];
+    //         res = draw_text_f4X7(fb, top_left.x + 3, top_left.y - 2, name) > 0;
+    //         if (!res) {
+    //             return false;
+    //         }
+    //         res = RenderValue(fb, top_left.x, top_left.y);
+    //         if (!res) {
+    //             return res;
+    //         }
+    //     }
+
+    //     default:
+    //         break;
+    // }
     return res;
 }
 
-bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
-    switch (discriminator) {
-        case Discriminator::t_wifi_station_settings_ssid:
-            return draw_text_f6X12(fb, x, y + 5, "value.string") > 0;
-        default:
-            break;
+bool SettingsElement::RenderValueWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage) {
+    char elipsis = value[leverage];
+    value[leverage] = 0;
+    int width = draw_text_f6X12(fb, x, y, value);
+    value[leverage] = elipsis;
+    if (width <= 0) {
+        return false;
     }
-    return false;
+    x += width;
+    width = draw_text_f4X7(fb, x, y + 4, "...");
+    x += width;
+    return draw_text_f6X12(fb, x, y, &value[value_size - leverage]) > 0;
+}
+
+bool SettingsElement::RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y) {
+    char blink_value[displayed_value_max_size + 1];
+    int char_pos = editing_property_id - SettingsElement::EditingPropertyId::cwbepi_Ssid_First_Char;
+
+    if (char_pos < displayed_value_max_size) {
+        strncpy(blink_value, value, sizeof(blink_value));
+    } else {
+        strncpy(blink_value,
+                &value[char_pos - (displayed_value_max_size - 1)],
+                sizeof(blink_value));
+        char_pos = displayed_value_max_size - 1;
+    }
+    blink_value[sizeof(blink_value) - 1] = 0;
+
+    if (Blinking_50()) {
+        blink_value[char_pos] = ' ';
+    }
+
+    if (draw_text_f4X7(fb, x + 3, y - 2, "SSID:") <= 0) {
+        return false;
+    }
+    return draw_text_f6X12(fb, x, y + 5, blink_value) > 0;
 }
 
 size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -139,9 +184,6 @@ size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     if (!Record::Write(&discriminator, sizeof(discriminator), buffer, buffer_size, &writed)) {
-        return 0;
-    }
-    if (!Record::Write(&value, sizeof(value), buffer, buffer_size, &writed)) {
         return 0;
     }
     return writed;
@@ -157,16 +199,7 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    Value _value;
-    if (!Record::Read(&_value, sizeof(_value), buffer, buffer_size, &readed)) {
-        return 0;
-    }
-    if (!ValidateValue(&_discriminator, &_value)) {
-        return 0;
-    }
-
     this->discriminator = _discriminator;
-    this->value = _value;
     return readed;
 }
 
@@ -189,34 +222,6 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         default:
             return false;
     }
-}
-
-bool SettingsElement::ValidateValue(Discriminator *discriminator, Value *value) {
-    switch (*discriminator) {
-        case t_wifi_station_settings_ssid:
-        case t_wifi_station_settings_password: {
-            size_t len = strnlen(value->string_value, sizeof(value->string_value));
-            return len > 0 && len < sizeof(value->string_value);
-        }
-
-        case t_wifi_station_settings_connect_max_retry_count:
-        case t_wifi_station_settings_reconnect_delay_ms:
-        case t_wifi_station_settings_scan_station_rssi_period_ms:
-        case t_wifi_station_settings_max_rssi:
-        case t_wifi_station_settings_min_rssi:
-        case t_wifi_scanner_settings_max_rssi:
-        case t_wifi_scanner_settings_min_rssi:
-        case t_wifi_scanner_settings_per_channel_scan_time_ms:
-        case t_wifi_access_point_settings_generation_time_ms:
-        return true;
-
-        case t_wifi_access_point_settings_ssid_hidden:
-            return (int)value->bool_value == 0 or (int)value->bool_value == 1;
-
-        default:
-            return false;
-    }
-    return false;
 }
 
 void SettingsElement::SelectPrior() {
@@ -281,4 +286,14 @@ SettingsElement *SettingsElement::TryToCast(LogicElement *logic_element) {
         default:
             return NULL;
     }
+}
+
+const char *SettingsElement::GetValue() {
+    return this->value;
+}
+
+void SettingsElement::SetValue(const char *value) {
+    strncpy(this->value, value, sizeof(this->value) - 1);
+    this->value[sizeof(this->value) - 1] = 0;
+    value_size = strlen(this->value);
 }

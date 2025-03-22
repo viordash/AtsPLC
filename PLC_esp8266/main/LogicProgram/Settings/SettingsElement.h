@@ -9,15 +9,6 @@
 
 class SettingsElement : public LogicElement {
   public:
-    static const uint8_t str_value_size = 64;
-    typedef union {
-        char string_value[str_value_size + 1];
-        int8_t int8_value;
-        int32_t int32_value;
-        uint32_t uint_value;
-        bool bool_value;
-    } Value;
-
     typedef enum { //
         t_wifi_station_settings_ssid = 0,
         t_wifi_station_settings_password,
@@ -36,17 +27,23 @@ class SettingsElement : public LogicElement {
     } Discriminator;
 
   protected:
+    static const uint8_t max_value_size = 64;
+    static const uint8_t displayed_value_max_size = 12;
+    char value[max_value_size + 1];
+    uint8_t value_size;
+
     Discriminator discriminator;
-    Value value;
-    bool RenderValue(uint8_t *fb, uint8_t x, uint8_t y);
     bool ValidateDiscriminator(Discriminator *discriminator);
-    bool ValidateValue(Discriminator *discriminator, Value *value);
+
+    bool RenderValueWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage);
+    bool RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y);
 
   public:
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,
         cwbepi_SelectDiscriminator,
-        cwbepi_SetValue
+        cwbepi_Ssid_First_Char,
+        cwbepi_Ssid_Last_Char = cwbepi_Ssid_First_Char + max_value_size - 1
     } EditingPropertyId;
 
     static const uint8_t LeftPadding = 12;
@@ -74,4 +71,7 @@ class SettingsElement : public LogicElement {
 
     TvElementType GetElementType() override final;
     static SettingsElement *TryToCast(LogicElement *logic_element);
+
+    const char *GetValue();
+    void SetValue(const char *value);
 };
