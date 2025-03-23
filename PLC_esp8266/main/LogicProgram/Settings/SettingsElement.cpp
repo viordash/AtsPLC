@@ -1,4 +1,5 @@
 #include "LogicProgram/Settings/SettingsElement.h"
+#include "Display/bitmaps/settings.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -70,6 +71,7 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
         if (!res) {
             return res;
         }
+        draw_bitmap(fb, top_left.x + 1, top_left.y + 4, &bitmap);
     }
 
     start_point->x += Width;
@@ -79,7 +81,7 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
         return res;
     }
 
-    top_left.x += 4;
+    top_left.x += bitmap.size.width + 4;
     top_left.y += 4;
 
     bool show_edit_value = editable_state == EditableElement::ElementState::des_Editing

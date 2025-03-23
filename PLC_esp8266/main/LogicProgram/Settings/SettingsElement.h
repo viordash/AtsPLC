@@ -31,6 +31,8 @@ class SettingsElement : public LogicElement {
     static const uint8_t displayed_value_max_size = 12;
     char value[max_value_size + 1];
     uint8_t value_size;
+    
+    const static Bitmap bitmap;
 
     Discriminator discriminator;
     bool ValidateDiscriminator(Discriminator *discriminator);
