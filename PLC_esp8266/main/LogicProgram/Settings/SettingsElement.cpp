@@ -81,7 +81,7 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
         return res;
     }
 
-    top_left.x += bitmap.size.width + 4;
+    top_left.x += bitmap.size.width + 3;
     top_left.y += 4;
 
     bool show_edit_value = editable_state == EditableElement::ElementState::des_Editing
@@ -106,7 +106,7 @@ bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
 
     switch (discriminator) {
         case t_wifi_station_settings_ssid: {
-            name = "w_sta_ssid";
+            name = "wifi sta: ssid";
             const size_t max_len = sizeof(settings.wifi_station.ssid);
             static_assert(sizeof(display_value) > max_len);
             strncpy(display_value, settings.wifi_station.ssid, max_len);
@@ -114,7 +114,7 @@ bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
             break;
         }
         case t_wifi_station_settings_password: {
-            name = "w_sta_passw";
+            name = "wifi sta: passw";
             const size_t max_len = sizeof(settings.wifi_station.password);
             static_assert(sizeof(display_value) > max_len);
             strncpy(display_value, settings.wifi_station.password, max_len);
@@ -122,43 +122,43 @@ bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
             break;
         }
         case t_wifi_station_settings_connect_max_retry_count:
-            name = "w_sta_retry_cnt";
+            name = "wifi sta: retry max count";
             itoa(settings.wifi_station.connect_max_retry_count, display_value, 10);
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
-            name = "w_sta_recon_delay";
+            name = "wifi sta: reconnect pause";
             utoa(settings.wifi_station.reconnect_delay_ms, display_value, 10);
             break;
         case t_wifi_station_settings_scan_station_rssi_period_ms:
-            name = "w_sta_scan_rssi_period";
+            name = "wifi sta: rssi scan period";
             utoa(settings.wifi_station.scan_station_rssi_period_ms, display_value, 10);
             break;
         case t_wifi_station_settings_max_rssi:
-            name = "w_sta_max_rssi";
+            name = "wifi sta: max rssi";
             itoa(settings.wifi_station.max_rssi, display_value, 10);
             break;
         case t_wifi_station_settings_min_rssi:
-            name = "w_sta_min_rssi";
+            name = "wifi sta: min rssi";
             itoa(settings.wifi_station.min_rssi, display_value, 10);
             break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
-            name = "w_scan_chan_time";
+            name = "wifi scan: chan scan time";
             utoa(settings.wifi_scanner.per_channel_scan_time_ms, display_value, 10);
             break;
         case t_wifi_scanner_settings_max_rssi:
-            name = "w_scan_max_rssi";
+            name = "wifi scan: max rssi";
             itoa(settings.wifi_scanner.max_rssi, display_value, 10);
             break;
         case t_wifi_scanner_settings_min_rssi:
-            name = "w_scan_min_rssi";
+            name = "wifi scan: min rssi";
             itoa(settings.wifi_scanner.min_rssi, display_value, 10);
             break;
         case t_wifi_access_point_settings_generation_time_ms:
-            name = "w_ap_gener_time";
+            name = "wifi AP: generation time";
             utoa(settings.wifi_access_point.generation_time_ms, display_value, 10);
             break;
         case t_wifi_access_point_settings_ssid_hidden:
-            name = "w_ap_ssid_hidden";
+            name = "wifi AP: hidden ssid";
             utoa((unsigned)settings.wifi_access_point.ssid_hidden, display_value, 10);
             break;
         default:
@@ -176,7 +176,12 @@ bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
     if (len <= displayed_value_max_size) {
         res = draw_text_f6X12(fb, x, y + 6, display_value) > 0;
     } else {
-        res = RenderValueWithElipsis(fb, x, y + 6, 3, display_value, len);
+        res = RenderValueWithElipsis(fb,
+                                     x,
+                                     y + 6,
+                                     displayed_value_max_size / 2 - 1,
+                                     display_value,
+                                     len);
     }
 
     return res;
