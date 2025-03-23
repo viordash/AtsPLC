@@ -41,9 +41,14 @@ namespace {
         bool PublicMorozov_ValidateDiscriminator(Discriminator *discriminator) {
             return ValidateDiscriminator(discriminator);
         }
-
         Discriminator *PublicMorozov_Get_discriminator() {
             return &discriminator;
+        }
+        void PublicMorozov_ReadValue(char *string_buffer, bool friendly_format) {
+            ReadValue(string_buffer, friendly_format);
+        }
+        char *PublicMorozov_Get_value() {
+            return value;
         }
     };
 } // namespace
@@ -177,4 +182,255 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
         SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
+    char display_value[256] = {};
+    TestableSettingsElement testable;
+
+    strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
+    strcpy(settings.wifi_station.password,
+           "string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345");
+    settings.wifi_station.connect_max_retry_count = -1;
+    settings.wifi_station.reconnect_delay_ms = 1234;
+    settings.wifi_station.scan_station_rssi_period_ms = 5678;
+    settings.wifi_station.max_rssi = 100;
+    settings.wifi_station.min_rssi = -120;
+
+    settings.wifi_scanner.per_channel_scan_time_ms = 4219;
+    settings.wifi_scanner.max_rssi = 100;
+    settings.wifi_scanner.min_rssi = -120;
+
+    settings.wifi_access_point.generation_time_ms = 42;
+    settings.wifi_access_point.ssid_hidden = true;
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("string_32_0123456789abcdef012345", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_password;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("infinity", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("1234", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("5678", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_max_rssi;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("100", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_min_rssi;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("4219", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("100", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("42", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("true", display_value);
+}
+
+TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
+    char display_value[256] = {};
+    TestableSettingsElement testable;
+
+    strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
+    strcpy(settings.wifi_station.password,
+           "string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345");
+    settings.wifi_station.connect_max_retry_count = -1;
+    settings.wifi_station.reconnect_delay_ms = 1234;
+    settings.wifi_station.scan_station_rssi_period_ms = 5678;
+    settings.wifi_station.max_rssi = 100;
+    settings.wifi_station.min_rssi = -120;
+
+    settings.wifi_scanner.per_channel_scan_time_ms = 4219;
+    settings.wifi_scanner.max_rssi = 100;
+    settings.wifi_scanner.min_rssi = -120;
+
+    settings.wifi_access_point.generation_time_ms = 42;
+    settings.wifi_access_point.ssid_hidden = true;
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("string_32_0123456789abcdef012345", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_password;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("-1", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("1234", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("5678", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_max_rssi;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("100", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_min_rssi;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("4219", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("100", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("42", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("1", display_value);
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_ssid_with_max_size) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+    strcpy(testable.PublicMorozov_Get_value(), "string_32_0123456789abcdef012345");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("string_32_0123456789abcdef012345",
+                  settings.wifi_station.ssid,
+                  sizeof(settings.wifi_station.ssid));
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_ssid) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+    strcpy(testable.PublicMorozov_Get_value(), "1234");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("1234", settings.wifi_station.ssid, sizeof(settings.wifi_station.ssid));
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_empty_ssid) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+    strcpy(testable.PublicMorozov_Get_value(), "");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("", settings.wifi_station.ssid, sizeof(settings.wifi_station.ssid));
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_password_with_max_size) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_password;
+    strcpy(testable.PublicMorozov_Get_value(),
+           "string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345",
+                  settings.wifi_station.password,
+                  sizeof(settings.wifi_station.password));
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_password_ssid) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_password;
+    strcpy(testable.PublicMorozov_Get_value(), "1234");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("1234", settings.wifi_station.password, sizeof(settings.wifi_station.password));
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_empty_password) {
+    TestableSettingsElement testable;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pass");
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_password;
+    strcpy(testable.PublicMorozov_Get_value(), "");
+    testable.EndEditing();
+
+    load_settings();
+    STRNCMP_EQUAL("", settings.wifi_station.password, sizeof(settings.wifi_station.password));
 }

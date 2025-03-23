@@ -27,10 +27,10 @@ class SettingsElement : public LogicElement {
     } Discriminator;
 
   protected:
-    static const uint8_t max_value_size = 64;
+    static const char place_new_char = 0x02;
+    static const uint8_t value_size = 64;
     static const uint8_t displayed_value_max_size = 13;
-    char value[max_value_size + 1];
-    uint8_t value_size;
+    char value[value_size + 1];
 
     const static Bitmap bitmap;
 
@@ -46,13 +46,24 @@ class SettingsElement : public LogicElement {
                                 char *display_value,
                                 size_t len);
     bool RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y);
+    bool IsLastValueChar();
+    bool ChangeValue();
+    void ReadValue(char *string_buffer, bool friendly_format);
+    void SelectPriorStringSymbol(char *symbol);
+    void SelectNextStringSymbol(char *symbol);
+    void SelectPriorNumberSymbol(char *symbol, char extra);
+    void SelectNextNumberSymbol(char *symbol, char extra);
+    void SelectBoolSymbol(char *symbol);
+    void SelectPriorSymbol(char *symbol, bool first);
+    void SelectNextSymbol(char *symbol, bool first);
+    void WriteString(char *dest, size_t dest_size);
 
   public:
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,
         cwbepi_SelectDiscriminator,
-        cwbepi_Ssid_First_Char,
-        cwbepi_Ssid_Last_Char = cwbepi_Ssid_First_Char + max_value_size - 1
+        cwbepi_Value_First_Char,
+        cwbepi_Value_Last_Char = cwbepi_Value_First_Char + value_size - 1
     } EditingPropertyId;
 
     static const uint8_t LeftPadding = 12;
@@ -77,6 +88,7 @@ class SettingsElement : public LogicElement {
     void PageDown() override;
     void Change() override;
     void Option() override;
+    void EndEditing() override;
 
     TvElementType GetElementType() override final;
     static SettingsElement *TryToCast(LogicElement *logic_element);
