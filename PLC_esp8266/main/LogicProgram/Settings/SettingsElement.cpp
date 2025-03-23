@@ -4,33 +4,13 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include <map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_SettingsElement = "SettingsElement";
+extern CurrentSettings::device_settings settings;
 
-static std::map<SettingsElement::Discriminator, const char *> DiscriminatorNames = {
-    { SettingsElement::Discriminator::t_wifi_station_settings_ssid, "w_sta_ssid" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_password, "w_sta_passw" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
-      "w_sta_retry_cnt" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms,
-      "w_sta_recon_delay" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms,
-      "w_sta_scan_rssi_period" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_max_rssi, "w_sta_max_rssi" },
-    { SettingsElement::Discriminator::t_wifi_station_settings_min_rssi, "w_sta_min_rssi" },
-    { SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms,
-      "w_scan_chan_time" },
-    { SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi, "w_scan_max_rssi" },
-    { SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi, "w_scan_min_rssi" },
-    { SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms,
-      "w_ap_gener_time" },
-    { SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden,
-      "w_ap_ssid_hidden" },
-};
+static const char *TAG_SettingsElement = "SettingsElement";
 
 SettingsElement::SettingsElement() : LogicElement() {
     value[0] = 0;
@@ -99,7 +79,8 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
         return res;
     }
 
-    top_left.x += LeftPadding;
+    top_left.x += 4;
+    top_left.y += 4;
 
     bool show_edit_value = editable_state == EditableElement::ElementState::des_Editing
                         && (SettingsElement::EditingPropertyId)editing_property_id
@@ -108,47 +89,114 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
                                != SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator;
 
     if (show_edit_value) {
-        res = RenderEditedValue(fb, top_left.x, top_left.y + 4);
+        res = RenderEditedValue(fb, top_left.x, top_left.y);
     } else {
-        if (value_size <= displayed_value_max_size) {
-            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, value) > 0;
-        } else {
-            res = RenderValueWithElipsis(fb, top_left.x, top_left.y + 6, 3);
-        }
+        res = RenderValue(fb, top_left.x, top_left.y);
     }
 
-    // switch (editing_property_id) {
-    //     case SettingsElement::EditingPropertyId::cwbepi_None:
-    //     case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
-    //         const char *name = DiscriminatorNames[discriminator];
-    //         res = draw_text_f4X7(fb, top_left.x + 3, top_left.y - 2, name) > 0;
-    //         if (!res) {
-    //             return false;
-    //         }
-    //         res = RenderValue(fb, top_left.x, top_left.y);
-    //         if (!res) {
-    //             return res;
-    //         }
-    //     }
-
-    //     default:
-    //         break;
-    // }
     return res;
 }
 
-bool SettingsElement::RenderValueWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage) {
-    char elipsis = value[leverage];
-    value[leverage] = 0;
-    int width = draw_text_f6X12(fb, x, y, value);
-    value[leverage] = elipsis;
+bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
+    char display_value[max_value_size + 1];
+
+    const char *name;
+
+    switch (discriminator) {
+        case t_wifi_station_settings_ssid: {
+            name = "w_sta_ssid";
+            const size_t max_len = sizeof(settings.wifi_station.ssid);
+            static_assert(sizeof(display_value) > max_len);
+            strncpy(display_value, settings.wifi_station.ssid, max_len);
+            display_value[max_len] = 0;
+            break;
+        }
+        case t_wifi_station_settings_password: {
+            name = "w_sta_passw";
+            const size_t max_len = sizeof(settings.wifi_station.password);
+            static_assert(sizeof(display_value) > max_len);
+            strncpy(display_value, settings.wifi_station.password, max_len);
+            display_value[max_len] = 0;
+            break;
+        }
+        case t_wifi_station_settings_connect_max_retry_count:
+            name = "w_sta_retry_cnt";
+            itoa(settings.wifi_station.connect_max_retry_count, display_value, 10);
+            break;
+        case t_wifi_station_settings_reconnect_delay_ms:
+            name = "w_sta_recon_delay";
+            utoa(settings.wifi_station.reconnect_delay_ms, display_value, 10);
+            break;
+        case t_wifi_station_settings_scan_station_rssi_period_ms:
+            name = "w_sta_scan_rssi_period";
+            utoa(settings.wifi_station.scan_station_rssi_period_ms, display_value, 10);
+            break;
+        case t_wifi_station_settings_max_rssi:
+            name = "w_sta_max_rssi";
+            itoa(settings.wifi_station.max_rssi, display_value, 10);
+            break;
+        case t_wifi_station_settings_min_rssi:
+            name = "w_sta_min_rssi";
+            itoa(settings.wifi_station.min_rssi, display_value, 10);
+            break;
+        case t_wifi_scanner_settings_per_channel_scan_time_ms:
+            name = "w_scan_chan_time";
+            utoa(settings.wifi_scanner.per_channel_scan_time_ms, display_value, 10);
+            break;
+        case t_wifi_scanner_settings_max_rssi:
+            name = "w_scan_max_rssi";
+            itoa(settings.wifi_scanner.max_rssi, display_value, 10);
+            break;
+        case t_wifi_scanner_settings_min_rssi:
+            name = "w_scan_min_rssi";
+            itoa(settings.wifi_scanner.min_rssi, display_value, 10);
+            break;
+        case t_wifi_access_point_settings_generation_time_ms:
+            name = "w_ap_gener_time";
+            utoa(settings.wifi_access_point.generation_time_ms, display_value, 10);
+            break;
+        case t_wifi_access_point_settings_ssid_hidden:
+            name = "w_ap_ssid_hidden";
+            utoa((unsigned)settings.wifi_access_point.ssid_hidden, display_value, 10);
+            break;
+        default:
+            return false;
+    }
+
+    bool res = true;
+
+    res = draw_text_f4X7(fb, x, y - 2, name) > 0;
+    if (!res) {
+        return false;
+    }
+
+    size_t len = strlen(display_value);
+    if (len <= displayed_value_max_size) {
+        res = draw_text_f6X12(fb, x, y + 6, display_value) > 0;
+    } else {
+        res = RenderValueWithElipsis(fb, x, y + 6, 3, display_value, len);
+    }
+
+    return res;
+}
+
+bool SettingsElement::RenderValueWithElipsis(uint8_t *fb,
+                                             uint8_t x,
+                                             uint8_t y,
+                                             int leverage,
+                                             char *display_value,
+                                             size_t len) {
+    char elipsis = display_value[leverage];
+    display_value[leverage] = 0;
+    int width = draw_text_f6X12(fb, x, y, display_value);
+    display_value[leverage] = elipsis;
     if (width <= 0) {
         return false;
     }
     x += width;
     width = draw_text_f4X7(fb, x, y + 4, "...");
     x += width;
-    return draw_text_f6X12(fb, x, y, &value[value_size - leverage]) > 0;
+    return draw_text_f6X12(fb, x, y, &display_value[len - leverage]) > 0;
 }
 
 bool SettingsElement::RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y) {
