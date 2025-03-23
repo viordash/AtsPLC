@@ -37,6 +37,7 @@ class SettingsElement : public LogicElement {
     Discriminator discriminator;
     bool ValidateDiscriminator(Discriminator *discriminator);
 
+    bool RenderName(uint8_t *fb, uint8_t x, uint8_t y);
     bool RenderValue(uint8_t *fb, uint8_t x, uint8_t y);
     bool RenderValueWithElipsis(uint8_t *fb,
                                 uint8_t x,

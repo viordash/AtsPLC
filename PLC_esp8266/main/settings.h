@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#define INFINITY_CONNECT_RETRY -1
+
 extern CurrentSettings::device_settings settings;
 
 void load_settings();
