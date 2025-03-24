@@ -92,7 +92,4 @@ class SettingsElement : public LogicElement {
 
     TvElementType GetElementType() override final;
     static SettingsElement *TryToCast(LogicElement *logic_element);
-
-    const char *GetValue();
-    void SetValue(const char *value);
 };

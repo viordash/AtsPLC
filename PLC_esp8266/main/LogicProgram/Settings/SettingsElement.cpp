@@ -682,12 +682,3 @@ SettingsElement *SettingsElement::TryToCast(LogicElement *logic_element) {
             return NULL;
     }
 }
-
-const char *SettingsElement::GetValue() {
-    return this->value;
-}
-
-void SettingsElement::SetValue(const char *value) {
-    strncpy(this->value, value, sizeof(this->value) - 1);
-    this->value[sizeof(this->value) - 1] = 0;
-}
