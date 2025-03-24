@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern CurrentSettings::device_settings settings;
 
