@@ -125,11 +125,17 @@ IRAM_ATTR int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *tex
 IRAM_ATTR int get_text_f4X7_height() {
     return display.font_4X7->height;
 }
+IRAM_ATTR int get_text_f4X7_width() {
+    return display.font_4X7->char_descriptors[0].width;
+}
 IRAM_ATTR int get_text_f5X7_height() {
     return display.font_5X7->height;
 }
 IRAM_ATTR int get_text_f6X12_height() {
     return display.font_6X12->height;
+}
+IRAM_ATTR int get_text_f6X12_width() {
+    return display.font_6X12->char_descriptors[0].width;
 }
 IRAM_ATTR int get_text_f8X14_height() {
     return display.font_8X14->height;

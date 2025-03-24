@@ -96,3 +96,146 @@ TEST(SettingsTestsGroup, delete_settings) {
     CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
     CHECK_FALSE(settings.wifi_access_point.ssid_hidden);
 }
+
+TEST(SettingsTestsGroup, validate_settings) {
+    CurrentSettings::device_settings curr_settings = {};
+    curr_settings.smartconfig.counter = 42;
+    strcpy(curr_settings.wifi_station.ssid, "test_ssid");
+    strcpy(curr_settings.wifi_station.password, "test_pwd");
+    curr_settings.wifi_station.connect_max_retry_count = 100;
+    curr_settings.wifi_station.reconnect_delay_ms = 100;
+    curr_settings.wifi_station.scan_station_rssi_period_ms = 100;
+    curr_settings.wifi_station.max_rssi = 100;
+    curr_settings.wifi_station.min_rssi = -120;
+
+    curr_settings.wifi_scanner.per_channel_scan_time_ms = 100;
+    curr_settings.wifi_scanner.max_rssi = 100;
+    curr_settings.wifi_scanner.min_rssi = -120;
+
+    curr_settings.wifi_access_point.generation_time_ms = 100;
+    curr_settings.wifi_access_point.ssid_hidden = true;
+
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.ssid[0] = 0;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.ssid[0] = '!' - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.ssid[0] = '!';
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.ssid[0] = '~' + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.ssid[0] = '~';
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.password[0] = 0;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.password[0] = '!' - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.password[0] = '!';
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.password[0] = '~' + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.password[0] = '~';
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.connect_max_retry_count = -1 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.connect_max_retry_count = 7777 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.connect_max_retry_count = -1;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.connect_max_retry_count = 7777;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.reconnect_delay_ms = 100 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.reconnect_delay_ms = 10 * 60 * 1000 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.reconnect_delay_ms = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.reconnect_delay_ms = 10 * 60 * 1000;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.scan_station_rssi_period_ms = 100 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.scan_station_rssi_period_ms = 10 * 60 * 1000 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.scan_station_rssi_period_ms = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.scan_station_rssi_period_ms = 10 * 60 * 1000;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.max_rssi = -120 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.max_rssi = 100 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.max_rssi = -120;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.max_rssi = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.min_rssi = -120 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.min_rssi = 100 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.min_rssi = -120;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.min_rssi = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_station.max_rssi = -10;
+    curr_settings.wifi_station.min_rssi = -9;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_station.min_rssi = -10;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_scanner.per_channel_scan_time_ms = 100 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.per_channel_scan_time_ms = 20 * 1000 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.per_channel_scan_time_ms = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.per_channel_scan_time_ms = 20 * 1000;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_scanner.max_rssi = -120 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.max_rssi = 100 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.max_rssi = -120;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.max_rssi = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_scanner.min_rssi = -120 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.min_rssi = 100 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.min_rssi = -120;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.min_rssi = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_scanner.max_rssi = -10;
+    curr_settings.wifi_scanner.min_rssi = -9;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_scanner.min_rssi = -10;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    curr_settings.wifi_access_point.generation_time_ms = 100 - 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_access_point.generation_time_ms = 10 * 60 * 1000 + 1;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    curr_settings.wifi_access_point.generation_time_ms = 100;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    curr_settings.wifi_access_point.generation_time_ms = 10 * 60 * 1000;
+    CHECK_TRUE(validate_settings(&curr_settings));
+
+    *((char *)&curr_settings.wifi_access_point.ssid_hidden) = 2;
+    CHECK_FALSE(validate_settings(&curr_settings));
+    *((char *)&curr_settings.wifi_access_point.ssid_hidden) = 0;
+    CHECK_TRUE(validate_settings(&curr_settings));
+    *((char *)&curr_settings.wifi_access_point.ssid_hidden) = 1;
+    CHECK_TRUE(validate_settings(&curr_settings));
+}

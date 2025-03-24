@@ -66,3 +66,5 @@ IMPORT_TEST_GROUP(LogicWiFiApBindingTestsGroup);
 IMPORT_TEST_GROUP(LogicWiFiStaBindingTestsGroup);
 
 IMPORT_TEST_GROUP(UtilsTestsGroup);
+
+IMPORT_TEST_GROUP(LogicSettingsElementTestsGroup);

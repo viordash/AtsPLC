@@ -50,7 +50,10 @@ TEST(LogicRenderingServiceTestsGroup, Calls_rendering_only_once_until_task_is_co
         .withIntParameter("eAction", eNotifyAction::eSetBits)
         .ignoreOtherParameters();
 
-    Ladder ladder([](int16_t view_top_index, int16_t selected_network) {});
+    Ladder ladder([](int16_t view_top_index, int16_t selected_network) {
+        (void)view_top_index;
+        (void)selected_network;
+    });
     testable.Start(&ladder);
     CHECK_FALSE(testable.PublicMorozov_Get_on_rendering());
     testable.Do();

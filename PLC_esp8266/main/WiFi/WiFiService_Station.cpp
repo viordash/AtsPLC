@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INFINITY_CONNECT_RETRY -1
-
 static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern CurrentSettings::device_settings settings;
 

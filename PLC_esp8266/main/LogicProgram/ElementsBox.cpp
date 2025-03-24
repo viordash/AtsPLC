@@ -15,6 +15,7 @@
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/Outputs/CommonOutput.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Settings/SettingsElement.h"
 #include "LogicProgram/Wire.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -334,6 +335,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
         AppendStandartElement(source_element, TvElementType::et_IncOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_DecOutput, frame_buffer);
     }
+    AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;
