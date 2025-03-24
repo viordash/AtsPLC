@@ -59,7 +59,7 @@ void WiFiService::StationTask(RequestItem *request) {
                                 &ulNotifiedValue,
                                 scan_station_rssi_period_ms / portTICK_PERIOD_MS)
                 != pdPASS) {
-                if (!ObtainStationRssi()) {
+                if (has_connect && !ObtainStationRssi()) {
                     ulNotifiedValue = FAILED_BIT;
                 }
             }
