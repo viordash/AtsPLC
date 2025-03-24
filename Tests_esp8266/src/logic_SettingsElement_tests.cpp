@@ -396,6 +396,12 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_empty_ssid) {
 
     load_settings();
     STRNCMP_EQUAL("", settings.wifi_station.ssid, sizeof(settings.wifi_station.ssid));
+
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(testable.PublicMorozov_Get_value(), "\002");
+    testable.EndEditing();
+    load_settings();
+    STRNCMP_EQUAL("", settings.wifi_station.ssid, sizeof(settings.wifi_station.ssid));
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_password_with_max_size) {
@@ -444,7 +450,12 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_empty_password) {
         SettingsElement::Discriminator::t_wifi_station_settings_password;
     strcpy(testable.PublicMorozov_Get_value(), "");
     testable.EndEditing();
+    load_settings();
+    STRNCMP_EQUAL("", settings.wifi_station.password, sizeof(settings.wifi_station.password));
 
+    strcpy(settings.wifi_station.password, "test_pass");
+    strcpy(testable.PublicMorozov_Get_value(), "\002");
+    testable.EndEditing();
     load_settings();
     STRNCMP_EQUAL("", settings.wifi_station.password, sizeof(settings.wifi_station.password));
 }
@@ -631,6 +642,79 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_changing_unsigned_number_symbol
         CHECK_EQUAL(ch, testable.PublicMorozov_Get_value()[0]);
         CHECK_EQUAL(0, testable.PublicMorozov_Get_value()[1]);
         testable.SelectPrior();
+    }
+
+    CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
+}
+
+TEST(LogicSettingsElementTestsGroup, SelectNext_changing_string_symbols) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_ssid;
+
+    strcpy(settings.wifi_station.ssid, "!");
+
+    testable.Change();
+    testable.Change();
+
+    CHECK_EQUAL(SettingsElement::EditingPropertyId::cwbepi_Value_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (char ch = '!'; ch <= '~'; ch++) {
+        CHECK_EQUAL(ch, testable.PublicMorozov_Get_value()[0]);
+        CHECK_EQUAL(0, testable.PublicMorozov_Get_value()[1]);
+        testable.SelectNext();
+    }
+    const char *place_new_char = "\x02";
+    STRCMP_EQUAL(place_new_char, testable.PublicMorozov_Get_value());
+}
+
+TEST(LogicSettingsElementTestsGroup, SelectNext_changing_signed_number_symbols) {
+    TestableSettingsElement testable;
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
+
+    settings.wifi_station.connect_max_retry_count = -1;
+    testable.Change();
+    testable.Change();
+
+    CHECK_EQUAL(SettingsElement::EditingPropertyId::cwbepi_Value_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    CHECK_EQUAL('-', testable.PublicMorozov_Get_value()[0]);
+    CHECK_EQUAL('1', testable.PublicMorozov_Get_value()[1]);
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_value()[2]);
+    testable.SelectNext();
+    CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
+    testable.SelectNext();
+
+    for (char ch = '0'; ch <= '9'; ch++) {
+        CHECK_EQUAL(ch, testable.PublicMorozov_Get_value()[0]);
+        CHECK_EQUAL('1', testable.PublicMorozov_Get_value()[1]);
+        CHECK_EQUAL(0, testable.PublicMorozov_Get_value()[2]);
+        testable.SelectNext();
+    }
+    CHECK_EQUAL('-', testable.PublicMorozov_Get_value()[0]);
+}
+
+TEST(LogicSettingsElementTestsGroup, SelectNext_changing_unsigned_number_symbols) {
+    TestableSettingsElement testable;
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
+
+    settings.wifi_station.reconnect_delay_ms = 0;
+    testable.Change();
+    testable.Change();
+
+    CHECK_EQUAL(SettingsElement::EditingPropertyId::cwbepi_Value_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+
+    for (char ch = '0'; ch <= '9'; ch++) {
+        CHECK_EQUAL(ch, testable.PublicMorozov_Get_value()[0]);
+        CHECK_EQUAL(0, testable.PublicMorozov_Get_value()[1]);
+        testable.SelectNext();
     }
 
     CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
