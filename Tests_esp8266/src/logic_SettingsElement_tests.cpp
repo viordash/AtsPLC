@@ -216,7 +216,7 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_password;
     testable.PublicMorozov_ReadValue(display_value, true);
-    STRCMP_EQUAL("string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345", display_value);
+    STRCMP_EQUAL("********", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;

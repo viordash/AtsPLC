@@ -310,8 +310,12 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
         case t_wifi_station_settings_password: {
             const size_t max_len = sizeof(curr_settings.wifi_station.password);
             static_assert(value_size + 1 > max_len);
-            strncpy(string_buffer, curr_settings.wifi_station.password, max_len);
-            string_buffer[max_len] = 0;
+            if (friendly_format) {
+                strcpy(string_buffer, "********");
+            } else {
+                strncpy(string_buffer, curr_settings.wifi_station.password, max_len);
+                string_buffer[max_len] = 0;
+            }
             break;
         }
         case t_wifi_station_settings_connect_max_retry_count:
