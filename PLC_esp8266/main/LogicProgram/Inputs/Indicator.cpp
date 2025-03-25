@@ -557,6 +557,38 @@ void Indicator::Change() {
 }
 
 void Indicator::Option() {
+    ESP_LOGI(TAG_Indicator, "Option editing_property_id:%d", editing_property_id);
+
+    switch (editing_property_id) {
+        case Indicator::EditingPropertyId::ciepi_None:
+        case Indicator::EditingPropertyId::ciepi_ConfigureIOAdr:
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_1:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_2:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_3:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_4:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_5:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_6:
+        case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_7:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0;
+            AcceptLowScale();
+            PrintHighScale();
+            break;
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_1:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_2:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_3:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_4:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_5:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_6:
+        case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_7:
+            editing_property_id = Indicator::EditingPropertyId::ciepi_None;
+            AcceptHighScale();
+            UpdateScale();
+            EndEditing();
+            break;
+    }
 }
 
 const AllowedIO Indicator::GetAllowedInputs() {
