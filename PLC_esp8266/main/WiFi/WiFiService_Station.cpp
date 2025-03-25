@@ -59,7 +59,7 @@ void WiFiService::StationTask(RequestItem *request) {
                                 &ulNotifiedValue,
                                 scan_station_rssi_period_ms / portTICK_PERIOD_MS)
                 != pdPASS) {
-                if (!ObtainStationRssi()) {
+                if (has_connect && !ObtainStationRssi()) {
                     ulNotifiedValue = FAILED_BIT;
                 }
             }
@@ -82,33 +82,36 @@ void WiFiService::StationTask(RequestItem *request) {
         bool one_more_request = requests.OneMoreInQueue();
         bool any_failure = (notified_event & FAILED_BIT) != 0;
         if (any_failure) {
+            has_connect = false;
+            uint32_t reconnect_delay;
             bool retry_connect = (max_retry_count == INFINITY_CONNECT_RETRY
                                   || connect_retries_num < max_retry_count);
             if (!retry_connect) {
                 ESP_LOGW(TAG_WiFiService_Station, "failed. unable reconnect");
                 station_rssi = LogicElement::MinValue;
                 Controller::WakeupProcessTask();
-                break;
-            }
-            has_connect = false;
-
-            const int retries_num_before_no_station = 3;
-            if (connect_retries_num >= retries_num_before_no_station) {
-                station_rssi = LogicElement::MinValue;
-                Controller::WakeupProcessTask();
-                if (one_more_request) {
-                    ESP_LOGI(TAG_WiFiService_Station,
-                             "Stop connecting to station due to new request");
-                    break;
+                reconnect_delay = portMAX_DELAY;
+            } else {
+                const int retries_num_before_no_station = 3;
+                if (connect_retries_num >= retries_num_before_no_station) {
+                    station_rssi = LogicElement::MinValue;
+                    Controller::WakeupProcessTask();
+                    if (one_more_request) {
+                        ESP_LOGI(TAG_WiFiService_Station,
+                                 "Stop connecting to station due to new request");
+                        break;
+                    }
                 }
-            }
 
-            connect_retries_num++;
-            ESP_LOGI(TAG_WiFiService_Station,
-                     "'%s' failed. reconnect, num:%d of %d",
-                     settings.wifi_station.ssid,
-                     connect_retries_num,
-                     max_retry_count);
+                connect_retries_num++;
+                ESP_LOGI(TAG_WiFiService_Station,
+                         "'%s' failed. reconnect, num:%d of %d",
+                         settings.wifi_station.ssid,
+                         connect_retries_num,
+                         max_retry_count);
+
+                reconnect_delay = reconnect_delay_ms / portTICK_RATE_MS;
+            }
 
             stop_http_server();
             Disconnect();
@@ -117,7 +120,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | CONNECTED_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
-                                reconnect_delay_ms / portTICK_RATE_MS)
+                                reconnect_delay)
                 == pdFALSE;
             if (delay_before_reconnect) {
                 Connect(&wifi_config);
