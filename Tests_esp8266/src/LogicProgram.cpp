@@ -25,6 +25,7 @@
 #include "main/LogicProgram/Bindings/WiFiApBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiBinding.cpp"
 #include "main/LogicProgram/Bindings/WiFiStaBinding.cpp"
+#include "main/LogicProgram/Bindings/DateTimeBinding.cpp"
 #include "main/LogicProgram/Controller.cpp"
 #include "main/LogicProgram/InputElement.cpp"
 #include "main/LogicProgram/InputOutputElement.cpp"

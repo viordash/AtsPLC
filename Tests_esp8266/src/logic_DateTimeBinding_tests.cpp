@@ -1,0 +1,221 @@
+#include "CppUTest/TestHarness.h"
+#include "CppUTestExt/MockSupport.h"
+
+#include <errno.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include "main/LogicProgram/Bindings/DateTimeBinding.h"
+#include "main/LogicProgram/Inputs/ComparatorEq.h"
+#include "main/LogicProgram/Inputs/ComparatorGE.h"
+#include "main/LogicProgram/Inputs/ComparatorGr.h"
+#include "main/LogicProgram/Inputs/ComparatorLE.h"
+#include "main/LogicProgram/Inputs/ComparatorLs.h"
+#include "main/LogicProgram/Inputs/InputNC.h"
+#include "main/LogicProgram/Inputs/InputNO.h"
+
+static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+
+static WiFiService *wifi_service;
+TEST_GROUP(LogicDateTimeBindingTestsGroup){
+    //
+    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+
+mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
+mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
+wifi_service = new WiFiService();
+Controller::Start(NULL, wifi_service, NULL);
+}
+
+TEST_TEARDOWN() {
+    Controller::V1.Unbind();
+    Controller::V2.Unbind();
+    Controller::V3.Unbind();
+    Controller::V4.Unbind();
+    Controller::Stop();
+    delete wifi_service;
+}
+}
+;
+
+namespace {
+    class TestableDateTimeBinding : public DateTimeBinding {
+      public:
+        TestableDateTimeBinding() : DateTimeBinding() {
+        }
+        virtual ~TestableDateTimeBinding() {
+        }
+
+        const char *GetLabel() {
+            return label;
+        }
+        LogicItemState *PublicMorozov_Get_state() {
+            return &state;
+        }
+        int *PublicMorozov_Get_editing_property_id() {
+            return &editing_property_id;
+        }
+    };
+} // namespace
+
+TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_IoAdr) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectNext();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_IoAdr) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V1, testable.GetIoAdr());
+    testable.SelectPrior();
+    CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Change_after_IoAdr_modified_then_EndEditing) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    testable.BeginEditing();
+    testable.Change();
+    testable.SelectNext();
+    CHECK_TRUE(testable.Editing());
+    testable.Change();
+    CHECK_FALSE(testable.Editing());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Serialize) {
+    uint8_t buffer[256] = {};
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V2);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(2, writed);
+
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, *((TvElementType *)&buffer[0]));
+    CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Serialize_just_for_obtain_size) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    size_t writed = testable.Serialize(NULL, SIZE_MAX);
+    CHECK_EQUAL(2, writed);
+
+    writed = testable.Serialize(NULL, 0);
+    CHECK_EQUAL(2, writed);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
+    uint8_t buffer[1] = {};
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+
+    size_t writed = testable.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, writed);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Deserialize) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DateTimeBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+
+    TestableDateTimeBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(1, readed);
+
+    CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
+    CHECK(&Controller::V3 == testable.Input);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
+    uint8_t buffer[0] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DateTimeBinding;
+
+    TestableDateTimeBinding testable;
+
+    size_t readed = testable.Deserialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DateTimeBinding;
+
+    TestableDateTimeBinding testable;
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::DI - 1);
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = (MapIO)(MapIO::V4 + 1);
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(1, readed);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, GetElementType) {
+    TestableDateTimeBinding testable;
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable.GetElementType());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, TryToCast) {
+    InputNC inputNC;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&inputNC) == NULL);
+
+    InputNO inputNO;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&inputNO) == NULL);
+
+    ComparatorEq comparatorEq;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&comparatorEq) == NULL);
+
+    ComparatorGE comparatorGE;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&comparatorGE) == NULL);
+
+    ComparatorGr comparatorGr;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&comparatorGr) == NULL);
+
+    ComparatorLE comparatorLE;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&comparatorLE) == NULL);
+
+    ComparatorLs comparatorLs;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&comparatorLs) == NULL);
+
+    DateTimeBinding dateTimeBinding;
+    CHECK_TRUE(DateTimeBinding::TryToCast(&dateTimeBinding) == &dateTimeBinding);
+}
