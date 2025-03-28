@@ -8,6 +8,17 @@
 #include <unistd.h>
 
 class DateTimeBinding : public LogicElement, public InputElement, public LabeledLogicItem {
+  public:
+    typedef enum { //
+        t_second = 0,
+        t_minute,
+        t_hour,
+        t_day,
+        t_weekday,
+        t_month,
+        t_year
+    } DatetimePart;
+
   protected:
     const static Bitmap bitmap;
     const AllowedIO GetAllowedInputs();
@@ -15,8 +26,11 @@ class DateTimeBinding : public LogicElement, public InputElement, public Labeled
   public:
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,
-        cwbepi_ConfigureIOAdr
+        cwbepi_ConfigureIOAdr,
+        cwbepi_SelectDatetimePart
     } EditingPropertyId;
+
+    DatetimePart datetime_part;
 
     static const uint8_t LeftPadding = 12;
     static const uint8_t RightPadding = 12;
@@ -35,6 +49,7 @@ class DateTimeBinding : public LogicElement, public InputElement, public Labeled
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;
+    bool ValidateDatetimePart(DatetimePart datetime_part);
     TvElementType GetElementType() override;
 
     static DateTimeBinding *TryToCast(LogicElement *logic_element);

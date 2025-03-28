@@ -58,6 +58,10 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
+
+        bool PublicMorozov_ValidateDatetimePart(DatetimePart datetime_part) {
+            return ValidateDatetimePart(datetime_part);
+        }
     };
 } // namespace
 
@@ -186,7 +190,7 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) 
 
     *((MapIO *)&buffer[1]) = MapIO::DI;
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
-    CHECK_EQUAL(1, readed);
+    CHECK_EQUAL(5, readed);
 }
 
 TEST(LogicDateTimeBindingTestsGroup, GetElementType) {
@@ -218,4 +222,24 @@ TEST(LogicDateTimeBindingTestsGroup, TryToCast) {
 
     DateTimeBinding dateTimeBinding;
     CHECK_TRUE(DateTimeBinding::TryToCast(&dateTimeBinding) == &dateTimeBinding);
+}
+
+TEST(LogicDateTimeBindingTestsGroup, ValidateDatetimePart) {
+    TestableDateTimeBinding testable;
+    CHECK_TRUE(
+        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_second));
+    CHECK_TRUE(
+        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_minute));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_hour));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_day));
+    CHECK_TRUE(
+        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_weekday));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_month));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_year));
+
+    CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
+        (DateTimeBinding::DatetimePart)((int)DateTimeBinding::DatetimePart::t_second - 1)));
+    
+    CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
+        (DateTimeBinding::DatetimePart)((int)DateTimeBinding::DatetimePart::t_year + 1)));
 }

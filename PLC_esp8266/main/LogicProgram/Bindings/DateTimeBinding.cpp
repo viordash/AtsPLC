@@ -19,6 +19,7 @@
 static const char *TAG_DateTimeBinding = "DateTimeBinding";
 
 DateTimeBinding::DateTimeBinding() : LogicElement(), InputElement() {
+    datetime_part = DatetimePart::t_second;
 }
 
 DateTimeBinding::DateTimeBinding(const MapIO io_adr) : DateTimeBinding() {
@@ -132,6 +133,9 @@ size_t DateTimeBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Write(&io_adr, sizeof(io_adr), buffer, buffer_size, &writed)) {
         return 0;
     }
+    if (!Record::Write(&datetime_part, sizeof(datetime_part), buffer, buffer_size, &writed)) {
+        return 0;
+    }
     return writed;
 }
 
@@ -145,8 +149,32 @@ size_t DateTimeBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!ValidateMapIO(_io_adr)) {
         return 0;
     }
+
+    DatetimePart _datetime_part;
+    if (!Record::Read(&_datetime_part, sizeof(_datetime_part), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateDatetimePart(_datetime_part)) {
+        return 0;
+    }
     SetIoAdr(_io_adr);
+    datetime_part = _datetime_part;
     return readed;
+}
+
+bool DateTimeBinding::ValidateDatetimePart(DatetimePart datetime_part) {
+    switch (datetime_part) {
+        case t_second:
+        case t_minute:
+        case t_hour:
+        case t_day:
+        case t_weekday:
+        case t_month:
+        case t_year:
+            return true;
+        default:
+            return false;
+    }
 }
 
 TvElementType DateTimeBinding::GetElementType() {
