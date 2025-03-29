@@ -9,6 +9,7 @@ extern "C" {
 }
 #endif
 
+#include "Datetime/DatetimeService.h"
 #include "Display/RenderingService.h"
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
@@ -76,7 +77,8 @@ void app_main() {
     WiFiService wifi_service;
     wifi_service.Start();
     RenderingService rendering_service;
-    Controller::Start(gpio_events, &wifi_service, &rendering_service);
+    DatetimeService datetime_service;
+    Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
     printf("mem: %u\n", free_mem);
