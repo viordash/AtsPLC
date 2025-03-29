@@ -1,6 +1,7 @@
 
 
 #include "LogicProgram/Controller.h"
+#include "Datetime/DatetimeService.h"
 #include "Display/Common.h"
 #include "Display/RenderingService.h"
 #include "Display/display.h"
@@ -40,6 +41,7 @@ Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
+DatetimeService *Controller::datetime_service = NULL;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -52,10 +54,12 @@ ControllerVariable Controller::V4;
 
 void Controller::Start(EventGroupHandle_t gpio_events,
                        WiFiService *wifi_service,
-                       RenderingService *rendering_service) {
+                       RenderingService *rendering_service,
+                       DatetimeService *datetime_service) {
     Controller::gpio_events = gpio_events;
     Controller::wifi_service = wifi_service;
     Controller::rendering_service = rendering_service;
+    Controller::datetime_service = datetime_service;
 
     Controller::DI.Init();
     Controller::AI.Init();

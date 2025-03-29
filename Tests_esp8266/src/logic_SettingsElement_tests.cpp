@@ -21,7 +21,7 @@ TEST_GROUP(LogicSettingsElementTestsGroup){
 create_storage_0();
 create_storage_1();
 mock().disable();
-Controller::Start(NULL, NULL, NULL);
+Controller::Start(NULL, NULL, NULL, NULL);
 load_settings();
 }
 

@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/Datetime/DatetimeService.h"
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Outputs/DecOutput.h"
 #include "main/WiFi/WiFiService.h"
@@ -21,18 +22,21 @@ namespace {
     };
 } // namespace
 TestableWiFiService *wifi_service;
+static DatetimeService *datetime_service;
 
 TEST_GROUP(LogicControllerTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new TestableWiFiService();
-Controller::Start(NULL, wifi_service, NULL);
+datetime_service = new DatetimeService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
     delete wifi_service;
+    delete datetime_service;
 }
 }
 ;

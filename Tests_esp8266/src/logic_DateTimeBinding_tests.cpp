@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "main/Datetime/DatetimeService.h"
 #include "main/LogicProgram/Bindings/DateTimeBinding.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
@@ -20,6 +21,7 @@
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 
 static WiFiService *wifi_service;
+static DatetimeService *datetime_service;
 TEST_GROUP(LogicDateTimeBindingTestsGroup){
     //
     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
@@ -27,7 +29,8 @@ TEST_GROUP(LogicDateTimeBindingTestsGroup){
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL);
+datetime_service = new DatetimeService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service);
 }
 
 TEST_TEARDOWN() {
@@ -37,6 +40,7 @@ TEST_TEARDOWN() {
     Controller::V4.Unbind();
     Controller::Stop();
     delete wifi_service;
+    delete datetime_service;
 }
 }
 ;

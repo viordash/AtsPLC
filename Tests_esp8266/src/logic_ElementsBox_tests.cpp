@@ -23,7 +23,7 @@ TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL);
+Controller::Start(NULL, wifi_service, NULL, NULL);
 }
 
 TEST_TEARDOWN() {

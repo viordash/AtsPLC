@@ -26,7 +26,7 @@ settings.wifi_station.connect_max_retry_count = -1;
 settings.wifi_station.reconnect_delay_ms = 3000;
 settings.wifi_station.scan_station_rssi_period_ms = 5000;
 
-Controller::Start(NULL, NULL, NULL);
+Controller::Start(NULL, NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {

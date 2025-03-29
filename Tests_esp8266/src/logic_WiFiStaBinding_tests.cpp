@@ -27,7 +27,7 @@ TEST_GROUP(LogicWiFiStaBindingTestsGroup){
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL);
+Controller::Start(NULL, wifi_service, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
