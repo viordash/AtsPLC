@@ -23,6 +23,8 @@ class DateTimeBinding : public LogicElement, public InputElement, public Labeled
     const static Bitmap bitmap;
     const AllowedIO GetAllowedInputs();
 
+    const char * GetDatetimePartName();
+
   public:
     typedef enum { //
         cwbepi_None = EditableElement::EditingPropertyId::cepi_None,

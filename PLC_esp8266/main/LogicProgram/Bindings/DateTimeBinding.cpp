@@ -118,7 +118,49 @@ DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     start_point->x += Width;
 
     res = EditableElement::Render(fb, start_point);
+    if (!res) {
+        return res;
+    }
+
+    top_left.x += LeftPadding + 22;
+    top_left.x += bitmap.size.width + 1;
+
+    switch (editing_property_id) {
+        case DateTimeBinding::EditingPropertyId::cwbepi_None:
+        case DateTimeBinding::EditingPropertyId::cwbepi_ConfigureIOAdr:
+            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
+            break;
+
+        case DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart:
+            res = Blinking_50()
+               && draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
+            break;
+
+        default:
+            break;
+    }
+
     return res;
+}
+
+const char *DateTimeBinding::GetDatetimePartName() {
+    switch (datetime_part) {
+        case DateTimeBinding::DatetimePart::t_second:
+            return "SECOND";
+        case DateTimeBinding::DatetimePart::t_minute:
+            return "MINUTE";
+        case DateTimeBinding::DatetimePart::t_hour:
+            return "HOUR";
+        case DateTimeBinding::DatetimePart::t_day:
+            return "DAY";
+        case DateTimeBinding::DatetimePart::t_weekday:
+            return "WEEKDAY";
+        case DateTimeBinding::DatetimePart::t_month:
+            return "MONTH";
+        case DateTimeBinding::DatetimePart::t_year:
+            return "YEAR";
+    }
+    return NULL;
 }
 
 size_t DateTimeBinding::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -207,6 +249,14 @@ void DateTimeBinding::SelectPrior() {
             SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
             break;
         }
+        case DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart: {
+            auto _datetime_part = (DatetimePart)(datetime_part - 1);
+            if (!ValidateDatetimePart(_datetime_part)) {
+                _datetime_part = DatetimePart::t_year;
+            }
+            datetime_part = _datetime_part;
+            break;
+        }
 
         default:
             break;
@@ -229,6 +279,14 @@ void DateTimeBinding::SelectNext() {
             SetIoAdr(allowed_inputs.inputs_outputs[io_adr]);
             break;
         }
+        case DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart: {
+            auto _datetime_part = (DatetimePart)(datetime_part + 1);
+            if (!ValidateDatetimePart(_datetime_part)) {
+                _datetime_part = DatetimePart::t_second;
+            }
+            datetime_part = _datetime_part;
+            break;
+        }
 
         default:
             break;
@@ -245,6 +303,9 @@ void DateTimeBinding::Change() {
     switch (editing_property_id) {
         case DateTimeBinding::EditingPropertyId::cwbepi_None:
             editing_property_id = DateTimeBinding::EditingPropertyId::cwbepi_ConfigureIOAdr;
+            break;
+        case DateTimeBinding::EditingPropertyId::cwbepi_ConfigureIOAdr:
+            editing_property_id = DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart;
             break;
 
         default:
