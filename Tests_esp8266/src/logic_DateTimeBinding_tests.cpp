@@ -68,6 +68,25 @@ namespace {
     };
 } // namespace
 
+TEST(LogicDateTimeBindingTestsGroup, Render) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+
+    Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
+    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+
+    bool any_pixel_coloring = false;
+    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+        if (frame_buffer[i] != 0) {
+            any_pixel_coloring = true;
+            break;
+        }
+    }
+    CHECK_TRUE(any_pixel_coloring);
+    CHECK_EQUAL(113, start_point.x);
+}
+
 TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::V1);
@@ -79,6 +98,7 @@ TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_IoAdr) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.SelectNext();
@@ -96,6 +116,7 @@ TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_IoAdr) {
 TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_IoAdr) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.SelectPrior();
@@ -110,15 +131,54 @@ TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_IoAdr) {
     CHECK_EQUAL(MapIO::V4, testable.GetIoAdr());
 }
 
-TEST(LogicDateTimeBindingTestsGroup, Change_after_IoAdr_modified_then_EndEditing) {
+TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_DatetimePart) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
-    testable.SelectNext();
-    CHECK_TRUE(testable.Editing());
     testable.Change();
-    CHECK_FALSE(testable.Editing());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
+    testable.SelectNext();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+}
+
+TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_DatetimePart) {
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::DI);
+    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    testable.BeginEditing();
+    testable.Change();
+    testable.Change();
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
+    testable.SelectPrior();
+    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
 }
 
 TEST(LogicDateTimeBindingTestsGroup, Serialize) {

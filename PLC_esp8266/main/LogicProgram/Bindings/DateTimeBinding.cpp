@@ -1,12 +1,5 @@
 #include "LogicProgram/Bindings/DateTimeBinding.h"
 #include "Display/bitmaps/datetime_binding.h"
-#include "LogicProgram/Inputs/ComparatorEq.h"
-#include "LogicProgram/Inputs/ComparatorGE.h"
-#include "LogicProgram/Inputs/ComparatorGr.h"
-#include "LogicProgram/Inputs/ComparatorLE.h"
-#include "LogicProgram/Inputs/ComparatorLs.h"
-#include "LogicProgram/Inputs/InputNC.h"
-#include "LogicProgram/Inputs/InputNO.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -62,6 +55,8 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 IRAM_ATTR bool
 DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
+
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     if (prev_elem_state == LogicItemState::lisActive) {
         res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
@@ -122,8 +117,7 @@ DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
         return res;
     }
 
-    top_left.x += LeftPadding + 22;
-    top_left.x += bitmap.size.width + 1;
+    top_left.x += bitmap.size.width + 4;
 
     switch (editing_property_id) {
         case DateTimeBinding::EditingPropertyId::cwbepi_None:
@@ -133,32 +127,31 @@ DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
 
         case DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart:
             res = Blinking_50()
-               && draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
+               || draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
             break;
 
         default:
             break;
     }
-
     return res;
 }
 
 const char *DateTimeBinding::GetDatetimePartName() {
     switch (datetime_part) {
         case DateTimeBinding::DatetimePart::t_second:
-            return "SECOND";
+            return "SECONDS";
         case DateTimeBinding::DatetimePart::t_minute:
-            return "MINUTE";
+            return "MINUTES";
         case DateTimeBinding::DatetimePart::t_hour:
-            return "HOUR";
+            return "HOURS";
         case DateTimeBinding::DatetimePart::t_day:
-            return "DAY";
+            return "DAYS";
         case DateTimeBinding::DatetimePart::t_weekday:
-            return "WEEKDAY";
+            return "WEEKDAYS";
         case DateTimeBinding::DatetimePart::t_month:
-            return "MONTH";
+            return "MONTHS";
         case DateTimeBinding::DatetimePart::t_year:
-            return "YEAR";
+            return "YEARS";
     }
     return NULL;
 }
@@ -309,6 +302,7 @@ void DateTimeBinding::Change() {
             break;
 
         default:
+            editing_property_id = DateTimeBinding::EditingPropertyId::cwbepi_None;
             EndEditing();
             break;
     }
