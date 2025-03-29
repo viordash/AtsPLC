@@ -92,7 +92,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize) {
 }
 
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_small_buffer_return_zero) {
-    uint8_t buffer[0] = {};
+    uint8_t buffer[1] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
 
     TimerMSecs testable;

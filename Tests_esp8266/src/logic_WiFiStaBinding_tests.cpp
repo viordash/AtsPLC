@@ -221,7 +221,6 @@ TEST(LogicWiFiStaBindingTestsGroup, Deserialize) {
 
 TEST(LogicWiFiStaBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiStaBinding;
 
     TestableWiFiStaBinding testable;
 
