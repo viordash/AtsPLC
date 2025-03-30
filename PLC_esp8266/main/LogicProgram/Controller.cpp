@@ -319,6 +319,29 @@ void Controller::BindVariableToStaWiFi(const MapIO io_adr) {
     }
 }
 
+void Controller::BindVariableToToDateTime(const MapIO io_adr, DatetimePart datetime_part) {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+
+        default:
+            break;
+    }
+}
+
 void Controller::UnbindVariable(const MapIO io_adr) {
     switch (io_adr) {
         case MapIO::V1:

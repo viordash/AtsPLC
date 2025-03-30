@@ -72,7 +72,7 @@ class Controller {
                                          const char *mac);
     static void BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid);
     static void BindVariableToStaWiFi(const MapIO io_adr);
-
+    static void BindVariableToToDateTime(const MapIO io_adr, DatetimePart datetime_part);
     static void UnbindVariable(const MapIO io_adr);
 
     static void WakeupProcessTask();

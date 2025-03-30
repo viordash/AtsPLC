@@ -38,7 +38,7 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
-        // Controller::BindVariableToInsecureWiFi(GetIoAdr(), GetSsid());
+        Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
