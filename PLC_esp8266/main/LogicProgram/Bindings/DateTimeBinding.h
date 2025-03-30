@@ -2,28 +2,18 @@
 
 #include "Display/LabeledLogicItem.h"
 #include "Display/display.h"
+#include "LogicProgram/Bindings/DatetimePart.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
 
 class DateTimeBinding : public LogicElement, public InputElement, public LabeledLogicItem {
-  public:
-    typedef enum { //
-        t_second = 0,
-        t_minute,
-        t_hour,
-        t_day,
-        t_weekday,
-        t_month,
-        t_year
-    } DatetimePart;
-
   protected:
     const static Bitmap bitmap;
     const AllowedIO GetAllowedInputs();
 
-    const char * GetDatetimePartName();
+    const char *GetDatetimePartName();
 
   public:
     typedef enum { //

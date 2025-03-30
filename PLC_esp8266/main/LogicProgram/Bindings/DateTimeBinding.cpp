@@ -138,19 +138,19 @@ DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
 
 const char *DateTimeBinding::GetDatetimePartName() {
     switch (datetime_part) {
-        case DateTimeBinding::DatetimePart::t_second:
+        case DatetimePart::t_second:
             return "SECONDS";
-        case DateTimeBinding::DatetimePart::t_minute:
+        case DatetimePart::t_minute:
             return "MINUTES";
-        case DateTimeBinding::DatetimePart::t_hour:
+        case DatetimePart::t_hour:
             return "HOURS";
-        case DateTimeBinding::DatetimePart::t_day:
+        case DatetimePart::t_day:
             return "DAYS";
-        case DateTimeBinding::DatetimePart::t_weekday:
+        case DatetimePart::t_weekday:
             return "WEEKDAYS";
-        case DateTimeBinding::DatetimePart::t_month:
+        case DatetimePart::t_month:
             return "MONTHS";
-        case DateTimeBinding::DatetimePart::t_year:
+        case DatetimePart::t_year:
             return "YEARS";
     }
     return NULL;

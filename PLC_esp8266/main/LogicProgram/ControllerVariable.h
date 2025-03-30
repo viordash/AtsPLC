@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Datetime/DatetimeService.h"
+#include "LogicProgram/Bindings/DatetimePart.h"
 #include "LogicProgram/ControllerBaseInput.h"
 #include "LogicProgram/ControllerBaseOutput.h"
 #include "WiFi/WiFiService.h"
@@ -12,6 +14,9 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
     const char *ssid;
     const char *password;
     const char *mac;
+
+    DatetimeService *datetime_service;
+    DatetimePart datetime_part;
 
   public:
     explicit ControllerVariable();
@@ -26,6 +31,10 @@ class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutp
     void BindToStaWiFi(WiFiService *wifi_service);
     void Unbind();
     bool BindedToWiFi();
+
+    void BindToDateTime(DatetimeService *datetime_service, DatetimePart datetime_part);
+
+    bool BindedToDateTime();
 
     void CancelReadingProcess() override;
 };

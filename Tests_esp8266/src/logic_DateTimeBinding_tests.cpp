@@ -10,6 +10,7 @@
 
 #include "main/Datetime/DatetimeService.h"
 #include "main/LogicProgram/Bindings/DateTimeBinding.h"
+#include "main/LogicProgram/Bindings/DatetimePart.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
 #include "main/LogicProgram/Inputs/ComparatorGr.h"
@@ -75,7 +76,7 @@ namespace {
 TEST(LogicDateTimeBindingTestsGroup, Render) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::V1);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
 
     Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
     CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
@@ -102,7 +103,7 @@ TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_IoAdr) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.SelectNext();
@@ -120,7 +121,7 @@ TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_IoAdr) {
 TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_IoAdr) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.SelectPrior();
@@ -138,72 +139,72 @@ TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_IoAdr) {
 TEST(LogicDateTimeBindingTestsGroup, SelectNext_changing_DatetimePart) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.Change();
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
     testable.SelectNext();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
 }
 
 TEST(LogicDateTimeBindingTestsGroup, SelectPrior_changing_DatetimePart) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
     testable.BeginEditing();
     testable.Change();
     testable.Change();
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_year, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_month, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_day, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_hour, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_minute, *testable.PublicMorozov_datetime_part());
     testable.SelectPrior();
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_second, *testable.PublicMorozov_datetime_part());
 }
 
 TEST(LogicDateTimeBindingTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::V2);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(6, writed);
 
     CHECK_EQUAL(TvElementType::et_DateTimeBinding, *((TvElementType *)&buffer[0]));
     CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_minute,
-                *((DateTimeBinding::DatetimePart *)&buffer[2]));
+    CHECK_EQUAL(DatetimePart::t_minute,
+                *((DatetimePart *)&buffer[2]));
 }
 
 TEST(LogicDateTimeBindingTestsGroup, Serialize_just_for_obtain_size) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
 
     size_t writed = testable.Serialize(NULL, SIZE_MAX);
     CHECK_EQUAL(6, writed);
@@ -216,7 +217,7 @@ TEST(LogicDateTimeBindingTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[1] = {};
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::DI);
-    *testable.PublicMorozov_datetime_part() = DateTimeBinding::DatetimePart::t_minute;
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -226,7 +227,7 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_DateTimeBinding;
     *((MapIO *)&buffer[1]) = MapIO::V3;
-    *((DateTimeBinding::DatetimePart *)&buffer[2]) = DateTimeBinding::DatetimePart::t_weekday;
+    *((DatetimePart *)&buffer[2]) = DatetimePart::t_weekday;
 
     TestableDateTimeBinding testable;
 
@@ -235,7 +236,7 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize) {
 
     CHECK_EQUAL(MapIO::V3, testable.GetIoAdr());
     CHECK(&Controller::V3 == testable.Input);
-    CHECK_EQUAL(DateTimeBinding::DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
+    CHECK_EQUAL(DatetimePart::t_weekday, *testable.PublicMorozov_datetime_part());
 }
 
 TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
@@ -251,7 +252,7 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_small_buffer_return_zero) 
 TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_wrong_io_adr_return_zero) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_DateTimeBinding;
-    *((DateTimeBinding::DatetimePart *)&buffer[2]) = DateTimeBinding::DatetimePart::t_weekday;
+    *((DatetimePart *)&buffer[2]) = DatetimePart::t_weekday;
 
     TestableDateTimeBinding testable;
 
@@ -275,18 +276,18 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_wrong_DatetimePart_return_
 
     TestableDateTimeBinding testable;
 
-    *((DateTimeBinding::DatetimePart *)&buffer[2]) =
-        (DateTimeBinding::DatetimePart)(DateTimeBinding::DatetimePart::t_second - 1);
+    *((DatetimePart *)&buffer[2]) =
+        (DatetimePart)(DatetimePart::t_second - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 
-    *((DateTimeBinding::DatetimePart *)&buffer[2]) =
-        (DateTimeBinding::DatetimePart)(DateTimeBinding::DatetimePart::t_year + 1);
+    *((DatetimePart *)&buffer[2]) =
+        (DatetimePart)(DatetimePart::t_year + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 
-    *((DateTimeBinding::DatetimePart *)&buffer[2]) =
-        (DateTimeBinding::DatetimePart)(DateTimeBinding::DatetimePart::t_month);
+    *((DatetimePart *)&buffer[2]) =
+        (DatetimePart)(DatetimePart::t_month);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(5, readed);
 }
@@ -325,19 +326,19 @@ TEST(LogicDateTimeBindingTestsGroup, TryToCast) {
 TEST(LogicDateTimeBindingTestsGroup, ValidateDatetimePart) {
     TestableDateTimeBinding testable;
     CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_second));
+        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_second));
     CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_minute));
-    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_hour));
-    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_day));
+        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_minute));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_hour));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_day));
     CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_weekday));
-    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_month));
-    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DateTimeBinding::DatetimePart::t_year));
+        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_weekday));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_month));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_year));
 
     CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
-        (DateTimeBinding::DatetimePart)((int)DateTimeBinding::DatetimePart::t_second - 1)));
+        (DatetimePart)((int)DatetimePart::t_second - 1)));
 
     CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
-        (DateTimeBinding::DatetimePart)((int)DateTimeBinding::DatetimePart::t_year + 1)));
+        (DatetimePart)((int)DatetimePart::t_year + 1)));
 }

@@ -6,8 +6,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
+#include "main/Datetime/DatetimeService.h"
 #include "main/LogicProgram/ControllerVariable.h"
 #include "main/LogicProgram/LogicElement.h"
 
@@ -366,4 +368,115 @@ TEST(LogicControllerVariableTestsGroup,
 
     testable.CancelReadingProcess();
     CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_seconds) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_second);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_sec, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_minutes) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_minute);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_min, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_hours) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_hour);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_hour, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_days) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_day);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_mday, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_weekdays) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_weekday);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_wday, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_months) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_month);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_mon, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_years) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_year);
+
+    testable.FetchValue();
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    DOUBLES_EQUAL(tm.tm_year, testable.PeekValue(), 1);
+}
+
+TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_binded_to_datetime) {
+    TestableControllerVariable testable;
+    testable.Init();
+    testable.WriteValue(42);
+    testable.CommitChanges();
+
+    CHECK_EQUAL(42, testable.ReadValue());
+    testable.CancelReadingProcess();
+    CHECK_EQUAL(42, testable.ReadValue());
+    CHECK_EQUAL(42, *testable.PublicMorozov_Get_out_value());
+    
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_year);
+
+    testable.CancelReadingProcess();
+    CHECK_EQUAL(LogicElement::MinValue, testable.ReadValue());
+    CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
+    CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
 }
