@@ -126,7 +126,7 @@ int ProcessWakeupService::RemoveExpired() {
         auto req_it = requests.begin();
         auto req = *req_it;
         timespan = req.next_time - current_time;
-        bool expired = timespan <= 0;
+        bool expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
         if (expired) {
             ids.erase(req.id);
             requests.erase(req_it);
