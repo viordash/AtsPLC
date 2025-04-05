@@ -29,6 +29,7 @@ void DateTimeBinding::SetIoAdr(const MapIO io_adr) {
 
 bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        Controller::RemoveRequestWakeupMs(this);
         return false;
     }
 
@@ -39,10 +40,39 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
         state = LogicItemState::lisActive;
         Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
+
     } else if (prev_elem_state != LogicItemState::lisActive
                && state != LogicItemState::lisPassive) {
         state = LogicItemState::lisPassive;
         Controller::UnbindVariable(GetIoAdr());
+    }
+
+    if (state == LogicItemState::lisActive) {
+        Controller::RemoveRequestWakeupMs(this);
+
+        uint32_t event_period_ms;
+        switch (datetime_part) {
+            case DatetimePart::t_second:
+                event_period_ms = 1 * 1000;
+                break;
+            case DatetimePart::t_minute:
+                event_period_ms = 60 * 1 * 1000;
+                break;
+            case DatetimePart::t_hour:
+                event_period_ms = 60 * 60 * 1 * 1000;
+                break;
+            default:
+                event_period_ms = 24 * 60 * 60 * 1 * 1000;
+                break;
+        }
+
+        ESP_LOGI(TAG_DateTimeBinding, "%p event_period_ms:%u", this, event_period_ms);
+        Controller::RequestWakeupMs(this,
+                                    event_period_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
+    } else {
+        Controller::RemoveRequestWakeupMs(this);
+        ESP_LOGI(TAG_DateTimeBinding, "%p ", this);
     }
 
     if (state != prev_state) {

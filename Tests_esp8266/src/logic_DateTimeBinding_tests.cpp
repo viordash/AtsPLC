@@ -197,8 +197,7 @@ TEST(LogicDateTimeBindingTestsGroup, Serialize) {
 
     CHECK_EQUAL(TvElementType::et_DateTimeBinding, *((TvElementType *)&buffer[0]));
     CHECK_EQUAL(MapIO::V2, *((MapIO *)&buffer[1]));
-    CHECK_EQUAL(DatetimePart::t_minute,
-                *((DatetimePart *)&buffer[2]));
+    CHECK_EQUAL(DatetimePart::t_minute, *((DatetimePart *)&buffer[2]));
 }
 
 TEST(LogicDateTimeBindingTestsGroup, Serialize_just_for_obtain_size) {
@@ -276,18 +275,15 @@ TEST(LogicDateTimeBindingTestsGroup, Deserialize_with_wrong_DatetimePart_return_
 
     TestableDateTimeBinding testable;
 
-    *((DatetimePart *)&buffer[2]) =
-        (DatetimePart)(DatetimePart::t_second - 1);
+    *((DatetimePart *)&buffer[2]) = (DatetimePart)(DatetimePart::t_second - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 
-    *((DatetimePart *)&buffer[2]) =
-        (DatetimePart)(DatetimePart::t_year + 1);
+    *((DatetimePart *)&buffer[2]) = (DatetimePart)(DatetimePart::t_year + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 
-    *((DatetimePart *)&buffer[2]) =
-        (DatetimePart)(DatetimePart::t_month);
+    *((DatetimePart *)&buffer[2]) = (DatetimePart)(DatetimePart::t_month);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(5, readed);
 }
@@ -325,20 +321,94 @@ TEST(LogicDateTimeBindingTestsGroup, TryToCast) {
 
 TEST(LogicDateTimeBindingTestsGroup, ValidateDatetimePart) {
     TestableDateTimeBinding testable;
-    CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_second));
-    CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_minute));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_second));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_minute));
     CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_hour));
     CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_day));
-    CHECK_TRUE(
-        testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_weekday));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_weekday));
     CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_month));
     CHECK_TRUE(testable.PublicMorozov_ValidateDatetimePart(DatetimePart::t_year));
 
     CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
         (DatetimePart)((int)DatetimePart::t_second - 1)));
 
-    CHECK_FALSE(testable.PublicMorozov_ValidateDatetimePart(
-        (DatetimePart)((int)DatetimePart::t_year + 1)));
+    CHECK_FALSE(
+        testable.PublicMorozov_ValidateDatetimePart((DatetimePart)((int)DatetimePart::t_year + 1)));
+}
+
+TEST(LogicDateTimeBindingTestsGroup, DoAction_add_controller_wakeup_requests_when_state_active) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(14, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    *testable.PublicMorozov_Get_state() = LogicItemState::lisActive;
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_second;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(100, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(6000, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_hour;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(360000, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_day;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(8640000, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_weekday;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(8640000, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_month;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(8640000, Controller::GetWakeupTicks());
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_year;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(8640000, Controller::GetWakeupTicks());
+}
+
+TEST(LogicDateTimeBindingTestsGroup,
+     DoAction_remove_controller_wakeup_request_when_state_inactive) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    *testable.PublicMorozov_Get_state() = LogicItemState::lisActive;
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_second;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(100, Controller::GetWakeupTicks());
+
+    testable.DoAction(true, LogicItemState::lisPassive);
+    CHECK_EQUAL(-1, (int)Controller::GetWakeupTicks());
+}
+
+TEST(LogicDateTimeBindingTestsGroup,
+     DoAction_remove_controller_wakeup_request_when_prev_elem_state_inactive) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableDateTimeBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    *testable.PublicMorozov_Get_state() = LogicItemState::lisActive;
+
+    *testable.PublicMorozov_datetime_part() = DatetimePart::t_second;
+    testable.DoAction(false, LogicItemState::lisActive);
+    CHECK_EQUAL(100, Controller::GetWakeupTicks());
+
+    testable.DoAction(false, LogicItemState::lisPassive);
+    CHECK_EQUAL(-1, (int)Controller::GetWakeupTicks());
 }

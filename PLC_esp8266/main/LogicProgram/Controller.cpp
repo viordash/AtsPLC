@@ -131,9 +131,9 @@ void Controller::ProcessTask(void *parm) {
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
                                                  true,
                                                  false,
-                                                 processWakeupService->Get());
+                                                 Controller::GetWakeupTicks());
 
-        processWakeupService->RemoveExpired();
+        Controller::RemoveExpiredWakeupRequests();
 
         ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
@@ -245,6 +245,10 @@ void Controller::RemoveRequestWakeupMs(void *id) {
 
 void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
+}
+
+uint32_t Controller::GetWakeupTicks() {
+    return processWakeupService->Get();
 }
 
 void Controller::BindVariableToSecureWiFi(const MapIO io_adr,
