@@ -16,6 +16,7 @@ ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBase
     password = NULL;
     mac = NULL;
     this->datetime_service = NULL;
+    this->datetime_part = DatetimePart::t_second;
 }
 
 void ControllerVariable::Init() {
