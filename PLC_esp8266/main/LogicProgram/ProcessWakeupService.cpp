@@ -106,7 +106,7 @@ uint32_t ProcessWakeupService::Get() {
     uint32_t wait_ticks =
         ((timespan / 1000) + (portTICK_PERIOD_MS - portTICK_PERIOD_MS / 2)) / portTICK_PERIOD_MS;
 
-    ESP_LOGI(TAG_ProcessWakeupService,
+    ESP_LOGD(TAG_ProcessWakeupService,
              "Get:%d, %p, size:%u, time:%u, %s",
              wait_ticks,
              req.id,

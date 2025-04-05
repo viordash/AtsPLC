@@ -66,13 +66,13 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
                 break;
         }
 
-        ESP_LOGI(TAG_DateTimeBinding, "%p event_period_ms:%u", this, event_period_ms);
+        ESP_LOGD(TAG_DateTimeBinding, "%p event_period_ms:%u", this, event_period_ms);
         Controller::RequestWakeupMs(this,
                                     event_period_ms,
                                     ProcessWakeupRequestPriority::pwrp_Critical);
     } else {
         Controller::RemoveRequestWakeupMs(this);
-        ESP_LOGI(TAG_DateTimeBinding, "%p ", this);
+        ESP_LOGD(TAG_DateTimeBinding, "%p ", this);
     }
 
     if (state != prev_state) {
