@@ -24,7 +24,7 @@ bool ProcessWakeupService::Request(void *id,
     }
 
     auto current_time = (uint64_t)esp_timer_get_time();
-    auto next_time = current_time + (delay_ms * 1000);
+    auto next_time = current_time + ((uint64_t)delay_ms * 1000);
 
     ProcessWakeupRequestData request = { id, next_time, priority };
     auto upper = requests.upper_bound(request);
@@ -106,7 +106,7 @@ uint32_t ProcessWakeupService::Get() {
     uint32_t wait_ticks =
         ((timespan / 1000) + (portTICK_PERIOD_MS - portTICK_PERIOD_MS / 2)) / portTICK_PERIOD_MS;
 
-    ESP_LOGD(TAG_ProcessWakeupService,
+    ESP_LOGI(TAG_ProcessWakeupService,
              "Get:%d, %p, size:%u, time:%u, %s",
              wait_ticks,
              req.id,
