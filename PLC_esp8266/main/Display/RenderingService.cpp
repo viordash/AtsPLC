@@ -33,7 +33,7 @@ void RenderingService::Task(void *parm) {
         BaseType_t xResult =
             xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
 
-        ESP_LOGI(TAG_RenderingService,
+        ESP_LOGD(TAG_RenderingService,
                  "ulNotifiedValue:0x%08X xResult:%u",
                  ulNotifiedValue,
                  xResult);
