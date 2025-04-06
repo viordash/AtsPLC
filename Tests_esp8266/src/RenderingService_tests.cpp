@@ -23,23 +23,24 @@ TEST_GROUP(LogicRenderingServiceTestsGroup){ //
 namespace {
     class TestableRenderingService : public RenderingService {
       public:
-        std::atomic<bool> &PublicMorozov_Get_on_rendering() {
-            return on_rendering;
+        TaskHandle_t *PublicMorozov_Get_task_handle() {
+            return &task_handle;
+        }
+        TaskArg *PublicMorozov_Get_task_arg() {
+            return &task_arg;
+        }
+        void PublicMorozov_Task() {
+            RenderingService::Task(&this->task_arg);
         }
     };
 } // namespace
 
-TEST(LogicRenderingServiceTestsGroup, Calls_rendering_only_once_until_task_is_completed) {
+TEST(LogicRenderingServiceTestsGroup, Do_calls_xTaskNotify_with_DO_RENDERING) {
     TestableRenderingService testable;
-
-    TaskHandle_t *task_handle;
-    mock()
-        .expectOneCall("xTaskCreate")
-        .withOutputParameterReturning("pxCreatedTask", &task_handle, sizeof(task_handle))
-        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
+        .withPointerParameter("xTaskToNotify", (TaskHandle_t)42)
         .withUnsignedIntParameter("ulValue", RenderingService::DO_RENDERING)
         .withIntParameter("eAction", eNotifyAction::eSetBits)
         .ignoreOtherParameters();
@@ -47,18 +48,43 @@ TEST(LogicRenderingServiceTestsGroup, Calls_rendering_only_once_until_task_is_co
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
         .withUnsignedIntParameter("ulValue", RenderingService::STOP_RENDER_TASK)
-        .withIntParameter("eAction", eNotifyAction::eSetBits)
+        .ignoreOtherParameters();
+
+    *testable.PublicMorozov_Get_task_handle() = (TaskHandle_t)42;
+    testable.Do();
+}
+
+TEST(LogicRenderingServiceTestsGroup, Rendering_task_DO_RENDERING) {
+    TestableRenderingService testable;
+
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+
+    uint32_t render_notify = RenderingService::DO_RENDERING;
+    mock()
+        .expectNCalls(1, "xTaskNotifyWait")
+        .withOutputParameterReturning("pulNotificationValue", &render_notify, sizeof(render_notify))
+        .ignoreOtherParameters();
+
+    uint32_t stop_notify = RenderingService::STOP_RENDER_TASK;
+    mock()
+        .expectNCalls(1, "xTaskNotifyWait")
+        .withOutputParameterReturning("pulNotificationValue", &stop_notify, sizeof(stop_notify))
+        .ignoreOtherParameters();
+
+    mock().expectOneCall("vTaskDelete").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", RenderingService::STOP_RENDER_TASK)
         .ignoreOtherParameters();
 
     Ladder ladder([](int16_t view_top_index, int16_t selected_network) {
         (void)view_top_index;
         (void)selected_network;
     });
-    testable.Start(&ladder);
-    CHECK_FALSE(testable.PublicMorozov_Get_on_rendering());
-    testable.Do();
-    CHECK_TRUE(testable.PublicMorozov_Get_on_rendering());
+    ;
+    *testable.PublicMorozov_Get_task_arg() = { &testable, &ladder };
+    *testable.PublicMorozov_Get_task_handle() = (TaskHandle_t)42;
 
-    testable.Do();
-    CHECK_TRUE(testable.PublicMorozov_Get_on_rendering());
+    testable.PublicMorozov_Task();
 }
