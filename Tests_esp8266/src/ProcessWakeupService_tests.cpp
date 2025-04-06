@@ -124,9 +124,35 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_next_tick) {
     os_us = 999;
     testable.Request((void *)7, 10, ProcessWakeupRequestPriority::pwrp_Critical);
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests_size());
-    CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(0).id);
-    CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(1).id);
-    CHECK_EQUAL((void *)7, testable.PublicMorozov_Get_request(2).id);
+    CHECK_EQUAL((void *)5, testable.PublicMorozov_Get_request(1).id);
+    CHECK_EQUAL((void *)6, testable.PublicMorozov_Get_request(2).id);
+    CHECK_EQUAL((void *)7, testable.PublicMorozov_Get_request(0).id);
+}
+
+TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_time) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(8, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    TestableProcessWakeupService testable;
+
+    testable.Request((void *)1, 3600000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)2, 1000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)3, 86400000, ProcessWakeupRequestPriority::pwrp_Critical);
+    testable.Request((void *)4, 60000, ProcessWakeupRequestPriority::pwrp_Critical);
+
+    CHECK_EQUAL(4, testable.PublicMorozov_Get_requests_size());
+    CHECK_EQUAL(100, testable.Get());
+    testable.RemoveRequest((void *)2);
+
+    CHECK_EQUAL(6000, testable.Get());
+    testable.RemoveRequest((void *)4);
+
+    CHECK_EQUAL(360000, testable.Get());
+    testable.RemoveRequest((void *)1);
+
+    CHECK_EQUAL(8640000, testable.Get());  
 }
 
 TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {

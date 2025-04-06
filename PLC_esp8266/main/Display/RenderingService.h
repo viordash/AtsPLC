@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #include "Display/Common.h"
-#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -25,7 +24,6 @@ class RenderingService {
     static const int DO_RENDERING = BIT1;
 
   protected:
-    std::atomic<bool> on_rendering;
     TaskArg task_arg;
 
     TaskHandle_t task_handle;

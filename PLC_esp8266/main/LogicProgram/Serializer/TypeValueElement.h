@@ -24,7 +24,8 @@ enum TvElementType : uint8_t {
     et_WiFiBinding,
     et_WiFiStaBinding,
     et_WiFiApBinding,
-    et_Settings
+    et_Settings,
+    et_DateTimeBinding
 };
 
 struct __attribute__((packed)) TvElement {

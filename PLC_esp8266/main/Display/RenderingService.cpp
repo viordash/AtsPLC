@@ -30,9 +30,13 @@ void RenderingService::Task(void *parm) {
     uint32_t ulNotifiedValue = {};
 
     while ((ulNotifiedValue & STOP_RENDER_TASK) == 0) {
-        arg->service->on_rendering = false;
         BaseType_t xResult =
             xTaskNotifyWait(0, DO_RENDERING | STOP_RENDER_TASK, &ulNotifiedValue, portMAX_DELAY);
+
+        ESP_LOGD(TAG_RenderingService,
+                 "ulNotifiedValue:0x%08X xResult:%u",
+                 ulNotifiedValue,
+                 xResult);
 
         if (xResult != pdPASS) {
             ulNotifiedValue = {};
@@ -57,7 +61,6 @@ void RenderingService::Task(void *parm) {
             loop_time = time_after_render;
         }
     }
-    arg->service->on_rendering = false;
     ESP_LOGI(TAG_RenderingService, "stop task");
     vTaskDelete(NULL);
 }
@@ -66,7 +69,6 @@ void RenderingService::Start(Ladder *ladder) {
     if (task_handle != NULL) {
         return;
     }
-    on_rendering = false;
 
     task_arg = { this, ladder };
     ESP_ERROR_CHECK(
@@ -88,11 +90,6 @@ void RenderingService::Do() {
     if (task_handle == NULL) {
         return;
     }
-    if (on_rendering) {
-        ESP_LOGD(TAG_RenderingService, "do skip");
-        return;
-    }
     ESP_LOGD(TAG_RenderingService, "do");
-    on_rendering = true;
     xTaskNotify(task_handle, DO_RENDERING, eNotifyAction::eSetBits);
 }

@@ -1,4 +1,5 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
+#include "LogicProgram/Bindings/DateTimeBinding.h"
 #include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
@@ -92,6 +93,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_Settings:
             element = new SettingsElement();
+            break;
+        case et_DateTimeBinding:
+            element = new DateTimeBinding();
             break;
         default:
             break;

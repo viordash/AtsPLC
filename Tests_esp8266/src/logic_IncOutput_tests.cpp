@@ -17,7 +17,7 @@
 
 TEST_GROUP(LogicIncOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
-Controller::Start(NULL, NULL, NULL);
+Controller::Start(NULL, NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {

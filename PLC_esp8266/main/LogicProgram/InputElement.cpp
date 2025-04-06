@@ -1,4 +1,5 @@
 #include "LogicProgram/InputElement.h"
+#include "LogicProgram/Bindings/DateTimeBinding.h"
 #include "LogicProgram/Bindings/WiFiApBinding.h"
 #include "LogicProgram/Bindings/WiFiBinding.h"
 #include "LogicProgram/Bindings/WiFiStaBinding.h"
@@ -108,6 +109,9 @@ InputElement *InputElement::TryToCast(LogicElement *logic_element) {
 
         case TvElementType::et_WiFiApBinding:
             return static_cast<WiFiApBinding *>(logic_element);
+
+        case TvElementType::et_DateTimeBinding:
+            return static_cast<DateTimeBinding *>(logic_element);
 
         default:
             return NULL;

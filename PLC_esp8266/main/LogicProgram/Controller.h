@@ -27,6 +27,7 @@ extern "C" {
 class RenderingService;
 class WiFiService;
 class Ladder;
+class DatetimeService;
 class Controller {
   protected:
     static bool runned;
@@ -37,13 +38,15 @@ class Controller {
     static ProcessWakeupService *processWakeupService;
     static WiFiService *wifi_service;
     static RenderingService *rendering_service;
+    static DatetimeService *datetime_service;
 
   public:
     static const int WAKEUP_PROCESS_TASK = BIT15;
 
     static void Start(EventGroupHandle_t gpio_events,
                       WiFiService *wifi_service,
-                      RenderingService *rendering_service);
+                      RenderingService *rendering_service,
+                      DatetimeService *datetime_service);
     static void Stop();
     static void FetchIOValues();
     static void CommitChanges();
@@ -62,6 +65,7 @@ class Controller {
     static bool RequestWakeupMs(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
     static void RemoveRequestWakeupMs(void *id);
     static void RemoveExpiredWakeupRequests();
+    static uint32_t GetWakeupTicks();
 
     static void BindVariableToSecureWiFi(const MapIO io_adr,
                                          const char *ssid,
@@ -69,7 +73,7 @@ class Controller {
                                          const char *mac);
     static void BindVariableToInsecureWiFi(const MapIO io_adr, const char *ssid);
     static void BindVariableToStaWiFi(const MapIO io_adr);
-
+    static void BindVariableToToDateTime(const MapIO io_adr, DatetimePart datetime_part);
     static void UnbindVariable(const MapIO io_adr);
 
     static void WakeupProcessTask();

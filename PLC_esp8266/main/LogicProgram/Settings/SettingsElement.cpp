@@ -493,10 +493,11 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_None:
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
-            discriminator = (Discriminator)(discriminator - 1);
-            if (!ValidateDiscriminator(&discriminator)) {
-                discriminator = Discriminator::t_wifi_access_point_settings_ssid_hidden;
+            auto _discriminator = (Discriminator)(discriminator - 1);
+            if (!ValidateDiscriminator(&_discriminator)) {
+                _discriminator = Discriminator::t_wifi_access_point_settings_ssid_hidden;
             }
+            discriminator = _discriminator;
             break;
         }
 
@@ -516,10 +517,11 @@ void SettingsElement::SelectNext() {
         case SettingsElement::EditingPropertyId::cwbepi_None:
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
-            discriminator = (Discriminator)(discriminator + 1);
-            if (!ValidateDiscriminator(&discriminator)) {
-                discriminator = Discriminator::t_wifi_station_settings_ssid;
+            auto _discriminator = (Discriminator)(discriminator + 1);
+            if (!ValidateDiscriminator(&_discriminator)) {
+                _discriminator = Discriminator::t_wifi_station_settings_ssid;
             }
+            discriminator = _discriminator;
             break;
         }
 

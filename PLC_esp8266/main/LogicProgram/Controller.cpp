@@ -1,6 +1,7 @@
 
 
 #include "LogicProgram/Controller.h"
+#include "Datetime/DatetimeService.h"
 #include "Display/Common.h"
 #include "Display/RenderingService.h"
 #include "Display/display.h"
@@ -40,6 +41,7 @@ Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
+DatetimeService *Controller::datetime_service = NULL;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -52,10 +54,12 @@ ControllerVariable Controller::V4;
 
 void Controller::Start(EventGroupHandle_t gpio_events,
                        WiFiService *wifi_service,
-                       RenderingService *rendering_service) {
+                       RenderingService *rendering_service,
+                       DatetimeService *datetime_service) {
     Controller::gpio_events = gpio_events;
     Controller::wifi_service = wifi_service;
     Controller::rendering_service = rendering_service;
+    Controller::datetime_service = datetime_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -127,9 +131,9 @@ void Controller::ProcessTask(void *parm) {
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
                                                  true,
                                                  false,
-                                                 processWakeupService->Get());
+                                                 Controller::GetWakeupTicks());
 
-        processWakeupService->RemoveExpired();
+        Controller::RemoveExpiredWakeupRequests();
 
         ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
@@ -243,6 +247,10 @@ void Controller::RemoveExpiredWakeupRequests() {
     processWakeupService->RemoveExpired();
 }
 
+uint32_t Controller::GetWakeupTicks() {
+    return processWakeupService->Get();
+}
+
 void Controller::BindVariableToSecureWiFi(const MapIO io_adr,
                                           const char *ssid,
                                           const char *password,
@@ -308,6 +316,29 @@ void Controller::BindVariableToStaWiFi(const MapIO io_adr) {
             break;
         case MapIO::V4:
             Controller::V4.BindToStaWiFi(Controller::wifi_service);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void Controller::BindVariableToToDateTime(const MapIO io_adr, DatetimePart datetime_part) {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    switch (io_adr) {
+        case MapIO::V1:
+            Controller::V1.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V2:
+            Controller::V2.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V3:
+            Controller::V3.BindToDateTime(Controller::datetime_service, datetime_part);
+            break;
+        case MapIO::V4:
+            Controller::V4.BindToDateTime(Controller::datetime_service, datetime_part);
             break;
 
         default:

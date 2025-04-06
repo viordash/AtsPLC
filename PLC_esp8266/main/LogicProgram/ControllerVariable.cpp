@@ -1,4 +1,5 @@
 #include "LogicProgram/ControllerVariable.h"
+#include "LogicProgram/Bindings/DateTimeBinding.h"
 #include "LogicProgram/LogicElement.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -14,6 +15,8 @@ ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBase
     ssid = NULL;
     password = NULL;
     mac = NULL;
+    this->datetime_service = NULL;
+    this->datetime_part = DatetimePart::t_second;
 }
 
 void ControllerVariable::Init() {
@@ -27,22 +30,45 @@ void ControllerVariable::FetchValue() {
     }
     required_reading = false;
 
-    uint8_t val;
     if (BindedToWiFi()) {
         bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
         bool secure_ap = ssid != NULL && password != NULL && mac != NULL;
 
         if (insecure_scan) {
-            val = wifi_service->Scan(ssid);
+            UpdateValue(wifi_service->Scan(ssid));
         } else if (secure_ap) {
-            val = wifi_service->AccessPoint(ssid, password, mac);
+            UpdateValue(wifi_service->AccessPoint(ssid, password, mac));
         } else {
-            val = wifi_service->ConnectToStation();
+            UpdateValue(wifi_service->ConnectToStation());
         }
+    } else if (BindedToDateTime()) {
+        switch (datetime_part) {
+            case DatetimePart::t_second:
+                UpdateValue(datetime_service->GetCurrentSecond());
+                break;
+            case DatetimePart::t_minute:
+                UpdateValue(datetime_service->GetCurrentMinute());
+                break;
+            case DatetimePart::t_hour:
+                UpdateValue(datetime_service->GetCurrentHour());
+                break;
+            case DatetimePart::t_day:
+                UpdateValue(datetime_service->GetCurrentDay());
+                break;
+            case DatetimePart::t_weekday:
+                UpdateValue(datetime_service->GetCurrentWeekday());
+                break;
+            case DatetimePart::t_month:
+                UpdateValue(datetime_service->GetCurrentMonth());
+                break;
+            case DatetimePart::t_year:
+                UpdateValue(datetime_service->GetCurrentYear());
+                break;
+        }
+
     } else {
-        val = out_value;
+        UpdateValue(out_value);
     }
-    UpdateValue(val);
 }
 
 void ControllerVariable::CommitChanges() {
@@ -67,6 +93,11 @@ void ControllerVariable::CommitChanges() {
         } else {
             wifi_service->CancelAccessPoint(ssid);
         }
+        return;
+    }
+
+    if (BindedToDateTime()) {
+        return;
     }
 }
 
@@ -74,6 +105,7 @@ void ControllerVariable::BindToSecureWiFi(WiFiService *wifi_service,
                                           const char *ssid,
                                           const char *password,
                                           const char *mac) {
+    Unbind();
     this->wifi_service = wifi_service;
     this->ssid = ssid;
     this->password = password;
@@ -81,6 +113,7 @@ void ControllerVariable::BindToSecureWiFi(WiFiService *wifi_service,
 }
 
 void ControllerVariable::BindToInsecureWiFi(WiFiService *wifi_service, const char *ssid) {
+    Unbind();
     this->wifi_service = wifi_service;
     this->ssid = ssid;
     this->password = NULL;
@@ -88,6 +121,7 @@ void ControllerVariable::BindToInsecureWiFi(WiFiService *wifi_service, const cha
 }
 
 void ControllerVariable::BindToStaWiFi(WiFiService *wifi_service) {
+    Unbind();
     this->wifi_service = wifi_service;
     this->ssid = NULL;
     this->password = NULL;
@@ -105,8 +139,9 @@ bool ControllerVariable::BindedToWiFi() {
 
 void ControllerVariable::CancelReadingProcess() {
     ESP_LOGD(TAG_ControllerVariable,
-             "CancelReadingProcess, wifi:%u, required:%u",
+             "CancelReadingProcess, wifi:%u, date_time:%u, required:%u",
              BindedToWiFi(),
+             BindedToDateTime(),
              required_reading);
     if (BindedToWiFi()) {
         bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
@@ -121,5 +156,23 @@ void ControllerVariable::CancelReadingProcess() {
         }
         value = LogicElement::MinValue;
         out_value = LogicElement::MinValue;
+        return;
     }
+
+    if (BindedToDateTime()) {
+        value = LogicElement::MinValue;
+        out_value = LogicElement::MinValue;
+        return;
+    }
+}
+
+void ControllerVariable::BindToDateTime(DatetimeService *datetime_service,
+                                        DatetimePart datetime_part) {
+    Unbind();
+    this->datetime_service = datetime_service;
+    this->datetime_part = datetime_part;
+}
+
+bool ControllerVariable::BindedToDateTime() {
+    return this->datetime_service != NULL;
 }

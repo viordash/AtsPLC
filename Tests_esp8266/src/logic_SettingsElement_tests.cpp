@@ -21,7 +21,7 @@ TEST_GROUP(LogicSettingsElementTestsGroup){
 create_storage_0();
 create_storage_1();
 mock().disable();
-Controller::Start(NULL, NULL, NULL);
+Controller::Start(NULL, NULL, NULL, NULL);
 load_settings();
 }
 
@@ -160,7 +160,7 @@ TEST(LogicSettingsElementTestsGroup, Deserialize) {
 }
 
 TEST(LogicSettingsElementTestsGroup, Deserialize_with_small_buffer_return_zero) {
-    uint8_t buffer[0] = {};
+    uint8_t buffer[1] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_Settings;
 
     TestableSettingsElement testable;

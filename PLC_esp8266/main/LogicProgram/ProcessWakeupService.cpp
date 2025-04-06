@@ -24,7 +24,7 @@ bool ProcessWakeupService::Request(void *id,
     }
 
     auto current_time = (uint64_t)esp_timer_get_time();
-    auto next_time = current_time + (delay_ms * 1000);
+    auto next_time = current_time + ((uint64_t)delay_ms * 1000);
 
     ProcessWakeupRequestData request = { id, next_time, priority };
     auto upper = requests.upper_bound(request);
@@ -126,7 +126,7 @@ int ProcessWakeupService::RemoveExpired() {
         auto req_it = requests.begin();
         auto req = *req_it;
         timespan = req.next_time - current_time;
-        bool expired = timespan <= 0;
+        bool expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
         if (expired) {
             ids.erase(req.id);
             requests.erase(req_it);

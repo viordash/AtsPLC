@@ -24,7 +24,7 @@ TEST_GROUP(LogicInputNOTestsGroup){ //
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL, NULL);
+Controller::Start(NULL, NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -193,7 +193,6 @@ TEST(LogicInputNOTestsGroup, Deserialize) {
 
 TEST(LogicInputNOTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_InputNO;
 
     TestableInputNO testable;
 

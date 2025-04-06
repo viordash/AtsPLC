@@ -28,7 +28,7 @@ struct ProcessWakeupRequestDataCmp {
     bool operator()(const ProcessWakeupRequestData &fk1,
                     const ProcessWakeupRequestData &fk2) const {
 
-        int timespan = GetTimespan(fk1.next_time, fk2.next_time);
+        int64_t timespan = GetTimespan(fk1.next_time, fk2.next_time);
         bool further_large_values = timespan > 0;
         if (further_large_values) {
             return true;

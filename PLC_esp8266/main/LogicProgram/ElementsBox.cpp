@@ -328,6 +328,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_WiFiBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiStaBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiApBinding, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_DateTimeBinding, frame_buffer);
     if (!hide_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);

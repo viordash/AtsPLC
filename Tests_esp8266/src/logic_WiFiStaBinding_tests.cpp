@@ -27,7 +27,7 @@ TEST_GROUP(LogicWiFiStaBindingTestsGroup){
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL);
+Controller::Start(NULL, wifi_service, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
@@ -221,7 +221,6 @@ TEST(LogicWiFiStaBindingTestsGroup, Deserialize) {
 
 TEST(LogicWiFiStaBindingTestsGroup, Deserialize_with_small_buffer_return_zero) {
     uint8_t buffer[0] = {};
-    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiStaBinding;
 
     TestableWiFiStaBinding testable;
 
