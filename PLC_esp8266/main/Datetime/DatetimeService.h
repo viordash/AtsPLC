@@ -37,4 +37,11 @@ class DatetimeService {
     int GetCurrentWeekday();
     int GetCurrentMonth();
     int GetCurrentYear();
+
+    void SetCurrentSecond(int val);
+    void SetCurrentMinute(int val);
+    void SetCurrentHour(int val);
+    void SetCurrentDay(int val);
+    void SetCurrentMonth(int val);
+    void SetCurrentYear(int val);
 };
