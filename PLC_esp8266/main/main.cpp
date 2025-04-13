@@ -57,6 +57,9 @@ void app_main() {
     display_init();
     hot_restart_counter();
 
+    DatetimeService datetime_service;
+    datetime_service.Set(&settings.datetime);
+
     /* Print chip information */
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
@@ -77,7 +80,6 @@ void app_main() {
     WiFiService wifi_service;
     wifi_service.Start();
     RenderingService rendering_service;
-    DatetimeService datetime_service;
     Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
