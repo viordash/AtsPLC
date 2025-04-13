@@ -23,7 +23,9 @@ class SettingsElement : public LogicElement {
         t_wifi_scanner_settings_min_rssi,
 
         t_wifi_access_point_settings_generation_time_ms,
-        t_wifi_access_point_settings_ssid_hidden
+        t_wifi_access_point_settings_ssid_hidden,
+
+        t_datetime
     } Discriminator;
 
   protected:

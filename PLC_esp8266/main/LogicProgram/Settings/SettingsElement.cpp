@@ -1,4 +1,5 @@
 #include "LogicProgram/Settings/SettingsElement.h"
+#include "Datetime/DatetimeService.h"
 #include "Display/bitmaps/settings.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
@@ -153,6 +154,9 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_wifi_access_point_settings_ssid_hidden:
             name = "AP: hidden ssid";
             break;
+        case t_datetime:
+            name = "Date & time";
+            break;
         default:
             return false;
     }
@@ -268,6 +272,7 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_wifi_scanner_settings_min_rssi:
         case t_wifi_access_point_settings_generation_time_ms:
         case t_wifi_access_point_settings_ssid_hidden:
+        case t_datetime:
             return true;
 
         default:
@@ -358,6 +363,27 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
+        case t_datetime:
+            if (friendly_format) {
+                sprintf(string_buffer,
+                        "%04d%02d%02d %02d:%02d:%02d",
+                        curr_settings.datetime.year + DatetimeService::YearOffset,
+                        curr_settings.datetime.month,
+                        curr_settings.datetime.day,
+                        curr_settings.datetime.hour,
+                        curr_settings.datetime.minute,
+                        curr_settings.datetime.second);
+            } else {
+                sprintf(string_buffer,
+                        "%02d%02d%02d %02d%02d%02d",
+                        curr_settings.datetime.year,
+                        curr_settings.datetime.month,
+                        curr_settings.datetime.day,
+                        curr_settings.datetime.hour,
+                        curr_settings.datetime.minute,
+                        curr_settings.datetime.second);
+            }
+            break;
         default:
             break;
     }
@@ -444,6 +470,9 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
+        case t_datetime:
+            SelectPriorNumberSymbol(symbol, 0);
+            break;
 
         default:
             break;
@@ -480,6 +509,9 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
+        case t_datetime:
+            SelectNextNumberSymbol(symbol, 0);
+            break;
 
         default:
             break;
@@ -495,7 +527,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_wifi_access_point_settings_ssid_hidden;
+                _discriminator = Discriminator::t_datetime;
             }
             discriminator = _discriminator;
             break;
@@ -658,6 +690,9 @@ void SettingsElement::EndEditing() {
             break;
         case t_wifi_access_point_settings_ssid_hidden:
             curr_settings.wifi_access_point.ssid_hidden = atol(value) != 0;
+            break;
+        case t_datetime:
+            // curr_settings.datetime = atol(value);
             break;
         default:
             break;

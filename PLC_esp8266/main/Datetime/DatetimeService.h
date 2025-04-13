@@ -26,6 +26,7 @@ extern "C" {
 class DatetimeService {
   protected:
   public:
+    const static int YearOffset = 1900;
     DatetimeService();
     ~DatetimeService();
 

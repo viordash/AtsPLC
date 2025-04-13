@@ -92,7 +92,7 @@ void DatetimeService::Set(CurrentSettings::datetime_settings *datetime) {
 
     ESP_LOGI(TAG_DatetimeService,
              "Set: %04d-%02d-%02d %02d:%02d:%02d",
-             datetime->year + 1900,
+             datetime->year + DatetimeService::YearOffset,
              datetime->month,
              datetime->day,
              datetime->hour,
