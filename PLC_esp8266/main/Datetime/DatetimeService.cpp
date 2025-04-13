@@ -74,57 +74,17 @@ int DatetimeService::GetCurrentYear() {
     return tm.tm_year;
 }
 
-void DatetimeService::SetCurrentSecond(int val) {
+void DatetimeService::Set(CurrentSettings::datetime_settings *datetime) {
     timespec ts;
     ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
 
     struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_sec = val;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
-}
-
-void DatetimeService::SetCurrentMinute(int val) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_min = val;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
-}
-
-void DatetimeService::SetCurrentHour(int val) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_hour = val;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
-}
-
-void DatetimeService::SetCurrentDay(int val) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_mday = val;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
-}
-
-void DatetimeService::SetCurrentMonth(int val) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_mon = val - 1;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
-}
-
-void DatetimeService::SetCurrentYear(int val) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
-    tm.tm_year = val;
+    tm.tm_sec = datetime->second;
+    tm.tm_min = datetime->minute;
+    tm.tm_hour = datetime->hour;
+    tm.tm_mday = datetime->day;
+    tm.tm_mon = datetime->month - 1;
+    tm.tm_year = datetime->year;
     struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
     ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
 }

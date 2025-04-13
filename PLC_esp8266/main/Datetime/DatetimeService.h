@@ -12,11 +12,10 @@ extern "C" {
 }
 #endif
 
-#include "WiFiRequests.h"
+#include "DataMigrations/MigrateSettings.h"
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "esp_wifi_types.h"
 #include "settings.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,10 +37,5 @@ class DatetimeService {
     int GetCurrentMonth();
     int GetCurrentYear();
 
-    void SetCurrentSecond(int val);
-    void SetCurrentMinute(int val);
-    void SetCurrentHour(int val);
-    void SetCurrentDay(int val);
-    void SetCurrentMonth(int val);
-    void SetCurrentYear(int val);
+    void Set(CurrentSettings::datetime_settings *datetime);
 };
