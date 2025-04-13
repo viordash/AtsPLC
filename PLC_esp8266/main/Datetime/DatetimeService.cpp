@@ -3,6 +3,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "settings.h"
+#include "sys/time.h"
 #include "sys_gpio.h"
 #include <cassert>
 #include <stdio.h>
@@ -19,72 +20,82 @@ DatetimeService::~DatetimeService() {
 }
 
 int DatetimeService::GetCurrentSecond() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentSecond: %d", tm.tm_sec);
     return tm.tm_sec;
 }
 
 int DatetimeService::GetCurrentMinute() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMinute: %d", tm.tm_min);
     return tm.tm_min;
 }
 
 int DatetimeService::GetCurrentHour() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentHour: %d", tm.tm_hour);
     return tm.tm_hour;
 }
 
 int DatetimeService::GetCurrentDay() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentDay: %d", tm.tm_mday);
     return tm.tm_mday;
 }
 
 int DatetimeService::GetCurrentWeekday() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentWeekday: %d", tm.tm_wday + 1);
     return tm.tm_wday + 1;
 }
 
 int DatetimeService::GetCurrentMonth() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMonth: %d", tm.tm_mon + 1);
     return tm.tm_mon + 1;
 }
 
 int DatetimeService::GetCurrentYear() {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
-    struct tm tm = *localtime(&ts.tv_sec);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentYear: %d", tm.tm_year);
     return tm.tm_year;
 }
 
 void DatetimeService::Set(CurrentSettings::datetime_settings *datetime) {
-    timespec ts;
-    ESP_ERROR_CHECK(clock_gettime(CLOCK_REALTIME, &ts) == 0 ? ESP_OK : ESP_FAIL);
+    timeval tv;
+    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
 
-    struct tm tm = *localtime(&ts.tv_sec);
+    struct tm tm = *localtime(&tv.tv_sec);
     tm.tm_sec = datetime->second;
     tm.tm_min = datetime->minute;
     tm.tm_hour = datetime->hour;
     tm.tm_mday = datetime->day;
     tm.tm_mon = datetime->month - 1;
     tm.tm_year = datetime->year;
-    struct timespec new_ts = { mktime(&tm), ts.tv_nsec };
-    ESP_ERROR_CHECK(clock_settime(CLOCK_REALTIME, &new_ts) == 0 ? ESP_OK : ESP_FAIL);
+
+    timeval new_tv = { mktime(&tm), tv.tv_usec };
+    ESP_ERROR_CHECK(settimeofday(&new_tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+
+    ESP_LOGI(TAG_DatetimeService,
+             "Set: %04d-%02d-%02d %02d:%02d:%02d",
+             datetime->year + 1900,
+             datetime->month,
+             datetime->day,
+             datetime->hour,
+             datetime->minute,
+             datetime->second);
 }
