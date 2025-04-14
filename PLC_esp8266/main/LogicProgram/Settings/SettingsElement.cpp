@@ -154,8 +154,11 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_wifi_access_point_settings_ssid_hidden:
             name = "AP: hidden ssid";
             break;
-        case t_datetime:
-            name = "Date & time";
+        case t_date:
+            name = "Date YYYY-MM-DD";
+            break;
+        case t_time:
+            name = "Time hh:mm:ss";
             break;
         default:
             return false;
@@ -272,7 +275,8 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_wifi_scanner_settings_min_rssi:
         case t_wifi_access_point_settings_generation_time_ms:
         case t_wifi_access_point_settings_ssid_hidden:
-        case t_datetime:
+        case t_date:
+        case t_time:
             return true;
 
         default:
@@ -363,26 +367,19 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
-        case t_datetime:
-            if (friendly_format) {
-                sprintf(string_buffer,
-                        "%04d%02d%02d %02d:%02d:%02d",
-                        curr_settings.datetime.year + DatetimeService::YearOffset,
-                        curr_settings.datetime.month,
-                        curr_settings.datetime.day,
-                        curr_settings.datetime.hour,
-                        curr_settings.datetime.minute,
-                        curr_settings.datetime.second);
-            } else {
-                sprintf(string_buffer,
-                        "%02d%02d%02d %02d%02d%02d",
-                        curr_settings.datetime.year,
-                        curr_settings.datetime.month,
-                        curr_settings.datetime.day,
-                        curr_settings.datetime.hour,
-                        curr_settings.datetime.minute,
-                        curr_settings.datetime.second);
-            }
+        case t_date:
+            sprintf(string_buffer,
+                    "%04d-%02d-%02d",
+                    curr_settings.datetime.year + DatetimeService::YearOffset,
+                    curr_settings.datetime.month,
+                    curr_settings.datetime.day);
+            break;
+        case t_time:
+            sprintf(string_buffer,
+                    "%02d:%02d:%02d",
+                    curr_settings.datetime.hour,
+                    curr_settings.datetime.minute,
+                    curr_settings.datetime.second);
             break;
         default:
             break;
@@ -470,8 +467,11 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
-        case t_datetime:
-            SelectPriorNumberSymbol(symbol, 0);
+        case t_date:
+            SelectPriorNumberSymbol(symbol, '-');
+            break;
+        case t_time:
+            SelectPriorNumberSymbol(symbol, ':');
             break;
 
         default:
@@ -509,8 +509,11 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
-        case t_datetime:
-            SelectNextNumberSymbol(symbol, 0);
+        case t_date:
+            SelectNextNumberSymbol(symbol, '-');
+            break;
+        case t_time:
+            SelectNextNumberSymbol(symbol, ':');
             break;
 
         default:
@@ -527,7 +530,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_datetime;
+                _discriminator = Discriminator::t_time;
             }
             discriminator = _discriminator;
             break;
@@ -691,8 +694,11 @@ void SettingsElement::EndEditing() {
         case t_wifi_access_point_settings_ssid_hidden:
             curr_settings.wifi_access_point.ssid_hidden = atol(value) != 0;
             break;
-        case t_datetime:
-            // curr_settings.datetime = atol(value);
+        case t_date:
+            ParseDateValue(&curr_settings);
+            break;
+        case t_time:
+            ParseTimeValue(&curr_settings);
             break;
         default:
             break;
@@ -702,12 +708,75 @@ void SettingsElement::EndEditing() {
         SAFETY_SETTINGS(                                //
             settings = curr_settings; store_settings(); //
         );
+
+        switch (discriminator) {
+            case t_date:
+            case t_time:
+                Controller::SetSystemDatetime();
+                break;
+            default:
+                break;
+        }
     } else {
         ESP_LOGE(TAG_SettingsElement, "Settings changing has some error");
     }
 
     ESP_LOGI(TAG_SettingsElement, "Settings changed successfully");
     EditableElement::EndEditing();
+}
+
+void SettingsElement::ParseDateValue(CurrentSettings::device_settings *curr_settings) {
+    int year;
+    int month;
+    int day;
+    const int date_elements_count = 3;
+    int count = sscanf(value, "%4d-%2d-%2d", &year, &month, &day);
+    if (count != date_elements_count) {
+        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid count:%d", count);
+        return;
+    }
+    if (year > 2100 || year < 2020) {
+        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid year:%d", year);
+        return;
+    }
+    if (month > 12 || month < 1) {
+        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid month:%d", month);
+        return;
+    }
+    if (day > 31 || day < 1) {
+        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid day:%d", day);
+        return;
+    }
+    curr_settings->datetime.year = year - DatetimeService::YearOffset;
+    curr_settings->datetime.month = month;
+    curr_settings->datetime.day = day;
+}
+
+void SettingsElement::ParseTimeValue(CurrentSettings::device_settings *curr_settings) {
+    int hour;
+    int minute;
+    int second;
+    const int date_elements_count = 3;
+    int count = sscanf(value, "%2d:%2d:%2d", &hour, &minute, &second);
+    if (count != date_elements_count) {
+        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid count:%d", count);
+        return;
+    }
+    if (hour >= 24 || hour < 0) {
+        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid hour:%d", hour);
+        return;
+    }
+    if (minute >= 60 || minute < 0) {
+        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid minute:%d", minute);
+        return;
+    }
+    if (second >= 60 || second < 0) {
+        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid second:%d", second);
+        return;
+    }
+    curr_settings->datetime.hour = hour;
+    curr_settings->datetime.minute = minute;
+    curr_settings->datetime.second = second;
 }
 
 TvElementType SettingsElement::GetElementType() {

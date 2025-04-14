@@ -25,7 +25,8 @@ class SettingsElement : public LogicElement {
         t_wifi_access_point_settings_generation_time_ms,
         t_wifi_access_point_settings_ssid_hidden,
 
-        t_datetime
+        t_date,
+        t_time
     } Discriminator;
 
   protected:
@@ -59,6 +60,8 @@ class SettingsElement : public LogicElement {
     void SelectPriorSymbol(char *symbol, bool first);
     void SelectNextSymbol(char *symbol, bool first);
     void WriteString(char *dest, size_t dest_size);
+    void ParseDateValue(CurrentSettings::device_settings *curr_settings);
+    void ParseTimeValue(CurrentSettings::device_settings *curr_settings);
 
   public:
     typedef enum { //

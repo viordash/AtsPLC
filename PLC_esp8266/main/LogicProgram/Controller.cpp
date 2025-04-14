@@ -32,6 +32,8 @@ static const char *TAG_Controller = "controller";
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
 
+extern CurrentSettings::device_settings settings;
+
 bool Controller::runned = false;
 bool Controller::force_process_loop = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
@@ -380,4 +382,11 @@ void Controller::DisconnectFromWiFiStation() {
     if (Controller::wifi_service != NULL) {
         Controller::wifi_service->DisconnectFromStation();
     }
+}
+
+void Controller::SetSystemDatetime() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->Set(&settings.datetime);
 }
