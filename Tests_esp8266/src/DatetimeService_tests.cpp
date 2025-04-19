@@ -85,3 +85,51 @@ TEST(LogicDatetimeServiceTestsGroup, GetCurrentYear) {
 
     DOUBLES_EQUAL(tm.tm_year, testable.GetCurrentYear(), 1);
 }
+
+TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
+    TestableDatetimeService testable;
+    time_t t = time(NULL);
+    struct tm tm_curr = *localtime(&t);
+    Datetime datetime;
+
+    datetime.second = tm_curr.tm_sec - 10;
+    if (--datetime.second > 59) {
+        datetime.second = 59;
+    }
+    datetime.minute = tm_curr.tm_min - 5;
+    if (datetime.minute > 59) {
+        datetime.minute = 59;
+    }
+    datetime.hour = tm_curr.tm_hour - 5;
+    if (datetime.hour > 23) {
+        datetime.hour = 23;
+    }
+    datetime.day = tm_curr.tm_mday - 5;
+    if (datetime.day > 31) {
+        datetime.day = 25;
+    }
+    datetime.month = (tm_curr.tm_mon + 1) - 5;
+    if (datetime.month > 12) {
+        datetime.month = 12;
+    }
+    datetime.year = tm_curr.tm_year - 5;
+    if (datetime.year > 150) {
+        datetime.year = 120;
+    }
+
+    testable.ManualSet(&datetime);
+    DOUBLES_EQUAL(datetime.second, testable.GetCurrentSecond(), 1);
+    DOUBLES_EQUAL(datetime.minute, testable.GetCurrentMinute(), 1);
+    DOUBLES_EQUAL(datetime.hour, testable.GetCurrentHour(), 1);
+    DOUBLES_EQUAL(datetime.day, testable.GetCurrentDay(), 1);
+    DOUBLES_EQUAL(datetime.month, testable.GetCurrentMonth(), 1);
+    DOUBLES_EQUAL(datetime.year, testable.GetCurrentYear(), 1);
+
+    datetime.second = tm_curr.tm_sec;
+    datetime.minute = tm_curr.tm_min;
+    datetime.hour = tm_curr.tm_hour;
+    datetime.day = tm_curr.tm_mday;
+    datetime.month = tm_curr.tm_mon + 1;
+    datetime.year = tm_curr.tm_year;
+    testable.ManualSet(&datetime);
+}

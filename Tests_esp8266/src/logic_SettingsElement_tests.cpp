@@ -103,10 +103,14 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_date;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_time;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
 
     discriminator = (SettingsElement::Discriminator)-1;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = (SettingsElement::Discriminator)12;
+    discriminator = (SettingsElement::Discriminator)14;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = (SettingsElement::Discriminator)100;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
@@ -182,8 +186,8 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 
-    *((SettingsElement::Discriminator *)&buffer[1]) = (SettingsElement::Discriminator)(
-        SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden + 1);
+    *((SettingsElement::Discriminator *)&buffer[1]) =
+        (SettingsElement::Discriminator)(SettingsElement::Discriminator::t_time + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 }
@@ -267,6 +271,14 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
         SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("true", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("2025-01-01", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("00:00:00", display_value);
 }
 
 TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
@@ -348,6 +360,14 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
         SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("1", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("2025-01-01", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("00:00:00", display_value);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_ssid_with_max_size) {
@@ -718,4 +738,82 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_changing_unsigned_number_symbols
     }
 
     CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    strcpy(testable.PublicMorozov_Get_value(), "2020-01-01");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(120, settings.datetime.year);
+    CHECK_EQUAL(01, settings.datetime.month);
+    CHECK_EQUAL(01, settings.datetime.day);
+
+    strcpy(testable.PublicMorozov_Get_value(), "2100-12-31");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(200, settings.datetime.year);
+    CHECK_EQUAL(12, settings.datetime.month);
+    CHECK_EQUAL(31, settings.datetime.day);
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_format) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(125, settings.datetime.year);
+    CHECK_EQUAL(01, settings.datetime.month);
+    CHECK_EQUAL(01, settings.datetime.day);
+
+    strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(125, settings.datetime.year);
+    CHECK_EQUAL(01, settings.datetime.month);
+    CHECK_EQUAL(01, settings.datetime.day);
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    strcpy(testable.PublicMorozov_Get_value(), "01:01:01");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(1, settings.datetime.hour);
+    CHECK_EQUAL(1, settings.datetime.minute);
+    CHECK_EQUAL(1, settings.datetime.second);
+
+    strcpy(testable.PublicMorozov_Get_value(), "23:59:59");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(23, settings.datetime.hour);
+    CHECK_EQUAL(59, settings.datetime.minute);
+    CHECK_EQUAL(59, settings.datetime.second);
+}
+
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_time_format) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    strcpy(testable.PublicMorozov_Get_value(), "0101:01");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(0, settings.datetime.hour);
+    CHECK_EQUAL(0, settings.datetime.minute);
+    CHECK_EQUAL(0, settings.datetime.second);
+
+    strcpy(testable.PublicMorozov_Get_value(), "01:0101");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(0, settings.datetime.hour);
+    CHECK_EQUAL(0, settings.datetime.minute);
+    CHECK_EQUAL(0, settings.datetime.second);
 }
