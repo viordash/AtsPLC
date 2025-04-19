@@ -81,5 +81,6 @@ class Controller {
     static uint8_t ConnectToWiFiStation();
     static void DisconnectFromWiFiStation();
 
-    static void SetSystemDatetime();
+    static bool ManualSetSystemDatetime(Datetime *dt);
+    static void GetSystemDatetime(Datetime *dt);
 };

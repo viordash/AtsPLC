@@ -60,8 +60,8 @@ class SettingsElement : public LogicElement {
     void SelectPriorSymbol(char *symbol, bool first);
     void SelectNextSymbol(char *symbol, bool first);
     void WriteString(char *dest, size_t dest_size);
-    void ParseDateValue(CurrentSettings::device_settings *curr_settings);
-    void ParseTimeValue(CurrentSettings::device_settings *curr_settings);
+    bool ParseDateValue();
+    bool ParseTimeValue();
 
   public:
     typedef enum { //

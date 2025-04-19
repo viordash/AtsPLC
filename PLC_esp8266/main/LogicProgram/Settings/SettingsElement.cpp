@@ -1,5 +1,5 @@
 #include "LogicProgram/Settings/SettingsElement.h"
-#include "Datetime/DatetimeService.h"
+#include "Datetime/Datetime.h"
 #include "Display/bitmaps/settings.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
@@ -28,6 +28,23 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     }
 
     state = prev_elem_state;
+    // if (state == LogicItemState::lisActive) {
+    //     static const int update_period_ms = 1000;
+    //     switch (discriminator) {
+    //         case t_date:
+    //         case t_time:
+
+    //             ESP_LOGI(TAG_SettingsElement, "DoAction");
+    //             if (Controller::RequestWakeupMs(this,
+    //                                             update_period_ms,
+    //                                             ProcessWakeupRequestPriority::pwrp_Idle)) {
+    //             }
+    //             break;
+
+    //         default:
+    //             break;
+    //     }
+    // }
     return prev_elem_changed;
 }
 
@@ -367,20 +384,18 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
-        case t_date:
-            sprintf(string_buffer,
-                    "%04d-%02d-%02d",
-                    curr_settings.datetime.year + DatetimeService::YearOffset,
-                    curr_settings.datetime.month,
-                    curr_settings.datetime.day);
+        case t_date: {
+            Datetime dt;
+            Controller::GetSystemDatetime(&dt);
+            sprintf(string_buffer, "%04d-%02d-%02d", dt.year, dt.month, dt.day);
             break;
-        case t_time:
-            sprintf(string_buffer,
-                    "%02d:%02d:%02d",
-                    curr_settings.datetime.hour,
-                    curr_settings.datetime.minute,
-                    curr_settings.datetime.second);
+        }
+        case t_time: {
+            Datetime dt;
+            Controller::GetSystemDatetime(&dt);
+            sprintf(string_buffer, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
             break;
+        }
         default:
             break;
     }
@@ -695,88 +710,55 @@ void SettingsElement::EndEditing() {
             curr_settings.wifi_access_point.ssid_hidden = atol(value) != 0;
             break;
         case t_date:
-            ParseDateValue(&curr_settings);
+            if (!ParseDateValue()) {
+                return;
+            }
             break;
         case t_time:
-            ParseTimeValue(&curr_settings);
+            if (!ParseTimeValue()) {
+                return;
+            }
             break;
         default:
             break;
     }
 
-    if (validate_settings(&curr_settings)) {
-        SAFETY_SETTINGS(                                //
-            settings = curr_settings; store_settings(); //
-        );
-
-        switch (discriminator) {
-            case t_date:
-            case t_time:
-                Controller::SetSystemDatetime();
-                break;
-            default:
-                break;
+    if (discriminator != t_date && discriminator != t_time) {
+        if (validate_settings(&curr_settings)) {
+            SAFETY_SETTINGS(              //
+                settings = curr_settings; //
+                store_settings();         //
+            );
+        } else {
+            ESP_LOGE(TAG_SettingsElement, "Settings changing has some error");
         }
-    } else {
-        ESP_LOGE(TAG_SettingsElement, "Settings changing has some error");
     }
 
     ESP_LOGI(TAG_SettingsElement, "Settings changed successfully");
     EditableElement::EndEditing();
 }
 
-void SettingsElement::ParseDateValue(CurrentSettings::device_settings *curr_settings) {
-    int year;
-    int month;
-    int day;
+bool SettingsElement::ParseDateValue() {
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
     const int date_elements_count = 3;
-    int count = sscanf(value, "%4d-%2d-%2d", &year, &month, &day);
+    int count = sscanf(value, "%4d-%2d-%2d", &dt.year, &dt.month, &dt.day);
     if (count != date_elements_count) {
-        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid count:%d", count);
-        return;
+        ESP_LOGW(TAG_SettingsElement, "ReadDateValue, invalid count:%d", count);
+        return false;
     }
-    if (year > 2100 || year < 2020) {
-        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid year:%d", year);
-        return;
-    }
-    if (month > 12 || month < 1) {
-        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid month:%d", month);
-        return;
-    }
-    if (day > 31 || day < 1) {
-        ESP_LOGI(TAG_SettingsElement, "ReadDateValue, invalid day:%d", day);
-        return;
-    }
-    curr_settings->datetime.year = year - DatetimeService::YearOffset;
-    curr_settings->datetime.month = month;
-    curr_settings->datetime.day = day;
+    return Controller::ManualSetSystemDatetime(&dt);
 }
 
-void SettingsElement::ParseTimeValue(CurrentSettings::device_settings *curr_settings) {
-    int hour;
-    int minute;
-    int second;
+bool SettingsElement::ParseTimeValue() {
+    Datetime dt;
     const int date_elements_count = 3;
-    int count = sscanf(value, "%2d:%2d:%2d", &hour, &minute, &second);
+    int count = sscanf(value, "%2d:%2d:%2d", &dt.hour, &dt.minute, &dt.second);
     if (count != date_elements_count) {
-        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid count:%d", count);
-        return;
+        ESP_LOGW(TAG_SettingsElement, "ReadTimeValue, invalid count:%d", count);
+        return false;
     }
-    if (hour >= 24 || hour < 0) {
-        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid hour:%d", hour);
-        return;
-    }
-    if (minute >= 60 || minute < 0) {
-        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid minute:%d", minute);
-        return;
-    }
-    if (second >= 60 || second < 0) {
-        ESP_LOGI(TAG_SettingsElement, "ReadTimeValue, invalid second:%d", second);
-        return;
-    }
-    curr_settings->datetime.hour = hour;
-    curr_settings->datetime.minute = minute;
-    curr_settings->datetime.second = second;
+    return Controller::ManualSetSystemDatetime(&dt);
 }
 
 TvElementType SettingsElement::GetElementType() {

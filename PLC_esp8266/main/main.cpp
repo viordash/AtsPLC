@@ -45,10 +45,6 @@ static void system_init() {
 void app_main() {
     load_hotreload();
 
-    if (hotreload->is_hotstart) {
-        ESP_LOGI(TAG, "is hotstart");
-    }
-
     EventGroupHandle_t gpio_events = gpio_init();
 
     load_settings();
@@ -58,7 +54,10 @@ void app_main() {
     hot_restart_counter();
 
     DatetimeService datetime_service;
-    datetime_service.Set(&settings.datetime);
+    if (hotreload->is_hotstart) {
+        ESP_LOGI(TAG, "is hotstart");
+        datetime_service.ManualSet(&hotreload->current_datetime);
+    }
 
     /* Print chip information */
     esp_chip_info_t chip_info;

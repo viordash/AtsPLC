@@ -76,9 +76,11 @@ void Controller::Start(EventGroupHandle_t gpio_events,
 
     processWakeupService = new ProcessWakeupService();
     ladder = new Ladder([](int16_t view_top_index, int16_t selected_network) {
-        hotreload->view_top_index = view_top_index;
-        hotreload->selected_network = selected_network;
-        store_hotreload();
+        SAFETY_HOTRELOAD({
+            hotreload->view_top_index = view_top_index;
+            hotreload->selected_network = selected_network;
+            store_hotreload();
+        });
         ESP_LOGD(TAG_Controller, "cb_UI_state_changed %d", selected_network);
         Controller::force_process_loop = selected_network > -1;
         if (Controller::force_process_loop) {
@@ -384,9 +386,16 @@ void Controller::DisconnectFromWiFiStation() {
     }
 }
 
-void Controller::SetSystemDatetime() {
+bool Controller::ManualSetSystemDatetime(Datetime *dt) {
+    if (Controller::datetime_service == NULL) {
+        return false;
+    }
+    return Controller::datetime_service->ManualSet(dt);
+}
+
+void Controller::GetSystemDatetime(Datetime *dt) {
     if (Controller::datetime_service == NULL) {
         return;
     }
-    Controller::datetime_service->Set(&settings.datetime);
+    Controller::datetime_service->Get(dt);
 }

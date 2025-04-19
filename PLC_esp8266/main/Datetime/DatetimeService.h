@@ -12,11 +12,12 @@ extern "C" {
 }
 #endif
 
-#include "DataMigrations/MigrateSettings.h"
+#include "Datetime/Datetime.h"
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
 #include "settings.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,5 +39,6 @@ class DatetimeService {
     int GetCurrentMonth();
     int GetCurrentYear();
 
-    void Set(CurrentSettings::datetime_settings *datetime);
+    bool ManualSet(Datetime *dt);
+    void Get(Datetime *dt);
 };
