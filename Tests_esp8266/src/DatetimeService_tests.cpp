@@ -90,7 +90,7 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     TestableDatetimeService testable;
     time_t t = time(NULL);
     struct tm tm_curr = *localtime(&t);
-    CurrentSettings::datetime_settings datetime;
+    Datetime datetime;
 
     datetime.second = tm_curr.tm_sec - 10;
     if (--datetime.second > 59) {
@@ -117,7 +117,7 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
         datetime.year = 120;
     }
 
-    testable.Set(&datetime);
+    testable.ManualSet(&datetime);
     DOUBLES_EQUAL(datetime.second, testable.GetCurrentSecond(), 1);
     DOUBLES_EQUAL(datetime.minute, testable.GetCurrentMinute(), 1);
     DOUBLES_EQUAL(datetime.hour, testable.GetCurrentHour(), 1);
@@ -131,5 +131,5 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     datetime.day = tm_curr.tm_mday;
     datetime.month = tm_curr.tm_mon + 1;
     datetime.year = tm_curr.tm_year;
-    testable.Set(&datetime);
+    testable.ManualSet(&datetime);
 }

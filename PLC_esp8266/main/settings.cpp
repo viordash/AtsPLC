@@ -208,30 +208,6 @@ bool validate_settings(CurrentSettings::device_settings *settings) {
                  settings->wifi_access_point.ssid_hidden);
         return false;
     }
-    if (invalid_uint(settings->datetime.year, 120, 200)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.year, '%u'", settings->datetime.year);
-        return false;
-    }
-    if (invalid_uint(settings->datetime.month, 1, 12)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.month, '%u'", settings->datetime.month);
-        return false;
-    }
-    if (invalid_uint(settings->datetime.day, 1, 31)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.day, '%u'", settings->datetime.day);
-        return false;
-    }
-    if (invalid_uint(settings->datetime.hour, 0, 23)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.hour, '%u'", settings->datetime.hour);
-        return false;
-    }
-    if (invalid_uint(settings->datetime.minute, 0, 59)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.minute, '%u'", settings->datetime.minute);
-        return false;
-    }
-    if (invalid_uint(settings->datetime.second, 0, 59)) {
-        ESP_LOGI(TAG_settings, "Invalid datetime.second, '%u'", settings->datetime.second);
-        return false;
-    }
     return true;
 }
 
