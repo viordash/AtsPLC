@@ -20,9 +20,14 @@ DatetimeService::DatetimeService() {
 DatetimeService::~DatetimeService() {
 }
 
+
+void DatetimeService::GetCurrent(timeval *tv){
+    ESP_ERROR_CHECK(gettimeofday(tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+}
+
 int DatetimeService::GetCurrentSecond() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentSecond: %d", tm.tm_sec);
     return tm.tm_sec;
@@ -30,7 +35,7 @@ int DatetimeService::GetCurrentSecond() {
 
 int DatetimeService::GetCurrentMinute() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMinute: %d", tm.tm_min);
     return tm.tm_min;
@@ -38,7 +43,7 @@ int DatetimeService::GetCurrentMinute() {
 
 int DatetimeService::GetCurrentHour() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentHour: %d", tm.tm_hour);
     return tm.tm_hour;
@@ -46,7 +51,7 @@ int DatetimeService::GetCurrentHour() {
 
 int DatetimeService::GetCurrentDay() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentDay: %d", tm.tm_mday);
     return tm.tm_mday;
@@ -54,7 +59,7 @@ int DatetimeService::GetCurrentDay() {
 
 int DatetimeService::GetCurrentWeekday() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentWeekday: %d", tm.tm_wday + 1);
     return tm.tm_wday + 1;
@@ -62,7 +67,7 @@ int DatetimeService::GetCurrentWeekday() {
 
 int DatetimeService::GetCurrentMonth() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMonth: %d", tm.tm_mon + 1);
     return tm.tm_mon + 1;
@@ -70,7 +75,7 @@ int DatetimeService::GetCurrentMonth() {
 
 int DatetimeService::GetCurrentYear() {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
     struct tm tm = *localtime(&tv.tv_sec);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentYear: %d", tm.tm_year);
     return tm.tm_year;
@@ -100,7 +105,7 @@ bool DatetimeService::ManualSet(Datetime *dt) {
     });
 
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
 
     struct tm tm = *localtime(&tv.tv_sec);
     tm.tm_sec = dt->second;
@@ -126,7 +131,7 @@ bool DatetimeService::ManualSet(Datetime *dt) {
 
 void DatetimeService::Get(Datetime *dt) {
     timeval tv;
-    ESP_ERROR_CHECK(gettimeofday(&tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    GetCurrent(&tv);
 
     struct tm tm = *localtime(&tv.tv_sec);
     dt->second = tm.tm_sec;

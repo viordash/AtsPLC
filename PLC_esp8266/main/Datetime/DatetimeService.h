@@ -26,6 +26,8 @@ extern "C" {
 
 class DatetimeService {
   protected:
+    virtual void GetCurrent(timeval *tv);
+
   public:
     const static int YearOffset = 1900;
     DatetimeService();

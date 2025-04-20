@@ -752,6 +752,7 @@ bool SettingsElement::ParseDateValue() {
 
 bool SettingsElement::ParseTimeValue() {
     Datetime dt;
+    Controller::GetSystemDatetime(&dt);
     const int date_elements_count = 3;
     int count = sscanf(value, "%2d:%2d:%2d", &dt.hour, &dt.minute, &dt.second);
     if (count != date_elements_count) {

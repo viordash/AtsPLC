@@ -93,28 +93,28 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     Datetime datetime;
 
     datetime.second = tm_curr.tm_sec - 10;
-    if (--datetime.second > 59) {
+    if (--datetime.second < 0) {
         datetime.second = 59;
     }
     datetime.minute = tm_curr.tm_min - 5;
-    if (datetime.minute > 59) {
+    if (datetime.minute < 0) {
         datetime.minute = 59;
     }
     datetime.hour = tm_curr.tm_hour - 5;
-    if (datetime.hour > 23) {
+    if (datetime.hour < 0) {
         datetime.hour = 23;
     }
     datetime.day = tm_curr.tm_mday - 5;
-    if (datetime.day > 31) {
+    if (datetime.day < 1) {
         datetime.day = 25;
     }
     datetime.month = (tm_curr.tm_mon + 1) - 5;
-    if (datetime.month > 12) {
+    if (datetime.month <= 0) {
         datetime.month = 12;
     }
-    datetime.year = tm_curr.tm_year - 5;
-    if (datetime.year > 150) {
-        datetime.year = 120;
+    datetime.year = tm_curr.tm_year + DatetimeService::YearOffset - 5;
+    if (datetime.year > 2050) {
+        datetime.year = 2020;
     }
 
     testable.ManualSet(&datetime);
@@ -123,7 +123,7 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     DOUBLES_EQUAL(datetime.hour, testable.GetCurrentHour(), 1);
     DOUBLES_EQUAL(datetime.day, testable.GetCurrentDay(), 1);
     DOUBLES_EQUAL(datetime.month, testable.GetCurrentMonth(), 1);
-    DOUBLES_EQUAL(datetime.year, testable.GetCurrentYear(), 1);
+    DOUBLES_EQUAL(datetime.year, testable.GetCurrentYear() + DatetimeService::YearOffset, 1);
 
     datetime.second = tm_curr.tm_sec;
     datetime.minute = tm_curr.tm_min;

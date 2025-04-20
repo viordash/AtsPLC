@@ -12,8 +12,30 @@
 
 #include "main/LogicProgram/Settings/SettingsElement.cpp"
 #include "main/LogicProgram/Settings/SettingsElement.h"
+#include "main/hotreload_service.h"
 
 static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+
+namespace {
+    class TestableDatetimeService : public DatetimeService {
+      public:
+        virtual ~TestableDatetimeService() {
+        }
+
+        void GetCurrent(timeval *tv) override {
+            struct tm tm = {};
+            tm.tm_sec = 0;
+            tm.tm_min = 0;
+            tm.tm_hour = 0;
+            tm.tm_mday = 1;
+            tm.tm_mon = 0;
+            tm.tm_year = 2025 - DatetimeService::YearOffset;
+            *tv = { mktime(&tm), 0 };
+        }
+    };
+} // namespace
+
+TestableDatetimeService *datetimeService;
 
 TEST_GROUP(LogicSettingsElementTestsGroup){
     //
@@ -21,12 +43,14 @@ TEST_GROUP(LogicSettingsElementTestsGroup){
 create_storage_0();
 create_storage_1();
 mock().disable();
-Controller::Start(NULL, NULL, NULL, NULL);
+datetimeService = new TestableDatetimeService();
+Controller::Start(NULL, NULL, NULL, datetimeService);
 load_settings();
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete datetimeService;
     remove_storage_0();
     remove_storage_1();
     mock().enable();
@@ -746,18 +770,16 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
     strcpy(testable.PublicMorozov_Get_value(), "2020-01-01");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(120, settings.datetime.year);
-    CHECK_EQUAL(01, settings.datetime.month);
-    CHECK_EQUAL(01, settings.datetime.day);
+    CHECK_EQUAL(2020, hotreload->current_datetime.year);
+    CHECK_EQUAL(01, hotreload->current_datetime.month);
+    CHECK_EQUAL(01, hotreload->current_datetime.day);
 
     strcpy(testable.PublicMorozov_Get_value(), "2100-12-31");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(200, settings.datetime.year);
-    CHECK_EQUAL(12, settings.datetime.month);
-    CHECK_EQUAL(31, settings.datetime.day);
+    CHECK_EQUAL(2100, hotreload->current_datetime.year);
+    CHECK_EQUAL(12, hotreload->current_datetime.month);
+    CHECK_EQUAL(31, hotreload->current_datetime.day);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_format) {
@@ -765,17 +787,16 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_fo
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
     strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(125, settings.datetime.year);
-    CHECK_EQUAL(01, settings.datetime.month);
-    CHECK_EQUAL(01, settings.datetime.day);
+    CHECK_EQUAL(2025, hotreload->current_datetime.year);
+    CHECK_EQUAL(01, hotreload->current_datetime.month);
+    CHECK_EQUAL(01, hotreload->current_datetime.day);
 
     strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
     testable.EndEditing();
     load_settings();
-    CHECK_EQUAL(125, settings.datetime.year);
-    CHECK_EQUAL(01, settings.datetime.month);
-    CHECK_EQUAL(01, settings.datetime.day);
+    CHECK_EQUAL(2025, hotreload->current_datetime.year);
+    CHECK_EQUAL(01, hotreload->current_datetime.month);
+    CHECK_EQUAL(01, hotreload->current_datetime.day);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
@@ -784,18 +805,16 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
     strcpy(testable.PublicMorozov_Get_value(), "01:01:01");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(1, settings.datetime.hour);
-    CHECK_EQUAL(1, settings.datetime.minute);
-    CHECK_EQUAL(1, settings.datetime.second);
+    CHECK_EQUAL(1, hotreload->current_datetime.hour);
+    CHECK_EQUAL(1, hotreload->current_datetime.minute);
+    CHECK_EQUAL(1, hotreload->current_datetime.second);
 
     strcpy(testable.PublicMorozov_Get_value(), "23:59:59");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(23, settings.datetime.hour);
-    CHECK_EQUAL(59, settings.datetime.minute);
-    CHECK_EQUAL(59, settings.datetime.second);
+    CHECK_EQUAL(23, hotreload->current_datetime.hour);
+    CHECK_EQUAL(59, hotreload->current_datetime.minute);
+    CHECK_EQUAL(59, hotreload->current_datetime.second);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_time_format) {
@@ -804,16 +823,14 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_time_fo
     strcpy(testable.PublicMorozov_Get_value(), "0101:01");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(0, settings.datetime.hour);
-    CHECK_EQUAL(0, settings.datetime.minute);
-    CHECK_EQUAL(0, settings.datetime.second);
+    CHECK_EQUAL(0, hotreload->current_datetime.hour);
+    CHECK_EQUAL(0, hotreload->current_datetime.minute);
+    CHECK_EQUAL(0, hotreload->current_datetime.second);
 
     strcpy(testable.PublicMorozov_Get_value(), "01:0101");
 
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(0, settings.datetime.hour);
-    CHECK_EQUAL(0, settings.datetime.minute);
-    CHECK_EQUAL(0, settings.datetime.second);
+    CHECK_EQUAL(0, hotreload->current_datetime.hour);
+    CHECK_EQUAL(0, hotreload->current_datetime.minute);
+    CHECK_EQUAL(0, hotreload->current_datetime.second);
 }
