@@ -44,12 +44,7 @@ namespace MigrateSettings {
             } wifi_access_point_settings;
 
             typedef struct {
-                uint8_t second;
-                uint8_t minute;
-                uint8_t hour;
-                uint8_t day;
-                uint8_t month;
-                uint8_t year;
+
             } datetime_settings;
 
             typedef struct {
@@ -69,12 +64,6 @@ namespace MigrateSettings {
             auto pCurrSettings = (Snapshot::device_settings *)pCurr;
             auto pPrevSettings = (v20250209::Snapshot::device_settings *)pPrev;
 
-            pCurrSettings->datetime.year = 2025 - 1900;
-            pCurrSettings->datetime.month = 01;
-            pCurrSettings->datetime.day = 01;
-            pCurrSettings->datetime.hour = 00;
-            pCurrSettings->datetime.minute = 00;
-            pCurrSettings->datetime.second = 00;
 
             memcpy(&pCurrSettings->smartconfig,
                    &pPrevSettings->smartconfig,
