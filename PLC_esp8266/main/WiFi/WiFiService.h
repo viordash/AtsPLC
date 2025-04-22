@@ -96,8 +96,6 @@ class WiFiService {
     ~WiFiService();
 
     void Start();
-    void Stop();
-    bool Started();
 
     uint8_t ConnectToStation();
     void DisconnectFromStation();

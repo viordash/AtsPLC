@@ -95,7 +95,6 @@ void app_main() {
     }
 
     Controller::Stop();
-    wifi_service.Stop();
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);
