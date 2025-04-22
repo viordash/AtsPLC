@@ -17,7 +17,6 @@ extern "C" {
 #include "esp_event.h"
 #include "esp_log.h"
 #include "settings.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,12 +25,19 @@ extern "C" {
 
 class DatetimeService {
   protected:
+    TaskHandle_t task_handle;
+
+    static void Task(void *parm);
     virtual void GetCurrent(timeval *tv);
 
   public:
+    static const int STORE_BIT = BIT1;
+
     const static int YearOffset = 1900;
     DatetimeService();
     ~DatetimeService();
+
+    void Start();
 
     int GetCurrentSecond();
     int GetCurrentMinute();

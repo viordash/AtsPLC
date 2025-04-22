@@ -54,6 +54,7 @@ void app_main() {
     hot_restart_counter();
 
     DatetimeService datetime_service;
+    datetime_service.Start();
     if (hotreload->is_hotstart) {
         ESP_LOGI(TAG, "is hotstart");
         datetime_service.ManualSet(&hotreload->current_datetime);

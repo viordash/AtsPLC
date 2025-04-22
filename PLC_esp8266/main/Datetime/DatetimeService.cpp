@@ -1,4 +1,6 @@
 #include "DatetimeService.h"
+#include "LogicProgram/Controller.h"
+#include "LogicProgram/LogicElement.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_timer.h"
@@ -6,7 +8,6 @@
 #include "settings.h"
 #include "sys/time.h"
 #include "sys_gpio.h"
-#include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -14,14 +15,69 @@
 static const char *TAG_DatetimeService = "DatetimeService";
 extern CurrentSettings::device_settings settings;
 
-DatetimeService::DatetimeService() {
+DatetimeService::DatetimeService() : task_handle(NULL) {
 }
 
 DatetimeService::~DatetimeService() {
 }
 
+void DatetimeService::Start() {
+    ESP_ERROR_CHECK(xTaskCreate(DatetimeService::Task,
+                                "datetime_task",
+                                2048,
+                                this,
+                                tskIDLE_PRIORITY,
+                                &task_handle)
+                            != pdPASS
+                        ? ESP_FAIL
+                        : ESP_OK);
 
-void DatetimeService::GetCurrent(timeval *tv){
+    ESP_LOGI(TAG_DatetimeService, "Start, task_handle:%p", task_handle);
+}
+
+void DatetimeService::Task(void *parm) {
+    ESP_LOGI(TAG_DatetimeService, "Start task");
+    auto datetime_service = static_cast<DatetimeService *>(parm);
+
+    Datetime datetime;
+    uint32_t ulNotifiedValue = 0;
+    while (true) {
+        const TickType_t update_current_time = 30000 / portTICK_RATE_MS;
+        xTaskNotifyWait(0, 0, &ulNotifiedValue, update_current_time);
+
+        ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", ulNotifiedValue);
+
+        bool use_ntp = false;
+        if (use_ntp) {
+        }
+
+        datetime_service->Get(&datetime);
+        if (ValidateDatetime(&datetime)) {
+            SAFETY_HOTRELOAD({
+                hotreload->current_datetime.year = datetime.year;
+                hotreload->current_datetime.month = datetime.month;
+                hotreload->current_datetime.day = datetime.day;
+                hotreload->current_datetime.hour = datetime.hour;
+                hotreload->current_datetime.minute = datetime.minute;
+                hotreload->current_datetime.second = datetime.second;
+                store_hotreload();
+            });
+            ESP_LOGI(TAG_DatetimeService,
+                     "Store datetime: %04d-%02d-%02d %02d:%02d:%02d",
+                     datetime.year,
+                     datetime.month,
+                     datetime.day,
+                     datetime.hour,
+                     datetime.minute,
+                     datetime.second);
+        }
+    }
+
+    ESP_LOGW(TAG_DatetimeService, "Finish task");
+    vTaskDelete(NULL);
+}
+
+void DatetimeService::GetCurrent(timeval *tv) {
     ESP_ERROR_CHECK(gettimeofday(tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
 }
 
@@ -94,16 +150,6 @@ bool DatetimeService::ManualSet(Datetime *dt) {
         return false;
     }
 
-    SAFETY_HOTRELOAD({
-        hotreload->current_datetime.year = dt->year;
-        hotreload->current_datetime.month = dt->month;
-        hotreload->current_datetime.day = dt->day;
-        hotreload->current_datetime.hour = dt->hour;
-        hotreload->current_datetime.minute = dt->minute;
-        hotreload->current_datetime.second = dt->second;
-        store_hotreload();
-    });
-
     timeval tv;
     GetCurrent(&tv);
 
@@ -117,6 +163,8 @@ bool DatetimeService::ManualSet(Datetime *dt) {
 
     timeval new_tv = { mktime(&tm), tv.tv_usec };
     ESP_ERROR_CHECK(settimeofday(&new_tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+
+    xTaskNotify(task_handle, STORE_BIT, eNotifyAction::eSetBits);
 
     ESP_LOGI(TAG_DatetimeService,
              "ManualSet: %04d-%02d-%02d %02d:%02d:%02d",
