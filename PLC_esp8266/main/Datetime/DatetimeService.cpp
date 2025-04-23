@@ -39,11 +39,12 @@ void DatetimeService::Task(void *parm) {
     ESP_LOGI(TAG_DatetimeService, "Start task");
     auto datetime_service = static_cast<DatetimeService *>(parm);
 
+    const TickType_t update_current_time = 30000 / portTICK_RATE_MS;
+    TickType_t ticks_to_wait = update_current_time;
     Datetime datetime;
     uint32_t ulNotifiedValue = 0;
     while (true) {
-        const TickType_t update_current_time = 30000 / portTICK_RATE_MS;
-        xTaskNotifyWait(0, 0, &ulNotifiedValue, update_current_time);
+        xTaskNotifyWait(0, 0, &ulNotifiedValue, ticks_to_wait);
 
         ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", ulNotifiedValue);
 
@@ -70,6 +71,17 @@ void DatetimeService::Task(void *parm) {
                      datetime.hour,
                      datetime.minute,
                      datetime.second);
+            ticks_to_wait = update_current_time;
+        } else {
+            ESP_LOGW(TAG_DatetimeService,
+                     "Invalid datetime: %04d-%02d-%02d %02d:%02d:%02d",
+                     datetime.year,
+                     datetime.month,
+                     datetime.day,
+                     datetime.hour,
+                     datetime.minute,
+                     datetime.second);
+            ticks_to_wait = portMAX_DELAY;
         }
     }
 
