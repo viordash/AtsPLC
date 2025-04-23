@@ -44,6 +44,9 @@ namespace MigrateSettings {
             } wifi_access_point_settings;
 
             typedef struct {
+                char sntp_server_primary[64];
+                char sntp_server_secondary[64];
+                char timezone[32];
 
             } datetime_settings;
 
@@ -64,7 +67,6 @@ namespace MigrateSettings {
             auto pCurrSettings = (Snapshot::device_settings *)pCurr;
             auto pPrevSettings = (v20250209::Snapshot::device_settings *)pPrev;
 
-
             memcpy(&pCurrSettings->smartconfig,
                    &pPrevSettings->smartconfig,
                    sizeof(pPrevSettings->smartconfig));
@@ -77,6 +79,10 @@ namespace MigrateSettings {
             memcpy(&pCurrSettings->wifi_access_point,
                    &pPrevSettings->wifi_access_point,
                    sizeof(pCurrSettings->wifi_access_point));
+
+            strcpy(pCurrSettings->datetime.sntp_server_primary, "pool.ntp.org");
+            pCurrSettings->datetime.sntp_server_secondary[0] = 0;
+            strcpy(pCurrSettings->datetime.timezone, "Europe/Moscow");
 
             ESP_LOGI("Settings_20250413", "Migrate to %08X", DataMigrate.Version);
         }

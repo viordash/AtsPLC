@@ -5,6 +5,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "hotreload_service.h"
+#include "lwip/apps/sntp.h"
 #include "settings.h"
 #include "sys/time.h"
 #include "sys_gpio.h"
@@ -48,8 +49,9 @@ void DatetimeService::Task(void *parm) {
 
         ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", ulNotifiedValue);
 
-        bool use_ntp = false;
+        bool use_ntp = datetime_service->EnableSntp();
         if (use_ntp) {
+            datetime_service->StartSntp();
         }
 
         datetime_service->Get(&datetime);
@@ -88,6 +90,53 @@ void DatetimeService::Task(void *parm) {
     ESP_LOGW(TAG_DatetimeService, "Finish task");
     vTaskDelete(NULL);
 }
+bool DatetimeService::EnableSntp() {
+    bool enable;
+    SAFETY_SETTINGS({
+        enable = settings.datetime.sntp_server_primary[0] != 0
+              || settings.datetime.sntp_server_secondary[1] != 0;
+    });
+    return enable;
+}
+
+void DatetimeService::SntpStateChanged() {
+    xTaskNotify(task_handle, STORE_BIT, eNotifyAction::eSetBits);
+}
+
+void DatetimeService::StartSntp() {
+    ESP_LOGI(TAG_DatetimeService, "Start SNTP");
+    CurrentSettings::datetime_settings datetime_settings;
+    SAFETY_SETTINGS({ datetime_settings = settings.datetime; });
+
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    if (strnlen(datetime_settings.sntp_server_primary,
+                sizeof(datetime_settings.sntp_server_primary))
+        > 0) {
+        sntp_setservername(0, datetime_settings.sntp_server_primary);
+    }
+    if (strnlen(datetime_settings.sntp_server_primary,
+                sizeof(datetime_settings.sntp_server_secondary))
+        > 0) {
+        sntp_setservername(1, datetime_settings.sntp_server_secondary);
+    }
+    sntp_init();
+
+    time_t now = 0;
+    struct tm timeinfo = {};
+    int retry = 0;
+    const int retry_count = 10;
+
+    while (timeinfo.tm_year < (2016 - 1900) && ++retry < retry_count) {
+        ESP_LOGI(TAG_DatetimeService,
+                 "Waiting for system time to be set... (%d/%d)",
+                 retry,
+                 retry_count);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        time(&now);
+        localtime_r(&now, &timeinfo);
+    }
+    sntp_stop();
+}
 
 void DatetimeService::GetCurrent(timeval *tv) {
     ESP_ERROR_CHECK(gettimeofday(tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
@@ -96,7 +145,8 @@ void DatetimeService::GetCurrent(timeval *tv) {
 int DatetimeService::GetCurrentSecond() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentSecond: %d", tm.tm_sec);
     return tm.tm_sec;
 }
@@ -104,7 +154,8 @@ int DatetimeService::GetCurrentSecond() {
 int DatetimeService::GetCurrentMinute() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMinute: %d", tm.tm_min);
     return tm.tm_min;
 }
@@ -112,7 +163,8 @@ int DatetimeService::GetCurrentMinute() {
 int DatetimeService::GetCurrentHour() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentHour: %d", tm.tm_hour);
     return tm.tm_hour;
 }
@@ -120,7 +172,8 @@ int DatetimeService::GetCurrentHour() {
 int DatetimeService::GetCurrentDay() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentDay: %d", tm.tm_mday);
     return tm.tm_mday;
 }
@@ -128,7 +181,8 @@ int DatetimeService::GetCurrentDay() {
 int DatetimeService::GetCurrentWeekday() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentWeekday: %d", tm.tm_wday + 1);
     return tm.tm_wday + 1;
 }
@@ -136,7 +190,8 @@ int DatetimeService::GetCurrentWeekday() {
 int DatetimeService::GetCurrentMonth() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentMonth: %d", tm.tm_mon + 1);
     return tm.tm_mon + 1;
 }
@@ -144,7 +199,8 @@ int DatetimeService::GetCurrentMonth() {
 int DatetimeService::GetCurrentYear() {
     timeval tv;
     GetCurrent(&tv);
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     ESP_LOGD(TAG_DatetimeService, "GetCurrentYear: %d", tm.tm_year);
     return tm.tm_year;
 }
@@ -165,7 +221,8 @@ bool DatetimeService::ManualSet(Datetime *dt) {
     timeval tv;
     GetCurrent(&tv);
 
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     tm.tm_sec = dt->second;
     tm.tm_min = dt->minute;
     tm.tm_hour = dt->hour;
@@ -193,7 +250,8 @@ void DatetimeService::Get(Datetime *dt) {
     timeval tv;
     GetCurrent(&tv);
 
-    struct tm tm = *localtime(&tv.tv_sec);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
     dt->second = tm.tm_sec;
     dt->minute = tm.tm_min;
     dt->hour = tm.tm_hour;

@@ -29,6 +29,8 @@ class DatetimeService {
 
     static void Task(void *parm);
     virtual void GetCurrent(timeval *tv);
+    bool EnableSntp();
+    void StartSntp();
 
   public:
     static const int STORE_BIT = BIT1;
@@ -38,6 +40,8 @@ class DatetimeService {
     ~DatetimeService();
 
     void Start();
+
+    void SntpStateChanged();
 
     int GetCurrentSecond();
     int GetCurrentMinute();
