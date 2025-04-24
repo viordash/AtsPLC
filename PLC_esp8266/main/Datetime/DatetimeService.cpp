@@ -50,6 +50,7 @@ void DatetimeService::Task(void *parm) {
         ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", ulNotifiedValue);
 
         bool use_ntp = datetime_service->EnableSntp();
+        datetime_service->StopSntp();
         if (use_ntp) {
             datetime_service->StartSntp();
         }
@@ -104,9 +105,18 @@ void DatetimeService::SntpStateChanged() {
 }
 
 void DatetimeService::StartSntp() {
-    ESP_LOGI(TAG_DatetimeService, "Start SNTP");
+    Controller::ConnectToWiFiStation();
+    if (sntp_enabled()) {
+        return;
+    }
     CurrentSettings::datetime_settings datetime_settings;
     SAFETY_SETTINGS({ datetime_settings = settings.datetime; });
+
+    ESP_LOGI(TAG_DatetimeService,
+             "Start SNTP, serv_0:%s, serv_1:%s, tz:%s",
+             datetime_settings.sntp_server_primary,
+             datetime_settings.sntp_server_secondary,
+             datetime_settings.timezone);
 
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
     if (strnlen(datetime_settings.sntp_server_primary,
@@ -114,27 +124,19 @@ void DatetimeService::StartSntp() {
         > 0) {
         sntp_setservername(0, datetime_settings.sntp_server_primary);
     }
-    if (strnlen(datetime_settings.sntp_server_primary,
+    if (strnlen(datetime_settings.sntp_server_secondary,
                 sizeof(datetime_settings.sntp_server_secondary))
         > 0) {
         sntp_setservername(1, datetime_settings.sntp_server_secondary);
     }
     sntp_init();
 
-    time_t now = 0;
-    struct tm timeinfo = {};
-    int retry = 0;
-    const int retry_count = 10;
+    setenv("TZ", datetime_settings.timezone, 1);
+    tzset();
+}
 
-    while (timeinfo.tm_year < (2016 - 1900) && ++retry < retry_count) {
-        ESP_LOGI(TAG_DatetimeService,
-                 "Waiting for system time to be set... (%d/%d)",
-                 retry,
-                 retry_count);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-        time(&now);
-        localtime_r(&now, &timeinfo);
-    }
+void DatetimeService::StopSntp() {
+    ESP_LOGI(TAG_DatetimeService, "Stop SNTP");
     sntp_stop();
 }
 

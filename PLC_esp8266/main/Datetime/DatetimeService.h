@@ -31,13 +31,14 @@ class DatetimeService {
     virtual void GetCurrent(timeval *tv);
     bool EnableSntp();
     void StartSntp();
+    void StopSntp();
 
   public:
     static const int STORE_BIT = BIT1;
 
     const static int YearOffset = 1900;
     DatetimeService();
-    ~DatetimeService();
+    virtual ~DatetimeService();
 
     void Start();
 
