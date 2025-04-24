@@ -87,6 +87,8 @@ TEST(LogicDatetimeServiceTestsGroup, GetCurrentYear) {
 }
 
 TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
+    mock().expectNCalls(1, "xTaskGenericNotify").ignoreOtherParameters();
+
     TestableDatetimeService testable;
     time_t t = time(NULL);
     struct tm tm_curr = *localtime(&t);

@@ -588,7 +588,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_current_time;
+                _discriminator = Discriminator::t_datetime_timezone;
             }
             discriminator = _discriminator;
             break;

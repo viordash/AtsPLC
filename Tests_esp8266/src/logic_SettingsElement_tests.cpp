@@ -735,6 +735,86 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_changing_unsigned_number_symbol
     CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
 }
 
+TEST(LogicSettingsElementTestsGroup, SelectPrior_change_discriminator) {
+    TestableSettingsElement testable;
+
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
+    testable.Change();
+    CHECK_EQUAL(SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator,
+                *testable.PublicMorozov_Get_editing_property_id());
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_timezone,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_sntp_server_secondary,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_sntp_server_primary,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_current_time,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_current_date,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_min_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_max_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_password,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
+}
+
 TEST(LogicSettingsElementTestsGroup, SelectNext_changing_string_symbols) {
     TestableSettingsElement testable;
     *testable.PublicMorozov_Get_discriminator() =
@@ -806,6 +886,85 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_changing_unsigned_number_symbols
     }
 
     CHECK_EQUAL('\x02', testable.PublicMorozov_Get_value()[0]);
+}
+TEST(LogicSettingsElementTestsGroup, SelectNext_change_discriminator) {
+    TestableSettingsElement testable;
+
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
+    testable.Change();
+    CHECK_EQUAL(SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator,
+                *testable.PublicMorozov_Get_editing_property_id());
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_password,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_max_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_min_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_current_date,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_current_time,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_sntp_server_primary,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_sntp_server_secondary,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_timezone,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+                *testable.PublicMorozov_Get_discriminator());
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
