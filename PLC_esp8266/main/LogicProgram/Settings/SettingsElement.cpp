@@ -31,8 +31,8 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     // if (state == LogicItemState::lisActive) {
     //     static const int update_period_ms = 1000;
     //     switch (discriminator) {
-    //         case t_date:
-    //         case t_time:
+    //         case t_current_date:
+    //         case t_current_time:
 
     //             ESP_LOGI(TAG_SettingsElement, "DoAction");
     //             if (Controller::RequestWakeupMs(this,
@@ -171,11 +171,20 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_wifi_access_point_settings_ssid_hidden:
             name = "AP: hidden ssid";
             break;
-        case t_date:
+        case t_current_date:
             name = "Date YYYY-MM-DD";
             break;
-        case t_time:
+        case t_current_time:
             name = "Time hh:mm:ss";
+            break;
+        case t_datetime_sntp_server_primary:
+            name = "Primary SNTP server";
+            break;
+        case t_datetime_sntp_server_secondary:
+            name = "Second. SNTP server";
+            break;
+        case t_datetime_timezone:
+            name = "Timezone";
             break;
         default:
             return false;
@@ -292,8 +301,11 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_wifi_scanner_settings_min_rssi:
         case t_wifi_access_point_settings_generation_time_ms:
         case t_wifi_access_point_settings_ssid_hidden:
-        case t_date:
-        case t_time:
+        case t_current_date:
+        case t_current_time:
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
             return true;
 
         default:
@@ -384,16 +396,37 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
-        case t_date: {
+        case t_current_date: {
             Datetime dt;
             Controller::GetSystemDatetime(&dt);
             sprintf(string_buffer, "%04d-%02d-%02d", dt.year, dt.month, dt.day);
             break;
         }
-        case t_time: {
+        case t_current_time: {
             Datetime dt;
             Controller::GetSystemDatetime(&dt);
             sprintf(string_buffer, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
+            break;
+        }
+        case t_datetime_sntp_server_primary: {
+            const size_t max_len = sizeof(curr_settings.datetime.sntp_server_primary);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.sntp_server_primary, max_len);
+            string_buffer[max_len] = 0;
+            break;
+        }
+        case t_datetime_sntp_server_secondary: {
+            const size_t max_len = sizeof(curr_settings.datetime.sntp_server_secondary);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.sntp_server_secondary, max_len);
+            string_buffer[max_len] = 0;
+            break;
+        }
+        case t_datetime_timezone: {
+            const size_t max_len = sizeof(curr_settings.datetime.timezone);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.timezone, max_len);
+            string_buffer[max_len] = 0;
             break;
         }
         default:
@@ -482,11 +515,16 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
-        case t_date:
+        case t_current_date:
             SelectPriorNumberSymbol(symbol, '-');
             break;
-        case t_time:
+        case t_current_time:
             SelectPriorNumberSymbol(symbol, ':');
+            break;
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
+            SelectPriorStringSymbol(symbol);
             break;
 
         default:
@@ -524,11 +562,16 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
-        case t_date:
+        case t_current_date:
             SelectNextNumberSymbol(symbol, '-');
             break;
-        case t_time:
+        case t_current_time:
             SelectNextNumberSymbol(symbol, ':');
+            break;
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
+            SelectNextStringSymbol(symbol);
             break;
 
         default:
@@ -545,7 +588,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_time;
+                _discriminator = Discriminator::t_current_time;
             }
             discriminator = _discriminator;
             break;
@@ -709,21 +752,32 @@ void SettingsElement::EndEditing() {
         case t_wifi_access_point_settings_ssid_hidden:
             curr_settings.wifi_access_point.ssid_hidden = atol(value) != 0;
             break;
-        case t_date:
+        case t_current_date:
             if (!ParseDateValue()) {
                 return;
             }
             break;
-        case t_time:
+        case t_current_time:
             if (!ParseTimeValue()) {
                 return;
             }
+            break;
+        case t_datetime_sntp_server_primary:
+            WriteString(curr_settings.datetime.sntp_server_primary,
+                        sizeof(curr_settings.datetime.sntp_server_primary));
+            break;
+        case t_datetime_sntp_server_secondary:
+            WriteString(curr_settings.datetime.sntp_server_secondary,
+                        sizeof(curr_settings.datetime.sntp_server_secondary));
+            break;
+        case t_datetime_timezone:
+            WriteString(curr_settings.datetime.timezone, sizeof(curr_settings.datetime.timezone));
             break;
         default:
             break;
     }
 
-    if (discriminator != t_date && discriminator != t_time) {
+    if (discriminator != t_current_date && discriminator != t_current_time) {
         if (validate_settings(&curr_settings)) {
             SAFETY_SETTINGS(              //
                 settings = curr_settings; //

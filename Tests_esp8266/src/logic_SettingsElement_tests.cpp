@@ -127,14 +127,20 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = SettingsElement::Discriminator::t_date;
+    discriminator = SettingsElement::Discriminator::t_current_date;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = SettingsElement::Discriminator::t_time;
+    discriminator = SettingsElement::Discriminator::t_current_time;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_datetime_sntp_server_primary;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_datetime_sntp_server_secondary;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_datetime_timezone;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
 
     discriminator = (SettingsElement::Discriminator)-1;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = (SettingsElement::Discriminator)14;
+    discriminator = (SettingsElement::Discriminator)17;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = (SettingsElement::Discriminator)100;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
@@ -211,7 +217,7 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
     CHECK_EQUAL(0, readed);
 
     *((SettingsElement::Discriminator *)&buffer[1]) =
-        (SettingsElement::Discriminator)(SettingsElement::Discriminator::t_time + 1);
+        (SettingsElement::Discriminator)(SettingsElement::Discriminator::t_datetime_timezone + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 }
@@ -235,6 +241,10 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
 
     settings.wifi_access_point.generation_time_ms = 42;
     settings.wifi_access_point.ssid_hidden = true;
+
+    strcpy(settings.datetime.sntp_server_primary, "sntp_server_primary");
+    strcpy(settings.datetime.sntp_server_secondary, "sntp_server_secondary");
+    strcpy(settings.datetime.timezone, "timezone");
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_ssid;
@@ -296,13 +306,28 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("true", display_value);
 
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("2025-01-01", display_value);
 
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("00:00:00", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_sntp_server_primary;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("sntp_server_primary", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_sntp_server_secondary;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("sntp_server_secondary", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_timezone;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("timezone", display_value);
 }
 
 TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
@@ -324,6 +349,10 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
 
     settings.wifi_access_point.generation_time_ms = 42;
     settings.wifi_access_point.ssid_hidden = true;
+
+    strcpy(settings.datetime.sntp_server_primary, "sntp_server_primary");
+    strcpy(settings.datetime.sntp_server_secondary, "sntp_server_secondary");
+    strcpy(settings.datetime.timezone, "timezone");
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_ssid;
@@ -385,13 +414,28 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("1", display_value);
 
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("2025-01-01", display_value);
 
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("00:00:00", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_sntp_server_primary;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("sntp_server_primary", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_sntp_server_secondary;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("sntp_server_secondary", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_datetime_timezone;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("timezone", display_value);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_new_ssid_with_max_size) {
@@ -766,7 +810,7 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_changing_unsigned_number_symbols
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
     TestableSettingsElement testable;
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     strcpy(testable.PublicMorozov_Get_value(), "2020-01-01");
 
     testable.EndEditing();
@@ -784,7 +828,7 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_format) {
     TestableSettingsElement testable;
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_date;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
     testable.EndEditing();
     CHECK_EQUAL(2025, hotreload->current_datetime.year);
@@ -801,7 +845,7 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_fo
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
     TestableSettingsElement testable;
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     strcpy(testable.PublicMorozov_Get_value(), "01:01:01");
 
     testable.EndEditing();
@@ -819,7 +863,7 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_time_format) {
     TestableSettingsElement testable;
-    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_time;
+    *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     strcpy(testable.PublicMorozov_Get_value(), "0101:01");
 
     testable.EndEditing();

@@ -25,8 +25,12 @@ class SettingsElement : public LogicElement {
         t_wifi_access_point_settings_generation_time_ms,
         t_wifi_access_point_settings_ssid_hidden,
 
-        t_date,
-        t_time
+        t_current_date,
+        t_current_time,
+
+        t_datetime_sntp_server_primary,
+        t_datetime_sntp_server_secondary,
+        t_datetime_timezone,
     } Discriminator;
 
   protected:
