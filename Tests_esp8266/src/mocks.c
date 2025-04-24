@@ -495,3 +495,28 @@ esp_err_t esp_wifi_deauth_sta(uint16_t aid) {
         ->withUnsignedIntParameters("aid", aid)
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
+
+void sntp_setservername(u8_t idx, const char *server) {
+    mock_c()
+        ->actualCall("sntp_setservername")
+        ->withUnsignedIntParameters("idx", idx)
+        ->withStringParameters("server", server);
+}
+void sntp_setoperatingmode(u8_t operating_mode){
+    mock_c()
+        ->actualCall("sntp_setoperatingmode")
+        ->withUnsignedIntParameters("operating_mode", operating_mode);
+}
+void sntp_init(void){
+    mock_c()
+        ->actualCall("sntp_init");
+}
+void sntp_stop(void){
+    mock_c()
+        ->actualCall("sntp_stop");
+}
+u8_t sntp_enabled(void){
+    return mock_c()
+        ->actualCall("sntp_enabled")
+        ->returnUnsignedIntValueOrDefault(0);
+}

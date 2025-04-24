@@ -22,8 +22,9 @@ CXX = g++
 CC = gcc
 
 # define any compile-time flags
-CXXFLAGS	:= -Wall -Wextra -g -std=gnu++0x $(CPPFLAGS)
-CFLAGS	:= -Wall -Wextra -g $(CPPFLAGS)
+SDK_CONFIG_FLAGS:=-DSNTP_SERVER_DNS=1
+CXXFLAGS	:= -Wall -Wextra -g -std=gnu++0x $(CPPFLAGS) $(SDK_CONFIG_FLAGS)
+CFLAGS	:= -Wall -Wextra -g $(CPPFLAGS) $(SDK_CONFIG_FLAGS)
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
