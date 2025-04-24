@@ -50,9 +50,10 @@ void DatetimeService::Task(void *parm) {
         ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", ulNotifiedValue);
 
         bool use_ntp = datetime_service->EnableSntp();
-        datetime_service->StopSntp();
         if (use_ntp) {
             datetime_service->StartSntp();
+        } else {
+            datetime_service->StopSntp();
         }
 
         datetime_service->Get(&datetime);
