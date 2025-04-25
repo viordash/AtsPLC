@@ -32,9 +32,11 @@ class DatetimeService {
     bool EnableSntp();
     void StartSntp();
     void StopSntp();
+    bool SntpInProcess();
 
   public:
     static const int STORE_BIT = BIT1;
+    static const int RESTART_SNTP_BIT = BIT2;
 
     const static int YearOffset = 1900;
     DatetimeService();

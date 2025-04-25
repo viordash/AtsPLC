@@ -83,4 +83,5 @@ class Controller {
 
     static bool ManualSetSystemDatetime(Datetime *dt);
     static void GetSystemDatetime(Datetime *dt);
+    static void UpdateSntp();
 };

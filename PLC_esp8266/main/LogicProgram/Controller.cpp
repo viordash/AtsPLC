@@ -399,3 +399,10 @@ void Controller::GetSystemDatetime(Datetime *dt) {
     }
     Controller::datetime_service->Get(dt);
 }
+
+void Controller::UpdateSntp() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->SntpStateChanged();
+}
