@@ -1,6 +1,7 @@
 [submodule "SDK/ESP8266_RTOS_SDK"]
 	path = SDK/ESP8266_RTOS_SDK
 	url = https://github.com/espressif/ESP8266_RTOS_SDK.git
+    ignore = dirty
 [submodule "TestsFramework/CppUTest"]
 	path = TestsFramework/CppUTest
 	url = https://github.com/cpputest/cpputest.git
