@@ -81,7 +81,7 @@ void DatetimeService::Task(void *parm) {
                          datetime.hour,
                          datetime.minute,
                          datetime.second);
-                // ticks_to_wait = portMAX_DELAY;
+                ticks_to_wait = portMAX_DELAY;
             }
         }
 
