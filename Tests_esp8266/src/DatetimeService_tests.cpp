@@ -23,120 +23,97 @@ TEST_GROUP(LogicDatetimeServiceTestsGroup){ //
 namespace {
     class TestableDatetimeService : public DatetimeService {
       public:
-        TestableDatetimeService() : DatetimeService() {
+        TestableDatetimeService() : DatetimeService(), time_value{} {
         }
         virtual ~TestableDatetimeService() {
         }
         bool PublicMorozov_EnableSntp() {
             return EnableSntp();
         }
+
+        timeval time_value;
+
+        void GetCurrent(timeval *tv) override {
+            // struct tm tm = {};
+            // tm.tm_sec = 0;
+            // tm.tm_min = 0;
+            // tm.tm_hour = 0;
+            // tm.tm_mday = 1;
+            // tm.tm_mon = 0;
+            // tm.tm_year = 2025 - DatetimeService::YearOffset;
+            *tv = time_value; // { mktime(&tm), 0 };
+        }
+
+        void SetCurrent(const timeval *tv) override {
+            time_value = *tv;
+        }
     };
 } // namespace
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentSecond) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_sec, testable.GetCurrentSecond(), 1);
+    CHECK_EQUAL(59, testable.GetCurrentSecond());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentMinute) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_min, testable.GetCurrentMinute(), 1);
+    CHECK_EQUAL(42, testable.GetCurrentMinute());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentHour) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_hour, testable.GetCurrentHour(), 1);
+    CHECK_EQUAL(23, testable.GetCurrentHour());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentDay) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_mday, testable.GetCurrentDay(), 1);
+    CHECK_EQUAL(15, testable.GetCurrentDay());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentWeekday) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_wday + 1, testable.GetCurrentWeekday(), 1);
+    CHECK_EQUAL(05, testable.GetCurrentWeekday());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentMonth) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_mon + 1, testable.GetCurrentMonth(), 1);
+    CHECK_EQUAL(07, testable.GetCurrentMonth());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentYear) {
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
+    testable.time_value.tv_sec = 1626381779;
 
-    DOUBLES_EQUAL(tm.tm_year, testable.GetCurrentYear(), 1);
+    CHECK_EQUAL(121, testable.GetCurrentYear());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     mock().expectNCalls(1, "xTaskGenericNotify").ignoreOtherParameters();
 
     TestableDatetimeService testable;
-    time_t t = time(NULL);
-    struct tm tm_curr = *localtime(&t);
     Datetime datetime;
-
-    datetime.second = tm_curr.tm_sec - 10;
-    if (--datetime.second < 0) {
-        datetime.second = 59;
-    }
-    datetime.minute = tm_curr.tm_min - 5;
-    if (datetime.minute < 0) {
-        datetime.minute = 59;
-    }
-    datetime.hour = tm_curr.tm_hour - 5;
-    if (datetime.hour < 0) {
-        datetime.hour = 23;
-    }
-    datetime.day = tm_curr.tm_mday - 5;
-    if (datetime.day < 1) {
-        datetime.day = 25;
-    }
-    datetime.month = (tm_curr.tm_mon + 1) - 5;
-    if (datetime.month <= 0) {
-        datetime.month = 12;
-    }
-    datetime.year = tm_curr.tm_year + DatetimeService::YearOffset - 5;
-    if (datetime.year > 2050) {
-        datetime.year = 2020;
-    }
+    datetime.second = 59;
+    datetime.minute = 42;
+    datetime.hour = 23;
+    datetime.day = 15;
+    datetime.month = 07;
+    datetime.year = 2021;
 
     testable.ManualSet(&datetime);
-    DOUBLES_EQUAL(datetime.second, testable.GetCurrentSecond(), 1);
-    DOUBLES_EQUAL(datetime.minute, testable.GetCurrentMinute(), 1);
-    DOUBLES_EQUAL(datetime.hour, testable.GetCurrentHour(), 1);
-    DOUBLES_EQUAL(datetime.day, testable.GetCurrentDay(), 1);
-    DOUBLES_EQUAL(datetime.month, testable.GetCurrentMonth(), 1);
-    DOUBLES_EQUAL(datetime.year, testable.GetCurrentYear() + DatetimeService::YearOffset, 1);
-
-    datetime.second = tm_curr.tm_sec;
-    datetime.minute = tm_curr.tm_min;
-    datetime.hour = tm_curr.tm_hour;
-    datetime.day = tm_curr.tm_mday;
-    datetime.month = tm_curr.tm_mon + 1;
-    datetime.year = tm_curr.tm_year;
-    testable.ManualSet(&datetime);
+    CHECK_EQUAL(1626381779, testable.time_value.tv_sec);
+    CHECK_EQUAL(0, testable.time_value.tv_usec);
 }
 
 TEST(LogicDatetimeServiceTestsGroup, EnableSntp_depends_on_sntp_servers) {

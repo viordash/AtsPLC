@@ -29,6 +29,7 @@ class DatetimeService {
 
     static void Task(void *parm);
     virtual void GetCurrent(timeval *tv);
+    virtual void SetCurrent(const timeval *tv);
     bool EnableSntp();
     void StartSntp();
     void StopSntp();

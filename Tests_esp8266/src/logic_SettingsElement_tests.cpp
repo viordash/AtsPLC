@@ -22,18 +22,26 @@ namespace {
         virtual ~TestableDatetimeService() {
         }
 
+        static timeval time_value;
+
         void GetCurrent(timeval *tv) override {
-            struct tm tm = {};
-            tm.tm_sec = 0;
-            tm.tm_min = 0;
-            tm.tm_hour = 0;
-            tm.tm_mday = 1;
-            tm.tm_mon = 0;
-            tm.tm_year = 2025 - DatetimeService::YearOffset;
-            *tv = { mktime(&tm), 0 };
+            // struct tm tm = {};
+            // tm.tm_sec = 0;
+            // tm.tm_min = 0;
+            // tm.tm_hour = 0;
+            // tm.tm_mday = 1;
+            // tm.tm_mon = 0;
+            // tm.tm_year = 2025 - DatetimeService::YearOffset;
+            *tv = time_value; // { mktime(&tm), 0 };
+        }
+
+        void SetCurrent(const timeval *tv) override {
+            time_value = *tv;
         }
     };
 } // namespace
+
+timeval TestableDatetimeService::time_value;
 
 TestableDatetimeService *datetimeService;
 
@@ -224,6 +232,7 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
 
 TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
     char display_value[256] = {};
+    TestableDatetimeService::time_value = { 1626381779, 0 };
     TestableSettingsElement testable;
 
     strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
@@ -308,11 +317,11 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
 
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     testable.PublicMorozov_ReadValue(display_value, true);
-    STRCMP_EQUAL("2025-01-01", display_value);
+    STRCMP_EQUAL("2021-07-15", display_value);
 
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     testable.PublicMorozov_ReadValue(display_value, true);
-    STRCMP_EQUAL("00:00:00", display_value);
+    STRCMP_EQUAL("23:42:59", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_datetime_sntp_server_primary;
@@ -332,6 +341,7 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
 
 TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
     char display_value[256] = {};
+    TestableDatetimeService::time_value = { 1626381779, 0 };
     TestableSettingsElement testable;
 
     strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
@@ -415,12 +425,12 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
     STRCMP_EQUAL("1", display_value);
 
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
-    testable.PublicMorozov_ReadValue(display_value, false);
-    STRCMP_EQUAL("2025-01-01", display_value);
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("2021-07-15", display_value);
 
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
-    testable.PublicMorozov_ReadValue(display_value, false);
-    STRCMP_EQUAL("00:00:00", display_value);
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("23:42:59", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_datetime_sntp_server_primary;
@@ -973,33 +983,39 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__date_part) {
     strcpy(testable.PublicMorozov_Get_value(), "2020-01-01");
 
     testable.EndEditing();
-    CHECK_EQUAL(2020, hotreload->current_datetime.year);
-    CHECK_EQUAL(01, hotreload->current_datetime.month);
-    CHECK_EQUAL(01, hotreload->current_datetime.day);
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(2020, dt.year);
+    CHECK_EQUAL(01, dt.month);
+    CHECK_EQUAL(01, dt.day);
 
     strcpy(testable.PublicMorozov_Get_value(), "2100-12-31");
 
     testable.EndEditing();
-    CHECK_EQUAL(2100, hotreload->current_datetime.year);
-    CHECK_EQUAL(12, hotreload->current_datetime.month);
-    CHECK_EQUAL(31, hotreload->current_datetime.day);
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(2100, dt.year);
+    CHECK_EQUAL(12, dt.month);
+    CHECK_EQUAL(31, dt.day);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_format) {
+    TestableDatetimeService::time_value = { 1626381779, 0 };
     TestableSettingsElement testable;
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_date;
     strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
     testable.EndEditing();
-    CHECK_EQUAL(2025, hotreload->current_datetime.year);
-    CHECK_EQUAL(01, hotreload->current_datetime.month);
-    CHECK_EQUAL(01, hotreload->current_datetime.day);
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(2021, dt.year);
+    CHECK_EQUAL(07, dt.month);
+    CHECK_EQUAL(15, dt.day);
 
     strcpy(testable.PublicMorozov_Get_value(), "2025-1122");
     testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(2025, hotreload->current_datetime.year);
-    CHECK_EQUAL(01, hotreload->current_datetime.month);
-    CHECK_EQUAL(01, hotreload->current_datetime.day);
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(2021, dt.year);
+    CHECK_EQUAL(07, dt.month);
+    CHECK_EQUAL(15, dt.day);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
@@ -1008,32 +1024,39 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
     strcpy(testable.PublicMorozov_Get_value(), "01:01:01");
 
     testable.EndEditing();
-    CHECK_EQUAL(1, hotreload->current_datetime.hour);
-    CHECK_EQUAL(1, hotreload->current_datetime.minute);
-    CHECK_EQUAL(1, hotreload->current_datetime.second);
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(1, dt.hour);
+    CHECK_EQUAL(1, dt.minute);
+    CHECK_EQUAL(1, dt.second);
 
     strcpy(testable.PublicMorozov_Get_value(), "23:59:59");
 
     testable.EndEditing();
-    CHECK_EQUAL(23, hotreload->current_datetime.hour);
-    CHECK_EQUAL(59, hotreload->current_datetime.minute);
-    CHECK_EQUAL(59, hotreload->current_datetime.second);
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(23, dt.hour);
+    CHECK_EQUAL(59, dt.minute);
+    CHECK_EQUAL(59, dt.second);
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_time_format) {
+    TestableDatetimeService::time_value = { 1626381779, 0 };
     TestableSettingsElement testable;
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     strcpy(testable.PublicMorozov_Get_value(), "0101:01");
 
     testable.EndEditing();
-    CHECK_EQUAL(0, hotreload->current_datetime.hour);
-    CHECK_EQUAL(0, hotreload->current_datetime.minute);
-    CHECK_EQUAL(0, hotreload->current_datetime.second);
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(23, dt.hour);
+    CHECK_EQUAL(42, dt.minute);
+    CHECK_EQUAL(59, dt.second);
 
     strcpy(testable.PublicMorozov_Get_value(), "01:0101");
 
     testable.EndEditing();
-    CHECK_EQUAL(0, hotreload->current_datetime.hour);
-    CHECK_EQUAL(0, hotreload->current_datetime.minute);
-    CHECK_EQUAL(0, hotreload->current_datetime.second);
+    Controller::GetSystemDatetime(&dt);
+    CHECK_EQUAL(23, dt.hour);
+    CHECK_EQUAL(42, dt.minute);
+    CHECK_EQUAL(59, dt.second);
 }

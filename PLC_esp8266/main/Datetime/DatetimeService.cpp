@@ -160,6 +160,10 @@ void DatetimeService::GetCurrent(timeval *tv) {
     ESP_ERROR_CHECK(gettimeofday(tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
 }
 
+void DatetimeService::SetCurrent(const timeval *tv) {
+    ESP_ERROR_CHECK(settimeofday(tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+}
+
 int DatetimeService::GetCurrentSecond() {
     timeval tv;
     GetCurrent(&tv);
@@ -249,7 +253,7 @@ bool DatetimeService::ManualSet(Datetime *dt) {
     tm.tm_year = dt->year - DatetimeService::YearOffset;
 
     timeval new_tv = { mktime(&tm), tv.tv_usec };
-    ESP_ERROR_CHECK(settimeofday(&new_tv, NULL) == 0 ? ESP_OK : ESP_FAIL);
+    SetCurrent(&new_tv);
 
     xTaskNotify(task_handle, STORE_BIT, eNotifyAction::eSetBits);
 
