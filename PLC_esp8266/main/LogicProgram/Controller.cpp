@@ -400,9 +400,16 @@ void Controller::GetSystemDatetime(Datetime *dt) {
     Controller::datetime_service->Get(dt);
 }
 
-void Controller::UpdateSntp() {
+void Controller::RestartSntp() {
     if (Controller::datetime_service == NULL) {
         return;
     }
     Controller::datetime_service->SntpStateChanged();
+}
+
+void Controller::StoreSystemDatetime() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->StoreSystemDatetime();
 }

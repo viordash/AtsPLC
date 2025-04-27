@@ -788,7 +788,7 @@ void SettingsElement::EndEditing() {
                 case t_datetime_sntp_server_primary:
                 case t_datetime_sntp_server_secondary:
                 case t_datetime_timezone:
-                    Controller::UpdateSntp();
+                    Controller::RestartSntp();
                     break;
                 default:
                     break;

@@ -86,7 +86,6 @@ void DatetimeService::Task(void *parm) {
         }
 
         bool use_ntp = datetime_service->EnableSntp();
-
         if (use_ntp) {
             Controller::ConnectToWiFiStation();
             bool restart_ntp = (ulNotifiedValue & RESTART_SNTP_BIT) != 0;
@@ -110,6 +109,10 @@ void DatetimeService::SntpStateChanged() {
     xTaskNotify(task_handle, RESTART_SNTP_BIT, eNotifyAction::eSetBits);
 }
 
+void DatetimeService::StoreSystemDatetime() {
+    xTaskNotify(task_handle, STORE_BIT, eNotifyAction::eSetBits);
+}
+
 void DatetimeService::StartSntp() {
     ESP_LOGI(TAG_DatetimeService,
              "Start SNTP, serv_0:%s, serv_1:%s, tz:%s",
@@ -128,6 +131,10 @@ void DatetimeService::StartSntp() {
         > 0) {
         sntp_setservername(1, settings.datetime.sntp_server_secondary);
     }
+    sntp_set_time_sync_notification_cb([](struct timeval *tv) -> void {
+        ESP_LOGI(TAG_DatetimeService, "sntp_set_time_sync_notification_cb: %u", (uint32_t)tv->tv_sec);
+        Controller::StoreSystemDatetime();
+    });
     sntp_init();
 
     setenv("TZ", settings.datetime.timezone, 1);

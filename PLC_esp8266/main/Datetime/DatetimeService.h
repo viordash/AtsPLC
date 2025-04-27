@@ -45,6 +45,7 @@ class DatetimeService {
     void Start();
 
     void SntpStateChanged();
+    void StoreSystemDatetime();
 
     int GetCurrentSecond();
     int GetCurrentMinute();
