@@ -17,6 +17,7 @@ class SettingsElement : public LogicElement {
         t_wifi_station_settings_scan_station_rssi_period_ms,
         t_wifi_station_settings_max_rssi,
         t_wifi_station_settings_min_rssi,
+        t_wifi_station_settings_min_worktime_ms,
 
         t_wifi_scanner_settings_per_channel_scan_time_ms,
         t_wifi_scanner_settings_max_rssi,

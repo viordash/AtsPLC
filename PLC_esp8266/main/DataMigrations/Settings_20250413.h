@@ -30,6 +30,7 @@ namespace MigrateSettings {
                 uint32_t scan_station_rssi_period_ms;
                 int8_t max_rssi;
                 int8_t min_rssi;
+                uint32_t min_worktime_ms;
             } wifi_station_settings;
 
             typedef struct {
@@ -69,9 +70,23 @@ namespace MigrateSettings {
             memcpy(&pCurrSettings->smartconfig,
                    &pPrevSettings->smartconfig,
                    sizeof(pPrevSettings->smartconfig));
-            memcpy(&pCurrSettings->wifi_station,
-                   &pPrevSettings->wifi_station,
-                   sizeof(pPrevSettings->wifi_station));
+
+            memcpy(pCurrSettings->wifi_station.ssid,
+                   pPrevSettings->wifi_station.ssid,
+                   sizeof(pCurrSettings->wifi_station.ssid));
+            memcpy(pCurrSettings->wifi_station.password,
+                   pPrevSettings->wifi_station.password,
+                   sizeof(pCurrSettings->wifi_station.password));
+            pCurrSettings->wifi_station.connect_max_retry_count =
+                pPrevSettings->wifi_station.connect_max_retry_count;
+            pCurrSettings->wifi_station.reconnect_delay_ms =
+                pPrevSettings->wifi_station.reconnect_delay_ms;
+            pCurrSettings->wifi_station.scan_station_rssi_period_ms =
+                pPrevSettings->wifi_station.scan_station_rssi_period_ms;
+            pCurrSettings->wifi_station.max_rssi = pPrevSettings->wifi_station.max_rssi;
+            pCurrSettings->wifi_station.min_rssi = pPrevSettings->wifi_station.min_rssi;
+            pCurrSettings->wifi_station.min_worktime_ms = 10000;
+
             memcpy(&pCurrSettings->wifi_scanner,
                    &pPrevSettings->wifi_scanner,
                    sizeof(pCurrSettings->wifi_scanner));

@@ -141,10 +141,12 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = SettingsElement::Discriminator::t_datetime_timezone;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    discriminator = SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms;
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
 
     discriminator = (SettingsElement::Discriminator)-1;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = (SettingsElement::Discriminator)17;
+    discriminator = (SettingsElement::Discriminator)18;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = (SettingsElement::Discriminator)100;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
@@ -239,6 +241,7 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
     settings.wifi_station.scan_station_rssi_period_ms = 5678;
     settings.wifi_station.max_rssi = 100;
     settings.wifi_station.min_rssi = -120;
+    settings.wifi_station.min_worktime_ms = 9012;
 
     settings.wifi_scanner.per_channel_scan_time_ms = 4219;
     settings.wifi_scanner.max_rssi = 100;
@@ -285,6 +288,11 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
         SettingsElement::Discriminator::t_wifi_station_settings_min_rssi;
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms;
+    testable.PublicMorozov_ReadValue(display_value, true);
+    STRCMP_EQUAL("9012", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms;
@@ -348,6 +356,7 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
     settings.wifi_station.scan_station_rssi_period_ms = 5678;
     settings.wifi_station.max_rssi = 100;
     settings.wifi_station.min_rssi = -120;
+    settings.wifi_station.min_worktime_ms = 9012;
 
     settings.wifi_scanner.per_channel_scan_time_ms = 4219;
     settings.wifi_scanner.max_rssi = 100;
@@ -394,6 +403,11 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
         SettingsElement::Discriminator::t_wifi_station_settings_min_rssi;
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("-120", display_value);
+
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms;
+    testable.PublicMorozov_ReadValue(display_value, false);
+    STRCMP_EQUAL("9012", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms;
@@ -611,6 +625,17 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_wifi_station_settings_min
     CHECK_EQUAL(-42, settings.wifi_station.min_rssi);
 }
 
+TEST(LogicSettingsElementTestsGroup, EndEditing_stores_wifi_station_settings_min_worktime_ms) {
+    TestableSettingsElement testable;
+    *testable.PublicMorozov_Get_discriminator() =
+        SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms;
+    strcpy(testable.PublicMorozov_Get_value(), "4219");
+
+    testable.EndEditing();
+    load_settings();
+    CHECK_EQUAL(4219, settings.wifi_station.min_worktime_ms);
+}
+
 TEST(LogicSettingsElementTestsGroup,
      EndEditing_stores_wifi_scanner_settings_per_channel_scan_time_ms) {
     TestableSettingsElement testable;
@@ -755,7 +780,6 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_change_discriminator) {
     testable.SelectPrior();
     CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_timezone,
                 *testable.PublicMorozov_Get_discriminator());
-
     testable.SelectPrior();
     CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_sntp_server_secondary,
                 *testable.PublicMorozov_Get_discriminator());
@@ -790,6 +814,10 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_change_discriminator) {
 
     testable.SelectPrior();
     CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms,
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectPrior();
@@ -926,6 +954,10 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_change_discriminator) {
 
     testable.SelectNext();
     CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_min_rssi,
+                *testable.PublicMorozov_Get_discriminator());
+
+    testable.SelectNext();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms,
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectNext();

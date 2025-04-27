@@ -156,6 +156,9 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_wifi_station_settings_min_rssi:
             name = "STA: min rssi, dBm";
             break;
+        case t_wifi_station_settings_min_worktime_ms:
+            name = "STA: worktime, ms";
+            break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             name = "SCAN: scan time, mS";
             break;
@@ -296,6 +299,7 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_max_rssi:
         case t_wifi_station_settings_min_rssi:
+        case t_wifi_station_settings_min_worktime_ms:
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
         case t_wifi_scanner_settings_max_rssi:
         case t_wifi_scanner_settings_min_rssi:
@@ -375,6 +379,9 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
             break;
         case t_wifi_station_settings_min_rssi:
             sprintf(string_buffer, "%d", curr_settings.wifi_station.min_rssi);
+            break;
+        case t_wifi_station_settings_min_worktime_ms:
+            sprintf(string_buffer, "%u", curr_settings.wifi_station.min_worktime_ms);
             break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             sprintf(string_buffer, "%u", curr_settings.wifi_scanner.per_channel_scan_time_ms);
@@ -496,6 +503,7 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_min_worktime_ms:
             SelectPriorNumberSymbol(symbol, 0);
             break;
         case t_wifi_station_settings_max_rssi:
@@ -543,6 +551,7 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_min_worktime_ms:
             SelectNextNumberSymbol(symbol, 0);
             break;
         case t_wifi_station_settings_max_rssi:
@@ -736,6 +745,9 @@ void SettingsElement::EndEditing() {
             break;
         case t_wifi_station_settings_min_rssi:
             curr_settings.wifi_station.min_rssi = atoi(value);
+            break;
+        case t_wifi_station_settings_min_worktime_ms:
+            curr_settings.wifi_station.min_worktime_ms = atol(value);
             break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             curr_settings.wifi_scanner.per_channel_scan_time_ms = atol(value);

@@ -22,6 +22,7 @@ void WiFiService::StationTask(RequestItem *request) {
     int32_t max_retry_count;
     uint32_t reconnect_delay_ms;
     uint32_t scan_station_rssi_period_ms;
+    uint32_t min_worktime_ms;
     wifi_config_t wifi_config = {};
 
     SAFETY_SETTINGS({
@@ -32,6 +33,7 @@ void WiFiService::StationTask(RequestItem *request) {
         max_retry_count = settings.wifi_station.connect_max_retry_count;
         reconnect_delay_ms = settings.wifi_station.reconnect_delay_ms;
         scan_station_rssi_period_ms = settings.wifi_station.scan_station_rssi_period_ms;
+        min_worktime_ms = settings.wifi_station.min_worktime_ms;
     });
 
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
@@ -48,6 +50,7 @@ void WiFiService::StationTask(RequestItem *request) {
         esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, this));
 
     bool has_connect = false;
+    uint64_t connection_start_time = 0;
     uint32_t ulNotifiedValue = 0;
     Connect(&wifi_config);
 
@@ -134,6 +137,7 @@ void WiFiService::StationTask(RequestItem *request) {
             start_http_server();
             connect_retries_num = 0;
             has_connect = true;
+            connection_start_time = (uint64_t)esp_timer_get_time();
             if (ObtainStationRssi()) {
                 Controller::WakeupProcessTask();
             }
@@ -141,6 +145,19 @@ void WiFiService::StationTask(RequestItem *request) {
         }
 
         if (one_more_request && has_connect) {
+            int64_t timespan =
+                (connection_start_time + (min_worktime_ms * 1000)) - (uint64_t)esp_timer_get_time();
+
+            if (timespan > 0) {
+                const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_RATE_MS;
+                ESP_LOGI(TAG_WiFiService_Station,
+                         "Wait %u ticks before disconnect",
+                         delay_before_disconnect);
+                xTaskNotifyWait(0,
+                                CANCEL_REQUEST_BIT | FAILED_BIT,
+                                &ulNotifiedValue,
+                                delay_before_disconnect);
+            }
             ESP_LOGI(TAG_WiFiService_Station, "Disconnect station due to new request");
             break;
         }
