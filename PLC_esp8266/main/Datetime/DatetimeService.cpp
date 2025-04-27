@@ -101,7 +101,7 @@ void DatetimeService::Task(void *parm) {
 }
 bool DatetimeService::EnableSntp() {
     bool enable = settings.datetime.sntp_server_primary[0] != 0
-               || settings.datetime.sntp_server_secondary[1] != 0;
+               || settings.datetime.sntp_server_secondary[0] != 0;
     return enable;
 }
 
@@ -132,7 +132,9 @@ void DatetimeService::StartSntp() {
         sntp_setservername(1, settings.datetime.sntp_server_secondary);
     }
     sntp_set_time_sync_notification_cb([](struct timeval *tv) -> void {
-        ESP_LOGI(TAG_DatetimeService, "sntp_set_time_sync_notification_cb: %u", (uint32_t)tv->tv_sec);
+        ESP_LOGI(TAG_DatetimeService,
+                 "sntp_set_time_sync_notification_cb: %u",
+                 (uint32_t)tv->tv_sec);
         Controller::StoreSystemDatetime();
     });
     sntp_init();

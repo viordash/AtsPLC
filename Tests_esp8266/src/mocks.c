@@ -8,6 +8,7 @@
 #include "esp_ota_ops.h"
 #include "esp_spiffs.h"
 #include "esp_wifi.h"
+#include "lwip/apps/sntp.h"
 #include <stdlib.h>
 
 const char *WIFI_EVENT = "wifi_event";
@@ -502,21 +503,30 @@ void sntp_setservername(u8_t idx, const char *server) {
         ->withUnsignedIntParameters("idx", idx)
         ->withStringParameters("server", server);
 }
-void sntp_setoperatingmode(u8_t operating_mode){
+void sntp_setoperatingmode(u8_t operating_mode) {
     mock_c()
         ->actualCall("sntp_setoperatingmode")
         ->withUnsignedIntParameters("operating_mode", operating_mode);
 }
-void sntp_init(void){
-    mock_c()
-        ->actualCall("sntp_init");
+void sntp_init(void) {
+    mock_c()->actualCall("sntp_init");
 }
-void sntp_stop(void){
-    mock_c()
-        ->actualCall("sntp_stop");
+void sntp_stop(void) {
+    mock_c()->actualCall("sntp_stop");
 }
-u8_t sntp_enabled(void){
+u8_t sntp_enabled(void) {
+    return mock_c()->actualCall("sntp_enabled")->returnUnsignedIntValueOrDefault(0);
+}
+
+u8_t sntp_getreachability(u8_t idx) {
     return mock_c()
-        ->actualCall("sntp_enabled")
+        ->actualCall("sntp_getreachability")
+        ->withUnsignedIntParameters("idx", idx)
         ->returnUnsignedIntValueOrDefault(0);
+}
+
+void sntp_set_time_sync_notification_cb(sntp_sync_time_cb_t callback) {
+    mock_c()
+        ->actualCall("sntp_set_time_sync_notification_cb")
+        ->withPointerParameters("callback", callback);
 }

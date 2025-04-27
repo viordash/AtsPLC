@@ -27,6 +27,9 @@ namespace {
         }
         virtual ~TestableDatetimeService() {
         }
+        bool PublicMorozov_EnableSntp() {
+            return EnableSntp();
+        }
     };
 } // namespace
 
@@ -134,4 +137,16 @@ TEST(LogicDatetimeServiceTestsGroup, Set_new_datetime) {
     datetime.month = tm_curr.tm_mon + 1;
     datetime.year = tm_curr.tm_year;
     testable.ManualSet(&datetime);
+}
+
+TEST(LogicDatetimeServiceTestsGroup, EnableSntp_depends_on_sntp_servers) {
+    TestableDatetimeService testable;
+
+    strcpy(settings.datetime.sntp_server_primary, "pool0.ntp.org");
+    strcpy(settings.datetime.sntp_server_secondary, "pool1.ntp.org");
+    CHECK_TRUE(testable.PublicMorozov_EnableSntp());
+
+    settings.datetime.sntp_server_primary[0] = 0;
+    settings.datetime.sntp_server_secondary[0] = 0;
+    CHECK_FALSE(testable.PublicMorozov_EnableSntp());
 }
