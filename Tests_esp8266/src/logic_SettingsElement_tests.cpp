@@ -19,6 +19,9 @@ static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
 namespace {
     class TestableDatetimeService : public DatetimeService {
       public:
+        TestableDatetimeService() : DatetimeService() {
+            setenv("TZ", "Etc/GMT-3", 1);
+        }
         virtual ~TestableDatetimeService() {
         }
 

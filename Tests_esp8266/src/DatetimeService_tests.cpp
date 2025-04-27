@@ -24,6 +24,7 @@ namespace {
     class TestableDatetimeService : public DatetimeService {
       public:
         TestableDatetimeService() : DatetimeService(), time_value{} {
+            setenv("TZ", "Etc/GMT-3", 1);
         }
         virtual ~TestableDatetimeService() {
         }
