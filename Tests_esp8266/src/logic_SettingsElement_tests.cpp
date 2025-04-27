@@ -28,14 +28,7 @@ namespace {
         static timeval time_value;
 
         void GetCurrent(timeval *tv) override {
-            // struct tm tm = {};
-            // tm.tm_sec = 0;
-            // tm.tm_min = 0;
-            // tm.tm_hour = 0;
-            // tm.tm_mday = 1;
-            // tm.tm_mon = 0;
-            // tm.tm_year = 2025 - DatetimeService::YearOffset;
-            *tv = time_value; // { mktime(&tm), 0 };
+            *tv = time_value;
         }
 
         void SetCurrent(const timeval *tv) override {
