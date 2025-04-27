@@ -47,7 +47,6 @@ namespace MigrateSettings {
                 char sntp_server_primary[64];
                 char sntp_server_secondary[64];
                 char timezone[32];
-
             } datetime_settings;
 
             typedef struct {
@@ -80,8 +79,8 @@ namespace MigrateSettings {
                    &pPrevSettings->wifi_access_point,
                    sizeof(pCurrSettings->wifi_access_point));
 
-            strcpy(pCurrSettings->datetime.sntp_server_primary, "pool.ntp.org");
-            pCurrSettings->datetime.sntp_server_secondary[0] = 0;
+            strcpy(pCurrSettings->datetime.sntp_server_primary, "ru.pool.ntp.org");
+            strcpy(pCurrSettings->datetime.sntp_server_secondary, "pool.ntp.org");
             strcpy(pCurrSettings->datetime.timezone, "Etc/GMT-3");
 
             ESP_LOGI("Settings_20250413", "Migrate to %08X", DataMigrate.Version);
