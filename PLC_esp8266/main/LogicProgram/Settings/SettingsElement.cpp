@@ -783,7 +783,7 @@ void SettingsElement::EndEditing() {
                 settings = curr_settings; //
                 store_settings();         //
             );
-            
+
             switch (discriminator) {
                 case t_datetime_sntp_server_primary:
                 case t_datetime_sntp_server_secondary:
