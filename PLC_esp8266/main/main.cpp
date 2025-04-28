@@ -57,6 +57,8 @@ void app_main() {
     datetime_service.Start();
     if (hotreload->is_hotstart) {
         ESP_LOGI(TAG, "is hotstart");
+        setenv("TZ", settings.datetime.timezone, 1);
+        tzset();
         datetime_service.ManualSet(&hotreload->current_datetime);
     }
 
