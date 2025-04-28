@@ -119,5 +119,5 @@ clean: cleanlib
 	@echo Cleanup complete!
 
 run: all
-	sudo ./$(OUTPUTMAIN)
+	./$(OUTPUTMAIN)
 	@echo Executing 'run: all' complete!
