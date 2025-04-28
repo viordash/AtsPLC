@@ -28,23 +28,6 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     }
 
     state = prev_elem_state;
-    // if (state == LogicItemState::lisActive) {
-    //     static const int update_period_ms = 1000;
-    //     switch (discriminator) {
-    //         case t_current_date:
-    //         case t_current_time:
-
-    //             ESP_LOGI(TAG_SettingsElement, "DoAction");
-    //             if (Controller::RequestWakeupMs(this,
-    //                                             update_period_ms,
-    //                                             ProcessWakeupRequestPriority::pwrp_Idle)) {
-    //             }
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-    // }
     return prev_elem_changed;
 }
 
