@@ -268,6 +268,7 @@ TEST(
         .withIntParameter("interface", ESP_IF_WIFI_STA)
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
+    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
 
     uint32_t notifVal = WiFiService::CONNECTED_BIT;
     mock()

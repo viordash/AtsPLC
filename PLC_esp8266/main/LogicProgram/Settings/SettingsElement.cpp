@@ -1,4 +1,5 @@
 #include "LogicProgram/Settings/SettingsElement.h"
+#include "Datetime/Datetime.h"
 #include "Display/bitmaps/settings.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
@@ -138,6 +139,9 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_wifi_station_settings_min_rssi:
             name = "STA: min rssi, dBm";
             break;
+        case t_wifi_station_settings_min_worktime_ms:
+            name = "STA: worktime, ms";
+            break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             name = "SCAN: scan time, mS";
             break;
@@ -152,6 +156,21 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
             break;
         case t_wifi_access_point_settings_ssid_hidden:
             name = "AP: hidden ssid";
+            break;
+        case t_current_date:
+            name = "Date YYYY-MM-DD";
+            break;
+        case t_current_time:
+            name = "Time hh:mm:ss";
+            break;
+        case t_datetime_sntp_server_primary:
+            name = "Primary SNTP server";
+            break;
+        case t_datetime_sntp_server_secondary:
+            name = "Second. SNTP server";
+            break;
+        case t_datetime_timezone:
+            name = "Timezone";
             break;
         default:
             return false;
@@ -263,11 +282,17 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_max_rssi:
         case t_wifi_station_settings_min_rssi:
+        case t_wifi_station_settings_min_worktime_ms:
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
         case t_wifi_scanner_settings_max_rssi:
         case t_wifi_scanner_settings_min_rssi:
         case t_wifi_access_point_settings_generation_time_ms:
         case t_wifi_access_point_settings_ssid_hidden:
+        case t_current_date:
+        case t_current_time:
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
             return true;
 
         default:
@@ -338,6 +363,9 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
         case t_wifi_station_settings_min_rssi:
             sprintf(string_buffer, "%d", curr_settings.wifi_station.min_rssi);
             break;
+        case t_wifi_station_settings_min_worktime_ms:
+            sprintf(string_buffer, "%u", curr_settings.wifi_station.min_worktime_ms);
+            break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             sprintf(string_buffer, "%u", curr_settings.wifi_scanner.per_channel_scan_time_ms);
             break;
@@ -358,6 +386,39 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
+        case t_current_date: {
+            Datetime dt;
+            Controller::GetSystemDatetime(&dt);
+            sprintf(string_buffer, "%04d-%02d-%02d", dt.year, dt.month, dt.day);
+            break;
+        }
+        case t_current_time: {
+            Datetime dt;
+            Controller::GetSystemDatetime(&dt);
+            sprintf(string_buffer, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
+            break;
+        }
+        case t_datetime_sntp_server_primary: {
+            const size_t max_len = sizeof(curr_settings.datetime.sntp_server_primary);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.sntp_server_primary, max_len);
+            string_buffer[max_len] = 0;
+            break;
+        }
+        case t_datetime_sntp_server_secondary: {
+            const size_t max_len = sizeof(curr_settings.datetime.sntp_server_secondary);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.sntp_server_secondary, max_len);
+            string_buffer[max_len] = 0;
+            break;
+        }
+        case t_datetime_timezone: {
+            const size_t max_len = sizeof(curr_settings.datetime.timezone);
+            static_assert(value_size + 1 > max_len);
+            strncpy(string_buffer, curr_settings.datetime.timezone, max_len);
+            string_buffer[max_len] = 0;
+            break;
+        }
         default:
             break;
     }
@@ -425,6 +486,7 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_min_worktime_ms:
             SelectPriorNumberSymbol(symbol, 0);
             break;
         case t_wifi_station_settings_max_rssi:
@@ -443,6 +505,17 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
             break;
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
+            break;
+        case t_current_date:
+            SelectPriorNumberSymbol(symbol, '-');
+            break;
+        case t_current_time:
+            SelectPriorNumberSymbol(symbol, ':');
+            break;
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
+            SelectPriorStringSymbol(symbol);
             break;
 
         default:
@@ -461,6 +534,7 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
+        case t_wifi_station_settings_min_worktime_ms:
             SelectNextNumberSymbol(symbol, 0);
             break;
         case t_wifi_station_settings_max_rssi:
@@ -480,6 +554,17 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_access_point_settings_ssid_hidden:
             SelectBoolSymbol(symbol);
             break;
+        case t_current_date:
+            SelectNextNumberSymbol(symbol, '-');
+            break;
+        case t_current_time:
+            SelectNextNumberSymbol(symbol, ':');
+            break;
+        case t_datetime_sntp_server_primary:
+        case t_datetime_sntp_server_secondary:
+        case t_datetime_timezone:
+            SelectNextStringSymbol(symbol);
+            break;
 
         default:
             break;
@@ -495,7 +580,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_wifi_access_point_settings_ssid_hidden;
+                _discriminator = Discriminator::t_datetime_timezone;
             }
             discriminator = _discriminator;
             break;
@@ -644,6 +729,9 @@ void SettingsElement::EndEditing() {
         case t_wifi_station_settings_min_rssi:
             curr_settings.wifi_station.min_rssi = atoi(value);
             break;
+        case t_wifi_station_settings_min_worktime_ms:
+            curr_settings.wifi_station.min_worktime_ms = atol(value);
+            break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
             curr_settings.wifi_scanner.per_channel_scan_time_ms = atol(value);
             break;
@@ -659,20 +747,79 @@ void SettingsElement::EndEditing() {
         case t_wifi_access_point_settings_ssid_hidden:
             curr_settings.wifi_access_point.ssid_hidden = atol(value) != 0;
             break;
+        case t_current_date:
+            if (!ParseDateValue()) {
+                return;
+            }
+            break;
+        case t_current_time:
+            if (!ParseTimeValue()) {
+                return;
+            }
+            break;
+        case t_datetime_sntp_server_primary:
+            WriteString(curr_settings.datetime.sntp_server_primary,
+                        sizeof(curr_settings.datetime.sntp_server_primary));
+            break;
+        case t_datetime_sntp_server_secondary:
+            WriteString(curr_settings.datetime.sntp_server_secondary,
+                        sizeof(curr_settings.datetime.sntp_server_secondary));
+            break;
+        case t_datetime_timezone:
+            WriteString(curr_settings.datetime.timezone, sizeof(curr_settings.datetime.timezone));
+            break;
         default:
             break;
     }
 
-    if (validate_settings(&curr_settings)) {
-        SAFETY_SETTINGS(                                //
-            settings = curr_settings; store_settings(); //
-        );
-    } else {
-        ESP_LOGE(TAG_SettingsElement, "Settings changing has some error");
+    if (discriminator != t_current_date && discriminator != t_current_time) {
+        if (validate_settings(&curr_settings)) {
+            SAFETY_SETTINGS(              //
+                settings = curr_settings; //
+                store_settings();         //
+            );
+
+            switch (discriminator) {
+                case t_datetime_sntp_server_primary:
+                case t_datetime_sntp_server_secondary:
+                case t_datetime_timezone:
+                    Controller::RestartSntp();
+                    break;
+                default:
+                    break;
+            }
+
+        } else {
+            ESP_LOGE(TAG_SettingsElement, "Settings changing has some error");
+        }
     }
 
     ESP_LOGI(TAG_SettingsElement, "Settings changed successfully");
     EditableElement::EndEditing();
+}
+
+bool SettingsElement::ParseDateValue() {
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    const int date_elements_count = 3;
+    int count = sscanf(value, "%4d-%2d-%2d", &dt.year, &dt.month, &dt.day);
+    if (count != date_elements_count) {
+        ESP_LOGW(TAG_SettingsElement, "ReadDateValue, invalid count:%d", count);
+        return false;
+    }
+    return Controller::ManualSetSystemDatetime(&dt);
+}
+
+bool SettingsElement::ParseTimeValue() {
+    Datetime dt;
+    Controller::GetSystemDatetime(&dt);
+    const int date_elements_count = 3;
+    int count = sscanf(value, "%2d:%2d:%2d", &dt.hour, &dt.minute, &dt.second);
+    if (count != date_elements_count) {
+        ESP_LOGW(TAG_SettingsElement, "ReadTimeValue, invalid count:%d", count);
+        return false;
+    }
+    return Controller::ManualSetSystemDatetime(&dt);
 }
 
 TvElementType SettingsElement::GetElementType() {

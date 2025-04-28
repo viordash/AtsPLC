@@ -17,16 +17,14 @@
 static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
-WiFiService::WiFiService() {
+WiFiService::WiFiService() : task_handle(NULL) {
     station_rssi = LogicElement::MinValue;
-    task_handle = NULL;
 }
 
 WiFiService::~WiFiService() {
 }
 
 void WiFiService::Start() {
-
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
@@ -37,29 +35,6 @@ void WiFiService::Start() {
             : ESP_OK);
 
     ESP_LOGW(TAG_WiFiService, "Start, task_handle:%p", task_handle);
-}
-
-void WiFiService::Stop() {
-    ESP_LOGW(TAG_WiFiService, "Stop");
-    if (!Started()) {
-        return;
-    }
-
-    xTaskNotify(task_handle, STOP_BIT, eNotifyAction::eSetBits);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-
-    ESP_ERROR_CHECK(esp_wifi_deinit());
-    ESP_ERROR_CHECK(tcpip_adapter_clear_default_wifi_handlers());
-}
-
-bool WiFiService::Started() {
-    TaskStatus_t xTaskDetails;
-    vTaskGetInfo(task_handle, &xTaskDetails, pdFALSE, eTaskState::eInvalid);
-
-    if (xTaskDetails.eCurrentState == eTaskState::eRunning) {
-        ESP_LOGI(TAG_WiFiService, "is_runned");
-    }
-    return xTaskDetails.eCurrentState == eTaskState::eRunning;
 }
 
 uint8_t WiFiService::ConnectToStation() {

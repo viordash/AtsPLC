@@ -100,7 +100,7 @@ bool WiFiRequests::Station() {
     if (new_req) {
         push_front(request);
     }
-    ESP_LOGD(TAG_WiFiRequests, "Station, is new req:%u", !new_req);
+    ESP_LOGD(TAG_WiFiRequests, "Station, is new req:%u", new_req);
     return new_req;
 }
 

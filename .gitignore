@@ -39,3 +39,5 @@
 
 **/main/MigrateAnyData/MigrateAnyData.cpp
 **/main/MigrateAnyData/MigrateAnyData.h
+
+.apply-patches

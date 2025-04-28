@@ -17,13 +17,21 @@ class SettingsElement : public LogicElement {
         t_wifi_station_settings_scan_station_rssi_period_ms,
         t_wifi_station_settings_max_rssi,
         t_wifi_station_settings_min_rssi,
+        t_wifi_station_settings_min_worktime_ms,
 
         t_wifi_scanner_settings_per_channel_scan_time_ms,
         t_wifi_scanner_settings_max_rssi,
         t_wifi_scanner_settings_min_rssi,
 
         t_wifi_access_point_settings_generation_time_ms,
-        t_wifi_access_point_settings_ssid_hidden
+        t_wifi_access_point_settings_ssid_hidden,
+
+        t_current_date,
+        t_current_time,
+
+        t_datetime_sntp_server_primary,
+        t_datetime_sntp_server_secondary,
+        t_datetime_timezone,
     } Discriminator;
 
   protected:
@@ -57,6 +65,8 @@ class SettingsElement : public LogicElement {
     void SelectPriorSymbol(char *symbol, bool first);
     void SelectNextSymbol(char *symbol, bool first);
     void WriteString(char *dest, size_t dest_size);
+    bool ParseDateValue();
+    bool ParseTimeValue();
 
   public:
     typedef enum { //

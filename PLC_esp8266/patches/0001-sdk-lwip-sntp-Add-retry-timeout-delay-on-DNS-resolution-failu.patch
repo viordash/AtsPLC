@@ -1,0 +1,14 @@
+diff --git a/SDK/ESP8266_RTOS_SDK/components/lwip/lwip/src/apps/sntp/sntp.c b/SDK/ESP8266_RTOS_SDK/components/lwip/lwip/src/apps/sntp/sntp.c
+index 3cccaf52..856b570f 100644
+--- a/SDK/ESP8266_RTOS_SDK/components/lwip/lwip/src/apps/sntp/sntp.c
++++ b/SDK/ESP8266_RTOS_SDK/components/lwip/lwip/src/apps/sntp/sntp.c
+@@ -589,7 +589,8 @@ sntp_dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg)
+   } else {
+     /* DNS resolving failed -> try another server */
+     LWIP_DEBUGF(SNTP_DEBUG_WARN_STATE, ("sntp_dns_found: Failed to resolve server address resolved, trying next server\n"));
+-    sntp_try_next_server(NULL);
++    sys_untimeout(sntp_try_next_server, NULL);
++    sys_timeout((u32_t)SNTP_RETRY_TIMEOUT, sntp_try_next_server, NULL);
+   }
+ }
+ #endif /* SNTP_SERVER_DNS */

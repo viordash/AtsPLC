@@ -7,10 +7,15 @@ PROJECT_NAME := AtsPLC-esp8266
 
 export IDF_PATH := $(PWD)/../SDK/ESP8266_RTOS_SDK
 
+CURR_DIR := $(PWD)
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
 PATH  := $(PATH):$(PWD)/../SDK/xtensa-lx106-elf/bin
 SHELL := env PATH=$(PATH) /bin/bash
 
-project_prepare:
+project_prepare: .project_prepare .apply-patches 
+
+.project_prepare:
+	@echo "----------------------- Preparing"
 	@tar -xzf $(PWD)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(PWD)/../SDK/
 	@mkdir -p $(PWD)/main/MigrateAnyData
 	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.cpp $(PWD)/main/MigrateAnyData/MigrateAnyData.cpp
@@ -19,6 +24,36 @@ project_prepare:
 ifeq ($(filter project_prepare,$(MAKECMDGOALS)),)
 include $(IDF_PATH)/make/project.mk
 endif
+
+PATCH_DIR := $(CURR_DIR)/patches
+PATCH_FILES := $(sort $(wildcard $(PATCH_DIR)/*.patch))
+
+.apply-patches: clean-apply-patches .project_prepare $(PATCH_FILES)
+	@echo "----------------------- Patching"
+	@for patch in $(PATCH_FILES); do \
+		echo "Checking patch: $$patch"; \
+		pushd $(ROOT_DIR); \
+		git apply --numstat $$patch | \
+			awk 'NF == 3 {print $$3}' | \
+			while read file; do \
+				echo "Marking $$file as assume-unchanged..."; \
+				git update-index --assume-unchanged "$$file"; \
+			done; \
+		echo "Applying patch: $$patch"; \
+		git apply $$patch || exit 1; \
+		popd; \
+	done
+	@touch ".apply-patches"
+
+clean-apply-patches:
+	@echo "----------------------- Reverse Patches"
+	@for patch in $(PATCH_FILES); do \
+		pushd $(ROOT_DIR); \
+		git apply -R $$patch || true; \
+		popd; \
+	done
+	rm -f ".apply-patches"
+
 
 # define source directory
 CF_SRC				:= main

@@ -32,6 +32,8 @@ static const char *TAG_Controller = "controller";
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
 
+extern CurrentSettings::device_settings settings;
+
 bool Controller::runned = false;
 bool Controller::force_process_loop = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
@@ -74,9 +76,11 @@ void Controller::Start(EventGroupHandle_t gpio_events,
 
     processWakeupService = new ProcessWakeupService();
     ladder = new Ladder([](int16_t view_top_index, int16_t selected_network) {
-        hotreload->view_top_index = view_top_index;
-        hotreload->selected_network = selected_network;
-        store_hotreload();
+        SAFETY_HOTRELOAD({
+            hotreload->view_top_index = view_top_index;
+            hotreload->selected_network = selected_network;
+            store_hotreload();
+        });
         ESP_LOGD(TAG_Controller, "cb_UI_state_changed %d", selected_network);
         Controller::force_process_loop = selected_network > -1;
         if (Controller::force_process_loop) {
@@ -380,4 +384,32 @@ void Controller::DisconnectFromWiFiStation() {
     if (Controller::wifi_service != NULL) {
         Controller::wifi_service->DisconnectFromStation();
     }
+}
+
+bool Controller::ManualSetSystemDatetime(Datetime *dt) {
+    if (Controller::datetime_service == NULL) {
+        return false;
+    }
+    return Controller::datetime_service->ManualSet(dt);
+}
+
+void Controller::GetSystemDatetime(Datetime *dt) {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->Get(dt);
+}
+
+void Controller::RestartSntp() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->SntpStateChanged();
+}
+
+void Controller::StoreSystemDatetime() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->StoreSystemDatetime();
 }

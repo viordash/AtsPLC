@@ -45,10 +45,6 @@ static void system_init() {
 void app_main() {
     load_hotreload();
 
-    if (hotreload->is_hotstart) {
-        ESP_LOGI(TAG, "is hotstart");
-    }
-
     EventGroupHandle_t gpio_events = gpio_init();
 
     load_settings();
@@ -56,6 +52,15 @@ void app_main() {
     system_init();
     display_init();
     hot_restart_counter();
+
+    DatetimeService datetime_service;
+    datetime_service.Start();
+    if (hotreload->is_hotstart) {
+        ESP_LOGI(TAG, "is hotstart");
+        setenv("TZ", settings.datetime.timezone, 1);
+        tzset();
+        datetime_service.ManualSet(&hotreload->current_datetime);
+    }
 
     /* Print chip information */
     esp_chip_info_t chip_info;
@@ -77,7 +82,6 @@ void app_main() {
     WiFiService wifi_service;
     wifi_service.Start();
     RenderingService rendering_service;
-    DatetimeService datetime_service;
     Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
@@ -94,7 +98,6 @@ void app_main() {
     }
 
     Controller::Stop();
-    wifi_service.Stop();
     store_settings();
     printf("Restarting now.\n");
     fflush(stdout);

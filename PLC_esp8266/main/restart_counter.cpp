@@ -7,8 +7,10 @@
 static const char *TAG_restart_counter = "restart_counter";
 
 void hot_restart_counter() {
-    hotreload->restart_count++;
-    store_hotreload();
+    SAFETY_HOTRELOAD({
+        hotreload->restart_count++;
+        store_hotreload();
+    });
 
     ESP_LOGI(TAG_restart_counter, "count:%u", hotreload->restart_count);
 }
