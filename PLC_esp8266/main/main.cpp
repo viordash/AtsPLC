@@ -65,9 +65,9 @@ void app_main() {
     /* Print chip information */
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    printf("This is ESP8266 chip with %d CPU cores, WiFi, , crc32:%u",
-           chip_info.cores,
-           calc_crc32(CRC32_INIT, &chip_info, sizeof(&chip_info)));
+    printf("This is ESP8266 chip with %u CPU cores, WiFi, , crc32:%u",
+           (unsigned int)chip_info.cores,
+           (unsigned int)calc_crc32(CRC32_INIT, &chip_info, sizeof(&chip_info)));
 
     printf("silicon revision %d, ", chip_info.revision);
 
@@ -85,14 +85,14 @@ void app_main() {
     Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
-    printf("mem: %u\n", free_mem);
+    printf("mem: %u\n", (unsigned int)free_mem);
     while (true) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         uint32_t curr_free_mem = esp_get_free_heap_size();
         int32_t dead_band_1perc = curr_free_mem / 100;
         int32_t diff = curr_free_mem - free_mem;
         if (diff > dead_band_1perc || diff < -dead_band_1perc) {
-            printf("mem: %u\n", curr_free_mem);
+            printf("mem: %u\n", (unsigned int)curr_free_mem);
             free_mem = curr_free_mem;
         }
     }
