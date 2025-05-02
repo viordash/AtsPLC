@@ -67,7 +67,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 }
             }
         }
-        ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         uint32_t notified_event = ulNotifiedValue;
         ulNotifiedValue = 0;
 
@@ -226,7 +226,7 @@ void WiFiService::wifi_event_handler(void *arg,
             ESP_LOGW(TAG_WiFiService_Station,
                      "unhandled event, event_base:%s, event_id:%d",
                      event_base,
-                     event_id);
+                     (int)event_id);
             break;
     }
 }
