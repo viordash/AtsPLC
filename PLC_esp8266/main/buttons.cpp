@@ -37,17 +37,17 @@ ButtonsPressType handle_buttons(EventBits_t uxBits) {
     for (auto &button : buttons.buttons) {
         switch (button.handle(uxBits)) {
             case button::state::btDown:
-                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btDown", uxBits);
+                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btDown", (unsigned int)uxBits);
                 break;
             case button::state::btShortPressed:
-                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btShortPressed", uxBits);
+                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btShortPressed", (unsigned int)uxBits);
                 break;
             case button::state::btPressed:
-                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btPressed", uxBits);
+                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btPressed", (unsigned int)uxBits);
                 return button.pressed_type;
                 break;
             case button::state::btLongPressed:
-                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btLongPressed", uxBits);
+                ESP_LOGD(button.TAG, "process, uxBits:0x%08X btLongPressed", (unsigned int)uxBits);
                 return button.long_pressed_type;
                 break;
 
