@@ -35,12 +35,12 @@ void RenderingService::Task(void *parm) {
 
         ESP_LOGD(TAG_RenderingService,
                  "ulNotifiedValue:0x%08X xResult:%u",
-                 ulNotifiedValue,
-                 xResult);
+                 (unsigned int)ulNotifiedValue,
+                 (unsigned int)xResult);
 
         if (xResult != pdPASS) {
             ulNotifiedValue = {};
-            ESP_LOGE(TAG_RenderingService, "task notify error, res:%d", xResult);
+            ESP_LOGE(TAG_RenderingService, "task notify error, res:%d", (unsigned int)xResult);
             vTaskDelay(500 / portTICK_PERIOD_MS);
             continue;
         }

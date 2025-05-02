@@ -31,7 +31,7 @@ void TimerSecs::SetTime(uint32_t delay_time_s) {
         delay_time_s = TimerSecs::max_delay_time_s;
     }
     this->delay_time_us = delay_time_s * 1000000LL;
-    str_size = sprintf(this->str_time, "%u", delay_time_s);
+    str_size = sprintf(this->str_time, "%u", (unsigned int)delay_time_s);
 
     ESP_LOGD(TAG_TimerSecs, "ctor, str_time:%s", this->str_time);
 }

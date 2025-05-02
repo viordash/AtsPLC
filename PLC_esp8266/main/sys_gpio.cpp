@@ -157,7 +157,7 @@ bool get_digital_value(gpio_output gpio) {
         case OUTPUT_1:
             return gpio_get_level(GPIO_OUTPUT_IO_1) == GPIO_ACTIVE;
     }
-    ESP_LOGE(TAG_gpio, "get_digital_value, err:0x%X", ESP_ERR_NOT_FOUND);
+    ESP_LOGE(TAG_gpio, "get_digital_value, err:0x%X", (unsigned int)ESP_ERR_NOT_FOUND);
     return false;
 }
 
@@ -174,7 +174,7 @@ void set_digital_value(gpio_output gpio, bool value) {
             break;
     }
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_gpio, "set_digital_value, err:0x%X", err);
+        ESP_LOGE(TAG_gpio, "set_digital_value, err:0x%X", (unsigned int)err);
     }
 }
 
@@ -182,7 +182,7 @@ uint16_t get_analog_value() {
     uint16_t adc = 0x0;
     esp_err_t err = adc_read(&adc);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_gpio, "get_analog_value, err:0x%X", err);
+        ESP_LOGE(TAG_gpio, "get_analog_value, err:0x%X", (unsigned int)err);
     }
     return adc;
 }

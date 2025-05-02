@@ -17,7 +17,7 @@ bool ProcessWakeupService::Request(void *id,
     if (request_already_in) {
         ESP_LOGD(TAG_ProcessWakeupService,
                  "Request already in:%u, %p, size:%u",
-                 delay_ms,
+                 (unsigned int)delay_ms,
                  id,
                  (unsigned int)std::distance(requests.begin(), requests.end()));
         return false;
@@ -35,7 +35,7 @@ bool ProcessWakeupService::Request(void *id,
         if (request_can_be_joined) {
             ESP_LOGD(TAG_ProcessWakeupService,
                      "Request is joined in:%u, %p, diff:%d, next:%u",
-                     delay_ms,
+                     (unsigned int)delay_ms,
                      id,
                      (int)(upper_req.next_time - next_time),
                      (unsigned int)upper_req.next_time);
@@ -48,7 +48,7 @@ bool ProcessWakeupService::Request(void *id,
 
     ESP_LOGD(TAG_ProcessWakeupService,
              "Request:%u, %p, size:%u, time:%u",
-             delay_ms,
+             (unsigned int)delay_ms,
              id,
              (unsigned int)std::distance(requests.begin(), requests.end()),
              (unsigned int)(current_time / 1000));
@@ -86,7 +86,7 @@ println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &r
     bool first{ true };
     for (auto x : requests) {
         pos += sprintf(&buffer[pos], "%s", (first ? first = false, "" : ", "));
-        pos += sprintf(&buffer[pos], "%p|%u", x.id, (uint32_t)(x.next_time / 1000));
+        pos += sprintf(&buffer[pos], "%p|%u", x.id, (unsigned int)(x.next_time / 1000));
     }
     printf(&buffer[pos], "]");
     return buffer;
@@ -94,7 +94,7 @@ println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &r
 
 uint32_t ProcessWakeupService::Get() {
     if (requests.empty()) {
-        ESP_LOGD(TAG_ProcessWakeupService, "Get def:%d", default_delay);
+        ESP_LOGD(TAG_ProcessWakeupService, "Get def:%u", (unsigned int)default_delay);
         return default_delay;
     }
 
@@ -107,8 +107,8 @@ uint32_t ProcessWakeupService::Get() {
         ((timespan / 1000) + (portTICK_PERIOD_MS - portTICK_PERIOD_MS / 2)) / portTICK_PERIOD_MS;
 
     ESP_LOGD(TAG_ProcessWakeupService,
-             "Get:%d, %p, size:%u, time:%u, %s",
-             wait_ticks,
+             "Get:%u, %p, size:%u, time:%u, %s",
+             (unsigned int)wait_ticks,
              req.id,
              (unsigned int)std::distance(requests.begin(), requests.end()),
              (unsigned int)(current_time / 1000),

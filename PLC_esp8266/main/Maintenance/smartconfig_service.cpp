@@ -149,7 +149,7 @@ static void start_process() {
                                      false,
                                      timeout_ms / portTICK_PERIOD_MS);
 
-        ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
+        ESP_LOGI(TAG, "process, uxBits:0x%08X", (unsigned int)uxBits);
 
         if (uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "WiFi Connected to ap");

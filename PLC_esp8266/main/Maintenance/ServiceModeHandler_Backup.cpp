@@ -57,8 +57,8 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
         ButtonsPressType pressed_button = handle_buttons(uxBits);
         ESP_LOGD(TAG_ServiceModeHandler_Backup,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 pressed_button,
-                 uxBits);
+                 (unsigned int)pressed_button,
+                 (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 backup_fileno--;
@@ -117,15 +117,15 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
     if (storage.version != LADDER_VERSION) {
         ESP_LOGE(TAG_Ladder,
                  "Wrong ladder program version,  0x%X<>0x%X",
-                 storage.version,
-                 LADDER_VERSION);
+                 (unsigned int)storage.version,
+                 (unsigned int)LADDER_VERSION);
         delete[] storage.data;
         return false;
     }
 
     ESP_LOGI(TAG_Ladder,
              "Load ver: 0x%X, size:%u, backup:'%s'",
-             storage.version,
+             (unsigned int)storage.version,
              (unsigned int)storage.size,
              backup_name);
 

@@ -137,7 +137,7 @@ void Controller::ProcessTask(void *parm) {
 
         Controller::RemoveExpiredWakeupRequests();
 
-        ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
+        ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
         bool force_render = false;

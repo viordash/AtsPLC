@@ -57,8 +57,8 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
         ButtonsPressType pressed_button = handle_buttons(uxBits);
         ESP_LOGD(TAG_ServiceModeHandler_Restore,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 pressed_button,
-                 uxBits);
+                 (unsigned int)pressed_button,
+                 (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 backup_fileno--;
@@ -107,8 +107,8 @@ bool ServiceModeHandler::DoRestore(uint32_t fileno) {
         ESP_LOGE(TAG_Ladder,
                  "Wrong backup '%s' version,  0x%X<>0x%X",
                  backup_name,
-                 backup_storage.version,
-                 BACKUPS_VERSION);
+                 (unsigned int)backup_storage.version,
+                 (unsigned int)BACKUPS_VERSION);
         delete[] backup_storage.data;
         return false;
     }
@@ -127,7 +127,7 @@ bool ServiceModeHandler::DoRestore(uint32_t fileno) {
 
     ESP_LOGI(TAG_Ladder,
              "Store ver: 0x%X, size:%u, backup:'%s'",
-             storage.version,
+             (unsigned int)storage.version,
              (unsigned int)storage.size,
              backup_name);
 
