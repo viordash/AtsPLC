@@ -45,13 +45,13 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     err = esp_wifi_set_mode(WIFI_MODE_AP);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_mode err 0x%X", err);
+        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_mode err 0x%X", (unsigned int)err);
         return;
     }
 
-    err = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+    err = esp_wifi_set_config((wifi_interface_t)ESP_IF_WIFI_AP, &wifi_config);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_config err 0x%X", err);
+        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_config err 0x%X", (unsigned int)err);
         return;
     }
 
@@ -81,7 +81,9 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                             access_point_settings.generation_time_ms / portTICK_RATE_MS)
             == pdFALSE;
 
-        ESP_LOGD(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_AccessPoint,
+                 "process, uxBits:0x%08X",
+                 (unsigned int)ulNotifiedValue);
 
         if (notify_wait_timeout && requests.OneMoreInQueue()) {
             ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");

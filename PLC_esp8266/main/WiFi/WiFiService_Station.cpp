@@ -112,7 +112,7 @@ void WiFiService::StationTask(RequestItem *request) {
                          "'%s' failed. reconnect, num:%d of %d",
                          settings.wifi_station.ssid,
                          connect_retries_num,
-                         max_retry_count);
+                         (int)max_retry_count);
 
                 reconnect_delay = reconnect_delay_ms / portTICK_RATE_MS;
             }
@@ -153,7 +153,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_RATE_MS;
                 ESP_LOGI(TAG_WiFiService_Station,
                          "Wait %u ticks before disconnect",
-                         delay_before_disconnect);
+                         (unsigned int)delay_before_disconnect);
                 xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
@@ -194,7 +194,7 @@ bool WiFiService::ObtainStationRssi() {
     SAFETY_SETTINGS({ wifi_station = settings.wifi_station; });
 
     station_rssi = ScaleRssiToPercent04(ap.rssi, wifi_station.max_rssi, wifi_station.min_rssi);
-    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
+    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", (int)ap.rssi, (unsigned int)station_rssi);
     return true;
 }
 
@@ -242,6 +242,8 @@ void WiFiService::ip_event_handler(void *arg,
     auto wifi_service = static_cast<WiFiService *>(arg);
     auto event = (ip_event_got_ip_t *)event_data;
 
-    ESP_LOGD(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+    ESP_LOGD(TAG_WiFiService_Station,
+             "got ip:%s",
+             ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
     xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
 }
