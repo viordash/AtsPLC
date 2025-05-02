@@ -10,7 +10,6 @@
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
 #include "sys_gpio.h"
-#include "tcpip_adapter.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
