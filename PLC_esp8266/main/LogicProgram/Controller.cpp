@@ -11,7 +11,6 @@
 #include "buttons.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "esp_timer.h"
 #include "hotreload_service.h"
 #include "sys_gpio.h"
 #include <stdio.h>

@@ -3,7 +3,6 @@
 #include "LogicProgram/LogicElement.h"
 #include "esp_log.h"
 #include "esp_system.h"
-#include "esp_timer.h"
 #include "hotreload_service.h"
 #include "lwip/apps/sntp.h"
 #include "settings.h"
