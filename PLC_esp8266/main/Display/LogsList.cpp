@@ -28,7 +28,7 @@ void LogsList::Append(const char *message) {
         curr_line++;
     } else {
         for (size_t i = 0; i < lines_count - 1; i++) {
-            strcpy(lines[i], lines[i + 1]);
+            strncpy(lines[i], lines[i + 1], sizeof(lines[0]));
         }
         strcpy(lines[lines_count - 1], line);
     }
