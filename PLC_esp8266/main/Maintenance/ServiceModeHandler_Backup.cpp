@@ -126,7 +126,7 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
     ESP_LOGI(TAG_Ladder,
              "Load ver: 0x%X, size:%u, backup:'%s'",
              storage.version,
-             (uint32_t)storage.size,
+             (unsigned int)storage.size,
              backup_name);
 
     backups_storage backup_storage;

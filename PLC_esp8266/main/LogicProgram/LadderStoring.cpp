@@ -15,7 +15,7 @@ void Ladder::Load() {
                                                        storage_1_path,
                                                        ladder_storage_name);
 
-    ESP_LOGI(TAG_Ladder, "Load ver: 0x%X, size:%u", storage.version, (uint32_t)storage.size);
+    ESP_LOGI(TAG_Ladder, "Load ver: 0x%X, size:%u", storage.version, (unsigned int)storage.size);
 
     if (storage.version != LADDER_VERSION //
         || Deserialize(storage.data, storage.size) == 0) {

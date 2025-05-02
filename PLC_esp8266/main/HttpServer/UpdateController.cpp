@@ -43,7 +43,7 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
 }
 
 bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
-    ESP_LOGI(TAG_UpdateController, "ReceiveFile, size: '%u'", (uint32_t)req->content_len);
+    ESP_LOGI(TAG_UpdateController, "ReceiveFile, size: '%u'", (unsigned int)req->content_len);
 
     esp_err_t err;
     const esp_partition_t *update_partition;

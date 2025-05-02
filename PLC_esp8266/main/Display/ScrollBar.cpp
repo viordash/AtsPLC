@@ -35,9 +35,9 @@ ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_
              y,
              height,
              SCROLLBAR_TOP,
-             (uint32_t)count,
-             (uint32_t)viewport_count,
-             (uint32_t)view_topindex);
+             (unsigned int)count,
+             (unsigned int)viewport_count,
+             (unsigned int)view_topindex);
 
     res = draw_vert_line(fb, x, y, height);
     if (res) {

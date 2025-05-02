@@ -128,7 +128,7 @@ bool ServiceModeHandler::DoRestore(uint32_t fileno) {
     ESP_LOGI(TAG_Ladder,
              "Store ver: 0x%X, size:%u, backup:'%s'",
              storage.version,
-             (uint32_t)storage.size,
+             (unsigned int)storage.size,
              backup_name);
 
     delete[] backup_storage.data;

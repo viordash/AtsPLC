@@ -133,7 +133,7 @@ void DatetimeService::StartSntp() {
     sntp_set_time_sync_notification_cb([](struct timeval *tv) -> void {
         ESP_LOGI(TAG_DatetimeService,
                  "sntp_set_time_sync_notification_cb: %u",
-                 (uint32_t)tv->tv_sec);
+                 (unsigned int)tv->tv_sec);
         Controller::StoreSystemDatetime();
     });
     sntp_init();
