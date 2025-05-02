@@ -87,7 +87,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
 
 void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count) {
     backups_storage storage;
-    char backup_name[16];
+    char backup_name[32];
     for (uint32_t i = 0; i < files_count; i++) {
         CreateBackupName(i, backup_name);
         files_stat[i] = backups_storage_load(backup_name, &storage) && storage.size > 0
@@ -100,7 +100,7 @@ void ServiceModeHandler::CreateBackupName(uint32_t fileno, char *name) {
 }
 
 bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
-    char backup_name[16];
+    char backup_name[32];
     CreateBackupName(fileno, backup_name);
 
     redundant_storage storage = redundant_storage_load(storage_0_partition,
@@ -141,7 +141,7 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
 
 void ServiceModeHandler::DeleteBackupFiles(size_t files_count) {
     ESP_LOGI(TAG_ServiceModeHandler_Backup, "delete backup files");
-    char backup_name[16];
+    char backup_name[32];
     for (uint32_t i = 0; i < files_count; i++) {
         CreateBackupName(i, backup_name);
         backups_storage_delete(backup_name);
