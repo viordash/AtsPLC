@@ -84,22 +84,12 @@ TEST(GpioTestsGroup, BUTTON_DOWN_IO_isr_handler__when_input_is_close) {
     test_BUTTON_XXX_isr_handler("12", "13", "14", "0", BUTTON_DOWN_IO_CLOSE, false);
 }
 
-TEST(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_open) {
-    test_BUTTON_XXX_isr_handler("0",
-                                "13",
-                                "12",
-                                "14",
-                                BUTTON_RIGHT_IO_OPEN | INPUT_1_IO_OPEN,
-                                true);
+TEST(GpioTestsGroup, INPUT_1_IO_isr_handler__when_input_is_open) {
+    test_BUTTON_XXX_isr_handler("0", "13", "12", "14", INPUT_1_IO_OPEN, true);
 }
 
-TEST(GpioTestsGroup, BUTTON_RIGHT_IO_isr_handler__when_input_is_close) {
-    test_BUTTON_XXX_isr_handler("0",
-                                "13",
-                                "12",
-                                "14",
-                                BUTTON_RIGHT_IO_CLOSE | INPUT_1_IO_CLOSE,
-                                false);
+TEST(GpioTestsGroup, INPUT_1_IO_isr_handler__when_input_is_close) {
+    test_BUTTON_XXX_isr_handler("0", "13", "12", "14", INPUT_1_IO_CLOSE, false);
 }
 
 TEST(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_open) {
