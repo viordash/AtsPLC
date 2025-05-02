@@ -7,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
+#include "lwip/ip4_addr.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <stdio.h>
