@@ -114,7 +114,7 @@ void WiFiService::StationTask(RequestItem *request) {
                          connect_retries_num,
                          (int)max_retry_count);
 
-                reconnect_delay = reconnect_delay_ms / portTICK_RATE_MS;
+                reconnect_delay = reconnect_delay_ms / portTICK_PERIOD_MS;
             }
 
             stop_http_server();
@@ -150,7 +150,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 (connection_start_time + (min_worktime_ms * 1000)) - (uint64_t)esp_timer_get_time();
 
             if (timespan > 0) {
-                const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_RATE_MS;
+                const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_PERIOD_MS;
                 ESP_LOGI(TAG_WiFiService_Station,
                          "Wait %u ticks before disconnect",
                          (unsigned int)delay_before_disconnect);
@@ -170,7 +170,7 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_ERROR_CHECK(
         esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
 
-    const TickType_t wait_disconnection = 500 / portTICK_RATE_MS;
+    const TickType_t wait_disconnection = 500 / portTICK_PERIOD_MS;
     if (xTaskNotifyWait(0, CONNECTED_BIT | FAILED_BIT, &ulNotifiedValue, wait_disconnection)
         != pdTRUE) {
         ESP_LOGI(TAG_WiFiService_Station, "not fully disconnected");

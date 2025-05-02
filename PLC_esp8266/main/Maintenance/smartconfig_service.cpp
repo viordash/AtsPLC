@@ -147,7 +147,7 @@ static void start_process() {
                                      CONNECTED_BIT | ESPTOUCH_DONE_BIT,
                                      true,
                                      false,
-                                     timeout_ms / portTICK_RATE_MS);
+                                     timeout_ms / portTICK_PERIOD_MS);
 
         ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
 

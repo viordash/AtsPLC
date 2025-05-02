@@ -78,7 +78,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             xTaskNotifyWait(0,
                             CANCEL_REQUEST_BIT,
                             &ulNotifiedValue,
-                            access_point_settings.generation_time_ms / portTICK_RATE_MS)
+                            access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
             == pdFALSE;
 
         ESP_LOGD(TAG_WiFiService_AccessPoint,

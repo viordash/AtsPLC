@@ -39,7 +39,7 @@ void DatetimeService::Task(void *parm) {
     ESP_LOGI(TAG_DatetimeService, "Start task");
     auto datetime_service = static_cast<DatetimeService *>(parm);
 
-    const TickType_t update_current_time = 60000 / portTICK_RATE_MS;
+    const TickType_t update_current_time = 60000 / portTICK_PERIOD_MS;
     TickType_t ticks_to_wait = update_current_time;
     Datetime datetime;
     uint32_t ulNotifiedValue = 0;

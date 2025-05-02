@@ -98,7 +98,7 @@ static IRAM_ATTR int inline i2c_send(const ssd1306_t *dev, uint8_t reg, uint8_t 
     i2c_master_write_byte(cmd, reg, true);
     i2c_master_write(cmd, data, len, true);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(dev->i2c_port, cmd, 1000 / portTICK_RATE_MS);
+    ret = i2c_master_cmd_begin(dev->i2c_port, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     return ret;
