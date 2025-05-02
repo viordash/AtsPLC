@@ -96,7 +96,7 @@ void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count
 }
 
 void ServiceModeHandler::CreateBackupName(uint32_t fileno, char *name) {
-    sprintf(name, "ladder_%u", fileno);
+    sprintf(name, "ladder_%u", (unsigned int)fileno);
 }
 
 bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
