@@ -112,6 +112,13 @@ void DatetimeService::StoreSystemDatetime() {
     xTaskNotify(task_handle, STORE_BIT, eNotifyAction::eSetBits);
 }
 
+static void time_sync_notification_cb(struct timeval *tv) {
+    ESP_LOGI(TAG_DatetimeService,
+             "sntp_set_time_sync_notification_cb: %u",
+             (unsigned int)tv->tv_sec);
+    Controller::StoreSystemDatetime();
+}
+
 void DatetimeService::StartSntp() {
     ESP_LOGI(TAG_DatetimeService,
              "Start SNTP, serv_0:%s, serv_1:%s, tz:%s",
@@ -130,12 +137,7 @@ void DatetimeService::StartSntp() {
         > 0) {
         sntp_setservername(1, settings.datetime.sntp_server_secondary);
     }
-    sntp_set_time_sync_notification_cb([](struct timeval *tv) -> void {
-        ESP_LOGI(TAG_DatetimeService,
-                 "sntp_set_time_sync_notification_cb: %u",
-                 (unsigned int)tv->tv_sec);
-        Controller::StoreSystemDatetime();
-    });
+    sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     sntp_init();
 
     setenv("TZ", settings.datetime.timezone, 1);
