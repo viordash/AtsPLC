@@ -14,7 +14,7 @@
 #include "main/LogicProgram/Settings/SettingsElement.h"
 #include "main/hotreload_service.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
 namespace {
     class TestableDatetimeService : public DatetimeService {
