@@ -39,7 +39,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                                                  false,
                                                  service_mode_timeout_ms / portTICK_PERIOD_MS);
 
-        ESP_LOGD(TAG_ServiceModeHandler, "bits:0x%08X", uxBits);
+        ESP_LOGD(TAG_ServiceModeHandler, "bits:0x%08X", (unsigned int)uxBits);
 
         bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
         if (timeout) {

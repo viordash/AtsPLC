@@ -28,7 +28,7 @@ static struct {
                       .screen = SSD1306_SCREEN,
                       .width = DISPLAY_WIDTH,
                       .height = DISPLAY_HEIGHT };
-    uint8_t buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+    uint8_t buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
     const font_info_t *font_4X7 = font_builtin_fonts[FONT_FACE_BITOCRA_4X7];
     const font_info_t *font_5X7 = font_builtin_fonts[FONT_FACE_GLCD5x7];

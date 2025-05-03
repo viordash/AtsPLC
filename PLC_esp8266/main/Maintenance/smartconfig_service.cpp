@@ -10,7 +10,6 @@
 #include "smartconfig_ack.h"
 #include "smartconfig_service.h"
 #include "sys_gpio.h"
-#include "tcpip_adapter.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,7 +98,7 @@ event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *ev
         }
 
         ESP_ERROR_CHECK(esp_wifi_disconnect());
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config((wifi_interface_t)ESP_IF_WIFI_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_connect());
         return;
     }
@@ -147,9 +146,9 @@ static void start_process() {
                                      CONNECTED_BIT | ESPTOUCH_DONE_BIT,
                                      true,
                                      false,
-                                     timeout_ms / portTICK_RATE_MS);
+                                     timeout_ms / portTICK_PERIOD_MS);
 
-        ESP_LOGI(TAG, "process, uxBits:0x%08X", uxBits);
+        ESP_LOGI(TAG, "process, uxBits:0x%08X", (unsigned int)uxBits);
 
         if (uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "WiFi Connected to ap");
@@ -167,7 +166,7 @@ static void start_process() {
         char ssid[sizeof(wifi_config.sta.ssid) + 1] = {};
         char pwd[sizeof(wifi_config.sta.password) + 1] = {};
 
-        ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config));
+        ESP_ERROR_CHECK(esp_wifi_get_config((wifi_interface_t)ESP_IF_WIFI_STA, &wifi_config));
         memcpy(ssid, wifi_config.sta.ssid, sizeof(ssid));
         memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
 

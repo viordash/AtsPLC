@@ -16,7 +16,7 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
 TEST_GROUP(LogicInputNCTestsGroup){ //
                                     TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));

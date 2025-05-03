@@ -31,13 +31,13 @@ ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_
 
     ESP_LOGD(TAG_ScrollBar,
              "Render: x:%u, y:%u, height:%u, top:%u, count:%u, viewport_count:%u, view_topindex:%u",
-             x,
-             y,
-             height,
-             SCROLLBAR_TOP,
-             (uint32_t)count,
-             (uint32_t)viewport_count,
-             (uint32_t)view_topindex);
+             (unsigned int)x,
+             (unsigned int)y,
+             (unsigned int)height,
+             (unsigned int)SCROLLBAR_TOP,
+             (unsigned int)count,
+             (unsigned int)viewport_count,
+             (unsigned int)view_topindex);
 
     res = draw_vert_line(fb, x, y, height);
     if (res) {

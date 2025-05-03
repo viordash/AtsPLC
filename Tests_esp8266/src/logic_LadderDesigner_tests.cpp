@@ -15,7 +15,7 @@
 
 #include "tests_utils.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
 TEST_GROUP(LogicLadderDesignerTestsGroup){ //
                                            TEST_SETUP(){ mock().disable();

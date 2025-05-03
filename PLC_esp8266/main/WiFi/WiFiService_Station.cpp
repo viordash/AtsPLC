@@ -7,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
+#include "lwip/ip4_addr.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <stdio.h>
@@ -67,7 +68,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 }
             }
         }
-        ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_Station, "event uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         uint32_t notified_event = ulNotifiedValue;
         ulNotifiedValue = 0;
 
@@ -111,9 +112,9 @@ void WiFiService::StationTask(RequestItem *request) {
                          "'%s' failed. reconnect, num:%d of %d",
                          settings.wifi_station.ssid,
                          connect_retries_num,
-                         max_retry_count);
+                         (int)max_retry_count);
 
-                reconnect_delay = reconnect_delay_ms / portTICK_RATE_MS;
+                reconnect_delay = reconnect_delay_ms / portTICK_PERIOD_MS;
             }
 
             stop_http_server();
@@ -149,10 +150,10 @@ void WiFiService::StationTask(RequestItem *request) {
                 (connection_start_time + (min_worktime_ms * 1000)) - (uint64_t)esp_timer_get_time();
 
             if (timespan > 0) {
-                const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_RATE_MS;
+                const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_PERIOD_MS;
                 ESP_LOGI(TAG_WiFiService_Station,
                          "Wait %u ticks before disconnect",
-                         delay_before_disconnect);
+                         (unsigned int)delay_before_disconnect);
                 xTaskNotifyWait(0,
                                 CANCEL_REQUEST_BIT | FAILED_BIT,
                                 &ulNotifiedValue,
@@ -169,7 +170,7 @@ void WiFiService::StationTask(RequestItem *request) {
     ESP_ERROR_CHECK(
         esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
 
-    const TickType_t wait_disconnection = 500 / portTICK_RATE_MS;
+    const TickType_t wait_disconnection = 500 / portTICK_PERIOD_MS;
     if (xTaskNotifyWait(0, CONNECTED_BIT | FAILED_BIT, &ulNotifiedValue, wait_disconnection)
         != pdTRUE) {
         ESP_LOGI(TAG_WiFiService_Station, "not fully disconnected");
@@ -193,7 +194,7 @@ bool WiFiService::ObtainStationRssi() {
     SAFETY_SETTINGS({ wifi_station = settings.wifi_station; });
 
     station_rssi = ScaleRssiToPercent04(ap.rssi, wifi_station.max_rssi, wifi_station.min_rssi);
-    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", ap.rssi, station_rssi);
+    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", (int)ap.rssi, (unsigned int)station_rssi);
     return true;
 }
 
@@ -226,7 +227,7 @@ void WiFiService::wifi_event_handler(void *arg,
             ESP_LOGW(TAG_WiFiService_Station,
                      "unhandled event, event_base:%s, event_id:%d",
                      event_base,
-                     event_id);
+                     (int)event_id);
             break;
     }
 }
@@ -241,6 +242,8 @@ void WiFiService::ip_event_handler(void *arg,
     auto wifi_service = static_cast<WiFiService *>(arg);
     auto event = (ip_event_got_ip_t *)event_data;
 
-    ESP_LOGD(TAG_WiFiService_Station, "got ip:%s", ip4addr_ntoa(&event->ip_info.ip));
+    ESP_LOGD(TAG_WiFiService_Station,
+             "got ip:%s",
+             ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
     xTaskNotify(wifi_service->task_handle, CONNECTED_BIT, eNotifyAction::eSetBits);
 }

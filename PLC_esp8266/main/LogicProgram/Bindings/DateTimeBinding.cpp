@@ -4,7 +4,6 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,7 +65,7 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
                 break;
         }
 
-        ESP_LOGD(TAG_DateTimeBinding, "%p event_period_ms:%u", this, event_period_ms);
+        ESP_LOGD(TAG_DateTimeBinding, "%p event_period_ms:%u", this, (unsigned int)event_period_ms);
         Controller::RequestWakeupMs(this,
                                     event_period_ms,
                                     ProcessWakeupRequestPriority::pwrp_Critical);

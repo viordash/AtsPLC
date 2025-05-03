@@ -2,6 +2,7 @@
 
 #include "Display/EditableElement.h"
 #include "LogicProgram/LogicElement.h"
+#include "LogicProgram/LogicItemState.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>

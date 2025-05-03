@@ -85,7 +85,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
 }
 
 void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
     uint8_t start_point_x = IsOutputElement(source_element->GetElementType()) //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
@@ -313,7 +313,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
 }
 
 void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
 
     AppendStandartElement(source_element, TvElementType::et_InputNC, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_InputNO, frame_buffer);

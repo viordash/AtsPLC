@@ -27,7 +27,7 @@ void ListBox::BuildTitle(const char *title) {
     }
     strcat(this->title, " <");
 
-    uint8_t *fb = new uint8_t[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+    uint8_t *fb = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
     const uint8_t x = 2;
     const uint8_t y = 2;
     int width = draw_text_f6X12(fb, x, y, this->title);
