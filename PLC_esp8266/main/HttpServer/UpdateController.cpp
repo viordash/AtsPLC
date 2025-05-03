@@ -80,7 +80,9 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
 
         err = esp_ota_write(update_handle, (const void *)buffer, received);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG_UpdateController, "Error: esp_ota_write failed! err=0x%x", (unsigned int)err);
+            ESP_LOGE(TAG_UpdateController,
+                     "Error: esp_ota_write failed! err=0x%x",
+                     (unsigned int)err);
             SendHttpError_500(req);
             return false;
         }
@@ -149,7 +151,9 @@ bool UpdateController::FinishOta(const esp_partition_t *update_partition,
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_UpdateController, "esp_ota_set_boot_partition failed! err=0x%x", (unsigned int)err);
+        ESP_LOGE(TAG_UpdateController,
+                 "esp_ota_set_boot_partition failed! err=0x%x",
+                 (unsigned int)err);
         return false;
     }
     ESP_LOGI(TAG_UpdateController, "FinishOta succeeded");
