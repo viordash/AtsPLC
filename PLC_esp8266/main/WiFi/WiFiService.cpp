@@ -1,10 +1,8 @@
 #include "WiFiService.h"
-#include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicElement.h"
 #include "esp_log.h"
 #include "esp_smartconfig.h"
 #include "esp_system.h"
-#include "esp_timer.h"
 #include "esp_wifi.h"
 #include "settings.h"
 #include "sys_gpio.h"
@@ -63,7 +61,11 @@ uint8_t WiFiService::Scan(const char *ssid) {
 
     if (requests.Scan(ssid)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "Scan, ssid:%s, found:%d, rssi:%u", ssid, found, rssi);
+        ESP_LOGD(TAG_WiFiService,
+                 "Scan, ssid:%s, found:%u, rssi:%u",
+                 ssid,
+                 (unsigned int)found,
+                 (unsigned int)rssi);
     }
     return rssi;
 }
@@ -71,7 +73,7 @@ uint8_t WiFiService::Scan(const char *ssid) {
 void WiFiService::CancelScan(const char *ssid) {
     RemoveScannedSsid(ssid);
     bool removed = requests.RemoveScanner(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%d", ssid, removed);
+    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%u", ssid, (unsigned int)removed);
     if (removed) {
         xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
@@ -88,7 +90,10 @@ size_t WiFiService::AccessPoint(const char *ssid, const char *password, const ch
 void WiFiService::CancelAccessPoint(const char *ssid) {
     RemoveApClients(ssid);
     bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s, removed:%d", ssid, removed);
+    ESP_LOGI(TAG_WiFiService,
+             "CancelAccessPoint, ssid:%s, removed:%u",
+             ssid,
+             (unsigned int)removed);
     if (removed) {
         xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
     }
@@ -104,10 +109,10 @@ void WiFiService::Task(void *parm) {
         if ((ulNotifiedValue & STOP_BIT) != 0) {
             break;
         }
-        ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
         while (wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGI(TAG_WiFiService, "exec request, type:%u", new_request.Type);
+            ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
 
             switch (new_request.Type) {
                 case wqi_Station:
@@ -125,7 +130,7 @@ void WiFiService::Task(void *parm) {
                 default:
                     break;
             }
-            ESP_LOGD(TAG_WiFiService, "end request, type:%u", new_request.Type);
+            ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
         }
     }
 
@@ -146,7 +151,7 @@ void WiFiService::Connect(wifi_config_t *wifi_config) {
         if (wifi_config->sta.password[0] != 0) {
             wifi_config->sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
         }
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config((wifi_interface_t)ESP_IF_WIFI_STA, wifi_config));
     }
 
     ESP_ERROR_CHECK(esp_wifi_start());

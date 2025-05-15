@@ -5,7 +5,6 @@
 #include "Display/bitmaps/moving_up_down.h"
 #include "Display/display.h"
 #include "EditableElement.h"
-#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"

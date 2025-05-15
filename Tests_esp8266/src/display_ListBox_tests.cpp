@@ -16,7 +16,7 @@
 #include "main/Display/ListBox.h"
 #include "main/Display/display.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 extern ssd1306_color_t foreground_color;
 extern ssd1306_color_t background_color;
 

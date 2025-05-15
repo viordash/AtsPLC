@@ -5,7 +5,6 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -348,54 +347,66 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
                 && curr_settings.wifi_station.connect_max_retry_count == INFINITY_CONNECT_RETRY) {
                 strcpy(string_buffer, "infinity");
             } else {
-                sprintf(string_buffer, "%d", curr_settings.wifi_station.connect_max_retry_count);
+                sprintf(string_buffer,
+                        "%d",
+                        (int)curr_settings.wifi_station.connect_max_retry_count);
             }
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
-            sprintf(string_buffer, "%u", curr_settings.wifi_station.reconnect_delay_ms);
+            sprintf(string_buffer,
+                    "%u",
+                    (unsigned int)curr_settings.wifi_station.reconnect_delay_ms);
             break;
         case t_wifi_station_settings_scan_station_rssi_period_ms:
-            sprintf(string_buffer, "%u", curr_settings.wifi_station.scan_station_rssi_period_ms);
+            sprintf(string_buffer,
+                    "%u",
+                    (unsigned int)curr_settings.wifi_station.scan_station_rssi_period_ms);
             break;
         case t_wifi_station_settings_max_rssi:
-            sprintf(string_buffer, "%d", curr_settings.wifi_station.max_rssi);
+            sprintf(string_buffer, "%d", (int)curr_settings.wifi_station.max_rssi);
             break;
         case t_wifi_station_settings_min_rssi:
-            sprintf(string_buffer, "%d", curr_settings.wifi_station.min_rssi);
+            sprintf(string_buffer, "%d", (int)curr_settings.wifi_station.min_rssi);
             break;
         case t_wifi_station_settings_min_worktime_ms:
-            sprintf(string_buffer, "%u", curr_settings.wifi_station.min_worktime_ms);
+            sprintf(string_buffer, "%u", (unsigned int)curr_settings.wifi_station.min_worktime_ms);
             break;
         case t_wifi_scanner_settings_per_channel_scan_time_ms:
-            sprintf(string_buffer, "%u", curr_settings.wifi_scanner.per_channel_scan_time_ms);
+            sprintf(string_buffer,
+                    "%u",
+                    (unsigned int)curr_settings.wifi_scanner.per_channel_scan_time_ms);
             break;
         case t_wifi_scanner_settings_max_rssi:
-            sprintf(string_buffer, "%d", curr_settings.wifi_scanner.max_rssi);
+            sprintf(string_buffer, "%d", (int)curr_settings.wifi_scanner.max_rssi);
             break;
         case t_wifi_scanner_settings_min_rssi:
-            sprintf(string_buffer, "%d", curr_settings.wifi_scanner.min_rssi);
+            sprintf(string_buffer, "%d", (int)curr_settings.wifi_scanner.min_rssi);
             break;
         case t_wifi_access_point_settings_generation_time_ms:
-            sprintf(string_buffer, "%u", curr_settings.wifi_access_point.generation_time_ms);
+            sprintf(string_buffer,
+                    "%u",
+                    (unsigned int)curr_settings.wifi_access_point.generation_time_ms);
             break;
         case t_wifi_access_point_settings_ssid_hidden:
             if (friendly_format) {
                 strcpy(string_buffer,
                        curr_settings.wifi_access_point.ssid_hidden ? "true" : "false");
             } else {
-                sprintf(string_buffer, "%u", curr_settings.wifi_access_point.ssid_hidden);
+                sprintf(string_buffer,
+                        "%u",
+                        (unsigned int)curr_settings.wifi_access_point.ssid_hidden);
             }
             break;
         case t_current_date: {
             Datetime dt;
             Controller::GetSystemDatetime(&dt);
-            sprintf(string_buffer, "%04d-%02d-%02d", dt.year, dt.month, dt.day);
+            sprintf(string_buffer, "%04d-%02d-%02d", (int)dt.year, (int)dt.month, (int)dt.day);
             break;
         }
         case t_current_time: {
             Datetime dt;
             Controller::GetSystemDatetime(&dt);
-            sprintf(string_buffer, "%02d:%02d:%02d", dt.hour, dt.minute, dt.second);
+            sprintf(string_buffer, "%02d:%02d:%02d", (int)dt.hour, (int)dt.minute, (int)dt.second);
             break;
         }
         case t_datetime_sntp_server_primary: {
@@ -802,7 +813,7 @@ bool SettingsElement::ParseDateValue() {
     Datetime dt;
     Controller::GetSystemDatetime(&dt);
     const int date_elements_count = 3;
-    int count = sscanf(value, "%4d-%2d-%2d", &dt.year, &dt.month, &dt.day);
+    int count = sscanf(value, "%4d-%2d-%2d", (int *)&dt.year, (int *)&dt.month, (int *)&dt.day);
     if (count != date_elements_count) {
         ESP_LOGW(TAG_SettingsElement, "ReadDateValue, invalid count:%d", count);
         return false;
@@ -814,7 +825,7 @@ bool SettingsElement::ParseTimeValue() {
     Datetime dt;
     Controller::GetSystemDatetime(&dt);
     const int date_elements_count = 3;
-    int count = sscanf(value, "%2d:%2d:%2d", &dt.hour, &dt.minute, &dt.second);
+    int count = sscanf(value, "%2d:%2d:%2d", (int *)&dt.hour, (int *)&dt.minute, (int *)&dt.second);
     if (count != date_elements_count) {
         ESP_LOGW(TAG_SettingsElement, "ReadTimeValue, invalid count:%d", count);
         return false;

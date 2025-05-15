@@ -50,8 +50,8 @@ namespace MigrateSettings {
             pSettings->state = 0xFF;
 
             ESP_LOGI("Settings_Initial",
-                     "Settings. Initial migrate to %04X\n",
-                     DataMigrate.Version);
+                     "Settings. Initial migrate to %04X",
+                     (unsigned int)DataMigrate.Version);
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {

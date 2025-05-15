@@ -12,7 +12,7 @@
 #include "main/LogicProgram/StatusBar.cpp"
 #include "main/LogicProgram/StatusBar.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
 TEST_GROUP(StatusBarTestsGroup){ //
                                  TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
@@ -38,7 +38,7 @@ TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
     CHECK_TRUE(testable.Render(frame_buffer));
 
     const int component_area = DISPLAY_WIDTH * 2;
-    for (int i = component_area; i < DISPLAY_WIDTH * DISPLAY_HEIGHT / 8; i++) {
+    for (int i = component_area; i < DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH; i++) {
         CHECK_EQUAL(0, frame_buffer[i]);
     }
 }

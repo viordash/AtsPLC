@@ -16,7 +16,7 @@
 #include "main/LogicProgram/Outputs/IncOutput.h"
 #include "main/LogicProgram/Wire.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 static WiFiService *wifi_service;
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //

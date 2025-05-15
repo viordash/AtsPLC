@@ -14,7 +14,7 @@
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Network.h"
 
-static uint8_t frame_buffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8] = {};
+static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 
 TEST_GROUP(LogicNetworkTestsGroup){ //
                                     TEST_SETUP(){ mock().disable();

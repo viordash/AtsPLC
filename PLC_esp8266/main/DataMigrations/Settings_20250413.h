@@ -96,9 +96,9 @@ namespace MigrateSettings {
 
             strcpy(pCurrSettings->datetime.sntp_server_primary, "ru.pool.ntp.org");
             strcpy(pCurrSettings->datetime.sntp_server_secondary, "pool.ntp.org");
-            strcpy(pCurrSettings->datetime.timezone, "Etc/GMT-3");
+            strcpy(pCurrSettings->datetime.timezone, "GMT-3");
 
-            ESP_LOGI("Settings_20250413", "Migrate to %08X", DataMigrate.Version);
+            ESP_LOGI("Settings_20250413", "Migrate to %08X", (unsigned int)DataMigrate.Version);
         }
 
         inline void MigrateDown(void *pCurr, void *pPrev) {

@@ -5,7 +5,6 @@
 #include "esp_log.h"
 #include "esp_smartconfig.h"
 #include "esp_system.h"
-#include "esp_timer.h"
 #include "esp_wifi.h"
 #include "settings.h"
 #include "sys_gpio.h"
@@ -46,13 +45,13 @@ void WiFiService::AccessPointTask(RequestItem *request) {
 
     err = esp_wifi_set_mode(WIFI_MODE_AP);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_mode err 0x%X", err);
+        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_mode err 0x%X", (unsigned int)err);
         return;
     }
 
-    err = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+    err = esp_wifi_set_config((wifi_interface_t)ESP_IF_WIFI_AP, &wifi_config);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_config err 0x%X", err);
+        ESP_LOGE(TAG_WiFiService_AccessPoint, "esp_wifi_set_config err 0x%X", (unsigned int)err);
         return;
     }
 
@@ -79,10 +78,12 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             xTaskNotifyWait(0,
                             CANCEL_REQUEST_BIT,
                             &ulNotifiedValue,
-                            access_point_settings.generation_time_ms / portTICK_RATE_MS)
+                            access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
             == pdFALSE;
 
-        ESP_LOGD(TAG_WiFiService_AccessPoint, "process, uxBits:0x%08X", ulNotifiedValue);
+        ESP_LOGD(TAG_WiFiService_AccessPoint,
+                 "process, uxBits:0x%08X",
+                 (unsigned int)ulNotifiedValue);
 
         if (notify_wait_timeout && requests.OneMoreInQueue()) {
             ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");
@@ -134,7 +135,7 @@ void WiFiService::ap_connect_wifi_event_handler(void *arg,
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "connect client aid:%u, mac:" MACSTR ", mask:%s",
-             event->aid,
+             (unsigned int)event->aid,
              MAC2STR(event->mac),
              ap_event_arg->mac);
 
@@ -159,7 +160,7 @@ void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "disconnect client aid:%u, mac:" MACSTR ", mask:%s",
-             event->aid,
+             (unsigned int)event->aid,
              MAC2STR(event->mac),
              ap_event_arg->mac);
 
@@ -179,15 +180,15 @@ void WiFiService::AddApClient(const char *ssid, t_mac mac) {
     }
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "AddApClient, ssid_cnt: %u, ssid_clients:%u",
-             (unsigned)ap_clients.size(),
-             (unsigned)it.first->second.size());
+             (unsigned int)ap_clients.size(),
+             (unsigned int)it.first->second.size());
 }
 
 size_t WiFiService::GetApClientsCount(const char *ssid) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     auto it = ap_clients.find(ssid);
     bool found = it != ap_clients.end();
-    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", (unsigned int)found);
     if (found) {
         return it->second.size();
     }
@@ -198,7 +199,7 @@ void WiFiService::RemoveApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     auto it = ap_clients.find(ssid);
     bool found = it != ap_clients.end();
-    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", found);
+    ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", (unsigned int)found);
     if (found) {
         it->second.erase(mac);
         bool empty_ssid_to_be_delete = it->second.size() == 0;
@@ -206,11 +207,15 @@ void WiFiService::RemoveApClient(const char *ssid, t_mac mac) {
             ap_clients.erase(ssid);
         }
     }
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClient, cnt:%u", (unsigned)ap_clients.size());
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "RemoveApClient, cnt:%u",
+             (unsigned int)ap_clients.size());
 }
 
 void WiFiService::RemoveApClients(const char *ssid) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     ap_clients.erase(ssid);
-    ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClients, cnt:%u", (unsigned)ap_clients.size());
+    ESP_LOGI(TAG_WiFiService_AccessPoint,
+             "RemoveApClients, cnt:%u",
+             (unsigned int)ap_clients.size());
 }

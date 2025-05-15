@@ -11,7 +11,6 @@
 #include "buttons.h"
 #include "esp_event.h"
 #include "esp_log.h"
-#include "esp_timer.h"
 #include "hotreload_service.h"
 #include "sys_gpio.h"
 #include <stdio.h>
@@ -26,8 +25,7 @@ static const char *TAG_Controller = "controller";
 
 #define GPIO_EVENTS_ALL_BITS                                                                       \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
-     | BUTTON_RIGHT_IO_CLOSE | BUTTON_RIGHT_IO_OPEN | BUTTON_SELECT_IO_CLOSE                       \
-     | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
+     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
 
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
@@ -139,7 +137,7 @@ void Controller::ProcessTask(void *parm) {
 
         Controller::RemoveExpiredWakeupRequests();
 
-        ESP_LOGD(TAG_Controller, "bits:0x%08X", uxBits);
+        ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
         bool force_render = false;

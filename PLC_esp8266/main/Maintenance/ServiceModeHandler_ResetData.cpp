@@ -56,8 +56,8 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
         ButtonsPressType pressed_button = handle_buttons(uxBits);
         ESP_LOGD(TAG_ServiceModeHandler_Reset,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 pressed_button,
-                 uxBits);
+                 (unsigned int)pressed_button,
+                 (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 mode = ChangeResetModeToPrev(mode);
@@ -137,7 +137,7 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
                             false,
                             portMAX_DELAY);
 
-    ESP_LOGI(TAG_ServiceModeHandler_Reset, "bits:0x%08X", uxBits);
+    ESP_LOGI(TAG_ServiceModeHandler_Reset, "bits:0x%08X", (unsigned int)uxBits);
 
     bool button_up_released = (uxBits & BUTTON_UP_IO_OPEN) != 0;
     if (!button_up_released) {

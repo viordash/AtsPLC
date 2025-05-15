@@ -57,8 +57,8 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
         ButtonsPressType pressed_button = handle_buttons(uxBits);
         ESP_LOGD(TAG_ServiceModeHandler_Backup,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 pressed_button,
-                 uxBits);
+                 (unsigned int)pressed_button,
+                 (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 backup_fileno--;
@@ -87,7 +87,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
 
 void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count) {
     backups_storage storage;
-    char backup_name[16];
+    char backup_name[32];
     for (uint32_t i = 0; i < files_count; i++) {
         CreateBackupName(i, backup_name);
         files_stat[i] = backups_storage_load(backup_name, &storage) && storage.size > 0
@@ -96,11 +96,11 @@ void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count
 }
 
 void ServiceModeHandler::CreateBackupName(uint32_t fileno, char *name) {
-    sprintf(name, "ladder_%u", fileno);
+    sprintf(name, "ladder_%u", (unsigned int)fileno);
 }
 
 bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
-    char backup_name[16];
+    char backup_name[32];
     CreateBackupName(fileno, backup_name);
 
     redundant_storage storage = redundant_storage_load(storage_0_partition,
@@ -117,16 +117,16 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
     if (storage.version != LADDER_VERSION) {
         ESP_LOGE(TAG_Ladder,
                  "Wrong ladder program version,  0x%X<>0x%X",
-                 storage.version,
-                 LADDER_VERSION);
+                 (unsigned int)storage.version,
+                 (unsigned int)LADDER_VERSION);
         delete[] storage.data;
         return false;
     }
 
     ESP_LOGI(TAG_Ladder,
              "Load ver: 0x%X, size:%u, backup:'%s'",
-             storage.version,
-             (uint32_t)storage.size,
+             (unsigned int)storage.version,
+             (unsigned int)storage.size,
              backup_name);
 
     backups_storage backup_storage;
@@ -141,7 +141,7 @@ bool ServiceModeHandler::CreateBackup(uint32_t fileno) {
 
 void ServiceModeHandler::DeleteBackupFiles(size_t files_count) {
     ESP_LOGI(TAG_ServiceModeHandler_Backup, "delete backup files");
-    char backup_name[16];
+    char backup_name[32];
     for (uint32_t i = 0; i < files_count; i++) {
         CreateBackupName(i, backup_name);
         backups_storage_delete(backup_name);

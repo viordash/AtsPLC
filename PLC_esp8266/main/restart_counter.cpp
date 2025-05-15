@@ -12,5 +12,5 @@ void hot_restart_counter() {
         store_hotreload();
     });
 
-    ESP_LOGI(TAG_restart_counter, "count:%u", hotreload->restart_count);
+    ESP_LOGI(TAG_restart_counter, "count:%u", (unsigned int)hotreload->restart_count);
 }
