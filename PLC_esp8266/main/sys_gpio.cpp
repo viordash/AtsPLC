@@ -28,7 +28,8 @@ extern "C" {
 #define INPUT_1_IO GPIO_NUM_0
 
 #define GPIO_INPUT_PIN_SEL                                                                         \
-    ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_SELECT_IO))
+    ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_SELECT_IO)                \
+     | (1ULL << INPUT_1_IO))
 
 #define GPIO_ACTIVE 0
 #define GPIO_PASSIVE 1
