@@ -113,9 +113,7 @@ void DatetimeService::StoreSystemDatetime() {
 }
 
 static void time_sync_notification_cb(struct timeval *tv) {
-    ESP_LOGI(TAG_DatetimeService,
-             "sntp_set_time_sync_notification_cb: %u",
-             (unsigned int)tv->tv_sec);
+    ESP_LOGI(TAG_DatetimeService, "time_sync_notification_cb: %u", (unsigned int)tv->tv_sec);
     Controller::StoreSystemDatetime();
 }
 
