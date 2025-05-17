@@ -2,7 +2,6 @@
 
 #include "Datetime/DatetimeService.h"
 #include "LogicProgram/Bindings/DatetimePart.h"
-#include "LogicProgram/ControllerBaseInput.h"
 #include "LogicProgram/ControllerBaseInputOutput.h"
 #include "WiFi/WiFiService.h"
 #include <stdint.h>
@@ -20,7 +19,6 @@ class ControllerVariable : public ControllerBaseInputOutput {
 
   public:
     explicit ControllerVariable();
-    void Init() override;
     void FetchValue() override;
     void CommitChanges() override;
     void BindToSecureWiFi(WiFiService *wifi_service,

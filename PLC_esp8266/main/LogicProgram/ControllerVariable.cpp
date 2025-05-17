@@ -19,11 +19,6 @@ ControllerVariable::ControllerVariable() : ControllerBaseInputOutput() {
     this->datetime_part = DatetimePart::t_second;
 }
 
-void ControllerVariable::Init() {
-    ControllerBaseInput::Init();
-    ControllerBaseInputOutput::Init();
-}
-
 void ControllerVariable::FetchValue() {
     if (!required_reading) {
         return;

@@ -12,10 +12,6 @@ ControllerDO::ControllerDO(gpio_output gpio) : ControllerBaseInputOutput() {
     this->gpio = gpio;
 }
 
-void ControllerDO::Init() {
-    ControllerBaseInputOutput::Init();
-}
-
 void ControllerDO::FetchValue() {
     if (!required_reading) {
         return;
