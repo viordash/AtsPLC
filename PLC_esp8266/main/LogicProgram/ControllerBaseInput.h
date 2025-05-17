@@ -12,6 +12,8 @@ class ControllerBaseInput {
 
   public:
     ControllerBaseInput();
+    ControllerBaseInput(const ControllerBaseInput &) = delete;
+    ControllerBaseInput &operator=(const ControllerBaseInput &) = delete;
     virtual ~ControllerBaseInput();
 
     virtual void Init();

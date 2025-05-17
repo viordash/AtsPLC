@@ -10,7 +10,7 @@
 
 static const char *TAG_ControllerVariable = "ControllerVariable";
 
-ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBaseOutput() {
+ControllerVariable::ControllerVariable() : ControllerBaseInputOutput() {
     this->wifi_service = NULL;
     ssid = NULL;
     password = NULL;
@@ -21,7 +21,7 @@ ControllerVariable::ControllerVariable() : ControllerBaseInput(), ControllerBase
 
 void ControllerVariable::Init() {
     ControllerBaseInput::Init();
-    ControllerBaseOutput::Init();
+    ControllerBaseInputOutput::Init();
 }
 
 void ControllerVariable::FetchValue() {

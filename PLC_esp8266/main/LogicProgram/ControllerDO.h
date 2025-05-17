@@ -1,12 +1,11 @@
 #pragma once
 
-#include "LogicProgram/ControllerBaseInput.h"
-#include "LogicProgram/ControllerBaseOutput.h"
+#include "LogicProgram/ControllerBaseInputOutput.h"
 #include "sys_gpio.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class ControllerDO : public ControllerBaseInput, public ControllerBaseOutput {
+class ControllerDO : public ControllerBaseInputOutput {
   protected:
     gpio_output gpio;
 

@@ -3,12 +3,12 @@
 #include "Datetime/DatetimeService.h"
 #include "LogicProgram/Bindings/DatetimePart.h"
 #include "LogicProgram/ControllerBaseInput.h"
-#include "LogicProgram/ControllerBaseOutput.h"
+#include "LogicProgram/ControllerBaseInputOutput.h"
 #include "WiFi/WiFiService.h"
 #include <stdint.h>
 #include <unistd.h>
 
-class ControllerVariable : public ControllerBaseInput, public ControllerBaseOutput {
+class ControllerVariable : public ControllerBaseInputOutput {
   protected:
     WiFiService *wifi_service;
     const char *ssid;
