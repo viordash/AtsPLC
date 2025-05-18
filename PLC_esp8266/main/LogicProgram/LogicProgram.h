@@ -1,5 +1,9 @@
 #pragma once
 
+#include "LogicProgram/Bindings/DateTimeBinding.h"
+#include "LogicProgram/Bindings/WiFiApBinding.h"
+#include "LogicProgram/Bindings/WiFiBinding.h"
+#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
@@ -18,4 +22,5 @@
 #include "LogicProgram/Outputs/IncOutput.h"
 #include "LogicProgram/Outputs/ResetOutput.h"
 #include "LogicProgram/Outputs/SetOutput.h"
+#include "LogicProgram/Settings/SettingsElement.h"
 #include "LogicProgram/Wire.h"
