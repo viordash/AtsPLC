@@ -6,7 +6,6 @@
 #include <string.h>
 
 ControllerDI::ControllerDI() : ControllerBaseInput() {
-    Init();
 }
 
 void ControllerDI::FetchValue() {
