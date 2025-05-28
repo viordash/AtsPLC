@@ -11,6 +11,7 @@
 static const char *TAG_ControllerVariable = "ControllerVariable";
 
 ControllerVariable::ControllerVariable() : ControllerBaseInputOutput() {
+    Init();
     this->wifi_service = NULL;
     ssid = NULL;
     password = NULL;

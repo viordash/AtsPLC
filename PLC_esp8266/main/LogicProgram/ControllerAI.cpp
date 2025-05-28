@@ -7,6 +7,7 @@
 #include <string.h>
 
 ControllerAI::ControllerAI() : ControllerBaseInput() {
+    Init();
 }
 
 void ControllerAI::FetchValue() {

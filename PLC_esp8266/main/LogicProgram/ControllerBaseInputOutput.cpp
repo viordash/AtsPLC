@@ -5,14 +5,13 @@
 #include <string.h>
 
 ControllerBaseInputOutput::ControllerBaseInputOutput() : ControllerBaseInput() {
-    ControllerBaseInputOutput::Init();
 }
 
 ControllerBaseInputOutput::~ControllerBaseInputOutput() {
 }
 
-void ControllerBaseInputOutput::Init() {
-    ControllerBaseInput::Init();
+void ControllerBaseInputOutput::Setup() {
+    ControllerBaseInput::Setup();
     required_writing = false;
     out_value = LogicElement::MinValue;
 }

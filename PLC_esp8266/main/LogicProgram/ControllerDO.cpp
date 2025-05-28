@@ -9,6 +9,7 @@
 static const char *TAG_ControllerDO = "ControllerDO";
 
 ControllerDO::ControllerDO(gpio_output gpio) : ControllerBaseInputOutput() {
+    Init();
     this->gpio = gpio;
 }
 

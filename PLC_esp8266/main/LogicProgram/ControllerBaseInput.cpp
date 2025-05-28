@@ -5,15 +5,18 @@
 #include <string.h>
 
 ControllerBaseInput::ControllerBaseInput() {
-    ControllerBaseInput::Init();
 }
 
 ControllerBaseInput::~ControllerBaseInput() {
 }
 
-void ControllerBaseInput::Init() {
+void ControllerBaseInput::Setup() {
     required_reading = true;
     value = LogicElement::MinValue;
+}
+
+void ControllerBaseInput::Init() {
+    this->Setup();
 }
 
 uint8_t ControllerBaseInput::ReadValue() {
