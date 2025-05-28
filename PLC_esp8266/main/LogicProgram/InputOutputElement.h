@@ -2,7 +2,7 @@
 
 #include "Display/Common.h"
 #include "LogicProgram/Controller.h"
-#include "LogicProgram/ControllerBaseOutput.h"
+#include "LogicProgram/ControllerBaseInputOutput.h"
 #include "LogicProgram/InputElement.h"
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
@@ -15,7 +15,7 @@ class InputOutputElement : public InputElement {
     explicit InputOutputElement();
     virtual ~InputOutputElement();
 
-    ControllerBaseOutput *Output;
+    ControllerBaseInputOutput *Output;
 
     virtual void SetIoAdr(const MapIO io_adr) override;
 };

@@ -12,7 +12,7 @@
 
 #include "LogicProgram/ControllerAI.cpp"
 #include "LogicProgram/ControllerBaseInput.cpp"
-#include "LogicProgram/ControllerBaseOutput.cpp"
+#include "LogicProgram/ControllerBaseInputOutput.cpp"
 #include "LogicProgram/ControllerDI.cpp"
 #include "LogicProgram/ControllerDO.cpp"
 #include "LogicProgram/ControllerVariable.cpp"

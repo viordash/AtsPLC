@@ -5,7 +5,8 @@
 #include <string.h>
 
 ControllerBaseInput::ControllerBaseInput() {
-    ControllerBaseInput::Init();
+    required_reading = true;
+    value = LogicElement::MinValue;
 }
 
 ControllerBaseInput::~ControllerBaseInput() {
