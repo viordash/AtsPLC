@@ -352,12 +352,7 @@ void Network::AddSpaceForNewElement() {
         auto it = begin();
         while (it != end()) {
             auto element = *it;
-            bool is_output_element =
-                CommonInput::TryToCast(element) == NULL && CommonTimer::TryToCast(element) == NULL
-                && Indicator::TryToCast(element) == NULL && WiFiBinding::TryToCast(element) == NULL
-                && WiFiStaBinding::TryToCast(element) == NULL
-                && WiFiApBinding::TryToCast(element) == NULL;
-            if (is_output_element) {
+            if (IsOutputElement(element->GetElementType())) {
                 break;
             }
             wire_state = element->state;

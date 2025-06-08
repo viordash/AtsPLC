@@ -90,6 +90,10 @@ static inline bool IsBindingElement(TvElementType element_type) {
             return true;
         case et_WiFiStaBinding:
             return true;
+        case et_WiFiApBinding:
+            return true;
+        case et_DateTimeBinding:
+            return true;
         default:
             return false;
     }
