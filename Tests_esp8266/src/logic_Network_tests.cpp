@@ -43,11 +43,14 @@ namespace {
         LogicItemState PublicMorozov_state() {
             return state;
         }
-        uint8_t PublicMorozov_Get_fill_wire() {
-            return fill_wire;
+        uint8_t *PublicMorozov_Get_fill_wire() {
+            return &fill_wire;
         }
         bool PublicMorozov_Get_state_changed() {
             return state_changed;
+        }
+        void PublicMorozov_AddSpaceForNewElement() {
+            AddSpaceForNewElement();
         }
     };
 
@@ -661,14 +664,14 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
     testable.Append(new DirectOutput(MapIO::O1));
 
     CHECK_TRUE(testable.Render(frame_buffer, 0));
-    CHECK_EQUAL(71, testable.PublicMorozov_Get_fill_wire());
+    CHECK_EQUAL(71, *testable.PublicMorozov_Get_fill_wire());
 
     testable.BeginEditing();
     CHECK_EQUAL(3, testable.size());
 
     CHECK_TRUE(testable.Render(frame_buffer, 0));
 
-    CHECK_EQUAL(47, testable.PublicMorozov_Get_fill_wire());
+    CHECK_EQUAL(47, *testable.PublicMorozov_Get_fill_wire());
 }
 
 TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
@@ -734,4 +737,88 @@ TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
     testable.Change();
 
     CHECK_EQUAL(-1, testable.GetSelectedElement());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Input) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new InputNC(MapIO::DI));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Timer) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new TimerSecs(100));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_TimerSecs, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Comparator) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new ComparatorEq(10, MapIO::AI));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Indicator) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new Indicator(MapIO::AI));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_Indicator, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_WiFiBinding) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new WiFiBinding(MapIO::AI, "ssid"));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_DateTimeBinding) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new DateTimeBinding(MapIO::AI));
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
+}
+
+TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
+    TestableNetwork testable(LogicItemState::lisActive);
+    *testable.PublicMorozov_Get_fill_wire() = 100;
+    testable.Append(new SettingsElement());
+
+    testable.PublicMorozov_AddSpaceForNewElement();
+
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(TvElementType::et_Settings, testable[0]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
 }
