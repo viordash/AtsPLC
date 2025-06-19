@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern CurrentSettings::device_settings settings;
+
 ControllerAI::ControllerAI() : ControllerBaseInput() {
 }
 
@@ -14,7 +16,7 @@ void ControllerAI::FetchValue() {
         return;
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI,
-                                     read_adc_max_period_ms,
+                                     settings.adc.scan_period_ms,
                                      ProcessWakeupRequestPriority::pwrp_Idle)) {
         return;
     }
