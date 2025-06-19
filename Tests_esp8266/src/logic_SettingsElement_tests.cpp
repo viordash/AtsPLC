@@ -1004,7 +1004,7 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_change_discriminator) {
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectNext();
-    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+    CHECK_EQUAL(SettingsElement::Discriminator::t_adc_scan_period_ms,
                 *testable.PublicMorozov_Get_discriminator());
 }
 
