@@ -1,22 +1,8 @@
 
 #include "LogicProgram/ElementsBox.h"
 #include "Display/display.h"
-#include "LogicProgram/Bindings/WiFiApBinding.h"
-#include "LogicProgram/Bindings/WiFiBinding.h"
-#include "LogicProgram/Bindings/WiFiStaBinding.h"
-#include "LogicProgram/InputElement.h"
-#include "LogicProgram/Inputs/CommonComparator.h"
-#include "LogicProgram/Inputs/CommonInput.h"
-#include "LogicProgram/Inputs/CommonTimer.h"
-#include "LogicProgram/Inputs/Indicator.h"
-#include "LogicProgram/Inputs/InputNC.h"
-#include "LogicProgram/Inputs/InputNO.h"
-#include "LogicProgram/Inputs/TimerMSecs.h"
-#include "LogicProgram/Inputs/TimerSecs.h"
-#include "LogicProgram/Outputs/CommonOutput.h"
+#include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
-#include "LogicProgram/Settings/SettingsElement.h"
-#include "LogicProgram/Wire.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <algorithm>
@@ -320,6 +306,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_TimerSecs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_TimerMSecs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorEq, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_ComparatorNe, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorGE, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorGr, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorLE, frame_buffer);

@@ -147,6 +147,7 @@ CommonComparator *CommonComparator::TryToCast(LogicElement *logic_element) {
         case TvElementType::et_ComparatorGr:
         case TvElementType::et_ComparatorLE:
         case TvElementType::et_ComparatorLs:
+        case TvElementType::et_ComparatorNe:
             return static_cast<CommonComparator *>(logic_element);
 
         default:
