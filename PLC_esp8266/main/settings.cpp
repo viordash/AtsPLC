@@ -208,6 +208,12 @@ bool validate_settings(CurrentSettings::device_settings *settings) {
                  (unsigned int)settings->wifi_access_point.ssid_hidden);
         return false;
     }
+    if (invalid_uint(settings->adc.scan_period_ms, 20, 60 * 1000)) {
+        ESP_LOGI(TAG_settings,
+                 "Invalid adc.scan_period_ms, '%u'",
+                 (unsigned int)settings->adc.scan_period_ms);
+        return false;
+    }
     return true;
 }
 

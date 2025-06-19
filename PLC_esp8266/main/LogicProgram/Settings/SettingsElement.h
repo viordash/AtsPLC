@@ -32,6 +32,7 @@ class SettingsElement : public LogicElement {
         t_datetime_sntp_server_primary,
         t_datetime_sntp_server_secondary,
         t_datetime_timezone,
+        t_adc_scan_period_ms,
     } Discriminator;
 
   protected:

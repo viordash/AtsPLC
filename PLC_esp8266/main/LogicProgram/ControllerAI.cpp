@@ -2,9 +2,12 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicElement.h"
 #include "sys_gpio.h"
+#include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const char *TAG_ControllerAI = "ControllerAI";
 
 extern CurrentSettings::device_settings settings;
 
@@ -25,4 +28,5 @@ void ControllerAI::FetchValue() {
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;
     UpdateValue(percent04);
+    ESP_LOGD(TAG_ControllerAI, "fetch value");
 }

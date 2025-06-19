@@ -171,6 +171,9 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
         case t_datetime_timezone:
             name = "Timezone";
             break;
+        case t_adc_scan_period_ms:
+            name = "ADC: scan period, mS";
+            break;
         default:
             return false;
     }
@@ -292,6 +295,7 @@ bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
         case t_datetime_sntp_server_primary:
         case t_datetime_sntp_server_secondary:
         case t_datetime_timezone:
+        case t_adc_scan_period_ms:
             return true;
 
         default:
@@ -430,6 +434,10 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
             string_buffer[max_len] = 0;
             break;
         }
+        case t_adc_scan_period_ms:
+            sprintf(string_buffer, "%u", (unsigned int)curr_settings.adc.scan_period_ms);
+            break;
+
         default:
             break;
     }
@@ -528,6 +536,9 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_datetime_timezone:
             SelectPriorStringSymbol(symbol);
             break;
+        case t_adc_scan_period_ms:
+            SelectPriorNumberSymbol(symbol, 0);
+            break;
 
         default:
             break;
@@ -576,7 +587,9 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_datetime_timezone:
             SelectNextStringSymbol(symbol);
             break;
-
+        case t_adc_scan_period_ms:
+            SelectNextNumberSymbol(symbol, 0);
+            break;
         default:
             break;
     }
@@ -591,7 +604,7 @@ void SettingsElement::SelectPrior() {
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
             if (!ValidateDiscriminator(&_discriminator)) {
-                _discriminator = Discriminator::t_datetime_timezone;
+                _discriminator = Discriminator::t_adc_scan_period_ms;
             }
             discriminator = _discriminator;
             break;
@@ -778,6 +791,9 @@ void SettingsElement::EndEditing() {
             break;
         case t_datetime_timezone:
             WriteString(curr_settings.datetime.timezone, sizeof(curr_settings.datetime.timezone));
+            break;
+        case t_adc_scan_period_ms:
+            curr_settings.adc.scan_period_ms = atol(value);
             break;
         default:
             break;
