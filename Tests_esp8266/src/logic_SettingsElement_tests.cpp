@@ -146,7 +146,7 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
 
     discriminator = (SettingsElement::Discriminator)-1;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
-    discriminator = (SettingsElement::Discriminator)18;
+    discriminator = (SettingsElement::Discriminator)19;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
     discriminator = (SettingsElement::Discriminator)100;
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
@@ -223,7 +223,7 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
     CHECK_EQUAL(0, readed);
 
     *((SettingsElement::Discriminator *)&buffer[1]) =
-        (SettingsElement::Discriminator)(SettingsElement::Discriminator::t_datetime_timezone + 1);
+        (SettingsElement::Discriminator)(SettingsElement::Discriminator::t_adc_scan_period_ms + 1);
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 }
@@ -778,6 +778,9 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_change_discriminator) {
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectPrior();
+    CHECK_EQUAL(SettingsElement::Discriminator::t_adc_scan_period_ms,
+                *testable.PublicMorozov_Get_discriminator());
+    testable.SelectPrior();
     CHECK_EQUAL(SettingsElement::Discriminator::t_datetime_timezone,
                 *testable.PublicMorozov_Get_discriminator());
     testable.SelectPrior();
@@ -1001,7 +1004,7 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_change_discriminator) {
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectNext();
-    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_ssid,
+    CHECK_EQUAL(SettingsElement::Discriminator::t_adc_scan_period_ms,
                 *testable.PublicMorozov_Get_discriminator());
 }
 

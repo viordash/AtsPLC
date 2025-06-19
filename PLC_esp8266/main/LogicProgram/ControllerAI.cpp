@@ -1,10 +1,15 @@
 #include "LogicProgram/ControllerAI.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/LogicElement.h"
+#include "esp_log.h"
 #include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const char *TAG_ControllerAI = "ControllerAI";
+
+extern CurrentSettings::device_settings settings;
 
 ControllerAI::ControllerAI() : ControllerBaseInput() {
 }
@@ -14,7 +19,7 @@ void ControllerAI::FetchValue() {
         return;
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI,
-                                     read_adc_max_period_ms,
+                                     settings.adc.scan_period_ms,
                                      ProcessWakeupRequestPriority::pwrp_Idle)) {
         return;
     }
@@ -23,4 +28,5 @@ void ControllerAI::FetchValue() {
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;
     UpdateValue(percent04);
+    ESP_LOGD(TAG_ControllerAI, "fetch value");
 }

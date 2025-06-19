@@ -223,4 +223,13 @@ TEST(SettingsTestsGroup, validate_settings) {
     CHECK_TRUE(validate_settings(&settings));
     *((char *)&settings.wifi_access_point.ssid_hidden) = 1;
     CHECK_TRUE(validate_settings(&settings));
+
+    settings.adc.scan_period_ms = 19;
+    CHECK_FALSE(validate_settings(&settings));
+    settings.adc.scan_period_ms = 60001;
+    CHECK_FALSE(validate_settings(&settings));
+    settings.adc.scan_period_ms = 20;
+    CHECK_TRUE(validate_settings(&settings));
+    settings.adc.scan_period_ms = 60000;
+    CHECK_TRUE(validate_settings(&settings));
 }
