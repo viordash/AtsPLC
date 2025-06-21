@@ -95,8 +95,12 @@ SquareWaveGenerator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
         draw_bitmap(fb, start_point->x, bitmap_top, bitmap);
     }
 
-    uint16_t bitmap_left = start_point->x;
-    uint16_t bitmap_bottom = bitmap_top + bitmap->size.height;
+    uint16_t text0_left =
+        start_point->x + (bitmap->size.width / 2) - (str_period0_size * get_text_f4X7_width()) / 2;
+    uint16_t text0_top = bitmap_top - 1;
+    uint16_t text1_left =
+        start_point->x + (bitmap->size.width / 2) - (str_period1_size * get_text_f4X7_width()) / 2;
+    uint16_t text1_top = bitmap_top + bitmap->size.height + 1 - get_text_f4X7_height();
     start_point->x += bitmap->size.width;
 
     bool blink_period0_on_editing =
@@ -105,8 +109,7 @@ SquareWaveGenerator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod0
         && Blinking_50();
 
-    res = blink_period0_on_editing
-       || (draw_text_f4X7(fb, bitmap_left + 2, bitmap_top + 3, str_period0) > 0);
+    res = blink_period0_on_editing || (draw_text_f4X7(fb, text0_left, text0_top, str_period0) > 0);
     if (!res) {
         return res;
     }
@@ -117,8 +120,7 @@ SquareWaveGenerator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod1
         && Blinking_50();
 
-    res = blink_period1_on_editing
-       || (draw_text_f4X7(fb, bitmap_left + 2, bitmap_bottom - 7, str_period1) > 0);
+    res = blink_period1_on_editing || (draw_text_f4X7(fb, text1_left, text1_top, str_period1) > 0);
 
     if (!res) {
         return res;
