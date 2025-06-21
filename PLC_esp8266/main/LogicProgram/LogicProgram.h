@@ -14,6 +14,7 @@
 #include "LogicProgram/Inputs/Indicator.h"
 #include "LogicProgram/Inputs/InputNC.h"
 #include "LogicProgram/Inputs/InputNO.h"
+#include "LogicProgram/Inputs/SquareWaveGenerator.h"
 #include "LogicProgram/Inputs/TimerMSecs.h"
 #include "LogicProgram/Inputs/TimerSecs.h"
 #include "LogicProgram/MapIO.h"

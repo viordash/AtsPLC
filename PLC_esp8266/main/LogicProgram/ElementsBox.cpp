@@ -305,6 +305,7 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_InputNO, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_TimerSecs, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_TimerMSecs, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_SquareWaveGenerator, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorEq, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorNe, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_ComparatorGE, frame_buffer);
