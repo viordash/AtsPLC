@@ -3,6 +3,7 @@
 #include "Display/bitmaps/square_wave_generator_inactive.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
+#include "esp_attr.h"
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,7 +132,7 @@ SquareWaveGenerator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *
     ESP_LOGD(TAG_SquareWaveGenerator,
              "Render, str_period0:%s, str_period0_size:%d, x:%u, y:%u, res:%u",
              str_period0,
-             str_period0_size,
+             (unsigned)str_period0_size,
              start_point->x,
              start_point->y,
              res);
