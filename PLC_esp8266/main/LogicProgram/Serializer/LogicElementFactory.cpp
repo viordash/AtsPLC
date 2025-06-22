@@ -81,6 +81,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
         case et_ComparatorNe:
             element = new ComparatorNe();
             break;
+        case et_SquareWaveGenerator:
+            element = new SquareWaveGenerator();
+            break;
         default:
             break;
     }

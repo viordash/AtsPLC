@@ -34,6 +34,7 @@
 #include "main/LogicProgram/Inputs/CommonInput.cpp"
 #include "main/LogicProgram/Inputs/CommonTimer.cpp"
 #include "main/LogicProgram/Inputs/InputNC.cpp"
+#include "main/LogicProgram/Inputs/SquareWaveGenerator.cpp"
 #include "main/LogicProgram/Ladder.cpp"
 #include "main/LogicProgram/LadderDesigner.cpp"
 #include "main/LogicProgram/LadderStoring.cpp"

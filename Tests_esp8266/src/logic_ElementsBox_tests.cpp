@@ -64,29 +64,30 @@ TEST(LogicElementsBoxTestsGroup, box_fill_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          false);
-    CHECK_EQUAL(22, testable.size());
+    CHECK_EQUAL(23, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[4]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorNe, testable[5]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[6]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[7]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[8]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Indicator, testable[10]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[12]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[13]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable[14]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[15]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_SetOutput, testable[16]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[17]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_IncOutput, testable[18]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DecOutput, testable[19]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Settings, testable[20]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[21]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SquareWaveGenerator, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[5]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorNe, testable[6]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[7]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[8]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[9]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Indicator, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[13]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[14]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DirectOutput, testable[16]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SetOutput, testable[17]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ResetOutput, testable[18]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_IncOutput, testable[19]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DecOutput, testable[20]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Settings, testable[21]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[22]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
@@ -94,24 +95,25 @@ TEST(LogicElementsBoxTestsGroup, hide_output_elements) {
     ElementsBox testable(DISPLAY_WIDTH - INCOME_RAIL_WIDTH - SCROLLBAR_WIDTH,
                          &stored_element,
                          true);
-    CHECK_EQUAL(17, testable.size());
+    CHECK_EQUAL(18, testable.size());
     CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_InputNO, testable[1]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable[2]->GetElementType());
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable[3]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[4]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorNe, testable[5]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[6]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[7]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[8]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[9]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Indicator, testable[10]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[11]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[12]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[13]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable[14]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Settings, testable[15]->GetElementType());
-    CHECK_EQUAL(TvElementType::et_Wire, testable[16]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_SquareWaveGenerator, testable[4]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorEq, testable[5]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorNe, testable[6]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGE, testable[7]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorGr, testable[8]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLE, testable[9]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ComparatorLs, testable[10]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Indicator, testable[11]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiBinding, testable[12]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiStaBinding, testable[13]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_WiFiApBinding, testable[14]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable[15]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Settings, testable[16]->GetElementType());
+    CHECK_EQUAL(TvElementType::et_Wire, testable[17]->GetElementType());
 }
 
 TEST(LogicElementsBoxTestsGroup, takes_params_from_stored_input_element) {
@@ -363,6 +365,8 @@ TEST(LogicElementsBoxTestsGroup, SelectNext__change__selected_index__to_backward
     ElementsBox testable(100, &stored_element, false);
     CHECK_EQUAL(TvElementType::et_ComparatorEq, testable.GetElementType());
     testable.SelectNext();
+    CHECK_EQUAL(TvElementType::et_SquareWaveGenerator, testable.GetElementType());
+    testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
     testable.SelectNext();
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
@@ -453,6 +457,8 @@ TEST(LogicElementsBoxTestsGroup, SelectPrior_selecting_elements_in_loop) {
     CHECK_EQUAL(TvElementType::et_TimerSecs, testable.GetElementType());
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_TimerMSecs, testable.GetElementType());
+    testable.SelectPrior();
+    CHECK_EQUAL(TvElementType::et_SquareWaveGenerator, testable.GetElementType());
     testable.SelectPrior();
 }
 
