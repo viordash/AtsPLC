@@ -27,7 +27,7 @@ namespace {
     };
 } // namespace
 
-TEST(LogicTimerMSecsTestsGroup, Reference_in_limit_50_to_99999) {
+TEST(LogicTimerMSecsTestsGroup, Time_in_limit_50_to_99999) {
     TimerMSecs testable_0;
     testable_0.SetTime(0);
     CHECK_EQUAL(50 * 1000LL, testable_0.GetTimeUs());
