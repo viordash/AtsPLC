@@ -11,6 +11,7 @@
 #include "buttons.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "hotreload_service.h"
 #include "sys_gpio.h"
 #include <stdio.h>
@@ -127,7 +128,6 @@ void Controller::ProcessTask(void *parm) {
     Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                 first_iteration_delay,
                                 ProcessWakeupRequestPriority::pwrp_Critical);
-    bool repeated_changes = false;
     while (Controller::runned) {
         EventBits_t uxBits = xEventGroupWaitBits(Controller::gpio_events,
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
@@ -140,7 +140,7 @@ void Controller::ProcessTask(void *parm) {
         ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool buttons_changed = !inputs_changed && uxBits != 0;
-        bool force_render = false;
+        bool do_render = inputs_changed;
 
         if (buttons_changed) {
             ButtonsPressType pressed_button = handle_buttons(uxBits);
@@ -148,53 +148,59 @@ void Controller::ProcessTask(void *parm) {
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
                     ladder->HandleButtonUp();
-                    force_render = true;
+                    do_render = true;
                     break;
                 case ButtonsPressType::UP_LONG_PRESSED:
                     ladder->HandleButtonPageUp();
-                    force_render = true;
+                    do_render = true;
                     break;
                 case ButtonsPressType::DOWN_PRESSED:
                     ladder->HandleButtonDown();
-                    force_render = true;
+                    do_render = true;
                     break;
                 case ButtonsPressType::DOWN_LONG_PRESSED:
                     ladder->HandleButtonPageDown();
-                    force_render = true;
+                    do_render = true;
                     break;
                 case ButtonsPressType::SELECT_PRESSED:
                     ladder->HandleButtonSelect();
-                    force_render = true;
+                    do_render = true;
                     break;
                 case ButtonsPressType::SELECT_LONG_PRESSED:
                     ladder->HandleButtonOption();
-                    force_render = true;
+                    do_render = true;
                     break;
                 default:
                     break;
             }
         }
 
-        FetchIOValues();
-        bool any_changes_in_actions = ladder->DoAction();
-        CommitChanges();
-
-        if (any_changes_in_actions) {
-            ESP_LOGD(TAG_Controller, "any_changes_in_actions %u", repeated_changes);
-            Controller::RemoveRequestWakeupMs((void *)Controller::ProcessTask);
-            if (!repeated_changes) {
-                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
-                                            0,
-                                            ProcessWakeupRequestPriority::pwrp_Critical);
-            } else {
-                const uint32_t repeated_changes_cycle_ms = 10;
-                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
-                                            repeated_changes_cycle_ms,
-                                            ProcessWakeupRequestPriority::pwrp_Idle);
+        bool looped_actions = false;
+        auto cycle_start_time = (uint64_t)esp_timer_get_time();
+        const uint64_t max_cycle_ms = portTICK_PERIOD_MS * 2;
+        auto next_time = cycle_start_time + (max_cycle_ms * 1000);
+        bool expired;
+        do {
+            FetchIOValues();
+            bool any_changes_in_actions = ladder->DoAction();
+            CommitChanges();
+            if (!any_changes_in_actions) {
+                break;
             }
-            repeated_changes = true;
+            int64_t timespan = next_time - (uint64_t)esp_timer_get_time();
+            expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
+            do_render = true;
+            looped_actions = expired;
+        } while (!expired);
+
+        if (looped_actions) {
+            ESP_LOGD(TAG_Controller, "looped actions");
+            Controller::RemoveRequestWakeupMs((void *)Controller::ProcessTask);
+            const uint32_t loop_break_ms = portTICK_PERIOD_MS * 2;
+            Controller::RequestWakeupMs((void *)Controller::ProcessTask,
+                                        loop_break_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
         } else {
-            repeated_changes = false;
             if (Controller::force_process_loop) {
                 ESP_LOGD(TAG_Controller, "force_process_loop");
                 const uint32_t process_loop_cycle_ms = 200;
@@ -204,8 +210,7 @@ void Controller::ProcessTask(void *parm) {
             }
         }
 
-        if (inputs_changed || any_changes_in_actions || force_render
-            || Controller::force_process_loop) {
+        if (do_render || Controller::force_process_loop) {
             rendering_service->Do();
         }
     }
