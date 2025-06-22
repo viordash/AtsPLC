@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
 
 static const char *TAG_ScrollBar = "ScrollBar";
 
@@ -17,17 +18,30 @@ ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_
     if (nothing_to_scroll) {
         return res;
     }
-    uint8_t x = SCROLLBAR_LEFT;
-    uint8_t scroll_steps = count - viewport_count;
-    uint8_t height = SCROLLBAR_HEIGHT / (scroll_steps + 1);
-    if (height < 3) {
-        height = 3;
-    }
-    uint8_t moving_area = SCROLLBAR_HEIGHT - height;
-    uint8_t scroll_step_height = moving_area / scroll_steps;
 
-    uint8_t y_offset = view_topindex * scroll_step_height;
-    uint8_t y = SCROLLBAR_TOP + y_offset;
+    uint16_t x = SCROLLBAR_LEFT;
+
+    uint16_t height = ((size_t)SCROLLBAR_HEIGHT * viewport_count) / count;
+    if (height < MAX((SCROLLBAR_HEIGHT / 16), 3)) {
+        height = MAX((SCROLLBAR_HEIGHT / 16), 3);
+    }
+
+    uint16_t y;
+
+    uint16_t moving_area = SCROLLBAR_HEIGHT - height;
+    uint16_t steps = count - viewport_count;
+    if (moving_area >= steps) {
+        uint16_t step_height = moving_area / steps;
+        uint16_t y_offset = view_topindex * step_height;
+        uint16_t round_tail = moving_area - (step_height * steps);
+        height += round_tail;
+        y = SCROLLBAR_TOP + y_offset;
+    } else {
+        uint16_t step_mul = (steps * 10) / moving_area;
+        uint16_t step_div = (steps * step_mul) / moving_area;
+        uint16_t y_offset = (view_topindex * step_mul) / step_div;
+        y = SCROLLBAR_TOP + y_offset;
+    }
 
     ESP_LOGD(TAG_ScrollBar,
              "Render: x:%u, y:%u, height:%u, top:%u, count:%u, viewport_count:%u, view_topindex:%u",
