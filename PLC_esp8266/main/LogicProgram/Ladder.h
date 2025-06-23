@@ -31,7 +31,7 @@ class Ladder : public std::vector<Network *> {
 
   public:
     const size_t MinNetworksCount = 1;
-    const size_t MaxNetworksCount = 42;
+    const size_t MaxNetworksCount = 80;
     const size_t MaxViewPortCount = 2;
 
     explicit Ladder(f_UIStateChanged cb_UI_state_changed);
