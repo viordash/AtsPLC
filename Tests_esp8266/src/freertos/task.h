@@ -181,6 +181,8 @@ BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
 #define xTaskNotify(xTaskToNotify, ulValue, eAction)                                               \
     xTaskGenericNotify((xTaskToNotify), (ulValue), (eAction), NULL)
 
+TaskHandle_t xTaskGetCurrentTaskHandle(void) PRIVILEGED_FUNCTION;
+
 #ifdef __cplusplus
 }
 #endif
