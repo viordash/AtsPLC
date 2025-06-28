@@ -15,6 +15,13 @@ class WiFiBinding;
 class WiFiApBinding;
 
 class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
+  public:
+    enum Options {
+        show_output_elements = 0x01,
+        show_continuation_in = 0x02,
+        show_continuation_out = 0x04
+    };
+
   protected:
     uint8_t place_width;
     uint8_t source_element_width;
@@ -23,7 +30,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
 
     void DetachElement(LogicElement *element);
     void CalcEntirePlaceWidth(LogicElement *source_element);
-    void Fill(LogicElement *source_element, bool hide_output_elements);
+    void Fill(LogicElement *source_element, Options options);
     void AppendStandartElement(LogicElement *source_element,
                                TvElementType element_type,
                                uint8_t *frame_buffer);
@@ -38,7 +45,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void TakeParamsFromStoredElement(LogicElement *source_element, LogicElement *new_element);
 
   public:
-    ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements);
+    ElementsBox(uint8_t fill_wire, LogicElement *source_element, Options options);
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();

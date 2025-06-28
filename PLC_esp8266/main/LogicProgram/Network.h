@@ -17,6 +17,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     void AddSpaceForNewElement();
     void RemoveSpaceForNewElement();
     bool HasOutputElement();
+    bool OptionShowOutputElement(LogicElement *selected_element);
 
   public:
     const static size_t MinElementsCount = 1;
