@@ -69,3 +69,7 @@ IMPORT_TEST_GROUP(UtilsTestsGroup);
 
 IMPORT_TEST_GROUP(LogicSettingsElementTestsGroup);
 IMPORT_TEST_GROUP(DatetimeTestsGroup);
+
+IMPORT_TEST_GROUP(LogicSquareWaveGeneratorTestsGroup);
+
+IMPORT_TEST_GROUP(LogicContinuationInTestsGroup);
