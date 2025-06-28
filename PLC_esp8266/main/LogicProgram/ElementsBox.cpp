@@ -325,6 +325,13 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
         AppendStandartElement(source_element, TvElementType::et_IncOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_DecOutput, frame_buffer);
     }
+    if (options & Options::show_continuation_in) {
+        AppendStandartElement(source_element, TvElementType::et_ContinuationIn, frame_buffer);
+    }
+    if (options & Options::show_continuation_out) {
+        AppendStandartElement(source_element, TvElementType::et_ContinuationOut, frame_buffer);
+    }
+
     AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 

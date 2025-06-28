@@ -27,7 +27,9 @@ enum TvElementType : uint8_t {
     et_Settings,
     et_DateTimeBinding,
     et_ComparatorNe,
-    et_SquareWaveGenerator
+    et_SquareWaveGenerator,
+    et_ContinuationIn,
+    et_ContinuationOut,
 };
 
 struct __attribute__((packed)) TvElement {
@@ -91,6 +93,15 @@ static inline bool IsBindingElement(TvElementType element_type) {
 static inline bool IsSettingsElement(TvElementType element_type) {
     switch (element_type) {
         case et_Settings:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static inline bool IsContinuationInElement(TvElementType element_type) {
+    switch (element_type) {
+        case et_ContinuationIn:
             return true;
         default:
             return false;

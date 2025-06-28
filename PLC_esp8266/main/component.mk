@@ -6,7 +6,7 @@
 COMPONENT_PRIV_INCLUDEDIRS := . params Display LogicProgram WiFi Maintenance Datetime
 COMPONENT_SRCDIRS := . MigrateAnyData HttpServer Display Display/ssd1306 Display/fonts Display/bitmaps \
 	LogicProgram LogicProgram/Inputs LogicProgram/Outputs LogicProgram/Serializer LogicProgram/Bindings \
-	LogicProgram/Settings WiFi Maintenance Datetime
+	LogicProgram/Settings LogicProgram/Flow WiFi Maintenance Datetime
 
 
 #use for main/settings.cpp
