@@ -96,10 +96,10 @@ TEST(LogicContinuationInTestsGroup, GetElementType) {
 
 TEST(LogicContinuationInTestsGroup, TryToCast) {
     ContinuationIn testable;
-    CHECK_TRUE(ContinuationIn::TryToCast(&testable) == &testable);
+    CHECK(ContinuationIn::TryToCast(&testable) == &testable);
 
     ContinuationOut other;
-    CHECK_TRUE(ContinuationIn::TryToCast(&other) == NULL);
+    CHECK(ContinuationIn::TryToCast(&other) == NULL);
 }
 
 TEST(LogicContinuationInTestsGroup, DoAction_changes_Controller_network_continuation_in_any_cases) {
