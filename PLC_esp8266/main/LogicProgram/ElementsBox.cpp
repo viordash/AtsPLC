@@ -274,7 +274,12 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     }
     TakeParamsFromStoredElement(source_element, new_element);
 
-    uint8_t start_point_x = IsOutputElement(element_type) //
+    bool element_right_to_left = IsOutputElement(element_type);
+    if (!element_right_to_left) {
+        element_right_to_left = IsContinuationInElement(element_type);
+    }
+
+    uint8_t start_point_x = element_right_to_left //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
@@ -283,7 +288,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
         return;
     }
     uint8_t new_element_width = 0;
-    if (IsOutputElement(element_type)) {
+    if (element_right_to_left) {
         new_element_width = start_point_x - start_point.x;
     } else {
         new_element_width = start_point.x - start_point_x;
@@ -317,6 +322,7 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
     AppendStandartElement(source_element, TvElementType::et_WiFiStaBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiApBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_DateTimeBinding, frame_buffer);
+    AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
 
     if (options & Options::show_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
@@ -332,7 +338,6 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
         AppendStandartElement(source_element, TvElementType::et_ContinuationOut, frame_buffer);
     }
 
-    AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;

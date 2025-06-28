@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_ContinuationIn = "ContinuationIn";
+
 ContinuationIn::ContinuationIn() : CommonContinuation() {
 }
 
@@ -42,6 +44,7 @@ ContinuationIn::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
+    ESP_LOGD(TAG_ContinuationIn, "Render res:%u", res);
     return res;
 }
 

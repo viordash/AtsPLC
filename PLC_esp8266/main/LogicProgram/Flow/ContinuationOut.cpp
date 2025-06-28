@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_ContinuationOut = "ContinuationOut";
+
 ContinuationOut::ContinuationOut() : CommonContinuation() {
 }
 
@@ -37,6 +39,7 @@ ContinuationOut::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     start_point->x += bitmap->size.width;
 
     res = EditableElement::Render(fb, start_point);
+    ESP_LOGD(TAG_ContinuationOut, "Render res:%u", res);
     return res;
 }
 
