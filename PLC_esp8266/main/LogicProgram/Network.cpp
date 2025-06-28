@@ -1,14 +1,7 @@
 #include "LogicProgram/Network.h"
 #include "Display/display.h"
-#include "LogicProgram/Bindings/WiFiApBinding.h"
-#include "LogicProgram/Bindings/WiFiBinding.h"
-#include "LogicProgram/Bindings/WiFiStaBinding.h"
 #include "LogicProgram/ElementsBox.h"
-#include "LogicProgram/Inputs/CommonComparator.h"
-#include "LogicProgram/Inputs/CommonInput.h"
-#include "LogicProgram/Inputs/CommonTimer.h"
-#include "LogicProgram/Inputs/Indicator.h"
-#include "LogicProgram/Outputs/CommonOutput.h"
+#include "LogicProgram/LogicProgram.h"
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "LogicProgram/Wire.h"
@@ -49,11 +42,32 @@ bool Network::DoAction() {
     state_changed = false;
     LogicItemState prev_elem_state = state;
 
+    bool first_is_ContinuationOut = !empty() && ContinuationOut::TryToCast(front()) != NULL;
+    if (first_is_ContinuationOut) {
+        auto &continuation = Controller::GetNetworkContinuation();
+        prev_elem_state = continuation.state;
+        prev_elem_changed = continuation.state_changed;
+        ESP_LOGD(TAG_Network,
+                 "DoAction: continuation out, prev_elem_state:%u prev_elem_changed:%u",
+                 prev_elem_state,
+                 prev_elem_changed);
+    }
+
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
         prev_elem_changed = element->DoAction(prev_elem_changed, prev_elem_state);
         prev_elem_state = element->state;
         any_changes |= prev_elem_changed;
+    }
+
+    bool last_is_ContinuationIn = !empty() && ContinuationIn::TryToCast(back()) != NULL;
+    if (last_is_ContinuationIn) {
+        Continuation continuation{ prev_elem_state, prev_elem_changed };
+        Controller::SetNetworkContinuation(continuation);
+        ESP_LOGD(TAG_Network,
+                 "DoAction: continuation in, prev_elem_state:%u prev_elem_changed:%u\n",
+                 prev_elem_state,
+                 prev_elem_changed);
     }
     return any_changes;
 }
@@ -84,9 +98,15 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     auto it = begin();
     while (res && it != end()) {
         auto element = *it;
-        if (CommonOutput::TryToCast(element) != NULL) {
+        if (IsOutputElement(element->GetElementType())) {
             break;
         }
+
+        auto *continuationIn = ContinuationIn::TryToCast(element);
+        if (continuationIn != NULL) {
+            break;
+        }
+
         it++;
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
@@ -98,9 +118,13 @@ IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
     Point end_point = { OUTCOME_RAIL_RIGHT, start_point.y };
     while (res && it != end()) {
         auto element = *it;
-        if (CommonOutput::TryToCast(element) == NULL) {
-            break;
+        if (!IsOutputElement(element->GetElementType())) {
+            auto *continuationIn = ContinuationIn::TryToCast(element);
+            if (continuationIn == NULL) {
+                break;
+            }
         }
+
         it++;
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
@@ -291,6 +315,12 @@ void Network::PageDown() {
 }
 
 bool Network::OptionShowOutputElement(LogicElement *selected_element) {
+    bool last_is_ContinuationIn =
+        selected_element != back() && ContinuationIn::TryToCast(back()) != NULL;
+    if (last_is_ContinuationIn) {
+        return false;
+    }
+
     if (!HasOutputElement()) {
         return true;
     }
@@ -299,6 +329,27 @@ bool Network::OptionShowOutputElement(LogicElement *selected_element) {
         return true;
     }
     return false;
+}
+
+bool Network::OptionShowContinuationIn(LogicElement *selected_element) {
+    if (selected_element == back()) {
+        return true;
+    }
+
+    bool last_is_wire = Wire::TryToCast(back()) != NULL;
+    if (!last_is_wire) {
+        return false;
+    }
+
+    bool is_before_last = size() >= 2 && (selected_element == *(rbegin() + 1));
+    if (is_before_last) {
+        return true;
+    }
+    return false;
+}
+
+bool Network::OptionShowContinuationOut(LogicElement *selected_element) {
+    return selected_element == front();
 }
 
 void Network::Change() {
@@ -320,6 +371,13 @@ void Network::Change() {
         if (OptionShowOutputElement((*this)[selected_element])) {
             options = (ElementsBox::Options)(options | ElementsBox::Options::show_output_elements);
         }
+        if (OptionShowContinuationIn((*this)[selected_element])) {
+            options = (ElementsBox::Options)(options | ElementsBox::Options::show_continuation_in);
+        }
+        if (OptionShowContinuationOut((*this)[selected_element])) {
+            options = (ElementsBox::Options)(options | ElementsBox::Options::show_continuation_out);
+        }
+
         ESP_LOGI(TAG_Network, "ElementsBox::Options:0x%08X", options);
         auto elementBox = new ElementsBox(fill_wire, source_element, options);
         elementBox->BeginEditing();
@@ -371,6 +429,10 @@ void Network::AddSpaceForNewElement() {
             if (IsOutputElement(element->GetElementType())) {
                 break;
             }
+            auto *continuationIn = ContinuationIn::TryToCast(element);
+            if (continuationIn != NULL) {
+                break;
+            }
             wire_state = element->state;
             it++;
         }
@@ -401,8 +463,7 @@ void Network::RemoveSpaceForNewElement() {
 bool Network::HasOutputElement() {
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
-        bool is_output_element = CommonOutput::TryToCast(element) != NULL;
-        if (is_output_element) {
+        if (IsOutputElement(element->GetElementType())) {
             return true;
         }
     }

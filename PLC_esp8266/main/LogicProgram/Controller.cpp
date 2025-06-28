@@ -43,6 +43,7 @@ ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
+Continuation Controller::network_continuation = { LogicItemState::lisPassive, false };
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -415,4 +416,12 @@ void Controller::StoreSystemDatetime() {
         return;
     }
     Controller::datetime_service->StoreSystemDatetime();
+}
+
+void Controller::SetNetworkContinuation(Continuation &continuation) {
+    network_continuation = continuation;
+}
+
+Continuation &Controller::GetNetworkContinuation() {
+    return network_continuation;
 }

@@ -17,6 +17,7 @@ extern "C" {
 #include "LogicProgram/ControllerDI.h"
 #include "LogicProgram/ControllerDO.h"
 #include "LogicProgram/ControllerVariable.h"
+#include "LogicProgram/Flow/Continuation.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
@@ -40,6 +41,7 @@ class Controller {
     static WiFiService *wifi_service;
     static RenderingService *rendering_service;
     static DatetimeService *datetime_service;
+    static Continuation network_continuation;
 
   public:
     static const int WAKEUP_PROCESS_TASK = BIT15;
@@ -86,4 +88,6 @@ class Controller {
     static void GetSystemDatetime(Datetime *dt);
     static void RestartSntp();
     static void StoreSystemDatetime();
+    static void SetNetworkContinuation(Continuation &continuation);
+    static Continuation &GetNetworkContinuation();
 };
