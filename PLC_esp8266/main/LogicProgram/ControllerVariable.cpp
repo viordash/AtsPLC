@@ -126,6 +126,7 @@ void ControllerVariable::BindToStaWiFi(WiFiService *wifi_service) {
 void ControllerVariable::Unbind() {
     CancelReadingProcess();
     this->wifi_service = NULL;
+    this->datetime_service = NULL;
 }
 
 bool ControllerVariable::BindedToWiFi() {

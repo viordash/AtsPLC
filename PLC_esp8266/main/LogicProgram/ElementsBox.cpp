@@ -68,6 +68,14 @@ void ElementsBox::DetachElement(LogicElement *element) {
         }
         return;
     }
+
+    auto *datetime_binding = DateTimeBinding::TryToCast(element);
+    if (datetime_binding != NULL) {
+        if (datetime_binding->DoAction(true, LogicItemState::lisPassive)) {
+            ESP_LOGI(TAG_ElementsBox, "detach DateTimeBinding, '%s'", datetime_binding->GetLabel());
+        }
+        return;
+    }
 }
 
 void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {

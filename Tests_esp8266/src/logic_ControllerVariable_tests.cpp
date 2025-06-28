@@ -480,3 +480,51 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_b
     CHECK_EQUAL(LogicElement::MinValue, testable.PeekValue());
     CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_out_value());
 }
+
+TEST(LogicControllerVariableTestsGroup, Unbind_remove_InsecureWiFi_binding) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    WiFiService wifi_service;
+    testable.BindToInsecureWiFi(&wifi_service, "test");
+
+    CHECK_TRUE(testable.BindedToWiFi());
+    testable.Unbind();
+    CHECK_FALSE(testable.BindedToWiFi());
+}
+
+TEST(LogicControllerVariableTestsGroup, Unbind_remove_StaWiFi_binding) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    WiFiService wifi_service;
+    testable.BindToStaWiFi(&wifi_service);
+
+    CHECK_TRUE(testable.BindedToWiFi());
+    testable.Unbind();
+    CHECK_FALSE(testable.BindedToWiFi());
+}
+
+TEST(LogicControllerVariableTestsGroup, Unbind_remove_SecureWiFi_binding) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    WiFiService wifi_service;
+    testable.BindToSecureWiFi(&wifi_service, "any_ssid", "pass", "************");
+
+    CHECK_TRUE(testable.BindedToWiFi());
+    testable.Unbind();
+    CHECK_FALSE(testable.BindedToWiFi());
+}
+
+TEST(LogicControllerVariableTestsGroup, Unbind_remove_DateTime_binding) {
+    TestableControllerVariable testable;
+    testable.Init();
+
+    DatetimeService datetime_service;
+    testable.BindToDateTime(&datetime_service, DatetimePart::t_second);
+
+    CHECK_TRUE(testable.BindedToDateTime());
+    testable.Unbind();
+    CHECK_FALSE(testable.BindedToDateTime());
+}

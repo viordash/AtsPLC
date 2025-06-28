@@ -18,12 +18,14 @@
 
 static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
 static WiFiService *wifi_service;
+static DatetimeService *datetime_service;
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(frame_buffer, 0, sizeof(frame_buffer));
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL, NULL);
+datetime_service = new DatetimeService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service);
 }
 
 TEST_TEARDOWN() {
@@ -33,6 +35,7 @@ TEST_TEARDOWN() {
     Controller::V4.Unbind();
     Controller::Stop();
     delete wifi_service;
+    delete datetime_service;
     mock().enable();
 }
 }
@@ -571,6 +574,24 @@ TEST(LogicElementsBoxTestsGroup, SelectNext_on_WiFiStaBinding_calls_DetachElemen
 
     CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
+
+    delete testable.GetSelectedElement();
+}
+
+TEST(LogicElementsBoxTestsGroup, SelectNext_on_DateTimeBinding_calls_DetachElement) {
+    auto stored_element = new DateTimeBinding();
+    stored_element->SetIoAdr(MapIO::V1);
+    stored_element->DoAction(true, LogicItemState::lisActive);
+    CHECK_EQUAL(LogicItemState::lisActive, stored_element->GetState());
+    CHECK_TRUE(Controller::V1.BindedToDateTime());
+
+    ElementsBox testable(100, stored_element, {});
+    CHECK_EQUAL(TvElementType::et_DateTimeBinding, testable.GetElementType());
+
+    testable.SelectNext();
+
+    CHECK_EQUAL(LogicItemState::lisPassive, stored_element->GetState());
+    CHECK_FALSE(Controller::V1.BindedToDateTime());
 
     delete testable.GetSelectedElement();
 }
