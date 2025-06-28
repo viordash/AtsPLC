@@ -57,7 +57,9 @@ TEST(LogicRenderingServiceTestsGroup, Do_calls_xTaskNotify_with_DO_RENDERING) {
 TEST(LogicRenderingServiceTestsGroup, Rendering_task_DO_RENDERING) {
     TestableRenderingService testable;
 
+    TaskHandle_t currentTaskHandle = (TaskHandle_t)42;
     mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(1, "xTaskGetCurrentTaskHandle").andReturnValue(currentTaskHandle);
 
     uint32_t render_notify = RenderingService::DO_RENDERING;
     mock()
@@ -72,6 +74,12 @@ TEST(LogicRenderingServiceTestsGroup, Rendering_task_DO_RENDERING) {
         .ignoreOtherParameters();
 
     mock().expectOneCall("vTaskDelete").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withPointerParameter("xTaskToNotify", currentTaskHandle)
+        .withUnsignedIntParameter("ulValue", RenderingService::DO_RENDERING)
+        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
