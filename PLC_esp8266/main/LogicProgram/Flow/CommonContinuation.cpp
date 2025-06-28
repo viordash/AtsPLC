@@ -6,13 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 CommonContinuation::CommonContinuation() : LogicElement() {
 }
 
 CommonContinuation::~CommonContinuation() {
 }
-
 
 size_t CommonContinuation::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
