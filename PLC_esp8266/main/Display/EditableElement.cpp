@@ -41,33 +41,40 @@ bool EditableElement::Selected() {
 }
 
 bool EditableElement::Render(uint8_t *fb, Point *start_point) {
-    const Bitmap *bitmap;
-
-    switch (editable_state) {
-        case EditableElement::ElementState::des_Selected:
-            if (Blinking_50()) {
-                bitmap = &EditableElement::bitmap_selecting_blink_0;
-            } else {
-                bitmap = &EditableElement::bitmap_selecting_blink_1;
-            }
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
-            break;
-
-        case EditableElement::ElementState::des_Editing:
-            bitmap = &EditableElement::bitmap_selecting_blink_2;
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
-            break;
-
-        case EditableElement::ElementState::des_Moving:
-            bitmap = &EditableElement::bitmap_moving_up_down;
-            draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
-            break;
-
-        default:
-            break;
+    const Bitmap *bitmap = GetCursorBitmap();
+    if (bitmap != NULL) {
+        draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
     }
 
     return true;
+}
+
+const Bitmap *EditableElement::GetCursorBitmap() {
+    switch (editable_state) {
+        case EditableElement::ElementState::des_Selected:
+            if (Blinking_50()) {
+                return &EditableElement::bitmap_selecting_blink_0;
+            } else {
+                return &EditableElement::bitmap_selecting_blink_1;
+            }
+
+        case EditableElement::ElementState::des_Editing:
+            return &EditableElement::bitmap_selecting_blink_2;
+
+        case EditableElement::ElementState::des_Moving:
+            return &EditableElement::bitmap_moving_up_down;
+
+        default:
+            return NULL;
+    }
+}
+
+uint16_t EditableElement::GetCursorWidth() {
+    const Bitmap *bitmap = GetCursorBitmap();
+    if (bitmap != NULL) {
+        return bitmap->size.width;
+    }
+    return 0;
 }
 
 bool EditableElement::Editing() {

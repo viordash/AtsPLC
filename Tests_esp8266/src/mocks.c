@@ -225,6 +225,10 @@ BaseType_t xTaskGenericNotify(TaskHandle_t xTaskToNotify,
         ->returnIntValueOrDefault(pdPASS);
 }
 
+TaskHandle_t xTaskGetCurrentTaskHandle(void) {
+    return mock_c()->actualCall("xTaskGetCurrentTaskHandle")->returnPointerValueOrDefault(NULL);
+}
+
 esp_err_t esp_event_send(system_event_t *event) {
     return mock_c()
         ->actualCall("esp_event_send")

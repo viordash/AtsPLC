@@ -12,7 +12,7 @@
 
 static const char *TAG_ElementsBox = "ElementsBox";
 
-ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool hide_output_elements)
+ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, Options options)
     : LogicElement() {
     source_element_width = 0;
     source_element->BeginEditing();
@@ -21,7 +21,7 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, bool h
     state = source_element->state;
     CalcEntirePlaceWidth(source_element);
     place_width = source_element_width + fill_wire;
-    Fill(source_element, hide_output_elements);
+    Fill(source_element, options);
 }
 
 ElementsBox::~ElementsBox() {
@@ -274,7 +274,12 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     }
     TakeParamsFromStoredElement(source_element, new_element);
 
-    uint8_t start_point_x = IsOutputElement(element_type) //
+    bool element_right_to_left = IsOutputElement(element_type);
+    if (!element_right_to_left) {
+        element_right_to_left = IsContinuationInElement(element_type);
+    }
+
+    uint8_t start_point_x = element_right_to_left //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
@@ -283,7 +288,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
         return;
     }
     uint8_t new_element_width = 0;
-    if (IsOutputElement(element_type)) {
+    if (element_right_to_left) {
         new_element_width = start_point_x - start_point.x;
     } else {
         new_element_width = start_point.x - start_point_x;
@@ -298,7 +303,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     push_back(new_element);
 }
 
-void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) {
+void ElementsBox::Fill(LogicElement *source_element, Options options) {
     uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
 
     AppendStandartElement(source_element, TvElementType::et_InputNC, frame_buffer);
@@ -317,14 +322,22 @@ void ElementsBox::Fill(LogicElement *source_element, bool hide_output_elements) 
     AppendStandartElement(source_element, TvElementType::et_WiFiStaBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_WiFiApBinding, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_DateTimeBinding, frame_buffer);
-    if (!hide_output_elements) {
+    AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
+
+    if (options & Options::show_output_elements) {
         AppendStandartElement(source_element, TvElementType::et_DirectOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_SetOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_ResetOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_IncOutput, frame_buffer);
         AppendStandartElement(source_element, TvElementType::et_DecOutput, frame_buffer);
     }
-    AppendStandartElement(source_element, TvElementType::et_Settings, frame_buffer);
+    if (options & Options::show_continuation_in) {
+        AppendStandartElement(source_element, TvElementType::et_ContinuationIn, frame_buffer);
+    }
+    if (options & Options::show_continuation_out) {
+        AppendStandartElement(source_element, TvElementType::et_ContinuationOut, frame_buffer);
+    }
+
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
     delete[] frame_buffer;

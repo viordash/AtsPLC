@@ -30,6 +30,8 @@ class EditableElement {
     bool Render(uint8_t *fb, Point *start_point);
 
     bool Blinking_50();
+    const Bitmap *GetCursorBitmap();
+    uint16_t GetCursorWidth();
 
   public:
     explicit EditableElement();

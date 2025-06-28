@@ -84,6 +84,12 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
         case et_SquareWaveGenerator:
             element = new SquareWaveGenerator();
             break;
+        case et_ContinuationIn:
+            element = new ContinuationIn();
+            break;
+        case et_ContinuationOut:
+            element = new ContinuationOut();
+            break;
         default:
             break;
     }

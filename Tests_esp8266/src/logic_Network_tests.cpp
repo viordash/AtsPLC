@@ -543,11 +543,11 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBo
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
-    CHECK_EQUAL(12, elementBox->size());
+    CHECK_EQUAL(13, elementBox->size());
 
     testable.SelectNext();
     testable.SelectNext();
-    CHECK_EQUAL(TvElementType::et_ComparatorLs, expectedElementBox->GetElementType());
+    CHECK_EQUAL(TvElementType::et_ContinuationOut, expectedElementBox->GetElementType());
 
     delete elementBox->GetSelectedElement();
 }
@@ -572,7 +572,7 @@ TEST(LogicNetworkTestsGroup,
     CHECK_EQUAL(TvElementType::et_DirectOutput, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
-    CHECK_EQUAL(17, elementBox->size());
+    CHECK_EQUAL(18, elementBox->size());
 
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_SetOutput, expectedElementBox->GetElementType());

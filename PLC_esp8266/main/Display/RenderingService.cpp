@@ -28,6 +28,8 @@ void RenderingService::Task(void *parm) {
 
     StatusBar statusBar(0);
     uint32_t ulNotifiedValue = {};
+    const uint32_t display_render_on_startup = DO_RENDERING;
+    xTaskNotify(xTaskGetCurrentTaskHandle(), display_render_on_startup, eNotifyAction::eSetBits);
 
     while ((ulNotifiedValue & STOP_RENDER_TASK) == 0) {
         BaseType_t xResult =
