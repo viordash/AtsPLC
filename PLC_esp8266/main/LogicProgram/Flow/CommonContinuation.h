@@ -13,7 +13,6 @@ class CommonContinuation : public LogicElement {
     explicit CommonContinuation();
     ~CommonContinuation();
 
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;

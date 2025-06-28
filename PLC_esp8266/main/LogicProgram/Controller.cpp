@@ -43,7 +43,7 @@ ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
-Continuation Controller::network_continuation = { LogicItemState::lisPassive, false };
+LogicItemState Controller::network_continuation = LogicItemState::lisPassive;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -114,6 +114,8 @@ void Controller::ProcessTask(void *parm) {
     (void)parm;
 
     ESP_LOGI(TAG_Controller, "start process task");
+
+    network_continuation = LogicItemState::lisPassive;
 
     ladder->Load();
     if (hotreload->is_hotstart) {
@@ -418,10 +420,10 @@ void Controller::StoreSystemDatetime() {
     Controller::datetime_service->StoreSystemDatetime();
 }
 
-void Controller::SetNetworkContinuation(Continuation &continuation) {
-    network_continuation = continuation;
+void Controller::SetNetworkContinuation(LogicItemState state) {
+    network_continuation = state;
 }
 
-Continuation &Controller::GetNetworkContinuation() {
+LogicItemState Controller::GetNetworkContinuation() {
     return network_continuation;
 }

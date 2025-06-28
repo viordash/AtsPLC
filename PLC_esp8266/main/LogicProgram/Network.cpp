@@ -42,17 +42,6 @@ bool Network::DoAction() {
     state_changed = false;
     LogicItemState prev_elem_state = state;
 
-    bool first_is_ContinuationOut = !empty() && ContinuationOut::TryToCast(front()) != NULL;
-    if (first_is_ContinuationOut) {
-        auto &continuation = Controller::GetNetworkContinuation();
-        prev_elem_state = continuation.state;
-        prev_elem_changed = continuation.state_changed;
-        ESP_LOGD(TAG_Network,
-                 "DoAction: continuation out, prev_elem_state:%u prev_elem_changed:%u",
-                 prev_elem_state,
-                 prev_elem_changed);
-    }
-
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
         prev_elem_changed = element->DoAction(prev_elem_changed, prev_elem_state);
@@ -60,15 +49,6 @@ bool Network::DoAction() {
         any_changes |= prev_elem_changed;
     }
 
-    bool last_is_ContinuationIn = !empty() && ContinuationIn::TryToCast(back()) != NULL;
-    if (last_is_ContinuationIn) {
-        Continuation continuation{ prev_elem_state, prev_elem_changed };
-        Controller::SetNetworkContinuation(continuation);
-        ESP_LOGD(TAG_Network,
-                 "DoAction: continuation in, prev_elem_state:%u prev_elem_changed:%u\n",
-                 prev_elem_state,
-                 prev_elem_changed);
-    }
     return any_changes;
 }
 

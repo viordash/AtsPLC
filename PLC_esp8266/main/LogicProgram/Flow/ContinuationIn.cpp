@@ -1,6 +1,7 @@
 #include "LogicProgram/Flow/ContinuationIn.h"
 #include "Display/bitmaps/continuation_in_active.h"
 #include "Display/bitmaps/continuation_in_inactive.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -15,6 +16,31 @@ ContinuationIn::ContinuationIn() : CommonContinuation() {
 }
 
 ContinuationIn::~ContinuationIn() {
+}
+
+bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    Controller::SetNetworkContinuation(prev_elem_state);
+
+    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+        return false;
+    }
+
+    bool any_changes = false;
+    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    LogicItemState prev_state = state;
+
+    if (prev_elem_state == LogicItemState::lisActive) {
+        state = LogicItemState::lisActive;
+    } else {
+        state = LogicItemState::lisPassive;
+    }
+
+    if (state != prev_state) {
+        any_changes = true;
+        ESP_LOGD(TAG_ContinuationIn, ".");
+    }
+
+    return any_changes;
 }
 
 IRAM_ATTR bool

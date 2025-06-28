@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG_CommonContinuation = "CommonContinuation";
 
 CommonContinuation::CommonContinuation() : LogicElement() {
 }
@@ -14,29 +13,6 @@ CommonContinuation::CommonContinuation() : LogicElement() {
 CommonContinuation::~CommonContinuation() {
 }
 
-bool CommonContinuation::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
-    }
-
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
-    }
-
-    if (state != prev_state) {
-
-        any_changes = true;
-        ESP_LOGD(TAG_CommonContinuation, ".");
-    }
-
-    return any_changes;
-}
 
 size_t CommonContinuation::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
