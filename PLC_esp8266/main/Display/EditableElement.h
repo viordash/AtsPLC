@@ -25,7 +25,12 @@ class EditableElement {
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;
     const static Bitmap bitmap_selecting_blink_2;
-    const static Bitmap bitmap_moving_up_down;
+    const static Bitmap bitmap_moving_up_down_0;
+    const static Bitmap bitmap_moving_up_down_1;
+    const static Bitmap bitmap_copy_cursor_0;
+    const static Bitmap bitmap_copy_cursor_1;
+    const static Bitmap bitmap_delete_cursor_0;
+    const static Bitmap bitmap_delete_cursor_1;
 
     bool Render(uint8_t *fb, Point *start_point);
 

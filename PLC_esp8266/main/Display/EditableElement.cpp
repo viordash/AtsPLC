@@ -1,8 +1,13 @@
 #include "Display/EditableElement.h"
+#include "Display/bitmaps/copy_cursor_0.h"
+#include "Display/bitmaps/copy_cursor_1.h"
+#include "Display/bitmaps/delete_cursor_0.h"
+#include "Display/bitmaps/delete_cursor_1.h"
 #include "Display/bitmaps/element_cursor_0.h"
 #include "Display/bitmaps/element_cursor_1.h"
 #include "Display/bitmaps/element_cursor_2.h"
-#include "Display/bitmaps/moving_up_down.h"
+#include "Display/bitmaps/moving_up_down_0.h"
+#include "Display/bitmaps/moving_up_down_1.h"
 #include "Display/display.h"
 #include "EditableElement.h"
 #include "esp_attr.h"
@@ -62,7 +67,7 @@ const Bitmap *EditableElement::GetCursorBitmap() {
             return &EditableElement::bitmap_selecting_blink_2;
 
         case EditableElement::ElementState::des_Moving:
-            return &EditableElement::bitmap_moving_up_down;
+            return &EditableElement::bitmap_moving_up_down_0;
 
         default:
             return NULL;
