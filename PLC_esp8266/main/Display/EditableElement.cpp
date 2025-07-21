@@ -57,17 +57,13 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 const Bitmap *EditableElement::GetCursorBitmap() {
     switch (editable_state) {
         case EditableElement::ElementState::des_Selected:
-            if (Blinking_50()) {
-                return &EditableElement::bitmap_selecting_blink_0;
-            } else {
-                return &EditableElement::bitmap_selecting_blink_1;
-            }
+            return Blinking_50() ? &bitmap_selecting_blink_0 : &bitmap_selecting_blink_1;
 
         case EditableElement::ElementState::des_Editing:
-            return &EditableElement::bitmap_selecting_blink_2;
+            return &bitmap_selecting_blink_2;
 
         case EditableElement::ElementState::des_Moving:
-            return &EditableElement::bitmap_moving_up_down_0;
+            return Blinking_50() ? &bitmap_moving_up_down_0 : &bitmap_moving_up_down_1;
 
         default:
             return NULL;
