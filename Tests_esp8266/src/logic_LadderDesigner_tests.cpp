@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "hotreload_service.h"
 #include "main/LogicProgram/Ladder.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
@@ -22,9 +23,12 @@ TEST_GROUP(LogicLadderDesignerTestsGroup){ //
 memset(frame_buffer, 0, sizeof(frame_buffer));
 create_storage_0();
 create_storage_1();
+load_hotreload();
+Controller::Start(NULL, NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
     remove_storage_0();
     remove_storage_1();
@@ -43,19 +47,10 @@ namespace {
 
     class TestableLadder : public Ladder {
       public:
-        static int16_t hotreload_view_top_index;
-        static int16_t hotreload_selected_network;
-
-        TestableLadder()
-            : Ladder([](int16_t view_top_index, int16_t selected_network) {
-                  TestableLadder::hotreload_view_top_index = view_top_index;
-                  TestableLadder::hotreload_selected_network = selected_network;
-              }) {
-            TestableLadder::hotreload_view_top_index = -19;
-            TestableLadder::hotreload_selected_network = -19;
+        TestableLadder() : Ladder() {
         }
 
-        int16_t *PublicMorozov_Get_view_top_index() {
+        int32_t *PublicMorozov_Get_view_top_index() {
             return &view_top_index;
         }
         int PublicMorozov_GetSelectedNetwork() {
@@ -68,9 +63,6 @@ namespace {
             return RemoveNetworkIfEmpty(network_id);
         }
     };
-
-    int16_t TestableLadder::hotreload_view_top_index = 0;
-    int16_t TestableLadder::hotreload_selected_network = 0;
 
     class TestableNetwork : public Network {
       public:
@@ -364,7 +356,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
 
     testable.HandleButtonSelect();
 
-    Ladder ladder_load([](int16_t, int16_t) {});
+    Ladder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());
@@ -488,21 +480,22 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_calls__cb_UI_state_changed__w
 
     testable.HandleButtonUp();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(-1, hotreload->selected_network);
 
     *testable.PublicMorozov_Get_view_top_index() = 3;
     network3->Select();
 
     testable.HandleButtonUp();
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(2, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(2, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(2, hotreload->view_top_index);
+    CHECK_EQUAL(2, hotreload->selected_network);
 
     testable.HandleButtonUp();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(1, hotreload->selected_network);
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_calls__cb_UI_state_changed__when_scrolling) {
@@ -524,21 +517,21 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_calls__cb_UI_state_changed_
 
     testable.HandleButtonDown();
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(2, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(2, hotreload->view_top_index);
+    CHECK_EQUAL(-1, hotreload->selected_network);
 
     *testable.PublicMorozov_Get_view_top_index() = 0;
     network0->Select();
 
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->view_top_index);
+    CHECK_EQUAL(1, hotreload->selected_network);
 
     testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(2, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(2, hotreload->selected_network);
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_changed) {
@@ -551,26 +544,26 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_change
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(0, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->view_top_index);
+    CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_TRUE(testable[0]->Selected());
 
-    TestableLadder::hotreload_view_top_index = -1;
-    TestableLadder::hotreload_selected_network = -1;
+    hotreload->view_top_index = -1;
+    hotreload->selected_network = -1;
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(0, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->view_top_index);
+    CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_TRUE(testable[0]->Editing());
 
-    TestableLadder::hotreload_view_top_index = -1;
-    TestableLadder::hotreload_selected_network = -1;
+    hotreload->view_top_index = -1;
+    hotreload->selected_network = -1;
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(-1, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->view_top_index);
+    CHECK_EQUAL(-1, hotreload->selected_network);
     CHECK_FALSE(testable[0]->Editing());
     CHECK_FALSE(testable[0]->Selected());
 }
@@ -585,17 +578,17 @@ TEST(
     testable.HandleButtonSelect();
 
     testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonOption();
-    CHECK_FALSE(testable[0]->Moving());
+    CHECK_FALSE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonSelect();
     testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonSelect();
-    CHECK_FALSE(testable[0]->Moving());
+    CHECK_FALSE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
@@ -617,7 +610,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
 
     testable.HandleButtonSelect();
     testable.HandleButtonOption();
-    CHECK_TRUE(testable[3]->Moving());
+    CHECK_TRUE(testable[3]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[2], network3);
@@ -632,12 +625,12 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[0], network3);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());    
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[0], network3);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
@@ -659,30 +652,30 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
 
     testable.HandleButtonSelect();
     testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[0], network1);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[1], network2);
     CHECK_EQUAL(testable[2], network0);
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
 }

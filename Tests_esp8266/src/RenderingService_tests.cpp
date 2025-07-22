@@ -86,10 +86,7 @@ TEST(LogicRenderingServiceTestsGroup, Rendering_task_DO_RENDERING) {
         .withUnsignedIntParameter("ulValue", RenderingService::STOP_RENDER_TASK)
         .ignoreOtherParameters();
 
-    Ladder ladder([](int16_t view_top_index, int16_t selected_network) {
-        (void)view_top_index;
-        (void)selected_network;
-    });
+    Ladder ladder;
     ;
     *testable.PublicMorozov_Get_task_arg() = { &testable, &ladder };
     *testable.PublicMorozov_Get_task_handle() = (TaskHandle_t)42;
