@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Ladder::Ladder(f_UIStateChanged cb_UI_state_changed) {
-    this->cb_UI_state_changed = cb_UI_state_changed;
+Ladder::Ladder() {
     view_top_index = 0;
 }
 
@@ -54,6 +53,44 @@ void Ladder::Append(Network *network) {
     push_back(network);
 }
 
+void Ladder::Duplicate(int network_id) {
+    ESP_LOGD(TAG_Ladder, "duplicate network id: %d", network_id);
+
+    size_t size = (*this)[network_id]->Serialize(NULL, 0);
+    if (size == 0) {
+        ESP_LOGE(TAG_Ladder, "Duplicate error");
+        return;
+    }
+    uint8_t *data = new uint8_t[size];
+
+    if ((*this)[network_id]->Serialize(data, size) != size) {
+        ESP_LOGE(TAG_Ladder, "Duplicate serialize error");
+        delete[] data;
+        return;
+    }
+
+    auto new_network = new Network(LogicItemState::lisActive);
+    size_t network_readed = new_network->Deserialize(data, size);
+    delete[] data;
+    if (network_readed == 0) {
+        ESP_LOGE(TAG_Ladder, "Duplicate deserialize error");
+        delete new_network;
+        return;
+    }
+
+    auto pos = begin();
+    insert(std::next(pos, network_id), new_network);
+}
+
+void Ladder::Delete(int network_id) {
+    auto pos = begin();
+    auto it = std::next(pos, network_id);
+    auto network = *it;
+    erase(it);
+    delete network;
+}
+
+
 void Ladder::SetViewTopIndex(int16_t index) {
     ESP_LOGI(TAG_Ladder, "SetViewTopIndex, index:%d", index);
     if (index < 0 || index + Ladder::MaxViewPortCount > size()) {
@@ -87,13 +124,26 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
             (*this)[index]->Select();
             break;
 
-        case EditableElement::ElementState::des_Editing: {
+        case EditableElement::ElementState::des_Editing:
             break;
-        }
 
-        case EditableElement::ElementState::des_Moving: {
+        case EditableElement::ElementState::des_AdvancedSelectMove:
             break;
-        }
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            break;
+
+        case EditableElement::ElementState::des_Moving:
+            break;
+
+        case EditableElement::ElementState::des_Copying:
+            break;
+
+        case EditableElement::ElementState::des_Deleting:
+            break;
     }
 }
 

@@ -38,7 +38,6 @@ bool Controller::force_process_loop = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-Ladder *Controller::ladder = NULL;
 ProcessWakeupService *Controller::processWakeupService = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
@@ -75,18 +74,6 @@ void Controller::Start(EventGroupHandle_t gpio_events,
     ESP_LOGI(TAG_Controller, "start");
 
     processWakeupService = new ProcessWakeupService();
-    ladder = new Ladder([](int16_t view_top_index, int16_t selected_network) {
-        SAFETY_HOTRELOAD({
-            hotreload->view_top_index = view_top_index;
-            hotreload->selected_network = selected_network;
-            store_hotreload();
-        });
-        ESP_LOGD(TAG_Controller, "cb_UI_state_changed %d", selected_network);
-        Controller::force_process_loop = selected_network > -1;
-        if (Controller::force_process_loop) {
-            Controller::WakeupProcessTask();
-        }
-    });
 
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
@@ -106,7 +93,6 @@ void Controller::Stop() {
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
-    delete ladder;
     delete processWakeupService;
 }
 
@@ -117,14 +103,15 @@ void Controller::ProcessTask(void *parm) {
 
     network_continuation = LogicItemState::lisPassive;
 
-    ladder->Load();
+    Ladder ladder;
+    ladder.Load();
     if (hotreload->is_hotstart) {
-        ladder->SetViewTopIndex(hotreload->view_top_index);
-        ladder->SetSelectedNetworkIndex(hotreload->selected_network);
+        ladder.SetViewTopIndex(hotreload->view_top_index);
+        ladder.SetSelectedNetworkIndex(hotreload->selected_network);
     }
-    ladder->AtLeastOneNetwork();
+    ladder.AtLeastOneNetwork();
 
-    rendering_service->Start(ladder);
+    rendering_service->Start(&ladder);
     xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK);
 
     const uint32_t first_iteration_delay = 0;
@@ -150,27 +137,27 @@ void Controller::ProcessTask(void *parm) {
             ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
-                    ladder->HandleButtonUp();
+                    ladder.HandleButtonUp();
                     do_render = true;
                     break;
                 case ButtonsPressType::UP_LONG_PRESSED:
-                    ladder->HandleButtonPageUp();
+                    ladder.HandleButtonPageUp();
                     do_render = true;
                     break;
                 case ButtonsPressType::DOWN_PRESSED:
-                    ladder->HandleButtonDown();
+                    ladder.HandleButtonDown();
                     do_render = true;
                     break;
                 case ButtonsPressType::DOWN_LONG_PRESSED:
-                    ladder->HandleButtonPageDown();
+                    ladder.HandleButtonPageDown();
                     do_render = true;
                     break;
                 case ButtonsPressType::SELECT_PRESSED:
-                    ladder->HandleButtonSelect();
+                    ladder.HandleButtonSelect();
                     do_render = true;
                     break;
                 case ButtonsPressType::SELECT_LONG_PRESSED:
-                    ladder->HandleButtonOption();
+                    ladder.HandleButtonOption();
                     do_render = true;
                     break;
                 default:
@@ -185,7 +172,7 @@ void Controller::ProcessTask(void *parm) {
         bool expired;
         do {
             FetchIOValues();
-            bool any_changes_in_actions = ladder->DoAction();
+            bool any_changes_in_actions = ladder.DoAction();
             CommitChanges();
             if (!any_changes_in_actions) {
                 break;
@@ -426,4 +413,28 @@ void Controller::SetNetworkContinuation(LogicItemState state) {
 
 LogicItemState Controller::GetNetworkContinuation() {
     return network_continuation;
+}
+
+void Controller::UpdateUIViewTop(int32_t view_top_index) {
+    SAFETY_HOTRELOAD({
+        hotreload->view_top_index = view_top_index;
+        store_hotreload();
+    });
+    ESP_LOGD(TAG_Controller, "UpdateUIViewTop %d", view_top_index);
+    Controller::force_process_loop = true;
+    Controller::WakeupProcessTask();
+}
+
+void Controller::UpdateUISelected(int32_t selected_network) {
+    SAFETY_HOTRELOAD({
+        hotreload->selected_network = selected_network;
+        store_hotreload();
+    });
+    ESP_LOGD(TAG_Controller, "UpdateUISelected %d", selected_network);
+    Controller::force_process_loop = true;
+    Controller::WakeupProcessTask();
+}
+
+int32_t Controller::GetLastUpdatedUISelected() {
+    return hotreload->selected_network;
 }

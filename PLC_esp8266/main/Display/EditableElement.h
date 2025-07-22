@@ -11,7 +11,12 @@ class EditableElement {
         des_Regular,
         des_Selected,
         des_Editing,
-        des_Moving
+        des_AdvancedSelectMove,
+        des_AdvancedSelectCopy,
+        des_AdvancedSelectDelete,
+        des_Moving,
+        des_Copying,
+        des_Deleting
     } ElementState;
 
     typedef enum { //
@@ -48,10 +53,10 @@ class EditableElement {
     virtual void BeginEditing();
     virtual void EndEditing();
 
+    EditableElement::ElementState GetEditable_state();
     bool Selected();
     bool Editing();
     bool InEditingProperty();
-    bool Moving();
 
     virtual void SelectPrior() = 0;
     virtual void SelectNext() = 0;

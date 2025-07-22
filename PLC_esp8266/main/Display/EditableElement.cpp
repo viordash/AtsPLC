@@ -62,8 +62,23 @@ const Bitmap *EditableElement::GetCursorBitmap() {
         case EditableElement::ElementState::des_Editing:
             return &bitmap_selecting_blink_2;
 
-        case EditableElement::ElementState::des_Moving:
+        case EditableElement::ElementState::des_AdvancedSelectMove:
             return Blinking_50() ? &bitmap_moving_up_down_0 : &bitmap_moving_up_down_1;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            return Blinking_50() ? &bitmap_copy_cursor_0 : &bitmap_copy_cursor_0;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            return Blinking_50() ? &bitmap_delete_cursor_0 : &bitmap_delete_cursor_1;
+
+        case EditableElement::ElementState::des_Moving:
+            return &bitmap_moving_up_down_0;
+
+        case EditableElement::ElementState::des_Copying:
+            return &bitmap_copy_cursor_0;
+
+        case EditableElement::ElementState::des_Deleting:
+            return &bitmap_delete_cursor_0;
 
         default:
             return NULL;
@@ -78,16 +93,16 @@ uint16_t EditableElement::GetCursorWidth() {
     return 0;
 }
 
+EditableElement::ElementState EditableElement::GetEditable_state() {
+    return editable_state;
+}
+
 bool EditableElement::Editing() {
     return editable_state == EditableElement::ElementState::des_Editing;
 }
 
 bool EditableElement::InEditingProperty() {
     return editing_property_id != EditableElement::EditingPropertyId::cepi_None;
-}
-
-bool EditableElement::Moving() {
-    return editable_state == EditableElement::ElementState::des_Moving;
 }
 
 bool EditableElement::Blinking_50() {

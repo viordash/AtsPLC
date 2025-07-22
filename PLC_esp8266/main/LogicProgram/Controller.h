@@ -36,7 +36,6 @@ class Controller {
     static bool force_process_loop;
     static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
-    static Ladder *ladder;
     static ProcessWakeupService *processWakeupService;
     static WiFiService *wifi_service;
     static RenderingService *rendering_service;
@@ -90,4 +89,8 @@ class Controller {
     static void StoreSystemDatetime();
     static void SetNetworkContinuation(LogicItemState state);
     static LogicItemState GetNetworkContinuation();
+
+    static void UpdateUIViewTop(int32_t view_top_index);
+    static void UpdateUISelected(int32_t selected_network);
+    static int32_t GetLastUpdatedUISelected();
 };

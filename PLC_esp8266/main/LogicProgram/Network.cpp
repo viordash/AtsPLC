@@ -514,7 +514,32 @@ void Network::SwitchState() {
     }
 }
 
+void Network::SwitchToAdvancedSelectMove() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectMove");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectMove;
+}
+
+void Network::SwitchToAdvancedSelectCopy() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectCopy");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectCopy;
+}
+
+void Network::SwitchToAdvancedSelectDelete() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectDelete");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectDelete;
+}
+
 void Network::SwitchToMoving() {
     ESP_LOGI(TAG_Network, "SwitchToMoving");
     editable_state = EditableElement::ElementState::des_Moving;
+}
+
+void Network::SwitchToCopying() {
+    ESP_LOGI(TAG_Network, "SwitchToCopying");
+    editable_state = EditableElement::ElementState::des_Copying;
+}
+
+void Network::SwitchToDeleting() {
+    ESP_LOGI(TAG_Network, "SwitchToDeleting");
+    editable_state = EditableElement::ElementState::des_Deleting;
 }
