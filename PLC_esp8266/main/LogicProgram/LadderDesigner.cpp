@@ -223,7 +223,7 @@ void Ladder::HandleButtonDown() {
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
