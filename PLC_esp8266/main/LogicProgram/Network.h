@@ -52,7 +52,9 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     void SwitchToAdvancedSelectMove();
     void SwitchToAdvancedSelectCopy();
     void SwitchToAdvancedSelectDelete();
+    void SwitchToAdvancedSelectDisable();
     void SwitchToMoving();
     void SwitchToCopying();
     void SwitchToDeleting();
+    void SwitchToDisabling();
 };

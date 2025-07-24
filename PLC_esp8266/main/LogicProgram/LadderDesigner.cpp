@@ -28,9 +28,11 @@ int Ladder::GetSelectedNetwork() {
             case EditableElement::ElementState::des_AdvancedSelectMove:
             case EditableElement::ElementState::des_AdvancedSelectCopy:
             case EditableElement::ElementState::des_AdvancedSelectDelete:
+            case EditableElement::ElementState::des_AdvancedSelectDisable:
             case EditableElement::ElementState::des_Moving:
             case EditableElement::ElementState::des_Copying:
             case EditableElement::ElementState::des_Deleting:
+            case EditableElement::ElementState::des_Disabling:
                 return i;
 
             default:
@@ -52,9 +54,11 @@ EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
         case EditableElement::ElementState::des_AdvancedSelectMove:
         case EditableElement::ElementState::des_AdvancedSelectCopy:
         case EditableElement::ElementState::des_AdvancedSelectDelete:
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
         case EditableElement::ElementState::des_Moving:
         case EditableElement::ElementState::des_Copying:
         case EditableElement::ElementState::des_Deleting:
+        case EditableElement::ElementState::des_Disabling:
             return network->GetEditable_state();
 
         default:
@@ -120,7 +124,7 @@ void Ladder::HandleButtonUp() {
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
+            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
@@ -129,6 +133,10 @@ void Ladder::HandleButtonUp() {
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
             (*this)[selected_network]->SwitchToAdvancedSelectCopy();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
             break;
 
         case EditableElement::ElementState::des_Moving:
@@ -142,6 +150,9 @@ void Ladder::HandleButtonUp() {
             break;
 
         case EditableElement::ElementState::des_Deleting:
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
             break;
     }
 }
@@ -215,6 +226,10 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->SwitchToAdvancedSelectMove();
             break;
 
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            break;
+
         case EditableElement::ElementState::des_Moving:
             if (selected_network + 1 < (int)size()) {
                 std::swap(at(selected_network), at(selected_network + 1));
@@ -226,6 +241,9 @@ void Ladder::HandleButtonDown() {
             break;
 
         case EditableElement::ElementState::des_Deleting:
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
             break;
     }
 }
@@ -313,6 +331,10 @@ void Ladder::HandleButtonSelect() {
             (*this)[selected_network]->SwitchToDeleting();
             break;
 
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToDisabling();
+            break;
+
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
             Store();
@@ -327,6 +349,12 @@ void Ladder::HandleButtonSelect() {
         case EditableElement::ElementState::des_Deleting:
             (*this)[selected_network]->EndEditing();
             Delete(selected_network);
+            Store();
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
+            (*this)[selected_network]->EndEditing();
+            (*this)[selected_network]->SwitchState();
             Store();
             break;
 
@@ -364,6 +392,10 @@ void Ladder::HandleButtonOption() {
             (*this)[selected_network]->EndEditing();
             break;
 
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->EndEditing();
+            break;
+
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
             break;
@@ -373,6 +405,10 @@ void Ladder::HandleButtonOption() {
             break;
 
         case EditableElement::ElementState::des_Deleting:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
             (*this)[selected_network]->EndEditing();
             break;
 

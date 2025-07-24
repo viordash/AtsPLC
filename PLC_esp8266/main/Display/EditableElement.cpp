@@ -3,6 +3,8 @@
 #include "Display/bitmaps/copy_cursor_1.h"
 #include "Display/bitmaps/delete_cursor_0.h"
 #include "Display/bitmaps/delete_cursor_1.h"
+#include "Display/bitmaps/disable_cursor_0.h"
+#include "Display/bitmaps/disable_cursor_1.h"
 #include "Display/bitmaps/element_cursor_0.h"
 #include "Display/bitmaps/element_cursor_1.h"
 #include "Display/bitmaps/element_cursor_2.h"
@@ -71,6 +73,9 @@ const Bitmap *EditableElement::GetCursorBitmap() {
         case EditableElement::ElementState::des_AdvancedSelectDelete:
             return Blinking_50() ? &bitmap_delete_cursor_0 : &bitmap_delete_cursor_1;
 
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            return Blinking_50() ? &bitmap_disable_cursor_0 : &bitmap_disable_cursor_1;
+
         case EditableElement::ElementState::des_Moving:
             return &bitmap_moving_up_down_0;
 
@@ -79,6 +84,9 @@ const Bitmap *EditableElement::GetCursorBitmap() {
 
         case EditableElement::ElementState::des_Deleting:
             return &bitmap_delete_cursor_0;
+
+        case EditableElement::ElementState::des_Disabling:
+            return &bitmap_disable_cursor_0;
 
         default:
             return NULL;

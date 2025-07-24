@@ -14,9 +14,11 @@ class EditableElement {
         des_AdvancedSelectMove,
         des_AdvancedSelectCopy,
         des_AdvancedSelectDelete,
+        des_AdvancedSelectDisable,
         des_Moving,
         des_Copying,
-        des_Deleting
+        des_Deleting,
+        des_Disabling
     } ElementState;
 
     typedef enum { //
@@ -36,6 +38,8 @@ class EditableElement {
     const static Bitmap bitmap_copy_cursor_1;
     const static Bitmap bitmap_delete_cursor_0;
     const static Bitmap bitmap_delete_cursor_1;
+    const static Bitmap bitmap_disable_cursor_0;
+    const static Bitmap bitmap_disable_cursor_1;
 
     bool Render(uint8_t *fb, Point *start_point);
 

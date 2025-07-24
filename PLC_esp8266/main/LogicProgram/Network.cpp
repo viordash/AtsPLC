@@ -488,8 +488,6 @@ void Network::Option() {
             }
             return;
         }
-    } else {
-        SwitchState();
     }
 }
 
@@ -529,6 +527,11 @@ void Network::SwitchToAdvancedSelectDelete() {
     editable_state = EditableElement::ElementState::des_AdvancedSelectDelete;
 }
 
+void Network::SwitchToAdvancedSelectDisable() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectDisable");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectDisable;
+}
+
 void Network::SwitchToMoving() {
     ESP_LOGI(TAG_Network, "SwitchToMoving");
     editable_state = EditableElement::ElementState::des_Moving;
@@ -542,4 +545,9 @@ void Network::SwitchToCopying() {
 void Network::SwitchToDeleting() {
     ESP_LOGI(TAG_Network, "SwitchToDeleting");
     editable_state = EditableElement::ElementState::des_Deleting;
+}
+
+void Network::SwitchToDisabling() {
+    ESP_LOGI(TAG_Network, "SwitchToDisabling");
+    editable_state = EditableElement::ElementState::des_Disabling;
 }

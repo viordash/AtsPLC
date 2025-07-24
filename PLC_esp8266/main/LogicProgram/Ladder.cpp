@@ -90,7 +90,6 @@ void Ladder::Delete(int network_id) {
     delete network;
 }
 
-
 void Ladder::SetViewTopIndex(int16_t index) {
     ESP_LOGI(TAG_Ladder, "SetViewTopIndex, index:%d", index);
     if (index < 0 || index + Ladder::MaxViewPortCount > size()) {
@@ -136,6 +135,9 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
         case EditableElement::ElementState::des_AdvancedSelectDelete:
             break;
 
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            break;
+
         case EditableElement::ElementState::des_Moving:
             break;
 
@@ -143,6 +145,9 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
             break;
 
         case EditableElement::ElementState::des_Deleting:
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
             break;
     }
 }
