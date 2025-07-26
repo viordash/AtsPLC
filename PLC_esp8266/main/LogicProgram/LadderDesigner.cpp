@@ -16,6 +16,7 @@ bool Ladder::CanScrollAuto() {
 void Ladder::AutoScroll() {
     if (size() > Ladder::MaxViewPortCount) {
         view_top_index = size() - Ladder::MaxViewPortCount;
+        Controller::UpdateUIViewTop(view_top_index);
     }
 }
 
@@ -76,6 +77,7 @@ bool Ladder::ScrollUp(int *selected_network) {
     } else if (view_top_index > 0) {
         view_top_index--;
         (*selected_network)--;
+        Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
     return size() > 0;
@@ -88,6 +90,7 @@ bool Ladder::ScrollDown(int *selected_network) {
     } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
         view_top_index++;
         (*selected_network)++;
+        Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
     return *selected_network < (int)size();
