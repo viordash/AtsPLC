@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "hotreload_service.h"
 #include "main/LogicProgram/Ladder.h"
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/redundant_storage.h"
@@ -22,9 +23,14 @@ TEST_GROUP(LogicLadderDesignerTestsGroup){ //
 memset(frame_buffer, 0, sizeof(frame_buffer));
 create_storage_0();
 create_storage_1();
+load_hotreload();
+Controller::Start(NULL, NULL, NULL, NULL);
+Controller::UpdateUIViewTop(0);
+Controller::UpdateUISelected(0);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
     remove_storage_0();
     remove_storage_1();
@@ -43,19 +49,10 @@ namespace {
 
     class TestableLadder : public Ladder {
       public:
-        static int16_t hotreload_view_top_index;
-        static int16_t hotreload_selected_network;
-
-        TestableLadder()
-            : Ladder([](int16_t view_top_index, int16_t selected_network) {
-                  TestableLadder::hotreload_view_top_index = view_top_index;
-                  TestableLadder::hotreload_selected_network = selected_network;
-              }) {
-            TestableLadder::hotreload_view_top_index = -19;
-            TestableLadder::hotreload_selected_network = -19;
+        TestableLadder() : Ladder() {
         }
 
-        int16_t *PublicMorozov_Get_view_top_index() {
+        int32_t *PublicMorozov_Get_view_top_index() {
             return &view_top_index;
         }
         int PublicMorozov_GetSelectedNetwork() {
@@ -68,9 +65,6 @@ namespace {
             return RemoveNetworkIfEmpty(network_id);
         }
     };
-
-    int16_t TestableLadder::hotreload_view_top_index = 0;
-    int16_t TestableLadder::hotreload_selected_network = 0;
 
     class TestableNetwork : public Network {
       public:
@@ -240,17 +234,18 @@ TEST(LogicLadderDesignerTestsGroup, GetDesignState) {
                 testable.PublicMorozov_GetDesignState(1));
 }
 
-TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_changed_network_state) {
+TEST(LogicLadderDesignerTestsGroup, AdvancedSelectDisable_changed_network_state) {
     TestableLadder testable;
 
     auto network = new TestableNetwork(LogicItemState::lisActive);
     testable.Append(network);
-    network->BeginEditing();
 
-    testable.HandleButtonOption();
+    network->SwitchToDisabling();
+    testable.HandleButtonSelect();
     CHECK_EQUAL(LogicItemState::lisPassive, network->PublicMorozov_state());
 
-    testable.HandleButtonOption();
+    network->SwitchToDisabling();
+    testable.HandleButtonSelect();
     CHECK_EQUAL(LogicItemState::lisActive, network->PublicMorozov_state());
 }
 
@@ -364,7 +359,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
 
     testable.HandleButtonSelect();
 
-    Ladder ladder_load([](int16_t, int16_t) {});
+    Ladder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());
@@ -469,7 +464,8 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_if_network_is_editin
     CHECK_FALSE(network3->Selected());
 }
 
-TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_calls__cb_UI_state_changed__when_scrolling) {
+TEST(LogicLadderDesignerTestsGroup,
+     HandleButtonUp_calls__Controller_UpdateUIViewTop_UpdateUISelected__when_scrolling) {
     TestableLadder testable;
     auto network0 = new Network(LogicItemState::lisActive);
     auto network1 = new Network(LogicItemState::lisActive);
@@ -487,25 +483,25 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_calls__cb_UI_state_changed__w
     *testable.PublicMorozov_Get_view_top_index() = 2;
 
     testable.HandleButtonUp();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(0, hotreload->selected_network);
 
     *testable.PublicMorozov_Get_view_top_index() = 3;
     network3->Select();
 
     testable.HandleButtonUp();
     CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(2, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(2, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(2, hotreload->view_top_index);
+    CHECK_EQUAL(2, hotreload->selected_network);
 
     testable.HandleButtonUp();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(1, hotreload->selected_network);
 }
 
-TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_calls__cb_UI_state_changed__when_scrolling) {
+TEST(LogicLadderDesignerTestsGroup,
+     HandleButtonDown_calls__Controller_UpdateUIViewTop_UpdateUISelected__when_scrolling) {
     TestableLadder testable;
     auto network0 = new Network(LogicItemState::lisActive);
     auto network1 = new Network(LogicItemState::lisActive);
@@ -523,25 +519,23 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_calls__cb_UI_state_changed_
     *testable.PublicMorozov_Get_view_top_index() = 1;
 
     testable.HandleButtonDown();
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(2, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(2, hotreload->view_top_index);
+    CHECK_EQUAL(0, hotreload->selected_network);
 
     *testable.PublicMorozov_Get_view_top_index() = 0;
     network0->Select();
 
     testable.HandleButtonDown();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(2, hotreload->view_top_index);
+    CHECK_EQUAL(1, hotreload->selected_network);
 
     testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-    CHECK_EQUAL(1, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(2, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(1, hotreload->view_top_index);
+    CHECK_EQUAL(2, hotreload->selected_network);
 }
 
-TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_changed) {
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_UpdateUISelected_changed) {
     TestableLadder testable;
 
     auto network0 = new Network(LogicItemState::lisActive);
@@ -551,33 +545,27 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__cb_UI_state_change
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(0, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->view_top_index);
+    CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_TRUE(testable[0]->Selected());
 
-    TestableLadder::hotreload_view_top_index = -1;
-    TestableLadder::hotreload_selected_network = -1;
+    hotreload->selected_network = -1;
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(0, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_TRUE(testable[0]->Editing());
 
-    TestableLadder::hotreload_view_top_index = -1;
-    TestableLadder::hotreload_selected_network = -1;
+    hotreload->selected_network = -1;
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(-1, testable.PublicMorozov_GetSelectedNetwork());
-    CHECK_EQUAL(0, TestableLadder::hotreload_view_top_index);
-    CHECK_EQUAL(-1, TestableLadder::hotreload_selected_network);
+    CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_FALSE(testable[0]->Editing());
     CHECK_FALSE(testable[0]->Selected());
 }
 
-TEST(
-    LogicLadderDesignerTestsGroup,
-    HandleButtonOption_if_network_is_selected_then_movement_starts_and_stops_after_next_press_button) {
+TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_enter_to_advanced_editing) {
     TestableLadder testable;
 
     auto network = new TestableNetwork(LogicItemState::lisActive);
@@ -585,20 +573,150 @@ TEST(
     testable.HandleButtonSelect();
 
     testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
-
-    testable.HandleButtonOption();
-    CHECK_FALSE(testable[0]->Moving());
-
-    testable.HandleButtonSelect();
-    testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
-
-    testable.HandleButtonSelect();
-    CHECK_FALSE(testable[0]->Moving());
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectMove);
 }
 
-TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
+TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_leave_from_advanced_editing) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+
+    testable[0]->SwitchToAdvancedSelectMove();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToAdvancedSelectCopy();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToAdvancedSelectDelete();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToAdvancedSelectDisable();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToMoving();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToCopying();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+
+    testable[0]->SwitchToDisabling();
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Regular);
+}
+
+TEST(LogicLadderDesignerTestsGroup, Switch_to_next_advanced_editing_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+    testable.HandleButtonSelect();
+
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectMove);
+
+    testable.HandleButtonDown();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectCopy);
+
+    testable.HandleButtonDown();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectDelete);
+
+    testable.HandleButtonDown();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectDisable);
+
+    testable.HandleButtonDown();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectMove);
+}
+
+TEST(LogicLadderDesignerTestsGroup, Switch_to_prev_advanced_editing_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+    testable.HandleButtonSelect();
+
+    testable.HandleButtonOption();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectMove);
+
+    testable.HandleButtonUp();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectDisable);
+
+    testable.HandleButtonUp();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectDelete);
+
+    testable.HandleButtonUp();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectCopy);
+
+    testable.HandleButtonUp();
+    CHECK_TRUE(testable[0]->GetEditable_state()
+               == EditableElement::ElementState::des_AdvancedSelectMove);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_move_network_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+
+    testable[0]->SwitchToAdvancedSelectMove();
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_copy_network_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+
+    testable[0]->SwitchToAdvancedSelectCopy();
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Copying);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_delete_network_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+
+    testable[0]->SwitchToAdvancedSelectDelete();
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Deleting);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_disable_network_mode) {
+    TestableLadder testable;
+
+    auto network = new TestableNetwork(LogicItemState::lisActive);
+    testable.Append(network);
+
+    testable[0]->SwitchToAdvancedSelectDisable();
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Disabling);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_up) {
     TestableLadder testable;
     auto network0 = new Network(LogicItemState::lisActive);
     auto network1 = new Network(LogicItemState::lisActive);
@@ -615,9 +733,8 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
 
     *testable.PublicMorozov_Get_view_top_index() = 3;
 
-    testable.HandleButtonSelect();
-    testable.HandleButtonOption();
-    CHECK_TRUE(testable[3]->Moving());
+    testable[3]->SwitchToMoving();
+    CHECK_TRUE(testable[3]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[2], network3);
@@ -632,12 +749,12 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_move_network_to_up) {
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[0], network3);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());    
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonUp();
     CHECK_EQUAL(testable[0], network3);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
@@ -657,32 +774,81 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
 
     *testable.PublicMorozov_Get_view_top_index() = 0;
 
-    testable.HandleButtonSelect();
-    testable.HandleButtonOption();
-    CHECK_TRUE(testable[0]->Moving());
+    testable[0]->SwitchToMoving();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Moving);
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[0], network1);
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());   
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[1], network2);
     CHECK_EQUAL(testable[2], network0);
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
 
     testable.HandleButtonDown();
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
-    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index()); 
+    CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+
+    testable[0]->SwitchToCopying();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Copying);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(testable[1], network0);
+    CHECK_EQUAL(1, testable[0]->size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->at(0)->GetElementType());
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__delete_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    network2->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+
+    testable[0]->SwitchToDeleting();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Deleting);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(testable[0], network1);
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__disable_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+
+    testable[0]->SwitchToDisabling();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Disabling);
+    CHECK_EQUAL(LogicItemState::lisActive, testable[0]->GetState());
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(LogicItemState::lisPassive, testable[0]->GetState());
 }

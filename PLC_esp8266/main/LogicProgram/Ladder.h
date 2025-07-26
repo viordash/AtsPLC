@@ -10,15 +10,11 @@
 
 #define TAG_Ladder "Ladder"
 
-typedef void (*f_UIStateChanged)(int16_t view_top_index, int16_t selected_network);
-
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
 class Ladder : public std::vector<Network *> {
   protected:
-    int16_t view_top_index;
-
-    f_UIStateChanged cb_UI_state_changed;
+    int32_t view_top_index;
 
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
@@ -34,15 +30,19 @@ class Ladder : public std::vector<Network *> {
     const size_t MaxNetworksCount = 80;
     const size_t MaxViewPortCount = 2;
 
-    explicit Ladder(f_UIStateChanged cb_UI_state_changed);
+    explicit Ladder();
     ~Ladder();
 
     bool DoAction();
     bool Render(uint8_t *fb);
     void AtLeastOneNetwork();
     void Append(Network *network);
+    void Duplicate(int network_id);
+    void Delete(int network_id);
     bool CanScrollAuto();
     void AutoScroll();
+    bool ScrollUp(int *selected_network);
+    bool ScrollDown(int *selected_network);
     void HandleButtonUp();
     void HandleButtonPageUp();
     void HandleButtonDown();

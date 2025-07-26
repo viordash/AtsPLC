@@ -36,6 +36,10 @@ void Network::ChangeState(LogicItemState state) {
     state_changed = true;
 }
 
+LogicItemState Network::GetState() {
+    return state;
+}
+
 bool Network::DoAction() {
     bool any_changes = false;
     bool prev_elem_changed = state_changed;
@@ -488,8 +492,6 @@ void Network::Option() {
             }
             return;
         }
-    } else {
-        SwitchState();
     }
 }
 
@@ -514,7 +516,42 @@ void Network::SwitchState() {
     }
 }
 
+void Network::SwitchToAdvancedSelectMove() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectMove");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectMove;
+}
+
+void Network::SwitchToAdvancedSelectCopy() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectCopy");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectCopy;
+}
+
+void Network::SwitchToAdvancedSelectDelete() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectDelete");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectDelete;
+}
+
+void Network::SwitchToAdvancedSelectDisable() {
+    ESP_LOGI(TAG_Network, "SwitchToAdvancedSelectDisable");
+    editable_state = EditableElement::ElementState::des_AdvancedSelectDisable;
+}
+
 void Network::SwitchToMoving() {
     ESP_LOGI(TAG_Network, "SwitchToMoving");
     editable_state = EditableElement::ElementState::des_Moving;
+}
+
+void Network::SwitchToCopying() {
+    ESP_LOGI(TAG_Network, "SwitchToCopying");
+    editable_state = EditableElement::ElementState::des_Copying;
+}
+
+void Network::SwitchToDeleting() {
+    ESP_LOGI(TAG_Network, "SwitchToDeleting");
+    editable_state = EditableElement::ElementState::des_Deleting;
+}
+
+void Network::SwitchToDisabling() {
+    ESP_LOGI(TAG_Network, "SwitchToDisabling");
+    editable_state = EditableElement::ElementState::des_Disabling;
 }

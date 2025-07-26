@@ -1,8 +1,15 @@
 #include "Display/EditableElement.h"
+#include "Display/bitmaps/copy_cursor_0.h"
+#include "Display/bitmaps/copy_cursor_1.h"
+#include "Display/bitmaps/delete_cursor_0.h"
+#include "Display/bitmaps/delete_cursor_1.h"
+#include "Display/bitmaps/disable_cursor_0.h"
+#include "Display/bitmaps/disable_cursor_1.h"
 #include "Display/bitmaps/element_cursor_0.h"
 #include "Display/bitmaps/element_cursor_1.h"
 #include "Display/bitmaps/element_cursor_2.h"
-#include "Display/bitmaps/moving_up_down.h"
+#include "Display/bitmaps/moving_up_down_0.h"
+#include "Display/bitmaps/moving_up_down_1.h"
 #include "Display/display.h"
 #include "EditableElement.h"
 #include "esp_attr.h"
@@ -52,17 +59,34 @@ bool EditableElement::Render(uint8_t *fb, Point *start_point) {
 const Bitmap *EditableElement::GetCursorBitmap() {
     switch (editable_state) {
         case EditableElement::ElementState::des_Selected:
-            if (Blinking_50()) {
-                return &EditableElement::bitmap_selecting_blink_0;
-            } else {
-                return &EditableElement::bitmap_selecting_blink_1;
-            }
+            return Blinking_50() ? &bitmap_selecting_blink_0 : &bitmap_selecting_blink_1;
 
         case EditableElement::ElementState::des_Editing:
-            return &EditableElement::bitmap_selecting_blink_2;
+            return &bitmap_selecting_blink_2;
+
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+            return Blinking_50() ? &bitmap_moving_up_down_0 : &bitmap_moving_up_down_1;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            return Blinking_50() ? &bitmap_copy_cursor_0 : &bitmap_copy_cursor_0;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            return Blinking_50() ? &bitmap_delete_cursor_0 : &bitmap_delete_cursor_1;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            return Blinking_50() ? &bitmap_disable_cursor_0 : &bitmap_disable_cursor_1;
 
         case EditableElement::ElementState::des_Moving:
-            return &EditableElement::bitmap_moving_up_down;
+            return &bitmap_moving_up_down_0;
+
+        case EditableElement::ElementState::des_Copying:
+            return &bitmap_copy_cursor_0;
+
+        case EditableElement::ElementState::des_Deleting:
+            return &bitmap_delete_cursor_0;
+
+        case EditableElement::ElementState::des_Disabling:
+            return &bitmap_disable_cursor_0;
 
         default:
             return NULL;
@@ -77,16 +101,16 @@ uint16_t EditableElement::GetCursorWidth() {
     return 0;
 }
 
+EditableElement::ElementState EditableElement::GetEditable_state() {
+    return editable_state;
+}
+
 bool EditableElement::Editing() {
     return editable_state == EditableElement::ElementState::des_Editing;
 }
 
 bool EditableElement::InEditingProperty() {
     return editing_property_id != EditableElement::EditingPropertyId::cepi_None;
-}
-
-bool EditableElement::Moving() {
-    return editable_state == EditableElement::ElementState::des_Moving;
 }
 
 bool EditableElement::Blinking_50() {

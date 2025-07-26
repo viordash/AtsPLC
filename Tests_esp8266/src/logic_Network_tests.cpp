@@ -40,9 +40,6 @@ namespace {
       public:
         TestableNetwork(LogicItemState state) : Network(state) {
         }
-        LogicItemState PublicMorozov_state() {
-            return state;
-        }
         uint8_t *PublicMorozov_Get_fill_wire() {
             return &fill_wire;
         }
@@ -610,10 +607,10 @@ TEST(LogicNetworkTestsGroup, SwitchState) {
     TestableNetwork testable(LogicItemState::lisActive);
 
     testable.SwitchState();
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.PublicMorozov_state());
+    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 
     testable.SwitchState();
-    CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_state());
+    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 }
 
 TEST(LogicNetworkTestsGroup, ChangeState_updates_state_in_child_elements) {

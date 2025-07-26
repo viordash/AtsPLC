@@ -1,4 +1,5 @@
 #include "Display/ScrollBar.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Ladder.h"
 #include "esp_attr.h"
 #include "esp_err.h"
@@ -15,14 +16,28 @@ bool Ladder::CanScrollAuto() {
 void Ladder::AutoScroll() {
     if (size() > Ladder::MaxViewPortCount) {
         view_top_index = size() - Ladder::MaxViewPortCount;
+        Controller::UpdateUIViewTop(view_top_index);
     }
 }
 
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)size(); i++) {
         auto network = (*this)[i];
-        if (network->Selected() || network->Editing() || network->Moving()) {
-            return i;
+        switch (network->GetEditable_state()) {
+            case EditableElement::ElementState::des_Selected:
+            case EditableElement::ElementState::des_Editing:
+            case EditableElement::ElementState::des_AdvancedSelectMove:
+            case EditableElement::ElementState::des_AdvancedSelectCopy:
+            case EditableElement::ElementState::des_AdvancedSelectDelete:
+            case EditableElement::ElementState::des_AdvancedSelectDisable:
+            case EditableElement::ElementState::des_Moving:
+            case EditableElement::ElementState::des_Copying:
+            case EditableElement::ElementState::des_Deleting:
+            case EditableElement::ElementState::des_Disabling:
+                return i;
+
+            default:
+                break;
         }
     }
     return -1;
@@ -34,17 +49,51 @@ EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
     }
 
     auto network = (*this)[selected_network];
-    if (network->Editing()) {
-        return EditableElement::ElementState::des_Editing;
+    switch (network->GetEditable_state()) {
+        case EditableElement::ElementState::des_Selected:
+        case EditableElement::ElementState::des_Editing:
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+        case EditableElement::ElementState::des_Moving:
+        case EditableElement::ElementState::des_Copying:
+        case EditableElement::ElementState::des_Deleting:
+        case EditableElement::ElementState::des_Disabling:
+            return network->GetEditable_state();
+
+        default:
+            break;
     }
-    if (network->Selected()) {
-        return EditableElement::ElementState::des_Selected;
-    }
-    if (network->Moving()) {
-        return EditableElement::ElementState::des_Moving;
-    }
+
     ESP_LOGE(TAG_Ladder, "GetDesignState, unexpected network (id:%d) state", selected_network);
     return EditableElement::ElementState::des_Regular;
+}
+
+bool Ladder::ScrollUp(int *selected_network) {
+    if (*selected_network > view_top_index) {
+        (*selected_network)--;
+        Controller::UpdateUISelected(*selected_network);
+    } else if (view_top_index > 0) {
+        view_top_index--;
+        (*selected_network)--;
+        Controller::UpdateUIViewTop(view_top_index);
+        Controller::UpdateUISelected(*selected_network);
+    }
+    return size() > 0;
+}
+
+bool Ladder::ScrollDown(int *selected_network) {
+    if (*selected_network + 1 < view_top_index + (int)Ladder::MaxViewPortCount) {
+        (*selected_network)++;
+        Controller::UpdateUISelected(*selected_network);
+    } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
+        view_top_index++;
+        (*selected_network)++;
+        Controller::UpdateUIViewTop(view_top_index);
+        Controller::UpdateUISelected(*selected_network);
+    }
+    return *selected_network < (int)size();
 }
 
 void Ladder::HandleButtonUp() {
@@ -61,45 +110,53 @@ void Ladder::HandleButtonUp() {
         case EditableElement::ElementState::des_Regular:
             if (view_top_index > 0) {
                 view_top_index--;
-                cb_UI_state_changed(view_top_index, selected_network);
+                Controller::UpdateUIViewTop(view_top_index);
             }
             break;
 
         case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->CancelSelection();
             RemoveNetworkIfEmpty(selected_network);
-
-            if (selected_network > view_top_index) {
-                selected_network--;
-                cb_UI_state_changed(view_top_index, selected_network);
-            } else if (view_top_index > 0) {
-                view_top_index--;
-                selected_network--;
-                cb_UI_state_changed(view_top_index, selected_network);
-            }
-            if (size() > 0) {
+            if (ScrollUp(&selected_network)) {
                 (*this)[selected_network]->Select();
             }
             break;
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->SelectPrior();
-            return;
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            (*this)[selected_network]->SwitchToAdvancedSelectCopy();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
+            break;
 
         case EditableElement::ElementState::des_Moving:
             if (selected_network > 0) {
                 std::swap(at(selected_network), at(selected_network - 1));
             }
+            ScrollUp(&selected_network);
+            break;
 
-            if (selected_network > view_top_index) {
-                selected_network--;
-                cb_UI_state_changed(view_top_index, selected_network);
-            } else if (view_top_index > 0) {
-                view_top_index--;
-                selected_network--;
-                cb_UI_state_changed(view_top_index, selected_network);
-            }
-            return;
+        case EditableElement::ElementState::des_Copying:
+            break;
+
+        case EditableElement::ElementState::des_Deleting:
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
+            break;
     }
 }
 
@@ -137,7 +194,7 @@ void Ladder::HandleButtonDown() {
         case EditableElement::ElementState::des_Regular:
             if (view_top_index + Ladder::MaxViewPortCount < size()) {
                 view_top_index++;
-                cb_UI_state_changed(view_top_index, selected_network);
+                Controller::UpdateUIViewTop(view_top_index);
             }
             break;
 
@@ -145,14 +202,7 @@ void Ladder::HandleButtonDown() {
             (*this)[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
-                if (selected_network == view_top_index) {
-                    selected_network++;
-                    cb_UI_state_changed(view_top_index, selected_network);
-                } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
-                    view_top_index++;
-                    selected_network++;
-                    cb_UI_state_changed(view_top_index, selected_network);
-                }
+                ScrollDown(&selected_network);
             }
 
             if (selected_network == (int)size()) {
@@ -165,21 +215,39 @@ void Ladder::HandleButtonDown() {
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->SelectNext();
-            return;
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+            (*this)[selected_network]->SwitchToAdvancedSelectCopy();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            break;
 
         case EditableElement::ElementState::des_Moving:
             if (selected_network + 1 < (int)size()) {
                 std::swap(at(selected_network), at(selected_network + 1));
             }
-            if (selected_network == view_top_index) {
-                selected_network++;
-                cb_UI_state_changed(view_top_index, selected_network);
-            } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
-                view_top_index++;
-                selected_network++;
-                cb_UI_state_changed(view_top_index, selected_network);
-            }
-            return;
+            ScrollDown(&selected_network);
+            break;
+
+        case EditableElement::ElementState::des_Copying:
+            break;
+
+        case EditableElement::ElementState::des_Deleting:
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
+            break;
     }
 }
 
@@ -214,32 +282,81 @@ void Ladder::HandleButtonSelect() {
              selected_network);
 
     switch (design_state) {
-        case EditableElement::ElementState::des_Regular:
+        case EditableElement::ElementState::des_Regular: {
             if (size() == 0) {
                 auto new_network = new Network(LogicItemState::lisActive);
                 Append(new_network);
             }
-            (*this)[view_top_index]->Select();
 
-            cb_UI_state_changed(view_top_index, view_top_index);
+            int32_t last_selected_network = Controller::GetLastUpdatedUISelected();
+            last_selected_network =
+                std::clamp(last_selected_network,
+                           view_top_index,
+                           (view_top_index + (int)Ladder::MaxViewPortCount) - 1);
+
+            if (last_selected_network >= 0 && last_selected_network < (int)size()) {
+                (*this)[last_selected_network]->Select();
+                break;
+            }
+
+            (*this)[view_top_index]->Select();
+            Controller::UpdateUISelected(view_top_index);
+
             break;
+        }
 
         case EditableElement::ElementState::des_Selected:
             (*this)[selected_network]->BeginEditing();
-            cb_UI_state_changed(view_top_index, selected_network);
+            Controller::UpdateUISelected(selected_network);
             break;
 
         case EditableElement::ElementState::des_Editing:
             (*this)[selected_network]->Change();
             if (!(*this)[selected_network]->Editing()) {
-                RemoveNetworkIfEmpty(selected_network);
+                if (RemoveNetworkIfEmpty(selected_network)) {
+                    selected_network = -1;
+                }
                 Store();
-                cb_UI_state_changed(view_top_index, -1);
+                Controller::UpdateUISelected(selected_network);
             }
             return;
 
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+            (*this)[selected_network]->SwitchToMoving();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            (*this)[selected_network]->SwitchToCopying();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            (*this)[selected_network]->SwitchToDeleting();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->SwitchToDisabling();
+            break;
+
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
+            Store();
+            break;
+
+        case EditableElement::ElementState::des_Copying:
+            (*this)[selected_network]->EndEditing();
+            Duplicate(selected_network);
+            Store();
+            break;
+
+        case EditableElement::ElementState::des_Deleting:
+            (*this)[selected_network]->EndEditing();
+            Delete(selected_network);
+            Store();
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
+            (*this)[selected_network]->EndEditing();
+            (*this)[selected_network]->SwitchState();
             Store();
             break;
 
@@ -262,10 +379,38 @@ void Ladder::HandleButtonOption() {
             break;
 
         case EditableElement::ElementState::des_Selected:
-            (*this)[selected_network]->SwitchToMoving();
+            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectMove:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectCopy:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDelete:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_AdvancedSelectDisable:
+            (*this)[selected_network]->EndEditing();
             break;
 
         case EditableElement::ElementState::des_Moving:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_Copying:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_Deleting:
+            (*this)[selected_network]->EndEditing();
+            break;
+
+        case EditableElement::ElementState::des_Disabling:
             (*this)[selected_network]->EndEditing();
             break;
 

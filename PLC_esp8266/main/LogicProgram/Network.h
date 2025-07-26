@@ -29,6 +29,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     virtual ~Network();
 
     void ChangeState(LogicItemState state);
+    LogicItemState GetState();
 
     virtual bool DoAction();
     virtual bool Render(uint8_t *fb, uint8_t network_number);
@@ -49,5 +50,12 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     int GetSelectedElement();
 
     void SwitchState();
+    void SwitchToAdvancedSelectMove();
+    void SwitchToAdvancedSelectCopy();
+    void SwitchToAdvancedSelectDelete();
+    void SwitchToAdvancedSelectDisable();
     void SwitchToMoving();
+    void SwitchToCopying();
+    void SwitchToDeleting();
+    void SwitchToDisabling();
 };
