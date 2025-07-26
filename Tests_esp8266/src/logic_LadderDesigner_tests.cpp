@@ -716,7 +716,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_disable_network
     CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Disabling);
 }
 
-TEST(LogicLadderDesignerTestsGroup, AdvancedEditing_move_network_to_up) {
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_up) {
     TestableLadder testable;
     auto network0 = new Network(LogicItemState::lisActive);
     auto network1 = new Network(LogicItemState::lisActive);
@@ -801,4 +801,54 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
     CHECK_EQUAL(testable[2], network3);
     CHECK_EQUAL(testable[3], network0);
     CHECK_EQUAL(3, *testable.PublicMorozov_Get_view_top_index());
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+
+    testable[0]->SwitchToCopying();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Copying);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(testable[1], network0);
+    CHECK_EQUAL(1, testable[0]->size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->at(0)->GetElementType());
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__delete_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    network2->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+
+    testable[0]->SwitchToDeleting();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Deleting);
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(2, testable.size());
+    CHECK_EQUAL(testable[0], network1);
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__disable_network) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+
+    testable[0]->SwitchToDisabling();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Disabling);
+    CHECK_EQUAL(LogicItemState::lisActive, testable[0]->GetState());
+
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(LogicItemState::lisPassive, testable[0]->GetState());
 }
