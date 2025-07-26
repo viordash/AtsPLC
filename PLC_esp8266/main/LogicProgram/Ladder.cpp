@@ -69,7 +69,7 @@ void Ladder::Duplicate(int network_id) {
         return;
     }
 
-    auto new_network = new Network(LogicItemState::lisActive);
+    auto new_network = new Network();
     size_t network_readed = new_network->Deserialize(data, size);
     delete[] data;
     if (network_readed == 0) {

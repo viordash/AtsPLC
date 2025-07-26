@@ -36,6 +36,10 @@ void Network::ChangeState(LogicItemState state) {
     state_changed = true;
 }
 
+LogicItemState Network::GetState() {
+    return state;
+}
+
 bool Network::DoAction() {
     bool any_changes = false;
     bool prev_elem_changed = state_changed;
