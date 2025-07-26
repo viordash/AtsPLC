@@ -286,7 +286,6 @@ void Ladder::HandleButtonSelect() {
             if (size() == 0) {
                 auto new_network = new Network(LogicItemState::lisActive);
                 Append(new_network);
-                break;
             }
 
             int32_t last_selected_network = Controller::GetLastUpdatedUISelected();
