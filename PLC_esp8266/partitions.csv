@@ -2,8 +2,8 @@
 nvs,      data, nvs,     0x9000,  0x4000
 otadata,  data, ota,     0xD000,  0x2000
 phy_init, data, phy,     0xf000,  0x1000
-ota_0,    app,  ota_0,   0x10000, 0x100000
-ota_1,    app,  ota_1,   0x110000,0x100000
-storage_0,data, nvs,     0x210000,0x10000
-storage_1,data, nvs,     0x220000,0x10000
-backups,   data, nvs,     0x230000,0x80000
+ota_0,    app,  ota_0,   0x10000, 0x1A0000
+ota_1,    app,  ota_1,   ,        0x1A0000
+storage_0,data, nvs,     ,        0x18000
+storage_1,data, nvs,     ,        0x18000
+backups,   data, nvs,    ,        0x80000
