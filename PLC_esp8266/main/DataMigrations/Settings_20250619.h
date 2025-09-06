@@ -84,6 +84,9 @@ namespace MigrateSettings {
             memcpy(&pCurrSettings->wifi_access_point,
                    &pPrevSettings->wifi_access_point,
                    sizeof(pCurrSettings->wifi_access_point));
+            memcpy(&pCurrSettings->datetime,
+                   &pPrevSettings->datetime,
+                   sizeof(pCurrSettings->datetime));
 
             pCurrSettings->adc.scan_period_ms = 1000;
 
@@ -106,6 +109,9 @@ namespace MigrateSettings {
             memcpy(&pPrevSettings->wifi_access_point,
                    &pCurrSettings->wifi_access_point,
                    sizeof(pPrevSettings->wifi_access_point));
+            memcpy(&pPrevSettings->datetime,
+                   &pCurrSettings->datetime,
+                   sizeof(pPrevSettings->datetime));
         }
 
     } // namespace v20250619
