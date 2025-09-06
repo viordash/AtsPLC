@@ -43,6 +43,10 @@ TEST(SettingsTestsGroup, load_if_clear_storage_return_default_settings) {
     CHECK_EQUAL(-120, settings.wifi_scanner.min_rssi);
     CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
     CHECK_FALSE(settings.wifi_access_point.ssid_hidden);
+
+    STRCMP_EQUAL("ru.pool.ntp.org", settings.datetime.sntp_server_primary);
+    STRCMP_EQUAL("pool.ntp.org", settings.datetime.sntp_server_secondary);
+    STRCMP_EQUAL("GMT-3", settings.datetime.timezone);
 }
 
 TEST(SettingsTestsGroup, store_load_settings) {
