@@ -200,12 +200,14 @@ int DatetimeService::GetCurrentDay() {
 }
 
 int DatetimeService::GetCurrentWeekday() {
+    int wdays_from_monday[] = { 7, 1, 2, 3, 4, 5, 6 };
     timeval tv;
     GetCurrent(&tv);
     struct tm tm;
     localtime_r(&tv.tv_sec, &tm);
-    ESP_LOGD(TAG_DatetimeService, "GetCurrentWeekday: %d", (int)tm.tm_wday + 1);
-    return tm.tm_wday + 1;
+    int wday = wdays_from_monday[tm.tm_wday & 0x07];
+    ESP_LOGD(TAG_DatetimeService, "GetCurrentWeekday: %d", wday);
+    return wday;
 }
 
 int DatetimeService::GetCurrentMonth() {

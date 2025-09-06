@@ -81,9 +81,28 @@ TEST(LogicDatetimeServiceTestsGroup, GetCurrentDay) {
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentWeekday) {
     TestableDatetimeService testable;
-    testable.time_value.tv_sec = 1626381779;
+    const time_t Monday = 1626716579;
+    const time_t Tuesday = 1626802979;
+    const time_t Wednesday = 1626889379;
+    const time_t Thursday = 1626381779;
+    const time_t Friday = 1626457379;
+    const time_t Saturday = 1626543779;
+    const time_t Sunday = 1626630179;
 
+    testable.time_value.tv_sec = Monday;
+    CHECK_EQUAL(01, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Tuesday;
+    CHECK_EQUAL(02, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Wednesday;
+    CHECK_EQUAL(03, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Thursday;
+    CHECK_EQUAL(04, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Friday;
     CHECK_EQUAL(05, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Saturday;
+    CHECK_EQUAL(06, testable.GetCurrentWeekday());
+    testable.time_value.tv_sec = Sunday;
+    CHECK_EQUAL(07, testable.GetCurrentWeekday());
 }
 
 TEST(LogicDatetimeServiceTestsGroup, GetCurrentMonth) {
