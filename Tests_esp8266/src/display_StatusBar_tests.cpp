@@ -12,10 +12,10 @@
 #include "main/LogicProgram/StatusBar.cpp"
 #include "main/LogicProgram/StatusBar.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(StatusBarTestsGroup){ //
-                                 TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -35,10 +35,10 @@ class TestableStatusBar : public StatusBar {
 
 TEST(StatusBarTestsGroup, Total_width_not_excess_display_size) {
     TestableStatusBar testable(0);
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
 
     const int component_area = DISPLAY_WIDTH * 2;
     for (int i = component_area; i < DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH; i++) {
-        CHECK_EQUAL(0, frame_buffer[i]);
+        CHECK_EQUAL(0, frame_buffer.buffer[i]);
     }
 }

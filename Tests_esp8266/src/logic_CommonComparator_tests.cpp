@@ -24,10 +24,10 @@
 #include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 TEST_GROUP(LogicCommonComparatorTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -86,11 +86,11 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
     testable.SetReference(0);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }

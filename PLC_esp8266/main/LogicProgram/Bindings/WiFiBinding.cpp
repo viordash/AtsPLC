@@ -47,7 +47,7 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 }
 
 IRAM_ATTR bool
-WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+WiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
@@ -78,7 +78,7 @@ WiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     return res;
 }
 
-bool WiFiBinding::RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage) {
+bool WiFiBinding::RenderSsidWithElipsis(FrameBuffer *fb,uint8_t x, uint8_t y, int leverage) {
     char elipsis = ssid[leverage];
     ssid[leverage] = 0;
     int width = draw_text_f6X12(fb, x, y, ssid);
@@ -92,7 +92,7 @@ bool WiFiBinding::RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int l
     return draw_text_f6X12(fb, x, y, &ssid[ssid_size - leverage]) > 0;
 }
 
-bool WiFiBinding::RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
+bool WiFiBinding::RenderEditedSsid(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char blink_ssid[displayed_ssid_max_size + 1];
     int char_pos = editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
 

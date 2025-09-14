@@ -14,7 +14,7 @@ MapIOIndicator::MapIOIndicator(const MapIO io_adr) {
 MapIOIndicator::~MapIOIndicator() {
 }
 
-IRAM_ATTR bool MapIOIndicator::Render(uint8_t *fb, Point *start_point, uint8_t progress) {
+IRAM_ATTR bool MapIOIndicator::Render(FrameBuffer *fb, Point *start_point, uint8_t progress) {
     bool res;
 
     start_point->x += margin;

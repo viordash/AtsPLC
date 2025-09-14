@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "Display/display.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -41,7 +42,7 @@ class EditableElement {
     const static Bitmap bitmap_disable_cursor_0;
     const static Bitmap bitmap_disable_cursor_1;
 
-    bool Render(uint8_t *fb, Point *start_point);
+    bool Render(FrameBuffer *fb, Point *start_point);
 
     bool Blinking_50();
     const Bitmap *GetCursorBitmap();

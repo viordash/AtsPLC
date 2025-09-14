@@ -28,7 +28,7 @@ bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     return prev_elem_changed;
 }
 
-IRAM_ATTR bool Wire::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     ESP_LOGD(TAG_Wire, "Render w:%u", width);
     if (width == 0) {

@@ -34,7 +34,7 @@ class Ladder : public std::vector<Network *> {
     ~Ladder();
 
     bool DoAction();
-    bool Render(uint8_t *fb);
+    bool Render(FrameBuffer *fb);
     void AtLeastOneNetwork();
     void Append(Network *network);
     void Duplicate(int network_id);

@@ -16,8 +16,8 @@ class WiFiBinding : public CommonWiFiBinding {
     void SelectPriorSymbol(char *symbol);
     void SelectNextSymbol(char *symbol);
 
-    bool RenderSsidWithElipsis(uint8_t *fb, uint8_t x, uint8_t y, int leverage);
-    bool RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y);
+    bool RenderSsidWithElipsis(FrameBuffer *fb,uint8_t x, uint8_t y, int leverage);
+    bool RenderEditedSsid(FrameBuffer *fb,uint8_t x, uint8_t y);
     bool IsLastSsidChar();
     bool ChangeSsid();
 
@@ -34,7 +34,7 @@ class WiFiBinding : public CommonWiFiBinding {
     virtual ~WiFiBinding();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;

@@ -46,15 +46,15 @@ class SettingsElement : public LogicElement {
     Discriminator discriminator;
     bool ValidateDiscriminator(Discriminator *discriminator);
 
-    bool RenderName(uint8_t *fb, uint8_t x, uint8_t y);
-    bool RenderValue(uint8_t *fb, uint8_t x, uint8_t y);
-    bool RenderValueWithElipsis(uint8_t *fb,
+    bool RenderName(FrameBuffer *fb, uint8_t x, uint8_t y);
+    bool RenderValue(FrameBuffer *fb, uint8_t x, uint8_t y);
+    bool RenderValueWithElipsis(FrameBuffer *fb,
                                 uint8_t x,
                                 uint8_t y,
                                 int leverage,
                                 char *display_value,
                                 size_t len);
-    bool RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y);
+    bool RenderEditedValue(FrameBuffer *fb, uint8_t x, uint8_t y);
     bool IsLastValueChar();
     bool ChangeValue();
     void ReadValue(char *string_buffer, bool friendly_format);
@@ -88,7 +88,7 @@ class SettingsElement : public LogicElement {
     virtual ~SettingsElement();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;

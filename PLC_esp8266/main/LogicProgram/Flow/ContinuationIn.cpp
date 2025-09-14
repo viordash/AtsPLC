@@ -44,7 +44,7 @@ bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
 }
 
 IRAM_ATTR bool
-ContinuationIn::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);

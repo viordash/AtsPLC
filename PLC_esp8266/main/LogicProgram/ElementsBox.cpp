@@ -79,7 +79,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
 }
 
 void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
+    auto frame_buffer = new FrameBuffer();
     uint8_t start_point_x = IsOutputElement(source_element->GetElementType()) //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
@@ -91,7 +91,7 @@ void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
             source_element_width = start_point.x - start_point_x;
         }
     }
-    delete[] frame_buffer;
+    delete frame_buffer;
 }
 
 void ElementsBox::CopyParamsToInputElement(LogicElement *source_element, InputElement *input) {
@@ -269,7 +269,7 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
 
 void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         TvElementType element_type,
-                                        uint8_t *frame_buffer) {
+                                        FrameBuffer *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
         selected_index = size();
         push_back(source_element);
@@ -312,7 +312,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
 }
 
 void ElementsBox::Fill(LogicElement *source_element, Options options) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
+    auto frame_buffer = new FrameBuffer();
 
     AppendStandartElement(source_element, TvElementType::et_InputNC, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_InputNO, frame_buffer);
@@ -348,7 +348,7 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
 
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
-    delete[] frame_buffer;
+    delete frame_buffer;
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
@@ -364,7 +364,7 @@ bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return res;
 }
 
-bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+bool ElementsBox::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = GetSelectedElement()->Render(fb, prev_elem_state, start_point);
     return res;
 }

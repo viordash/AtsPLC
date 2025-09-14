@@ -17,12 +17,12 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 static WiFiService *wifi_service;
 TEST_GROUP(LogicWiFiStaBindingTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();

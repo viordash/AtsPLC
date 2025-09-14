@@ -60,7 +60,7 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
                 break;
         }
 
-        uint8_t *fb = begin_render();
+        auto fb = begin_render();
         logs_list.Render(fb);
         end_render(fb);
     }

@@ -56,7 +56,7 @@ bool Network::DoAction() {
     return any_changes;
 }
 
-IRAM_ATTR bool Network::Render(uint8_t *fb, uint8_t network_number) {
+IRAM_ATTR bool Network::Render(FrameBuffer *fb, uint8_t network_number) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_NETWORK_TOP) };

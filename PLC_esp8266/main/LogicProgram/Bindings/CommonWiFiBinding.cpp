@@ -33,7 +33,7 @@ void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
 }
 
 IRAM_ATTR bool
-CommonWiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
 
     if (prev_elem_state == LogicItemState::lisActive) {

@@ -31,7 +31,7 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 }
 
 IRAM_ATTR bool
-SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
 
     if (prev_elem_state == LogicItemState::lisActive) {
@@ -111,7 +111,7 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     return res;
 }
 
-bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
+bool SettingsElement::RenderName(FrameBuffer *fb,uint8_t x, uint8_t y) {
     const char *name;
 
     switch (discriminator) {
@@ -182,7 +182,7 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
     return res;
 }
 
-bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
+bool SettingsElement::RenderValue(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char display_value[value_size + 1];
 
     ReadValue(display_value, true);
@@ -206,7 +206,7 @@ bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
     return res;
 }
 
-bool SettingsElement::RenderValueWithElipsis(uint8_t *fb,
+bool SettingsElement::RenderValueWithElipsis(FrameBuffer *fb,
                                              uint8_t x,
                                              uint8_t y,
                                              int leverage,
@@ -225,7 +225,7 @@ bool SettingsElement::RenderValueWithElipsis(uint8_t *fb,
     return draw_text_f6X12(fb, x, y, &display_value[len - leverage]) > 0;
 }
 
-bool SettingsElement::RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y) {
+bool SettingsElement::RenderEditedValue(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char blink_value[displayed_value_max_size + 1];
     int char_pos =
         editing_property_id - SettingsElement::EditingPropertyId::cwbepi_Value_First_Char;

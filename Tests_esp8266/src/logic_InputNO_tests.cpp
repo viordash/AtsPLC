@@ -17,10 +17,10 @@
 #include "main/LogicProgram/Inputs/InputNO.cpp"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicInputNOTestsGroup){ //
-                                    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();

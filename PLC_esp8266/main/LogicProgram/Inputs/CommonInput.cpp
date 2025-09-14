@@ -27,7 +27,7 @@ void CommonInput::SetIoAdr(const MapIO io_adr) {
 }
 
 IRAM_ATTR bool
-CommonInput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 

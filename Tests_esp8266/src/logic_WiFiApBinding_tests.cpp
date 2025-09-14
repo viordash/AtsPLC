@@ -18,12 +18,12 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 static WiFiService *wifi_service;
 
 TEST_GROUP(LogicWiFiApBindingTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -59,7 +59,7 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
-        bool PublicMorozov_RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
+        bool PublicMorozov_RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
             return RenderEditedSsid(fb, x, y);
         }
         uint8_t *PublicMorozov_Get_ssid_size() {
@@ -359,7 +359,7 @@ TEST(LogicWiFiApBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     for (size_t i = 0; i < 24; i++) {
         *testable.PublicMorozov_Get_editing_property_id() = property_id++;
         CHECK_TRUE(
-            testable.PublicMorozov_RenderEditedSsid(frame_buffer,
+            testable.PublicMorozov_RenderEditedSsid(&frame_buffer,
                                                     INCOME_RAIL_WIDTH,
                                                     INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP));
     }

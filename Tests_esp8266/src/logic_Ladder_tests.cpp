@@ -15,11 +15,11 @@
 
 #include "tests_utils.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicLadderTestsGroup){ //
                                    TEST_SETUP(){ mock().disable();
-memset(frame_buffer, 0, sizeof(frame_buffer));
+memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 create_storage_0();
 create_storage_1();
 }
@@ -58,7 +58,7 @@ namespace {
 
         Point start_point = {};
 
-        bool Render(uint8_t *fb, uint8_t network_number) override {
+        bool Render(FrameBuffer *fb, uint8_t network_number) override {
             (void)fb;
             (void)network_number;
             return MonitorLogicElement::Render(&start_point);
@@ -76,7 +76,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -94,7 +94,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -115,7 +115,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -135,7 +135,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -278,7 +278,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
     testable.AutoScroll();
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -294,7 +294,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
     testable.HandleButtonUp();
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -310,7 +310,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
     testable.HandleButtonUp();
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -326,7 +326,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
     testable.HandleButtonUp();
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -342,7 +342,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
     testable.HandleButtonUp();
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -358,7 +358,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     static_cast<TestableNetwork *>(testable[5])->Render_called = false;
 
     testable.HandleButtonUp();
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);
@@ -373,7 +373,7 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
     testable.AutoScroll();
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
 
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
@@ -381,7 +381,7 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     static_cast<TestableNetwork *>(testable[0])->Render_called = false;
     static_cast<TestableNetwork *>(testable[1])->Render_called = false;
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
 
@@ -391,7 +391,7 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     static_cast<TestableNetwork *>(testable[1])->Render_called = false;
     static_cast<TestableNetwork *>(testable[2])->Render_called = false;
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    CHECK_TRUE(testable.Render(&frame_buffer));
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[2])->Render_called);

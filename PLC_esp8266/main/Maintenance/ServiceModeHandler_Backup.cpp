@@ -38,7 +38,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
     bool success = false;
     bool error = false;
     while (!success && !error) {
-        uint8_t *fb = begin_render();
+        auto fb = begin_render();
         listBox.Render(fb);
         end_render(fb);
 

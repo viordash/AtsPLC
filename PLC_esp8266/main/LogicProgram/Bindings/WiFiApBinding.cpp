@@ -51,7 +51,7 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
 }
 
 IRAM_ATTR bool
-WiFiApBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+WiFiApBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
@@ -86,7 +86,7 @@ WiFiApBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_
     return res;
 }
 
-bool WiFiApBinding::RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y) {
+bool WiFiApBinding::RenderEditedPassword(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char blink_password[displayed_password_max_size + 1];
     int char_pos =
         editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
@@ -111,7 +111,7 @@ bool WiFiApBinding::RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y) {
     return draw_text_f6X12(fb, x, y + 5, blink_password) > 0;
 }
 
-bool WiFiApBinding::RenderEditedMac(uint8_t *fb, uint8_t x, uint8_t y) {
+bool WiFiApBinding::RenderEditedMac(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char blink_mac[displayed_mac_max_size + 1];
     int char_pos = editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
 

@@ -12,10 +12,10 @@
 #include "main/LogicProgram/Inputs/TimerSecs.cpp"
 #include "main/LogicProgram/Inputs/TimerSecs.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicTimerSecsTestsGroup){ //
-                                      TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                      TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {

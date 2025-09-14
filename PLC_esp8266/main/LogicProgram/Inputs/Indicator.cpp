@@ -112,7 +112,7 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR bool Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
@@ -194,7 +194,7 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
     return res;
 }
 
-bool Indicator::RenderScales(uint8_t *fb, uint8_t x, uint8_t y) {
+bool Indicator::RenderScales(FrameBuffer *fb,uint8_t x, uint8_t y) {
     char blink_str_value[sizeof(str_value) + 6];
 
     switch (editing_property_id) {

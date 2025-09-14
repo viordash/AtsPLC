@@ -27,17 +27,17 @@ void ListBox::BuildTitle(const char *title) {
     }
     strcat(this->title, " <");
 
-    uint8_t *fb = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
+    auto fb = new FrameBuffer();
     const uint8_t x = 2;
     const uint8_t y = 2;
     int width = draw_text_f6X12(fb, x, y, this->title);
     ESP_ERROR_CHECK(width <= 0);
     title_x = x + (DISPLAY_WIDTH - width) / 2;
     ESP_ERROR_CHECK(title_x <= 0);
-    delete[] fb;
+    delete fb;
 }
 
-bool ListBox::Render(uint8_t *fb) {
+bool ListBox::Render(FrameBuffer *fb) {
     const uint8_t x = left_padding;
     uint8_t y = top_padding;
     uint8_t height = get_text_f6X12_height();

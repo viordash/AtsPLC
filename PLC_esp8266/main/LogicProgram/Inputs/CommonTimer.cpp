@@ -55,7 +55,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 }
 
 IRAM_ATTR bool
-CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 

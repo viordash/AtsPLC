@@ -34,7 +34,7 @@ bool Ladder::DoAction() {
     return any_changes;
 }
 
-IRAM_ATTR bool Ladder::Render(uint8_t *fb) {
+IRAM_ATTR bool Ladder::Render(FrameBuffer *fb) {
     bool res = true;
     for (size_t i = view_top_index; i < size(); i++) {
         uint8_t network_number = i - view_top_index;

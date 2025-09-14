@@ -16,11 +16,11 @@
 
 #include "tests_utils.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicLadderDesignerTestsGroup){ //
                                            TEST_SETUP(){ mock().disable();
-memset(frame_buffer, 0, sizeof(frame_buffer));
+memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 create_storage_0();
 create_storage_1();
 load_hotreload();

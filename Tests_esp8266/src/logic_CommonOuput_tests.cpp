@@ -16,11 +16,11 @@
 #include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicCommonOutputTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -142,11 +142,11 @@ TEST(LogicCommonOutputTestsGroup, Render_when_active) {
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -161,7 +161,7 @@ TEST(LogicCommonOutputTestsGroup, Render_update_start_point_with_most_left_point
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 
     // CHECK_EQUAL(32, start_point.x);
 }

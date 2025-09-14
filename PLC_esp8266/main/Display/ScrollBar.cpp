@@ -11,7 +11,7 @@
 static const char *TAG_ScrollBar = "ScrollBar";
 
 IRAM_ATTR bool
-ScrollBar::Render(uint8_t *fb, size_t count, size_t viewport_count, size_t view_topindex) {
+ScrollBar::Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex) {
     bool res = true;
 
     bool nothing_to_scroll = count <= viewport_count;

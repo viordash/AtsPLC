@@ -47,7 +47,7 @@ bool EditableElement::Selected() {
     return editable_state == EditableElement::ElementState::des_Selected;
 }
 
-bool EditableElement::Render(uint8_t *fb, Point *start_point) {
+bool EditableElement::Render(FrameBuffer *fb, Point *start_point) {
     const Bitmap *bitmap = GetCursorBitmap();
     if (bitmap != NULL) {
         draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);

@@ -51,7 +51,7 @@ bool WiFiStaBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
 }
 
 IRAM_ATTR bool
-WiFiStaBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+WiFiStaBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };

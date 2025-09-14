@@ -17,13 +17,13 @@ class WiFiApBinding : public WiFiBinding {
     char mac[mac_size + 1];
 
     const AllowedIO GetAllowedInputs() override final;
-    bool RenderEditedPassword(uint8_t *fb, uint8_t x, uint8_t y);
+    bool RenderEditedPassword(FrameBuffer *fb,uint8_t x, uint8_t y);
     bool IsLastPasswordChar();
     bool ChangePassword();
 
     void SelectPriorMacSymbol(char *symbol);
     void SelectNextMacSymbol(char *symbol);
-    bool RenderEditedMac(uint8_t *fb, uint8_t x, uint8_t y);
+    bool RenderEditedMac(FrameBuffer *fb,uint8_t x, uint8_t y);
 
   public:
     typedef enum { //
@@ -42,7 +42,7 @@ class WiFiApBinding : public WiFiBinding {
     virtual ~WiFiApBinding();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;

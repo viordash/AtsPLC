@@ -30,13 +30,18 @@
 
 void display_init();
 
-uint8_t *begin_render();
-void end_render(uint8_t *fb);
-int draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-int draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
-int draw_text_f6X12_colored(uint8_t *fb, uint8_t x, uint8_t y, const char *text, bool inverse);
-int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text);
+typedef struct {
+    uint8_t buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+    bool has_changes;
+} FrameBuffer;
+
+FrameBuffer *begin_render();
+void end_render(FrameBuffer *fb);
+int draw_text_f4X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f5X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f6X12(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);
+int draw_text_f6X12_colored(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text, bool inverse);
+int draw_text_f8X14(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);
 
 int get_text_f4X7_height();
 int get_text_f4X7_width();
@@ -45,14 +50,14 @@ int get_text_f6X12_height();
 int get_text_f6X12_width();
 int get_text_f8X14_height();
 
-bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
-bool draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash);
-bool draw_active_income_rail(uint8_t *fb, uint8_t x, uint8_t y);
-bool draw_passive_income_rail(uint8_t *fb, uint8_t x, uint8_t y);
-bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y);
-bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04);
-bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04);
-bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
-bool draw_horz_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w);
-bool draw_rectangle(uint8_t *fb, int8_t x, int8_t y, uint8_t w, uint8_t h);
-void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);
+bool draw_active_network(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w);
+bool draw_passive_network(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash);
+bool draw_active_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
+bool draw_passive_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
+bool draw_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
+bool draw_vert_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04);
+bool draw_horz_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04);
+bool draw_vert_line(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w);
+bool draw_horz_line(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w);
+bool draw_rectangle(FrameBuffer *fb, int8_t x, int8_t y, uint8_t w, uint8_t h);
+void draw_bitmap(FrameBuffer *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap);

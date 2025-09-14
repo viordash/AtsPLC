@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "Display/display.h"
 #include "LogicProgram/MapIO.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -18,6 +19,6 @@ class MapIOIndicator {
     explicit MapIOIndicator(const MapIO io_adr);
     virtual ~MapIOIndicator();
 
-    bool Render(uint8_t *fb, Point *start_point, uint8_t progress);
+    bool Render(FrameBuffer *fb, Point *start_point, uint8_t progress);
     static uint8_t GetHeight();
 };

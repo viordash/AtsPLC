@@ -28,8 +28,7 @@ static struct {
                       .screen = SSD1306_SCREEN,
                       .width = DISPLAY_WIDTH,
                       .height = DISPLAY_HEIGHT };
-    uint8_t buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
-
+    FrameBuffer frame_buffer;
     const font_info_t *font_4X7 = font_builtin_fonts[FONT_FACE_BITOCRA_4X7];
     const font_info_t *font_5X7 = font_builtin_fonts[FONT_FACE_GLCD5x7];
     const font_info_t *font_6X12 = font_builtin_fonts[FONT_FACE_TERMINUS_6X12_ISO8859_1];
@@ -58,17 +57,18 @@ void display_init() {
     ESP_LOGI(TAG_display, "init succesfully");
 }
 
-IRAM_ATTR uint8_t *begin_render() {
-    memset(display.buffer, 0, sizeof(display.buffer));
-    return display.buffer;
+IRAM_ATTR FrameBuffer *begin_render() {
+    memset(display.frame_buffer.buffer, 0, sizeof(display.frame_buffer.buffer));
+    display.frame_buffer.has_changes = false;
+    return &display.frame_buffer;
 }
-IRAM_ATTR void end_render(uint8_t *fb) {
-    ssd1306_load_frame_buffer(&display.dev, fb);
+IRAM_ATTR void end_render(FrameBuffer *fb) {
+    ssd1306_load_frame_buffer(&display.dev, fb->buffer);
 }
 
-IRAM_ATTR int draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
+IRAM_ATTR int draw_text_f4X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text) {
     return ssd1306_draw_string(&display.dev,
-                               fb,
+                               fb->buffer,
                                display.font_4X7,
                                x,
                                y,
@@ -77,9 +77,9 @@ IRAM_ATTR int draw_text_f4X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text
                                OLED_COLOR_BLACK);
 }
 
-IRAM_ATTR int draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
+IRAM_ATTR int draw_text_f5X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text) {
     return ssd1306_draw_string(&display.dev,
-                               fb,
+                               fb->buffer,
                                display.font_5X7,
                                x,
                                y,
@@ -88,9 +88,9 @@ IRAM_ATTR int draw_text_f5X7(uint8_t *fb, uint8_t x, uint8_t y, const char *text
                                OLED_COLOR_BLACK);
 }
 
-IRAM_ATTR int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
+IRAM_ATTR int draw_text_f6X12(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text) {
     return ssd1306_draw_string(&display.dev,
-                               fb,
+                               fb->buffer,
                                display.font_6X12,
                                x,
                                y,
@@ -100,9 +100,9 @@ IRAM_ATTR int draw_text_f6X12(uint8_t *fb, uint8_t x, uint8_t y, const char *tex
 }
 
 IRAM_ATTR int
-draw_text_f6X12_colored(uint8_t *fb, uint8_t x, uint8_t y, const char *text, bool inverse) {
+draw_text_f6X12_colored(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text, bool inverse) {
     return ssd1306_draw_string(&display.dev,
-                               fb,
+                               fb->buffer,
                                display.font_6X12,
                                x,
                                y,
@@ -111,9 +111,9 @@ draw_text_f6X12_colored(uint8_t *fb, uint8_t x, uint8_t y, const char *text, boo
                                inverse ? OLED_COLOR_WHITE : OLED_COLOR_BLACK);
 }
 
-IRAM_ATTR int draw_text_f8X14(uint8_t *fb, uint8_t x, uint8_t y, const char *text) {
+IRAM_ATTR int draw_text_f8X14(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text) {
     return ssd1306_draw_string(&display.dev,
-                               fb,
+                               fb->buffer,
                                display.font_8X14,
                                x,
                                y,
@@ -141,28 +141,28 @@ IRAM_ATTR int get_text_f8X14_height() {
     return display.font_8X14->height;
 }
 
-IRAM_ATTR bool draw_active_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
+IRAM_ATTR bool draw_active_network(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w) {
     int err = 0;
     if (w > 0) {
-        err = ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE);
+        err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y, w, OLED_COLOR_WHITE);
         if (err == 0) {
-            err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, w, OLED_COLOR_WHITE);
+            err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y + 1, w, OLED_COLOR_WHITE);
         }
     }
     return err == 0;
 }
 
 IRAM_ATTR bool
-draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash) {
+draw_passive_network(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_dash) {
     int err = 0;
     ssd1306_color_t color_top_line = inverse_dash ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
     ssd1306_color_t color_bottom_line = inverse_dash ? OLED_COLOR_BLACK : OLED_COLOR_WHITE;
     while (w >= 2) {
         if (err == 0) {
-            err = ssd1306_draw_hline(&display.dev, fb, x, y, 2, color_top_line);
+            err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y, 2, color_top_line);
         }
         if (err == 0) {
-            err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, 2, color_bottom_line);
+            err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y + 1, 2, color_bottom_line);
         }
         w -= 2;
         x += 2;
@@ -173,31 +173,36 @@ draw_passive_network(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w, bool inverse_
     return err == 0;
 }
 
-IRAM_ATTR bool draw_active_income_rail(uint8_t *fb, uint8_t x, uint8_t y) {
+IRAM_ATTR bool draw_active_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
     int err;
     y -= INCOME_RAIL_NETWORK_TOP;
-    err = ssd1306_draw_vline(&display.dev, fb, x, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
     if (err == 0 && INCOME_RAIL_WIDTH == 2) {
-        ssd1306_draw_vline(&display.dev, fb, x + 1, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+        ssd1306_draw_vline(&display.dev,
+                           fb->buffer,
+                           x + 1,
+                           y,
+                           INCOME_RAIL_HEIGHT,
+                           OLED_COLOR_WHITE);
     }
     return err == 0;
 }
 
-IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t x, uint8_t y) {
+IRAM_ATTR bool draw_passive_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
     int err;
     y -= INCOME_RAIL_NETWORK_TOP;
     uint8_t last_y = y + INCOME_RAIL_HEIGHT;
-    err = ssd1306_draw_vline(&display.dev, fb, x, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, INCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
     if (err == 0 && INCOME_RAIL_WIDTH == 2) {
         int dashed_line_height = INCOME_RAIL_HEIGHT / 3;
 
         uint8_t height = INCOME_RAIL_HEIGHT / 3;
-        err = ssd1306_draw_vline(&display.dev, fb, x + 1, y, height, OLED_COLOR_WHITE);
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, height, OLED_COLOR_WHITE);
         y += height;
 
         ssd1306_color_t color_line = OLED_COLOR_WHITE;
         while (err == 0 && dashed_line_height >= 2) {
-            err = ssd1306_draw_vline(&display.dev, fb, x + 1, y, 2, color_line);
+            err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, 2, color_line);
             dashed_line_height -= 2;
             y += 2;
             color_line = color_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
@@ -205,36 +210,41 @@ IRAM_ATTR bool draw_passive_income_rail(uint8_t *fb, uint8_t x, uint8_t y) {
 
         if (err == 0) {
             height = last_y - y;
-            ssd1306_draw_vline(&display.dev, fb, x + 1, y, height, OLED_COLOR_WHITE);
+            ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, height, OLED_COLOR_WHITE);
         }
     }
     return err == 0;
 }
 
-IRAM_ATTR bool draw_outcome_rail(uint8_t *fb, uint8_t x, uint8_t y) {
+IRAM_ATTR bool draw_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
     int err;
     y -= OUTCOME_RAIL_NETWORK_TOP;
     uint8_t height = OUTCOME_RAIL_HEIGHT;
-    err = ssd1306_draw_vline(&display.dev, fb, x, y, height, OLED_COLOR_WHITE);
+    err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, height, OLED_COLOR_WHITE);
     if (err == 0) {
-        err = ssd1306_draw_vline(&display.dev, fb, x + 1, y, height, OLED_COLOR_WHITE);
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, height, OLED_COLOR_WHITE);
     }
     return err == 0;
 }
 
-IRAM_ATTR bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04) {
+IRAM_ATTR bool draw_vert_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04) {
     int err = 0;
     int height = (VERT_PROGRESS_BAR_HEIGHT * percent04) / 250;
     if (height > 0) {
         uint8_t y_pos = y + (VERT_PROGRESS_BAR_HEIGHT - height);
-        err = ssd1306_draw_vline(&display.dev, fb, x + 0, y_pos, height, OLED_COLOR_WHITE);
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 0, y_pos, height, OLED_COLOR_WHITE);
         if (err == 0) {
-            err = ssd1306_draw_vline(&display.dev, fb, x + 1, y_pos, height, OLED_COLOR_WHITE);
+            err = ssd1306_draw_vline(&display.dev,
+                                     fb->buffer,
+                                     x + 1,
+                                     y_pos,
+                                     height,
+                                     OLED_COLOR_WHITE);
         }
     }
     if (err == 0) {
         err = ssd1306_draw_vline(&display.dev,
-                                 fb,
+                                 fb->buffer,
                                  x + 2,
                                  y,
                                  VERT_PROGRESS_BAR_HEIGHT,
@@ -243,13 +253,13 @@ IRAM_ATTR bool draw_vert_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t
     return err == 0;
 }
 
-IRAM_ATTR bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t percent04) {
+IRAM_ATTR bool draw_horz_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04) {
     int err = 0;
     int width = (HORZ_PROGRESS_BAR_WIDTH * percent04) / 250;
     if (width > 0) {
-        err = ssd1306_draw_hline(&display.dev, fb, x, y + 0, width, OLED_COLOR_WHITE);
+        err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y + 0, width, OLED_COLOR_WHITE);
         if (err == 0) {
-            err = ssd1306_draw_hline(&display.dev, fb, x, y + 1, width, OLED_COLOR_WHITE);
+            err = ssd1306_draw_hline(&display.dev, fb->buffer, x, y + 1, width, OLED_COLOR_WHITE);
         }
     }
     if (err == 0) {
@@ -258,19 +268,19 @@ IRAM_ATTR bool draw_horz_progress_bar(uint8_t *fb, uint8_t x, uint8_t y, uint8_t
     return err == 0;
 }
 
-IRAM_ATTR bool draw_vert_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t h) {
-    return ssd1306_draw_vline(&display.dev, fb, x, y, h, OLED_COLOR_WHITE) == 0;
+IRAM_ATTR bool draw_vert_line(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t h) {
+    return ssd1306_draw_vline(&display.dev, fb->buffer, x, y, h, OLED_COLOR_WHITE) == 0;
 }
 
-IRAM_ATTR bool draw_horz_line(uint8_t *fb, uint8_t x, uint8_t y, uint8_t w) {
-    return ssd1306_draw_hline(&display.dev, fb, x, y, w, OLED_COLOR_WHITE) == 0;
+IRAM_ATTR bool draw_horz_line(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w) {
+    return ssd1306_draw_hline(&display.dev, fb->buffer, x, y, w, OLED_COLOR_WHITE) == 0;
 }
 
-IRAM_ATTR bool draw_rectangle(uint8_t *fb, int8_t x, int8_t y, uint8_t w, uint8_t h) {
-    return ssd1306_draw_rectangle(&display.dev, fb, x, y, w, h, OLED_COLOR_WHITE) == 0;
+IRAM_ATTR bool draw_rectangle(FrameBuffer *fb, int8_t x, int8_t y, uint8_t w, uint8_t h) {
+    return ssd1306_draw_rectangle(&display.dev, fb->buffer, x, y, w, h, OLED_COLOR_WHITE) == 0;
 }
 
-IRAM_ATTR void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
+IRAM_ATTR void draw_bitmap(FrameBuffer *fb, uint8_t x, uint8_t y, const struct Bitmap *bitmap) {
     for (int row = y; row < y + bitmap->size.height; row += 8) {
         if (row >= DISPLAY_HEIGHT) {
             continue;
@@ -283,9 +293,9 @@ IRAM_ATTR void draw_bitmap(uint8_t *fb, uint8_t x, uint8_t y, const struct Bitma
             int dst_id = ((row / 8) * DISPLAY_WIDTH) + column;
 
             uint8_t b = bitmap->data[src_id];
-            fb[dst_id] |= b << (y % 8);
+            fb->buffer[dst_id] |= b << (y % 8);
             if ((y % 8) > 0 && row + 1 < DISPLAY_HEIGHT) {
-                fb[dst_id + DISPLAY_WIDTH] |= b >> (8 - (y % 8));
+                fb->buffer[dst_id + DISPLAY_WIDTH] |= b >> (8 - (y % 8));
             }
         }
     }

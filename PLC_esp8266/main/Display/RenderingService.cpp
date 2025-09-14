@@ -49,7 +49,7 @@ void RenderingService::Task(void *parm) {
 
         if (ulNotifiedValue & DO_RENDERING) {
             int64_t time_before_render = esp_timer_get_time();
-            uint8_t *fb = begin_render();
+            auto fb = begin_render();
             statusBar.Render(fb);
             arg->ladder->Render(fb);
             end_render(fb);

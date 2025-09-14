@@ -14,7 +14,7 @@
 #include "main/LogicProgram/Settings/SettingsElement.h"
 #include "main/hotreload_service.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 namespace {
     class TestableDatetimeService : public DatetimeService {
@@ -43,7 +43,7 @@ TestableDatetimeService *datetimeService;
 
 TEST_GROUP(LogicSettingsElementTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 create_storage_0();
 create_storage_1();
 mock().disable();
@@ -89,11 +89,11 @@ TEST(LogicSettingsElementTestsGroup, Render) {
     TestableSettingsElement testable;
 
     Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }

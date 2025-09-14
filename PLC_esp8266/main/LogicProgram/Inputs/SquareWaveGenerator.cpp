@@ -70,7 +70,7 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
 }
 
 IRAM_ATTR bool
-SquareWaveGenerator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 

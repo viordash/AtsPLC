@@ -16,13 +16,13 @@
 #include "main/LogicProgram/Outputs/IncOutput.h"
 #include "main/LogicProgram/Wire.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 static WiFiService *wifi_service;
 static DatetimeService *datetime_service;
 
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
-memset(frame_buffer, 0, sizeof(frame_buffer));
+memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 wifi_service = new WiFiService();
 datetime_service = new DatetimeService();
 Controller::Start(NULL, wifi_service, NULL, datetime_service);
@@ -53,7 +53,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -356,7 +356,7 @@ TEST(LogicElementsBoxTestsGroup, Render_calls_a_function_on_the_inner_element) {
     TestableComparatorEq fake_rendering_element(42, MapIO::AI);
     ElementsBox testable(100, &fake_rendering_element, {});
     Point start_point = { 0, INCOME_RAIL_TOP };
-    testable.Render(frame_buffer, LogicItemState::lisActive, &start_point);
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     CHECK_TRUE(fake_rendering_element.Render_called);
 }

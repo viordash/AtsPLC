@@ -25,10 +25,10 @@
 #include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicCommonTimerTestsGroup){ //
-                                        TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                        TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -102,14 +102,14 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {

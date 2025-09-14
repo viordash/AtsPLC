@@ -16,10 +16,10 @@
 #include "main/LogicProgram/Inputs/InputNO.h"
 #include "main/LogicProgram/Wire.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicWireTestsGroup){ //
-                                 TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();

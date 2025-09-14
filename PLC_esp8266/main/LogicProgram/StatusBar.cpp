@@ -32,7 +32,7 @@ StatusBar::~StatusBar() {
     delete indicator_V4;
 }
 
-IRAM_ATTR bool StatusBar::Render(uint8_t *fb) {
+IRAM_ATTR bool StatusBar::Render(FrameBuffer *fb) {
     bool res = true;
     uint8_t separator_width = 1;
     Point point = { 2, y };

@@ -14,11 +14,11 @@
 #include "main/LogicProgram/LogicProgram.h"
 #include "main/LogicProgram/Network.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 TEST_GROUP(LogicNetworkTestsGroup){ //
                                     TEST_SETUP(){ mock().disable();
-memset(frame_buffer, 0, sizeof(frame_buffer));
+memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {
@@ -62,7 +62,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -79,7 +79,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -97,7 +97,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -114,7 +114,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -131,7 +131,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -148,7 +148,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -165,7 +165,7 @@ namespace {
             return MonitorLogicElement::DoAction();
         }
 
-        bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override {
+        bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override {
             (void)fb;
             (void)prev_elem_state;
             return MonitorLogicElement::Render(start_point);
@@ -229,11 +229,11 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -250,11 +250,11 @@ TEST(LogicNetworkTestsGroup, Render_with_Indicator_element) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableIndicator);
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -267,11 +267,11 @@ TEST(LogicNetworkTestsGroup, Render_with_Wire_element) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableWire);
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -284,11 +284,11 @@ TEST(LogicNetworkTestsGroup, Render_with_WiFiBinding_element) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableWiFiBinding);
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -305,11 +305,11 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -331,7 +331,7 @@ TEST(LogicNetworkTestsGroup, render_error_in_any_element_in_chain_is_break_proce
     testable.Append(new TestableDirectOutput);
     static_cast<TestableComparatorEq *>(testable[1])->Render_result = false;
 
-    CHECK_FALSE(testable.Render(frame_buffer, 0));
+    CHECK_FALSE(testable.Render(&frame_buffer, 0));
 
     CHECK_TRUE(static_cast<TestableInputNC *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);
@@ -348,7 +348,7 @@ TEST(LogicNetworkTestsGroup,
     testable.Append(new TestableTimerMSecs());
     testable.Append(new TestableDirectOutput);
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     CHECK_TRUE(static_cast<TestableInputNC *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableComparatorEq *>(testable[1])->Render_called);
@@ -527,7 +527,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBo
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     testable.SelectNext();
 
@@ -555,7 +555,7 @@ TEST(LogicNetworkTestsGroup,
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     testable.SelectNext();
     testable.SelectNext();
@@ -635,7 +635,7 @@ TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {
     testable.Append(new TimerMSecs(100));
     testable.Append(new DirectOutput(MapIO::O1));
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     testable.BeginEditing();
     CHECK_EQUAL(4, testable.size());
@@ -647,7 +647,7 @@ TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     testable.BeginEditing();
     CHECK_EQUAL(3, testable.size());
@@ -660,13 +660,13 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
     CHECK_EQUAL(71, *testable.PublicMorozov_Get_fill_wire());
 
     testable.BeginEditing();
     CHECK_EQUAL(3, testable.size());
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     CHECK_EQUAL(47, *testable.PublicMorozov_Get_fill_wire());
 }
@@ -678,7 +678,7 @@ TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
     testable.Append(new ComparatorEq(1, MapIO::AI));
     testable.Append(new DirectOutput(MapIO::O1));
 
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
     testable.BeginEditing();
     CHECK_EQUAL(4, testable.size());
 
@@ -711,7 +711,7 @@ TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
-    CHECK_TRUE(testable.Render(frame_buffer, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     testable.SelectNext();
 

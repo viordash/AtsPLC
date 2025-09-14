@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/display.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -21,7 +22,7 @@ class ListBox {
   public:
     explicit ListBox(const char *title);
 
-    bool Render(uint8_t *fb);
+    bool Render(FrameBuffer *fb);
     bool Insert(int pos, const char *text);
     void Select(int index);
 };
