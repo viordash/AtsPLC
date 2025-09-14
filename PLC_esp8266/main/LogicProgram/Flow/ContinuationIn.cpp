@@ -4,6 +4,7 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
+#include "lassert.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -43,10 +44,9 @@ bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     start_point->x -= RightPadding;
@@ -57,10 +57,7 @@ ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
     auto cursor_width = GetCursorWidth();
     start_point->x -= cursor_width;
 
-    res = EditableElement::Render(fb, start_point);
-    if (!res) {
-        return res;
-    }
+    EditableElement::Render(fb, start_point);
     start_point->x += cursor_width;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
@@ -70,8 +67,6 @@ ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
-    ESP_LOGD(TAG_ContinuationIn, "Render res:%u", res);
-    return res;
 }
 
 const Bitmap *ContinuationIn::GetCurrentBitmap() {

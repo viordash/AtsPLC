@@ -86,7 +86,7 @@ TEST(LogicCommonComparatorTestsGroup, Render) {
     testable.SetReference(0);
 
     Point start_point = { 0, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {

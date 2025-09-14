@@ -2,6 +2,7 @@
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,11 +29,10 @@ bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     return prev_elem_changed;
 }
 
-IRAM_ATTR bool Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
+IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     ESP_LOGD(TAG_Wire, "Render w:%u", width);
     if (width == 0) {
-        return true;
+        return;
     }
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
@@ -40,9 +40,9 @@ IRAM_ATTR bool Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     if (width > WIRE_BLINK_BODY_WIDTH) {
         income_width = width - WIRE_BLINK_BODY_WIDTH;
         if (prev_elem_state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point->x, start_point->y, income_width);
+            ASSERT(draw_active_network(fb, start_point->x, start_point->y, income_width));
         } else {
-            res = draw_passive_network(fb, start_point->x, start_point->y, income_width, false);
+            ASSERT(draw_passive_network(fb, start_point->x, start_point->y, income_width, false));
         }
 
         start_point->x += income_width;
@@ -54,18 +54,14 @@ IRAM_ATTR bool Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
 
     if (!blink_on_editing) {
         if (prev_elem_state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point->x, start_point->y, body_width);
+            ASSERT(draw_active_network(fb, start_point->x, start_point->y, body_width));
         } else {
-            res = draw_passive_network(fb, start_point->x, start_point->y, body_width, false);
+            ASSERT(draw_passive_network(fb, start_point->x, start_point->y, body_width, false));
         }
-    }
-    if (!res) {
-        return res;
     }
 
     start_point->x += body_width;
-    res = EditableElement::Render(fb, start_point);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
 size_t Wire::Serialize(uint8_t *buffer, size_t buffer_size) {

@@ -4,6 +4,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,36 +33,34 @@ StatusBar::~StatusBar() {
     delete indicator_V4;
 }
 
-IRAM_ATTR bool StatusBar::Render(FrameBuffer *fb) {
-    bool res = true;
+IRAM_ATTR void StatusBar::Render(FrameBuffer *fb) {
     uint8_t separator_width = 1;
     Point point = { 2, y };
 
-    res &= indicator_AI->Render(fb, &point, Controller::AI.PeekValue());
+    indicator_AI->Render(fb, &point, Controller::AI.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_DI->Render(fb, &point, Controller::DI.PeekValue());
+    indicator_DI->Render(fb, &point, Controller::DI.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_O1->Render(fb, &point, Controller::O1.PeekValue());
+    indicator_O1->Render(fb, &point, Controller::O1.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_O2->Render(fb, &point, Controller::O2.PeekValue());
+    indicator_O2->Render(fb, &point, Controller::O2.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V1->Render(fb, &point, Controller::V1.PeekValue());
+    indicator_V1->Render(fb, &point, Controller::V1.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V2->Render(fb, &point, Controller::V2.PeekValue());
+    indicator_V2->Render(fb, &point, Controller::V2.PeekValue());
     point.x += separator_width;
 
-    res &= indicator_V3->Render(fb, &point, Controller::V3.PeekValue());
+    indicator_V3->Render(fb, &point, Controller::V3.PeekValue());
     point.x += separator_width;
 
     separator_width = 0;
-    res &= indicator_V4->Render(fb, &point, Controller::V4.PeekValue());
+    indicator_V4->Render(fb, &point, Controller::V4.PeekValue());
     point.x += separator_width;
 
-    res &= draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH);
-    return res;
+    ASSERT(draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH));
 }

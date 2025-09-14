@@ -6,6 +6,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include <algorithm>
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,12 +85,11 @@ void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
-    if (source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        if (IsOutputElement(source_element->GetElementType())) {
-            source_element_width = start_point_x - start_point.x;
-        } else {
-            source_element_width = start_point.x - start_point_x;
-        }
+    source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point);
+    if (IsOutputElement(source_element->GetElementType())) {
+        source_element_width = start_point_x - start_point.x;
+    } else {
+        source_element_width = start_point.x - start_point_x;
     }
     delete frame_buffer;
 }
@@ -291,10 +291,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
-    if (!new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        delete new_element;
-        return;
-    }
+    new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point);
     uint8_t new_element_width = 0;
     if (element_right_to_left) {
         new_element_width = start_point_x - start_point.x;
@@ -364,9 +361,8 @@ bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return res;
 }
 
-bool ElementsBox::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = GetSelectedElement()->Render(fb, prev_elem_state, start_point);
-    return res;
+void ElementsBox::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    GetSelectedElement()->Render(fb, prev_elem_state, start_point);
 }
 
 size_t ElementsBox::Serialize(uint8_t *buffer, size_t buffer_size) {

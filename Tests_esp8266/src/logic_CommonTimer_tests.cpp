@@ -102,14 +102,14 @@ TEST(LogicCommonTimerTestsGroup, Render_on_top_network) {
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 }
 
 TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
     TestableCommonTimer testable(12345);
 
     Point start_point = { 0, 0 };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 }
 
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {

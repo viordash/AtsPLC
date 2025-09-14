@@ -20,6 +20,6 @@ class MapIOIndicator {
     explicit MapIOIndicator(const MapIO io_adr);
     virtual ~MapIOIndicator();
 
-    bool Render(FrameBuffer *fb, Point *start_point, uint8_t progress);
+    void Render(FrameBuffer *fb, Point *start_point, uint8_t progress);
     static uint8_t GetHeight();
 };

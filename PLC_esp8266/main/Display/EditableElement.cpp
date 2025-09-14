@@ -12,6 +12,7 @@
 #include "Display/bitmaps/moving_up_down_1.h"
 #include "Display/display.h"
 #include "EditableElement.h"
+#include "lassert.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -47,13 +48,11 @@ bool EditableElement::Selected() {
     return editable_state == EditableElement::ElementState::des_Selected;
 }
 
-bool EditableElement::Render(FrameBuffer *fb, Point *start_point) {
+void EditableElement::Render(FrameBuffer *fb, Point *start_point) {
     const Bitmap *bitmap = GetCursorBitmap();
     if (bitmap != NULL) {
         draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
     }
-
-    return true;
 }
 
 const Bitmap *EditableElement::GetCursorBitmap() {

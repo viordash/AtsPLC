@@ -10,6 +10,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -112,17 +113,14 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
     return any_changes;
 }
 
-IRAM_ATTR bool Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
+IRAM_ATTR void
+Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
     }
 
     start_point->x += LeftPadding;
@@ -136,39 +134,23 @@ IRAM_ATTR bool Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state
                                      == Indicator::EditingPropertyId::ciepi_None
                               && Blinking_50();
     if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
+        ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
+        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
+        ASSERT(draw_vert_line(fb, top_right.x, top_right.y, Height));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (Indicator::EditingPropertyId)editing_property_id
                                       == Indicator::EditingPropertyId::ciepi_ConfigureIOAdr
                                && Blinking_50();
-    res =
-        blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
-    if (!res) {
-        return res;
+    if (!blink_label_on_editing) {
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
+
     top_left.x += 23;
     if (!blink_body_on_editing) {
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
     }
 
     bool show_scales = editable_state == EditableElement::ElementState::des_Editing
@@ -179,22 +161,18 @@ IRAM_ATTR bool Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state
 
     if (show_scales) {
         top_left.x += 4;
-        res = RenderScales(fb, top_left.x + 4, top_left.y);
+        RenderScales(fb, top_left.x + 4, top_left.y);
     } else {
         top_left.x += 4;
-        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value) > 0;
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value) > 0);
     }
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
-bool Indicator::RenderScales(FrameBuffer *fb,uint8_t x, uint8_t y) {
+void Indicator::RenderScales(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_str_value[sizeof(str_value) + 6];
 
     switch (editing_property_id) {
@@ -260,7 +238,7 @@ bool Indicator::RenderScales(FrameBuffer *fb,uint8_t x, uint8_t y) {
         }
     }
 
-    return draw_text_f6X12(fb, x, y, blink_str_value) > 0;
+    ASSERT(draw_text_f6X12(fb, x, y, blink_str_value) > 0);
 }
 
 size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {

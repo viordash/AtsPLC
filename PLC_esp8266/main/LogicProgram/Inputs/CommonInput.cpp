@@ -9,6 +9,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,9 +27,8 @@ void CommonInput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
@@ -40,26 +40,21 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
                                       start_point->x + LeftPadding,
                                       start_point->y - get_text_f6X12_height(),
                                       label);
-        res = label_width > 0;
-    }
-    if (!res) {
-        return res;
+        ASSERT(label_width > 0);
     }
 
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, label_width + LeftPadding);
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, label_width + LeftPadding));
     } else {
-        res = draw_passive_network(fb,
-                                   start_point->x,
-                                   start_point->y,
-                                   label_width + LeftPadding,
-                                   false);
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    label_width + LeftPadding,
+                                    false));
     }
-    if (!res) {
-        return res;
-    }
+
     start_point->x += LeftPadding + label_width;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
@@ -72,8 +67,7 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
 
     start_point->x += bitmap->size.width;
 
-    res = EditableElement::Render(fb, start_point);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
 CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {

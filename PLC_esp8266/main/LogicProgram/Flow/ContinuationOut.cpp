@@ -6,6 +6,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,10 +47,9 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     start_point->x += LeftPadding;
@@ -67,9 +67,7 @@ ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
 
     start_point->x += bitmap->size.width;
 
-    res = EditableElement::Render(fb, start_point);
-    ESP_LOGD(TAG_ContinuationOut, "Render res:%u", res);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
 const Bitmap *ContinuationOut::GetCurrentBitmap() {

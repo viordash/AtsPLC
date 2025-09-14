@@ -123,22 +123,22 @@ TEST(LogsListTestsGroup, Render) {
     TestableLogsList testable("list_box");
 
     testable.Append("line 0");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 1");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 2");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 3");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 4");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 5");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){

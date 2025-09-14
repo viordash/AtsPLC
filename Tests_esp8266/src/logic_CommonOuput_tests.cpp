@@ -142,7 +142,7 @@ TEST(LogicCommonOutputTestsGroup, Render_when_active) {
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
@@ -161,7 +161,7 @@ TEST(LogicCommonOutputTestsGroup, Render_update_start_point_with_most_left_point
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Point start_point = { OUTCOME_RAIL_RIGHT, INCOME_RAIL_TOP };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     // CHECK_EQUAL(32, start_point.x);
 }

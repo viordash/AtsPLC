@@ -26,7 +26,7 @@ class CommonOutput : public LogicElement, public InputOutputElement, public Labe
     ~CommonOutput();
     void SetIoAdr(const MapIO io_adr) override final;
 
-    bool Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;

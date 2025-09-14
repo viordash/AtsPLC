@@ -25,7 +25,7 @@ TEST_TEARDOWN() {
 
 TEST(ScrollBarTestsGroup, Render) {
     ScrollBar testable;
-    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 0));
+    testable.Render(&frame_buffer, 4, 2, 0);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
@@ -39,7 +39,7 @@ TEST(ScrollBarTestsGroup, Render) {
 
 TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
     ScrollBar testable;
-    CHECK_TRUE(testable.Render(&frame_buffer, 40, 40, 0));
+    testable.Render(&frame_buffer, 40, 40, 0);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
@@ -53,14 +53,14 @@ TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
 
 TEST(ScrollBarTestsGroup, No_screen_overflow) {
     ScrollBar testable;
-    CHECK_TRUE(testable.Render(&frame_buffer, 0, 0, 0));
-    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 0));
-    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 1));
-    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 99));
-    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 0));
-    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 1));
-    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 2));
-    CHECK_TRUE(testable.Render(&frame_buffer, 3, 2, 0));
+    testable.Render(&frame_buffer, 0, 0, 0);
+    testable.Render(&frame_buffer, 100, 2, 0);
+    testable.Render(&frame_buffer, 100, 2, 1);
+    testable.Render(&frame_buffer, 100, 2, 99);
+    testable.Render(&frame_buffer, 4, 2, 0);
+    testable.Render(&frame_buffer, 4, 2, 1);
+    testable.Render(&frame_buffer, 4, 2, 2);
+    testable.Render(&frame_buffer, 3, 2, 0);
 
     bool any_overflow_pixel = false;
     size_t possible_line1_position_in_buffer =
@@ -87,15 +87,15 @@ TEST(ScrollBarTestsGroup, New_args_values_changed_frame_buffer) {
     ScrollBar testable;
     size_t viewport_count = 10;
     size_t view_topindex = 0;
-    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
     frame_buffer.has_changes = false;
 
     viewport_count = 9;
-    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
     CHECK_TRUE(frame_buffer.has_changes);
     frame_buffer.has_changes = false;
 
     view_topindex = 1;
-    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
     CHECK_TRUE(frame_buffer.has_changes);
 }

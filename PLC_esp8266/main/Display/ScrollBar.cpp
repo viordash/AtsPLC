@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,13 +16,11 @@ ScrollBar::ScrollBar() {
     view_topindex = 0;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 ScrollBar::Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex) {
-    bool res = true;
-
     bool nothing_to_scroll = count <= viewport_count;
     if (nothing_to_scroll) {
-        return res;
+        return;
     }
 
     uint16_t x = SCROLLBAR_LEFT;
@@ -58,15 +57,12 @@ ScrollBar::Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t v
              (unsigned int)viewport_count,
              (unsigned int)view_topindex);
 
-    res = draw_vert_line(fb, x, y, height);
-    if (res) {
-        res = draw_vert_line(fb, x + 1, y, height);
-    }
+    ASSERT(draw_vert_line(fb, x, y, height));
+    ASSERT(draw_vert_line(fb, x + 1, y, height));
 
     if (!fb->has_changes) {
         fb->has_changes = this->count != count || this->view_topindex != view_topindex;
         this->count = count;
         this->view_topindex = view_topindex;
     }
-    return res;
 }

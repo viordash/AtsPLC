@@ -8,6 +8,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,18 +64,12 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 CommonComparator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    bool res;
-
     uint8_t x_pos = start_point->x + LeftPadding + 2;
 
-    res = CommonInput::Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
+    CommonInput::Render(fb, prev_elem_state, start_point);
 
     bool blink_label_on_editing =
         editable_state == EditableElement::ElementState::des_Editing
@@ -83,22 +78,25 @@ CommonComparator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point 
         && Blinking_50() && label_width > 0;
     switch (str_size) {
         case 1:
-            res = blink_label_on_editing
-               || (draw_text_f5X7(fb, x_pos + 3 + label_width, start_point->y + 2, str_reference)
-                   > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(
+                    draw_text_f5X7(fb, x_pos + 3 + label_width, start_point->y + 2, str_reference)
+                    > 0);
+            }
             break;
         case 2:
-            res = blink_label_on_editing
-               || (draw_text_f5X7(fb, x_pos + 0 + label_width, start_point->y + 2, str_reference)
-                   > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(
+                    draw_text_f5X7(fb, x_pos + 0 + label_width, start_point->y + 2, str_reference));
+            }
             break;
         default:
-            res = blink_label_on_editing
-               || (draw_text_f4X7(fb, x_pos + label_width, start_point->y + 3, str_reference) > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(draw_text_f4X7(fb, x_pos + label_width, start_point->y + 3, str_reference)
+                       > 0);
+            }
             break;
     }
-
-    return res;
 }
 
 size_t CommonComparator::Serialize(uint8_t *buffer, size_t buffer_size) {

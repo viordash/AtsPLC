@@ -14,16 +14,14 @@ class MonitorLogicElement {
     bool DoAction_called = false;
     bool DoAction_result = false;
     bool Render_called = false;
-    bool Render_result = true;
 
     bool DoAction() {
         DoAction_called = true;
         return DoAction_result;
     }
 
-    bool Render(const Point *start_point) {
+    void Render(const Point *start_point) {
         Render_start_point = *start_point;
         Render_called = true;
-        return Render_result;
     }
 };

@@ -13,5 +13,5 @@ class ScrollBar {
 
   public:
     ScrollBar();
-    bool Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex);
+    void Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex);
 };

@@ -42,7 +42,7 @@ class EditableElement {
     const static Bitmap bitmap_disable_cursor_0;
     const static Bitmap bitmap_disable_cursor_1;
 
-    bool Render(FrameBuffer *fb, Point *start_point);
+    void Render(FrameBuffer *fb, Point *start_point);
 
     bool Blinking_50();
     const Bitmap *GetCursorBitmap();

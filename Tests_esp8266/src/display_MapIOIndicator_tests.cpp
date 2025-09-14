@@ -28,9 +28,9 @@ TEST(MapIOIndicatorTestsGroup, New_progress_value_changed_frame_buffer) {
     MapIOIndicator testable(MapIO::V1);
     Point start_point = {};
     uint8_t progress = 0;
-    CHECK_TRUE(testable.Render(&frame_buffer, &start_point, progress));
+    testable.Render(&frame_buffer, &start_point, progress);
     frame_buffer.has_changes = false;
     progress = 1;
-    CHECK_TRUE(testable.Render(&frame_buffer, &start_point, progress));
+    testable.Render(&frame_buffer, &start_point, progress);
     CHECK_TRUE(frame_buffer.has_changes);
 }

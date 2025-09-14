@@ -28,7 +28,7 @@ TEST(LogicContinuationOutTestsGroup, Render) {
     ContinuationOut testable;
 
     Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
-    CHECK_TRUE(testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){

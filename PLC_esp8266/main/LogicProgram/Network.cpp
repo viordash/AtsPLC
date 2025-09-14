@@ -8,6 +8,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,21 +60,19 @@ bool Network::DoAction() {
     return any_changes;
 }
 
-IRAM_ATTR bool Network::Render(FrameBuffer *fb, uint8_t network_number) {
+IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
     Point start_point = { 0,
                           (uint8_t)(INCOME_RAIL_TOP + INCOME_RAIL_HEIGHT * network_number
                                     + INCOME_RAIL_NETWORK_TOP) };
-    bool res = true;
-
     ESP_LOGD(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
 
     switch (state) {
         case LogicItemState::lisActive:
-            res = draw_active_income_rail(fb, start_point.x, start_point.y);
+            ASSERT(draw_active_income_rail(fb, start_point.x, start_point.y));
             break;
 
         default:
-            res = draw_passive_income_rail(fb, start_point.x, start_point.y);
+            ASSERT(draw_passive_income_rail(fb, start_point.x, start_point.y));
             break;
     }
 
@@ -83,7 +82,7 @@ IRAM_ATTR bool Network::Render(FrameBuffer *fb, uint8_t network_number) {
     start_point.x += INCOME_RAIL_WIDTH;
 
     auto it = begin();
-    while (res && it != end()) {
+    while (it != end()) {
         auto element = *it;
         if (IsOutputElement(element->GetElementType())) {
             break;
@@ -98,12 +97,12 @@ IRAM_ATTR bool Network::Render(FrameBuffer *fb, uint8_t network_number) {
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
         }
-        res = element->Render(fb, prev_elem_state, &start_point);
+        element->Render(fb, prev_elem_state, &start_point);
         prev_elem_state = element->state;
     }
 
     Point end_point = { OUTCOME_RAIL_RIGHT, start_point.y };
-    while (res && it != end()) {
+    while (it != end()) {
         auto element = *it;
         if (!IsOutputElement(element->GetElementType())) {
             auto *continuationIn = ContinuationIn::TryToCast(element);
@@ -116,33 +115,28 @@ IRAM_ATTR bool Network::Render(FrameBuffer *fb, uint8_t network_number) {
         if (element->Selected() || element->Editing()) {
             any_child_is_edited = true;
         }
-        res = element->Render(fb, prev_elem_state, &end_point);
+        element->Render(fb, prev_elem_state, &end_point);
         prev_elem_state = element->state;
     }
 
-    if (res && !any_child_is_edited) {
-        res = EditableElement::Render(fb, &editable_sign_start_point);
+    if (!any_child_is_edited) {
+        EditableElement::Render(fb, &editable_sign_start_point);
     }
 
     fill_wire = end_point.x - start_point.x;
 
-    if (res) {
-        if (prev_elem_state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point.x, start_point.y, fill_wire);
-        } else {
-            res = draw_passive_network(fb, start_point.x, start_point.y, fill_wire, false);
-        }
+    if (prev_elem_state == LogicItemState::lisActive) {
+        ASSERT(draw_active_network(fb, start_point.x, start_point.y, fill_wire));
+    } else {
+        ASSERT(draw_passive_network(fb, start_point.x, start_point.y, fill_wire, false));
     }
 
-    if (res) {
-        res = draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y);
-    }
+    ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
 
     if (!fb->has_changes) {
         fb->has_changes = frame_buffer_req_render;
     }
     frame_buffer_req_render = false;
-    return res;
 }
 
 void Network::Append(LogicElement *element) {

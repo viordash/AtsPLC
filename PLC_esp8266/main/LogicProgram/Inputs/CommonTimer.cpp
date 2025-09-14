@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,20 +55,16 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
     }
 
     start_point->x += LeftPadding;
@@ -87,41 +84,42 @@ CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
 
     switch (str_size) {
         case 1:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 2:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 3:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 4:
-            res = blink_value_on_editing
-               || (draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time) > 0);
+            }
             break;
         default:
-            res = blink_value_on_editing
-               || (draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time) > 0);
+            }
             break;
     }
 
     start_point->x += bitmap->size.width;
 
-    if (res) {
-        res = EditableElement::Render(fb, start_point);
-    }
+    EditableElement::Render(fb, start_point);
 
     ESP_LOGD(TAG_CommonTimer,
-             "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
+             "Render, str_time:%s, str_size:%d, x:%u, y:%u",
              str_time,
              str_size,
              start_point->x,
-             start_point->y,
-             res);
-    return res;
+             start_point->y);
 }
 
 CommonTimer *CommonTimer::TryToCast(LogicElement *logic_element) {

@@ -108,16 +108,16 @@ TEST(ListBoxTestsGroup, Render) {
     TestableListBox testable("list_box");
 
     testable.Insert(0, "line 0");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(1, "line 1");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(2, "line 2");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(3, "line 3");
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
@@ -140,13 +140,13 @@ TEST(ListBoxTestsGroup, Render_selected_item) {
 
     testable.Insert(0, "line 0");
 
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
     CHECK_EQUAL(OLED_COLOR_WHITE, foreground_color);
     CHECK_EQUAL(OLED_COLOR_BLACK, background_color);
 
     testable.Select(0);
 
-    CHECK_TRUE(testable.Render(&frame_buffer));
+    testable.Render(&frame_buffer);
     CHECK_EQUAL(OLED_COLOR_BLACK, foreground_color);
     CHECK_EQUAL(OLED_COLOR_WHITE, background_color);
 }

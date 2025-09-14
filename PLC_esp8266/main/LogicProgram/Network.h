@@ -33,7 +33,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     LogicItemState GetState();
 
     virtual bool DoAction();
-    virtual bool Render(FrameBuffer *fb, uint8_t network_number);
+    virtual void Render(FrameBuffer *fb, uint8_t network_number);
 
     void Append(LogicElement *element);
 

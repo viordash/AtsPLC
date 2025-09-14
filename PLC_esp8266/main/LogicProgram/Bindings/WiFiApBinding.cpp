@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include "utils.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -50,16 +51,13 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 WiFiApBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
 
-    bool res = CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
+    CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
 
     top_left.x += LeftPadding + 22;
     top_left.x += bitmap.size.width + 1;
@@ -67,26 +65,25 @@ WiFiApBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *st
     switch (editing_property_id) {
         case WiFiApBinding::EditingPropertyId::wbepi_None:
         case WiFiApBinding::EditingPropertyId::wbepi_ConfigureIOAdr:
-            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, "AP CLNT") > 0;
+            ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, "AP CLNT") > 0);
             break;
 
         default:
             if (editing_property_id <= WiFiApBinding::EditingPropertyId::wbepi_Ssid_Last_Char) {
-                res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
+                RenderEditedSsid(fb, top_left.x, top_left.y + 4);
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
-                res = RenderEditedPassword(fb, top_left.x, top_left.y + 4);
+                RenderEditedPassword(fb, top_left.x, top_left.y + 4);
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
-                res = RenderEditedMac(fb, top_left.x, top_left.y + 4);
+                RenderEditedMac(fb, top_left.x, top_left.y + 4);
             }
 
             break;
     }
-    return res;
 }
 
-bool WiFiApBinding::RenderEditedPassword(FrameBuffer *fb,uint8_t x, uint8_t y) {
+void WiFiApBinding::RenderEditedPassword(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_password[displayed_password_max_size + 1];
     int char_pos =
         editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char;
@@ -105,13 +102,11 @@ bool WiFiApBinding::RenderEditedPassword(FrameBuffer *fb,uint8_t x, uint8_t y) {
         blink_password[char_pos] = ' ';
     }
 
-    if (draw_text_f4X7(fb, x + 3, y - 2, "PASSWORD:") <= 0) {
-        return false;
-    }
-    return draw_text_f6X12(fb, x, y + 5, blink_password) > 0;
+    ASSERT(draw_text_f4X7(fb, x + 3, y - 2, "PASSWORD:") > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + 5, blink_password) > 0);
 }
 
-bool WiFiApBinding::RenderEditedMac(FrameBuffer *fb,uint8_t x, uint8_t y) {
+void WiFiApBinding::RenderEditedMac(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_mac[displayed_mac_max_size + 1];
     int char_pos = editing_property_id - WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
 
@@ -127,10 +122,8 @@ bool WiFiApBinding::RenderEditedMac(FrameBuffer *fb,uint8_t x, uint8_t y) {
         blink_mac[char_pos] = ' ';
     }
 
-    if (draw_text_f4X7(fb, x + 3, y - 2, "MAC:") <= 0) {
-        return false;
-    }
-    return draw_text_f6X12(fb, x, y + 5, blink_mac) > 0;
+    ASSERT(draw_text_f4X7(fb, x + 3, y - 2, "MAC:") > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + 5, blink_mac) > 0);
 }
 
 size_t WiFiApBinding::Serialize(uint8_t *buffer, size_t buffer_size) {

@@ -59,8 +59,8 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
-        bool PublicMorozov_RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
-            return RenderEditedSsid(fb, x, y);
+        void PublicMorozov_RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
+            RenderEditedSsid(fb, x, y);
         }
         uint8_t *PublicMorozov_Get_ssid_size() {
             return &ssid_size;
@@ -238,10 +238,9 @@ TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     int property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
     for (size_t i = 0; i < 24; i++) {
         *testable.PublicMorozov_Get_editing_property_id() = property_id++;
-        CHECK_TRUE(
-            testable.PublicMorozov_RenderEditedSsid(&frame_buffer,
-                                                    INCOME_RAIL_WIDTH,
-                                                    INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP));
+        testable.PublicMorozov_RenderEditedSsid(&frame_buffer,
+                                                INCOME_RAIL_WIDTH,
+                                                INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP);
     }
 }
 

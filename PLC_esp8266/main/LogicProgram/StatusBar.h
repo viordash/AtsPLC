@@ -24,5 +24,5 @@ class StatusBar {
 
     StatusBar &operator=(const StatusBar &) = delete;
 
-    bool Render(FrameBuffer *fb);
+    void Render(FrameBuffer *fb);
 };

@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,16 +47,13 @@ bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 WiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
 
-    bool res = CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
+    CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
 
     top_left.x += LeftPadding + 22;
     top_left.x += bitmap.size.width + 1;
@@ -67,32 +65,32 @@ WiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
                               != WiFiBinding::EditingPropertyId::wbepi_ConfigureIOAdr;
 
     if (show_edit_ssid) {
-        res = RenderEditedSsid(fb, top_left.x, top_left.y + 4);
+        RenderEditedSsid(fb, top_left.x, top_left.y + 4);
     } else {
         if (ssid_size <= 8) {
-            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, ssid) > 0;
+            ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, ssid) >= 0);
         } else {
-            res = RenderSsidWithElipsis(fb, top_left.x, top_left.y + 6, 3);
+            RenderSsidWithElipsis(fb, top_left.x, top_left.y + 6, 3);
         }
     }
-    return res;
 }
 
-bool WiFiBinding::RenderSsidWithElipsis(FrameBuffer *fb,uint8_t x, uint8_t y, int leverage) {
+void WiFiBinding::RenderSsidWithElipsis(FrameBuffer *fb, uint8_t x, uint8_t y, int leverage) {
     char elipsis = ssid[leverage];
     ssid[leverage] = 0;
     int width = draw_text_f6X12(fb, x, y, ssid);
     ssid[leverage] = elipsis;
     if (width <= 0) {
-        return false;
+        return;
     }
     x += width;
     width = draw_text_f4X7(fb, x, y + 4, "...");
+    ASSERT(width > 0);
     x += width;
-    return draw_text_f6X12(fb, x, y, &ssid[ssid_size - leverage]) > 0;
+    ASSERT(draw_text_f6X12(fb, x, y, &ssid[ssid_size - leverage]) > 0);
 }
 
-bool WiFiBinding::RenderEditedSsid(FrameBuffer *fb,uint8_t x, uint8_t y) {
+void WiFiBinding::RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_ssid[displayed_ssid_max_size + 1];
     int char_pos = editing_property_id - WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
 
@@ -108,10 +106,8 @@ bool WiFiBinding::RenderEditedSsid(FrameBuffer *fb,uint8_t x, uint8_t y) {
         blink_ssid[char_pos] = ' ';
     }
 
-    if (draw_text_f4X7(fb, x + 3, y - 2, "SSID:") <= 0) {
-        return false;
-    }
-    return draw_text_f6X12(fb, x, y + 5, blink_ssid) > 0;
+    ASSERT(draw_text_f4X7(fb, x + 3, y - 2, "SSID:") > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + 5, blink_ssid) > 0);
 }
 
 size_t WiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {

@@ -4,6 +4,7 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
+#include "lassert.h"
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,20 +70,16 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
     return any_changes;
 }
 
-IRAM_ATTR bool
+IRAM_ATTR void
 SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
     std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     auto bitmap = GetCurrentBitmap(state);
 
     if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
     }
 
     start_point->x += LeftPadding;
@@ -110,9 +107,8 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod0
         && Blinking_50();
 
-    res = blink_period0_on_editing || (draw_text_f4X7(fb, text0_left, text0_top, str_period0) > 0);
-    if (!res) {
-        return res;
+    if (blink_period0_on_editing) {
+        ASSERT(draw_text_f4X7(fb, text0_left, text0_top, str_period0) > 0);
     }
 
     bool blink_period1_on_editing =
@@ -121,22 +117,18 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod1
         && Blinking_50();
 
-    res = blink_period1_on_editing || (draw_text_f4X7(fb, text1_left, text1_top, str_period1) > 0);
-
-    if (!res) {
-        return res;
+    if (!blink_period1_on_editing) {
+        ASSERT(draw_text_f4X7(fb, text1_left, text1_top, str_period1) > 0);
     }
 
-    res = EditableElement::Render(fb, start_point);
+    EditableElement::Render(fb, start_point);
 
     ESP_LOGD(TAG_SquareWaveGenerator,
-             "Render, str_period0:%s, str_period0_size:%d, x:%u, y:%u, res:%u",
+             "Render, str_period0:%s, str_period0_size:%d, x:%u, y:%u",
              str_period0,
              (unsigned)str_period0_size,
              start_point->x,
-             start_point->y,
-             res);
-    return res;
+             start_point->y);
 }
 
 void SquareWaveGenerator::SetPeriod0(uint32_t period_ms) {
