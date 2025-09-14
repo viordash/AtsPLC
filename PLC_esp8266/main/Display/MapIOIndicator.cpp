@@ -1,5 +1,6 @@
 #include "Display/MapIOIndicator.h"
 #include "Display/display.h"
+#include "LogicProgram/LogicElement.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -9,6 +10,7 @@
 
 MapIOIndicator::MapIOIndicator(const MapIO io_adr) {
     this->name = MapIONames[io_adr];
+    progress = LogicElement::MinValue;
 }
 
 MapIOIndicator::~MapIOIndicator() {
@@ -28,6 +30,8 @@ IRAM_ATTR bool MapIOIndicator::Render(FrameBuffer *fb, Point *start_point, uint8
          > 0;
 
     start_point->x += (text_width * name_size) + margin + margin;
+    fb->has_changes |= this->progress != progress;
+    this->progress = progress;
     return res;
 }
 

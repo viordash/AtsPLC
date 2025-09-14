@@ -9,6 +9,7 @@
 class MapIOIndicator {
   protected:
     const char *name;
+    uint8_t progress;
 
     static const uint8_t text_width = 6;
     static const uint8_t text_height = 10;
