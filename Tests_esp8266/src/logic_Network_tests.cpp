@@ -232,7 +232,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
     CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -253,7 +253,7 @@ TEST(LogicNetworkTestsGroup, Render_with_Indicator_element) {
     CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -270,7 +270,7 @@ TEST(LogicNetworkTestsGroup, Render_with_Wire_element) {
     CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -287,7 +287,7 @@ TEST(LogicNetworkTestsGroup, Render_with_WiFiBinding_element) {
     CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -308,7 +308,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
     CHECK_TRUE(testable.Render(&frame_buffer, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;

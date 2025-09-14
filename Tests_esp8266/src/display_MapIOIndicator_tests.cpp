@@ -33,5 +33,4 @@ TEST(MapIOIndicatorTestsGroup, New_progress_value_changed_frame_buffer) {
     progress = 1;
     CHECK_TRUE(testable.Render(&frame_buffer, &start_point, progress));
     CHECK_TRUE(frame_buffer.has_changes);
-
 }

@@ -27,7 +27,7 @@ TEST(ScrollBarTestsGroup, Render) {
     CHECK_TRUE(ScrollBar::Render(&frame_buffer, 4, 2, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -40,7 +40,7 @@ TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
     CHECK_TRUE(ScrollBar::Render(&frame_buffer, 40, 40, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
