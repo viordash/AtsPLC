@@ -13,8 +13,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(ScrollBarTestsGroup){ //
-                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(ScrollBarTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {
@@ -23,11 +24,11 @@ TEST_TEARDOWN() {
 ;
 
 TEST(ScrollBarTestsGroup, Render) {
-
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 4, 2, 0));
+    ScrollBar testable;
+    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -37,10 +38,11 @@ TEST(ScrollBarTestsGroup, Render) {
 }
 
 TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 40, 40, 0));
+    ScrollBar testable;
+    CHECK_TRUE(testable.Render(&frame_buffer, 40, 40, 0));
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -50,20 +52,21 @@ TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
 }
 
 TEST(ScrollBarTestsGroup, No_screen_overflow) {
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 0, 0, 0));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 100, 2, 0));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 100, 2, 1));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 100, 2, 99));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 4, 2, 0));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 4, 2, 1));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 4, 2, 2));
-    CHECK_TRUE(ScrollBar::Render(&frame_buffer, 3, 2, 0));
+    ScrollBar testable;
+    CHECK_TRUE(testable.Render(&frame_buffer, 0, 0, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 1));
+    CHECK_TRUE(testable.Render(&frame_buffer, 100, 2, 99));
+    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 0));
+    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 1));
+    CHECK_TRUE(testable.Render(&frame_buffer, 4, 2, 2));
+    CHECK_TRUE(testable.Render(&frame_buffer, 3, 2, 0));
 
     bool any_overflow_pixel = false;
     size_t possible_line1_position_in_buffer =
         SCROLLBAR_LEFT + (DISPLAY_WIDTH * (INCOME_RAIL_TOP / 8));
     size_t possible_line2_position_in_buffer = possible_line1_position_in_buffer + 1;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             if (i == possible_line1_position_in_buffer) {
                 possible_line1_position_in_buffer += DISPLAY_WIDTH;
@@ -78,4 +81,21 @@ TEST(ScrollBarTestsGroup, No_screen_overflow) {
         }
     }
     CHECK_FALSE(any_overflow_pixel);
+}
+
+TEST(ScrollBarTestsGroup, New_args_values_changed_frame_buffer) {
+    ScrollBar testable;
+    size_t viewport_count = 10;
+    size_t view_topindex = 0;
+    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    frame_buffer.has_changes = false;
+
+    viewport_count = 9;
+    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    CHECK_TRUE(frame_buffer.has_changes);
+    frame_buffer.has_changes = false;
+
+    view_topindex = 1;
+    CHECK_TRUE(testable.Render(&frame_buffer, viewport_count, 5, view_topindex));
+    CHECK_TRUE(frame_buffer.has_changes);
 }
