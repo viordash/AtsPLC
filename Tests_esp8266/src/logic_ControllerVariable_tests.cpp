@@ -423,6 +423,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_days)
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_weekdays) {
+    int wdays_from_monday[] = { 7, 1, 2, 3, 4, 5, 6 };
     TestableControllerVariable testable;
     testable.Init();
 
@@ -432,7 +433,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_weekd
     testable.FetchValue();
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    DOUBLES_EQUAL(tm.tm_wday, testable.PeekValue(), 1);
+    DOUBLES_EQUAL(wdays_from_monday[tm.tm_wday], testable.PeekValue(), 1);
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_months) {
@@ -471,7 +472,7 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_b
     testable.CancelReadingProcess();
     CHECK_EQUAL(42, testable.ReadValue());
     CHECK_EQUAL(42, *testable.PublicMorozov_Get_out_value());
-    
+
     DatetimeService datetime_service;
     testable.BindToDateTime(&datetime_service, DatetimePart::t_year);
 
