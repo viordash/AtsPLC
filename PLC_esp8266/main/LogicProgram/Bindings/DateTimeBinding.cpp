@@ -34,7 +34,7 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     }
 
     bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
@@ -84,7 +84,7 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
 IRAM_ATTR void
 DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
 
     if (prev_elem_state == LogicItemState::lisActive) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));

@@ -40,7 +40,7 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
     }
 
     bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     if (prev_elem_state != LogicItemState::lisActive) {
@@ -72,7 +72,7 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
 
 IRAM_ATTR void
 SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
 
     auto bitmap = GetCurrentBitmap(state);
 

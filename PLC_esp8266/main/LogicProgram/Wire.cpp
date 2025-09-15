@@ -34,7 +34,7 @@ IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     if (width == 0) {
         return;
     }
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
 
     uint8_t income_width = 0;
     if (width > WIRE_BLINK_BODY_WIDTH) {

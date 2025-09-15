@@ -26,7 +26,7 @@ bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     }
 
     bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
+    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     state = LogicItemState::lisPassive;

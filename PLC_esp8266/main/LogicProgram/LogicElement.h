@@ -14,7 +14,7 @@ class ElementsBox;
 
 class LogicElement : public EditableElement {
   protected:
-    std::recursive_mutex lock_mutex;
+    std::mutex lock_mutex;
     LogicItemState state;
 
     friend Network;
