@@ -18,7 +18,7 @@ class SetOutput : public CommonOutput {
     explicit SetOutput(const MapIO io_adr);
     ~SetOutput();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
 
     static SetOutput *TryToCast(CommonOutput *common_output);

@@ -104,10 +104,10 @@ TEST(LogicContinuationInTestsGroup, TryToCast) {
 
 TEST(LogicContinuationInTestsGroup, DoAction_changes_Controller_network_continuation_in_any_cases) {
     ContinuationIn testable;
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, Controller::GetNetworkContinuation());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, Controller::GetNetworkContinuation());
 
     testable.DoAction(false, LogicItemState::lisActive);

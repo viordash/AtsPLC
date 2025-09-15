@@ -18,7 +18,7 @@ class WiFiStaBinding : public CommonWiFiBinding {
     explicit WiFiStaBinding(const MapIO io_adr);
     virtual ~WiFiStaBinding();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     TvElementType GetElementType() override final;

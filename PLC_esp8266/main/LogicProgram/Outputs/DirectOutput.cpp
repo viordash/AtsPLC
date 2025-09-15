@@ -19,9 +19,9 @@ DirectOutput::DirectOutput(const MapIO io_adr) : DirectOutput() {
 DirectOutput::~DirectOutput() {
 }
 
-ActionStatus DirectOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool DirectOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return { false, state };
+        return false;
     }
 
     bool any_changes = false;
@@ -41,7 +41,7 @@ ActionStatus DirectOutput::DoAction(bool prev_elem_changed, LogicItemState prev_
         ESP_LOGD(TAG_DirectOutput, ".");
     }
 
-    return { any_changes, state };
+    return any_changes;
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap(LogicItemState state) {

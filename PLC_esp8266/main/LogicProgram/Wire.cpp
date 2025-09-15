@@ -24,9 +24,9 @@ void Wire::SetWidth(uint8_t width) {
     this->width = width;
 }
 
-ActionStatus Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     state = prev_elem_state;
-    return { prev_elem_changed, state };
+    return prev_elem_changed;
 }
 
 IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {

@@ -22,13 +22,13 @@ SettingsElement::SettingsElement() : LogicElement() {
 SettingsElement::~SettingsElement() {
 }
 
-ActionStatus SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return { false, state };
+        return false;
     }
 
     state = prev_elem_state;
-    return { prev_elem_changed, state };
+    return prev_elem_changed;
 }
 
 IRAM_ATTR void

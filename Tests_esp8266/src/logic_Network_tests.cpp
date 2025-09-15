@@ -56,7 +56,7 @@ namespace {
         TestableInputNC() : InputNC() {
         }
 
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -73,7 +73,7 @@ namespace {
       public:
         TestableComparatorEq() : ComparatorEq() {
         }
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -91,7 +91,7 @@ namespace {
         explicit TestableTimerMSecs() : TimerMSecs() {
         }
 
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -108,7 +108,7 @@ namespace {
       public:
         explicit TestableDirectOutput() : DirectOutput() {
         }
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -125,7 +125,7 @@ namespace {
       public:
         explicit TestableWire() : Wire() {
         }
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -142,7 +142,7 @@ namespace {
       public:
         explicit TestableIndicator() : Indicator() {
         }
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -159,7 +159,7 @@ namespace {
       public:
         explicit TestableWiFiBinding() : WiFiBinding() {
         }
-        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -803,8 +803,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
     CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
 }
 
-TEST(LogicNetworkTestsGroup,
-     Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
+TEST(LogicNetworkTestsGroup, Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);

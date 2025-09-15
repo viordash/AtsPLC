@@ -190,15 +190,15 @@ TEST(LogicCommonComparatorTestsGroup,
     testable.SetIoAdr(MapIO::V2);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive).any_changes,
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive).any_changes,
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
                      "no changes are expected to be detected");
 }
 

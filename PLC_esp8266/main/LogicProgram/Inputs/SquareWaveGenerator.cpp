@@ -27,10 +27,10 @@ SquareWaveGenerator::SquareWaveGenerator(uint32_t period0_ms, uint32_t period1_m
 SquareWaveGenerator::~SquareWaveGenerator() {
 }
 
-ActionStatus SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
-        return { false, state };
+        return false;
     }
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
@@ -67,7 +67,7 @@ ActionStatus SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemStat
         any_changes = true;
         ESP_LOGD(TAG_SquareWaveGenerator, ".");
     }
-    return { any_changes, state };
+    return any_changes;
 }
 
 IRAM_ATTR void

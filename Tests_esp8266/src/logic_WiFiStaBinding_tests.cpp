@@ -65,7 +65,7 @@ TEST(LogicWiFiStaBindingTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
@@ -74,7 +74,7 @@ TEST(LogicWiFiStaBindingTestsGroup,
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 }
@@ -86,7 +86,7 @@ TEST(LogicWiFiStaBindingTestsGroup,
     Controller::V1.BindToStaWiFi(wifi_service);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }
@@ -95,35 +95,35 @@ TEST(LogicWiFiStaBindingTestsGroup, DoAction_change_state_only_by_reason) {
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
     CHECK_TRUE(Controller::V1.BindedToWiFi());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }

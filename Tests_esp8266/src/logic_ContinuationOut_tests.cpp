@@ -106,11 +106,11 @@ TEST(LogicContinuationOutTestsGroup, DoAction_copy_states_from_Controller_networ
     ContinuationOut testable;
     Controller::SetNetworkContinuation(LogicItemState::lisActive);
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
 
     Controller::SetNetworkContinuation(LogicItemState::lisPassive);
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }
 
@@ -120,6 +120,6 @@ TEST(
     ContinuationOut testable;
     Controller::SetNetworkContinuation(LogicItemState::lisActive);
 
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
 }

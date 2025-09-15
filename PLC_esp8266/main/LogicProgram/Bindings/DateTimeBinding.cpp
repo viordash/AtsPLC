@@ -27,10 +27,10 @@ void DateTimeBinding::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-ActionStatus DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
-        return { false, state };
+        return false;
     }
 
     bool any_changes = false;
@@ -79,7 +79,7 @@ ActionStatus DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState pr
         any_changes = true;
         ESP_LOGD(TAG_DateTimeBinding, ".");
     }
-    return { any_changes, state };
+    return any_changes;
 }
 
 IRAM_ATTR void

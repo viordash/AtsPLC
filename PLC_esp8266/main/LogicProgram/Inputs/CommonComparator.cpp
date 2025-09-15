@@ -41,9 +41,9 @@ uint8_t CommonComparator::GetReference() {
     return ref_percent04;
 }
 
-ActionStatus CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return { false, state };
+        return false;
     }
 
     bool any_changes = false;
@@ -61,7 +61,7 @@ ActionStatus CommonComparator::DoAction(bool prev_elem_changed, LogicItemState p
     if (state != prev_state) {
         any_changes = true;
     }
-    return { any_changes, state };
+    return any_changes;
 }
 
 IRAM_ATTR void

@@ -22,9 +22,9 @@ WiFiBinding::WiFiBinding(const MapIO io_adr, const char *ssid) : CommonWiFiBindi
 WiFiBinding::~WiFiBinding() {
 }
 
-ActionStatus WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return { false, state };
+        return false;
     }
 
     bool any_changes = false;
@@ -44,7 +44,7 @@ ActionStatus WiFiBinding::DoAction(bool prev_elem_changed, LogicItemState prev_e
         any_changes = true;
         ESP_LOGD(TAG_WiFiBinding, ".");
     }
-    return { any_changes, state };
+    return any_changes;
 }
 
 IRAM_ATTR void

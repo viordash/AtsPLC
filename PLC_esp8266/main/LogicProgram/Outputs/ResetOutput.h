@@ -18,7 +18,7 @@ class ResetOutput : public CommonOutput {
     explicit ResetOutput(const MapIO io_adr);
     ~ResetOutput();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
 
     static ResetOutput *TryToCast(CommonOutput *common_output);

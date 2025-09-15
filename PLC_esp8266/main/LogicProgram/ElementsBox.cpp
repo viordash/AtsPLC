@@ -42,7 +42,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
     ESP_LOGD(TAG_ElementsBox, "attempt of detach element with type:%u", element->GetElementType());
     auto *wifi_binding = WiFiBinding::TryToCast(element);
     if (wifi_binding != NULL) {
-        if (wifi_binding->DoAction(true, LogicItemState::lisPassive).any_changes) {
+        if (wifi_binding->DoAction(true, LogicItemState::lisPassive)) {
             ESP_LOGI(TAG_ElementsBox,
                      "detach WiFiBinding, '%s', ssid:%s",
                      wifi_binding->GetLabel(),
@@ -53,7 +53,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
 
     auto *wifi_ap_binding = WiFiApBinding::TryToCast(element);
     if (wifi_ap_binding != NULL) {
-        if (wifi_ap_binding->DoAction(true, LogicItemState::lisPassive).any_changes) {
+        if (wifi_ap_binding->DoAction(true, LogicItemState::lisPassive)) {
             ESP_LOGI(TAG_ElementsBox,
                      "detach WiFiApBinding, '%s', ssid:%s",
                      wifi_ap_binding->GetLabel(),
@@ -64,7 +64,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
 
     auto *wifi_sta_binding = WiFiStaBinding::TryToCast(element);
     if (wifi_sta_binding != NULL) {
-        if (wifi_sta_binding->DoAction(true, LogicItemState::lisPassive).any_changes) {
+        if (wifi_sta_binding->DoAction(true, LogicItemState::lisPassive)) {
             ESP_LOGI(TAG_ElementsBox, "detach WiFiStaBinding, '%s'", wifi_sta_binding->GetLabel());
         }
         return;
@@ -72,7 +72,7 @@ void ElementsBox::DetachElement(LogicElement *element) {
 
     auto *datetime_binding = DateTimeBinding::TryToCast(element);
     if (datetime_binding != NULL) {
-        if (datetime_binding->DoAction(true, LogicItemState::lisPassive).any_changes) {
+        if (datetime_binding->DoAction(true, LogicItemState::lisPassive)) {
             ESP_LOGI(TAG_ElementsBox, "detach DateTimeBinding, '%s'", datetime_binding->GetLabel());
         }
         return;
@@ -350,13 +350,13 @@ LogicElement *ElementsBox::GetSelectedElement() {
     return (*this)[selected_index];
 }
 
-ActionStatus ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    auto status = GetSelectedElement()->DoAction(prev_elem_changed || force_do_action_result,
-                                                 prev_elem_state);
-    status.any_changes |= force_do_action_result;
-    state = status.new_state;
+bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    bool res =
+        GetSelectedElement()->DoAction(prev_elem_changed || force_do_action_result, prev_elem_state)
+        || force_do_action_result;
+    state = GetSelectedElement()->state;
     force_do_action_result = false;
-    return status;
+    return res;
 }
 
 void ElementsBox::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {

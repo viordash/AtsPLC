@@ -19,7 +19,7 @@ class DirectOutput : public CommonOutput {
     explicit DirectOutput(const MapIO io_adr);
     ~DirectOutput();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     TvElementType GetElementType() override final;
 
     static DirectOutput *TryToCast(CommonOutput *common_output);

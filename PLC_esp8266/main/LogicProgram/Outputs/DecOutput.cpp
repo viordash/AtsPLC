@@ -19,9 +19,9 @@ DecOutput::DecOutput(const MapIO io_adr) : DecOutput() {
 DecOutput::~DecOutput() {
 }
 
-ActionStatus DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+bool DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return { false, state };
+        return false;
     }
 
     bool any_changes = false;
@@ -46,7 +46,7 @@ ActionStatus DecOutput::DoAction(bool prev_elem_changed, LogicItemState prev_ele
         ESP_LOGD(TAG_DecOutput, ". %u", Input->PeekValue());
     }
 
-    return { any_changes, state };
+    return any_changes;
 }
 
 const Bitmap *DecOutput::GetCurrentBitmap(LogicItemState state) {

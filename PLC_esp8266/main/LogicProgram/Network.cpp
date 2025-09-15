@@ -50,9 +50,8 @@ bool Network::DoAction() {
 
     for (auto it = begin(); it != end(); ++it) {
         auto element = *it;
-        auto status = element->DoAction(prev_elem_changed, prev_elem_state);
-        prev_elem_changed = status.any_changes;
-        prev_elem_state = status.new_state;
+        prev_elem_changed = element->DoAction(prev_elem_changed, prev_elem_state);
+        prev_elem_state = element->state;
         any_changes |= prev_elem_changed;
     }
     if (any_changes) {

@@ -43,7 +43,7 @@ class SquareWaveGenerator : public LogicElement {
     explicit SquareWaveGenerator(uint32_t period0_ms, uint32_t period1_ms);
     ~SquareWaveGenerator();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     void SetPeriod0(uint32_t period_ms);

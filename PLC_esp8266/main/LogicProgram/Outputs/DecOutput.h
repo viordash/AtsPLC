@@ -18,7 +18,7 @@ class DecOutput : public CommonOutput {
     explicit DecOutput(const MapIO io_adr);
     ~DecOutput();
 
-    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
 
     static DecOutput *TryToCast(CommonOutput *common_output);

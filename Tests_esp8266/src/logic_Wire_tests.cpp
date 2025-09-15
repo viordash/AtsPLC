@@ -18,9 +18,8 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogicWireTestsGroup){
-    //
-    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(LogicWireTestsGroup){ //
+                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -45,17 +44,17 @@ namespace {
 TEST(LogicWireTestsGroup, DoAction_copied_prev_elem_changed) {
     TestableWire testable;
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
 }
 
 TEST(LogicWireTestsGroup, DoAction_use_prev_elem_state) {
     TestableWire testable;
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, testable.PublicMorozov_Get_state());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisActive));
     CHECK_EQUAL(LogicItemState::lisActive, testable.PublicMorozov_Get_state());
 }
 
