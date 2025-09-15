@@ -5,8 +5,8 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include <algorithm>
 #include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -282,10 +282,8 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     }
     TakeParamsFromStoredElement(source_element, new_element);
 
-    bool element_right_to_left = IsOutputElement(element_type);
-    if (!element_right_to_left) {
-        element_right_to_left = IsContinuationInElement(element_type);
-    }
+    bool element_right_to_left =
+        IsOutputElement(element_type) || IsContinuationInElement(element_type);
 
     uint8_t start_point_x = element_right_to_left //
                               ? DISPLAY_WIDTH / 2

@@ -52,6 +52,7 @@ CommonOutput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *sta
                > 0);
     }
 
+    start_point->x -= bitmap->size.width;
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonOutput::EditingPropertyId)editing_property_id
                                        == CommonOutput::EditingPropertyId::coepi_None
