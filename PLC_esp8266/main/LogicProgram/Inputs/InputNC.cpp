@@ -20,9 +20,9 @@ InputNC::InputNC(const MapIO io_adr) : InputNC() {
 InputNC::~InputNC() {
 }
 
-bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -41,7 +41,7 @@ bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
         any_changes = true;
         ESP_LOGD(TAG_InputNC, ".");
     }
-    return any_changes;
+    return { any_changes, state };
 }
 
 const Bitmap *InputNC::GetCurrentBitmap(LogicItemState state) {

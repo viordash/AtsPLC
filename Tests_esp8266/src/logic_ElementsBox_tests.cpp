@@ -47,7 +47,7 @@ namespace {
         TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
             : ComparatorEq(ref_percent04, io_adr) {
         }
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -347,7 +347,7 @@ TEST(LogicElementsBoxTestsGroup, use_DoAction_from_selected) {
     TestableComparatorEq fake_doaction_element(42 / 0.4, MapIO::AI);
     fake_doaction_element.DoAction_result = true;
     ElementsBox testable(100, &fake_doaction_element, {});
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
 
     CHECK_TRUE(fake_doaction_element.DoAction_called);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "LogicProgram/LogicElement.h"
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -15,9 +16,9 @@ class MonitorLogicElement {
     bool DoAction_result = false;
     bool Render_called = false;
 
-    bool DoAction() {
+    ActionStatus DoAction() {
         DoAction_called = true;
-        return DoAction_result;
+        return { DoAction_result, LogicItemState::lisActive };
     }
 
     void Render(const Point *start_point) {

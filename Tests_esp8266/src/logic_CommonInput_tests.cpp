@@ -60,10 +60,10 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) {
             (void)prev_changed;
             (void)prev_elem_state;
-            return true;
+            return { true, state };
         }
 
         size_t Serialize(uint8_t *buffer, size_t buffer_size) override {

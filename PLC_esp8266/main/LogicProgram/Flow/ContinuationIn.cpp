@@ -19,11 +19,11 @@ ContinuationIn::ContinuationIn() : CommonContinuation() {
 ContinuationIn::~ContinuationIn() {
 }
 
-bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     Controller::SetNetworkContinuation(prev_elem_state);
 
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -41,7 +41,7 @@ bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
         ESP_LOGD(TAG_ContinuationIn, ".");
     }
 
-    return any_changes;
+    return { any_changes, state };
 }
 
 IRAM_ATTR void

@@ -17,7 +17,7 @@ class ContinuationOut : public CommonContinuation {
     explicit ContinuationOut();
     ~ContinuationOut();
 
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     TvElementType GetElementType() override final;

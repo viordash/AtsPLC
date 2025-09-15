@@ -12,6 +12,11 @@
 class Network;
 class ElementsBox;
 
+struct ActionStatus {
+    bool any_changes;
+    LogicItemState new_state;
+};
+
 class LogicElement : public EditableElement {
   protected:
     std::recursive_mutex lock_mutex;
@@ -29,7 +34,7 @@ class LogicElement : public EditableElement {
 
     LogicItemState GetState();
 
-    virtual bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;
+    virtual ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) = 0;
     virtual void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) = 0;
 
     virtual size_t Serialize(uint8_t *buffer, size_t buffer_size) = 0;

@@ -19,9 +19,9 @@ ContinuationOut::ContinuationOut() : CommonContinuation() {
 ContinuationOut::~ContinuationOut() {
 }
 
-bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -44,7 +44,7 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
         ESP_LOGD(TAG_ContinuationOut, ".");
     }
 
-    return any_changes;
+    return { any_changes, state };
 }
 
 IRAM_ATTR void

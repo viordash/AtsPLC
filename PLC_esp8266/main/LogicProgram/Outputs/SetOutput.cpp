@@ -19,9 +19,9 @@ SetOutput::SetOutput(const MapIO io_adr) : SetOutput() {
 SetOutput::~SetOutput() {
 }
 
-bool SetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus SetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -42,7 +42,7 @@ bool SetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
         ESP_LOGD(TAG_SetOutput, ".");
     }
 
-    return any_changes;
+    return { any_changes, state };
 }
 
 const Bitmap *SetOutput::GetCurrentBitmap(LogicItemState state) {

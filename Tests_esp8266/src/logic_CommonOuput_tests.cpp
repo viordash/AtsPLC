@@ -52,10 +52,10 @@ namespace {
         LogicItemState *PublicMorozov_Get_state() {
             return &state;
         }
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) {
             (void)prev_changed;
             (void)prev_elem_state;
-            return true;
+            return { true, state };
         }
         TvElementType GetElementType() override {
             return TvElementType::et_Undef;
@@ -145,7 +145,7 @@ TEST(LogicCommonOutputTestsGroup, Render_when_active) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;

@@ -115,7 +115,7 @@ TEST(LogicCommonTimerTestsGroup, Render_on_bottom_network) {
 TEST(LogicCommonTimerTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableCommonTimer testable(10);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
@@ -123,15 +123,15 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_passive__due_incoming_
     TestableCommonTimer testable(10);
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive).any_changes,
                      "no changes are expected to be detected");
-    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive),
+    CHECK_FALSE_TEXT(testable.DoAction(false, LogicItemState::lisPassive).any_changes,
                      "no changes are expected to be detected");
 }
 
@@ -143,19 +143,19 @@ TEST(LogicCommonTimerTestsGroup, DoAction_change_state_to_active_when_timer_rais
 
     TestableCommonTimer testable(10 * portTICK_PERIOD_MS * 1000);
 
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     os_us += 9 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     os_us += 1 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
@@ -166,18 +166,18 @@ TEST(LogicCommonTimerTestsGroup, does_not_autoreset_after_very_long_period) {
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
 
     os_us += 20 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     os_us = 9000 * portTICK_PERIOD_MS * 1000; //total counter overflow;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
 
@@ -189,22 +189,22 @@ TEST(LogicCommonTimerTestsGroup, DoAction__changing_previous_element_to_active_r
 
     TestableCommonTimer testable(20 * portTICK_PERIOD_MS * 1000);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
 
     os_us += 100 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(true, LogicItemState::lisActive).any_changes);
 
     os_us += 19 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
 
     os_us += 1 * portTICK_PERIOD_MS * 1000;
     Controller::RemoveExpiredWakeupRequests();
 
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
 }
 
 TEST(LogicCommonTimerTestsGroup, TryToCast) {

@@ -18,8 +18,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogicInputNCTestsGroup){ //
-                                    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(LogicInputNCTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -53,7 +54,7 @@ TEST(LogicInputNCTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableInputNC testable;
     testable.SetIoAdr(MapIO::DI);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
@@ -69,17 +70,17 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive__due_incoming_swit
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Controller::FetchIOValues();
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     Controller::FetchIOValues();
-    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
+    CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive).any_changes);
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 
     Controller::FetchIOValues();
-    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive),
+    CHECK_FALSE_TEXT(testable.DoAction(true, LogicItemState::lisPassive).any_changes,
                      "no changes are expected to be detected");
 }
 
@@ -95,7 +96,7 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_active) {
     testable.SetIoAdr(MapIO::DI);
 
     Controller::FetchIOValues();
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 }
@@ -113,7 +114,7 @@ TEST(LogicInputNCTestsGroup, DoAction_change_state_to_passive) {
     *(testable.PublicMorozov_Get_state()) = LogicItemState::lisActive;
 
     Controller::FetchIOValues();
-    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

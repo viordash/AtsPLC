@@ -53,7 +53,7 @@ namespace {
         }
 
         bool DoAction() override {
-            return MonitorLogicElement::DoAction();
+            return MonitorLogicElement::DoAction().any_changes;
         }
 
         Point start_point = {};
@@ -70,7 +70,7 @@ namespace {
         TestableInputNC(const MapIO io_adr) : InputNC(io_adr) {
         }
 
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -88,7 +88,7 @@ namespace {
         TestableComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
             : ComparatorEq(ref_percent04, io_adr) {
         }
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -109,7 +109,7 @@ namespace {
         explicit TestableTimerMSecs(uint32_t delay_time_ms) : TimerMSecs(delay_time_ms) {
         }
 
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();
@@ -129,7 +129,7 @@ namespace {
       public:
         explicit TestableDirectOutput(const MapIO io_adr) : DirectOutput(io_adr) {
         }
-        bool DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
+        ActionStatus DoAction(bool prev_changed, LogicItemState prev_elem_state) override {
             (void)prev_changed;
             (void)prev_elem_state;
             return MonitorLogicElement::DoAction();

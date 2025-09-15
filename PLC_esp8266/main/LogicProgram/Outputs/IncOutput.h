@@ -18,7 +18,7 @@ class IncOutput : public CommonOutput {
     explicit IncOutput(const MapIO io_adr);
     ~IncOutput();
 
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
+    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     TvElementType GetElementType() override final;
 
     static IncOutput *TryToCast(CommonOutput *common_output);

@@ -20,10 +20,10 @@ CommonTimer::CommonTimer() : LogicElement() {
 CommonTimer::~CommonTimer() {
 }
 
-bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
-        return false;
+        return { false, state };
     }
     if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
         Controller::RemoveRequestWakeupMs(this);
@@ -52,7 +52,7 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         any_changes = true;
         ESP_LOGD(TAG_CommonTimer, ".");
     }
-    return any_changes;
+    return { any_changes, state };
 }
 
 IRAM_ATTR void

@@ -19,9 +19,9 @@ ResetOutput::ResetOutput(const MapIO io_adr) : ResetOutput() {
 ResetOutput::~ResetOutput() {
 }
 
-bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -42,7 +42,7 @@ bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         ESP_LOGD(TAG_ResetOutput, ".");
     }
 
-    return any_changes;
+    return { any_changes, state };
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap(LogicItemState state) {

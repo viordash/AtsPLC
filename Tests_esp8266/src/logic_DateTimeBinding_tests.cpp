@@ -96,7 +96,7 @@ TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableDateTimeBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
-    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive));
+    CHECK_FALSE(testable.DoAction(false, LogicItemState::lisPassive).any_changes);
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 

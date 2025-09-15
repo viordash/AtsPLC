@@ -87,7 +87,7 @@ class SettingsElement : public LogicElement {
     explicit SettingsElement();
     virtual ~SettingsElement();
 
-    bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
+    ActionStatus DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;

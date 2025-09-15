@@ -78,9 +78,9 @@ void Indicator::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
+ActionStatus Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        return false;
+        return { false, state };
     }
 
     bool any_changes = false;
@@ -110,7 +110,7 @@ bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state)
         any_changes = true;
         ESP_LOGD(TAG_Indicator, ".");
     }
-    return any_changes;
+    return { any_changes, state };
 }
 
 IRAM_ATTR void
