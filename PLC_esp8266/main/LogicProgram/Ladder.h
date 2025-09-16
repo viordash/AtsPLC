@@ -1,6 +1,5 @@
 #pragma once
 #include "Display/EditableElement.h"
-#include "Display/ScrollBar.h"
 #include "LogicProgram/Network.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -16,7 +15,6 @@
 class Ladder : public std::vector<Network *> {
   protected:
     int32_t view_top_index;
-    ScrollBar scroll_bar;
 
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
     size_t Serialize(uint8_t *buffer, size_t buffer_size);

@@ -18,7 +18,6 @@ static const char *TAG_Network = "Network";
 Network::Network(LogicItemState state) : EditableElement() {
     fill_wire = 0;
     ChangeState(state);
-    frame_buffer_req_render = false;
 }
 Network::Network() : Network(LogicItemState::lisPassive) {
 }
@@ -53,9 +52,6 @@ bool Network::DoAction() {
         prev_elem_changed = element->DoAction(prev_elem_changed, prev_elem_state);
         prev_elem_state = element->state;
         any_changes |= prev_elem_changed;
-    }
-    if (any_changes) {
-        frame_buffer_req_render = true;
     }
     return any_changes;
 }
@@ -132,11 +128,6 @@ IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
     }
 
     ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
-
-    if (!fb->has_changes) {
-        fb->has_changes = frame_buffer_req_render;
-    }
-    frame_buffer_req_render = false;
 }
 
 void Network::Append(LogicElement *element) {

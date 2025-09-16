@@ -59,7 +59,6 @@ void display_init() {
 
 IRAM_ATTR FrameBuffer *begin_render() {
     memset(display.frame_buffer.buffer, 0, sizeof(display.frame_buffer.buffer));
-    display.frame_buffer.has_changes = false;
     return &display.frame_buffer;
 }
 IRAM_ATTR void end_render(FrameBuffer *fb) {

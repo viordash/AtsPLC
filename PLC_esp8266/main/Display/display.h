@@ -32,7 +32,6 @@ void display_init();
 
 typedef struct {
     uint8_t buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
-    bool has_changes;
 } FrameBuffer;
 
 FrameBuffer *begin_render();

@@ -1,4 +1,5 @@
 #include "LogicProgram/Ladder.h"
+#include "Display/ScrollBar.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -43,7 +44,7 @@ IRAM_ATTR void Ladder::Render(FrameBuffer *fb) {
         at(i)->Render(fb, i - view_top_index);
     }
 
-    scroll_bar.Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
+    ScrollBar::Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
 }
 
 void Ladder::Append(Network *network) {
