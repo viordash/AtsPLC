@@ -33,7 +33,7 @@ class DatetimeService;
 class Controller {
   protected:
     static bool runned;
-    static bool force_process_loop;
+    static bool in_design;
     static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
     static ProcessWakeupService *processWakeupService;
@@ -94,5 +94,6 @@ class Controller {
     static void UpdateUISelected(int32_t selected_network);
     static void DesignStart();
     static void DesignEnd();
+    static bool InDesign();
     static int32_t GetLastUpdatedUISelected();
 };
