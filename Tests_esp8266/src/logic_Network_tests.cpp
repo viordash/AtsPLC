@@ -802,3 +802,19 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
     CHECK_EQUAL(TvElementType::et_Settings, testable[0]->GetElementType());
     CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
 }
+
+TEST(LogicNetworkTestsGroup, Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
+    Network testable(LogicItemState::lisActive);
+
+    testable.Append(new TestableInputNC);
+    testable.Append(new TestableComparatorEq());
+
+    CHECK_FALSE(testable.DoAction());
+    testable.Render(&frame_buffer, 0);
+    frame_buffer.has_changes = false;
+
+    static_cast<TestableInputNC *>(testable[0])->DoAction_result = true;
+    CHECK_TRUE(testable.DoAction());
+    testable.Render(&frame_buffer, 0);
+    CHECK_TRUE(frame_buffer.has_changes);
+}

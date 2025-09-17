@@ -82,3 +82,20 @@ TEST(ScrollBarTestsGroup, No_screen_overflow) {
     }
     CHECK_FALSE(any_overflow_pixel);
 }
+
+TEST(ScrollBarTestsGroup, New_args_values_changed_frame_buffer) {
+    ScrollBar testable;
+    size_t viewport_count = 10;
+    size_t view_topindex = 0;
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
+    frame_buffer.has_changes = false;
+
+    viewport_count = 9;
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
+    CHECK_TRUE(frame_buffer.has_changes);
+    frame_buffer.has_changes = false;
+
+    view_topindex = 1;
+    testable.Render(&frame_buffer, viewport_count, 5, view_topindex);
+    CHECK_TRUE(frame_buffer.has_changes);
+}

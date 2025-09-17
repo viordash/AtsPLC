@@ -11,6 +11,11 @@
 
 static const char *TAG_ScrollBar = "ScrollBar";
 
+ScrollBar::ScrollBar() {
+    count = 0;
+    view_topindex = 0;
+}
+
 IRAM_ATTR void
 ScrollBar::Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex) {
     bool nothing_to_scroll = count <= viewport_count;
@@ -54,4 +59,10 @@ ScrollBar::Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t v
 
     ASSERT(draw_vert_line(fb, x, y, height));
     ASSERT(draw_vert_line(fb, x + 1, y, height));
+
+    if (!fb->has_changes) {
+        fb->has_changes = this->count != count || this->view_topindex != view_topindex;
+        this->count = count;
+        this->view_topindex = view_topindex;
+    }
 }

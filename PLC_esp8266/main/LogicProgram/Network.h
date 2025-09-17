@@ -11,6 +11,7 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
   protected:
     LogicItemState state;
     bool state_changed;
+    bool frame_buffer_req_render;
     uint8_t fill_wire;
 
     bool EnoughSpaceForNewElement(LogicElement *new_element);

@@ -8,6 +8,10 @@
 
 class ScrollBar {
   protected:
+    size_t count;
+    size_t view_topindex;
+
   public:
-    static void Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex);
+    ScrollBar();
+    void Render(FrameBuffer *fb, size_t count, size_t viewport_count, size_t view_topindex);
 };

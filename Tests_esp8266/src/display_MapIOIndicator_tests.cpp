@@ -12,9 +12,8 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(MapIOIndicatorTestsGroup){
-    //
-    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(MapIOIndicatorTestsGroup){ //
+                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -24,18 +23,14 @@ TEST_TEARDOWN() {
 }
 ;
 
-TEST(MapIOIndicatorTestsGroup, Render) {
+
+TEST(MapIOIndicatorTestsGroup, New_progress_value_changed_frame_buffer) {
     MapIOIndicator testable(MapIO::V1);
     Point start_point = {};
-    uint8_t progress = 10;
+    uint8_t progress = 0;
     testable.Render(&frame_buffer, &start_point, progress);
-
-    bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
-        if (frame_buffer.buffer[i] != 0) {
-            any_pixel_coloring = true;
-            break;
-        }
-    }
-    CHECK_TRUE(any_pixel_coloring);
+    frame_buffer.has_changes = false;
+    progress = 1;
+    testable.Render(&frame_buffer, &start_point, progress);
+    CHECK_TRUE(frame_buffer.has_changes);
 }
