@@ -34,7 +34,7 @@ static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
 extern CurrentSettings::device_settings settings;
 
 bool Controller::runned = false;
-bool Controller::force_process_loop = false;
+bool Controller::in_design = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
@@ -191,8 +191,8 @@ void Controller::ProcessTask(void *parm) {
                                         loop_break_ms,
                                         ProcessWakeupRequestPriority::pwrp_Critical);
         } else {
-            if (Controller::force_process_loop) {
-                ESP_LOGD(TAG_Controller, "force_process_loop");
+            if (Controller::in_design) {
+                ESP_LOGD(TAG_Controller, "in_design");
                 const uint32_t process_loop_cycle_ms = 200;
                 Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                             process_loop_cycle_ms,
@@ -200,7 +200,7 @@ void Controller::ProcessTask(void *parm) {
             }
         }
 
-        if (do_render || Controller::force_process_loop) {
+        if (do_render || Controller::in_design) {
             rendering_service->Do();
         }
     }
@@ -421,7 +421,6 @@ void Controller::UpdateUIViewTop(int32_t view_top_index) {
         store_hotreload();
     });
     ESP_LOGD(TAG_Controller, "UpdateUIViewTop %d", view_top_index);
-    Controller::force_process_loop = true;
     Controller::WakeupProcessTask();
 }
 
@@ -431,10 +430,23 @@ void Controller::UpdateUISelected(int32_t selected_network) {
         store_hotreload();
     });
     ESP_LOGD(TAG_Controller, "UpdateUISelected %d", selected_network);
-    Controller::force_process_loop = true;
-    Controller::WakeupProcessTask();
 }
 
 int32_t Controller::GetLastUpdatedUISelected() {
     return hotreload->selected_network;
+}
+
+void Controller::DesignStart() {
+    Controller::in_design = true;
+    Controller::WakeupProcessTask();
+    ESP_LOGI(TAG_Controller, "DesignStart");
+}
+
+void Controller::DesignEnd() {
+    Controller::in_design = false;
+    ESP_LOGI(TAG_Controller, "DesignEnd");
+}
+
+bool Controller::InDesign() {
+    return Controller::in_design;
 }
