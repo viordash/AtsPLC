@@ -92,5 +92,7 @@ class Controller {
 
     static void UpdateUIViewTop(int32_t view_top_index);
     static void UpdateUISelected(int32_t selected_network);
+    static void DesignStart();
+    static void DesignEnd();
     static int32_t GetLastUpdatedUISelected();
 };

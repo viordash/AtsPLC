@@ -1,5 +1,6 @@
 #include "LogicProgram/Ladder.h"
 #include "Display/ScrollBar.h"
+#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -115,6 +116,7 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
             (*this)[index]->Select();
+            Controller::DesignStart();
             break;
 
         case EditableElement::ElementState::des_Selected:

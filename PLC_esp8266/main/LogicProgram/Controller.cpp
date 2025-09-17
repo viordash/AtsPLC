@@ -421,7 +421,6 @@ void Controller::UpdateUIViewTop(int32_t view_top_index) {
         store_hotreload();
     });
     ESP_LOGD(TAG_Controller, "UpdateUIViewTop %d", view_top_index);
-    Controller::force_process_loop = true;
     Controller::WakeupProcessTask();
 }
 
@@ -431,10 +430,19 @@ void Controller::UpdateUISelected(int32_t selected_network) {
         store_hotreload();
     });
     ESP_LOGD(TAG_Controller, "UpdateUISelected %d", selected_network);
-    Controller::force_process_loop = true;
-    Controller::WakeupProcessTask();
 }
 
 int32_t Controller::GetLastUpdatedUISelected() {
     return hotreload->selected_network;
+}
+
+void Controller::DesignStart() {
+    Controller::force_process_loop = true;
+    Controller::WakeupProcessTask();
+    ESP_LOGI(TAG_Controller, "DesignStart");
+}
+
+void Controller::DesignEnd() {
+    Controller::force_process_loop = false;
+    ESP_LOGI(TAG_Controller, "DesignEnd");
 }
