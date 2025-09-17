@@ -298,12 +298,11 @@ void Ladder::HandleButtonSelect() {
 
             if (last_selected_network >= 0 && last_selected_network < (int)size()) {
                 (*this)[last_selected_network]->Select();
-                break;
+            } else {
+                (*this)[view_top_index]->Select();
+                Controller::UpdateUISelected(view_top_index);
             }
-
-            (*this)[view_top_index]->Select();
-            Controller::UpdateUISelected(view_top_index);
-
+            Controller::DesignStart();
             break;
         }
 
@@ -321,6 +320,7 @@ void Ladder::HandleButtonSelect() {
                 Store();
                 Controller::UpdateUISelected(selected_network);
             }
+            Controller::DesignEnd();
             return;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:

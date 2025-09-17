@@ -1,9 +1,11 @@
 #include "LogicProgram/Ladder.h"
 #include "Display/ScrollBar.h"
+#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,7 +98,7 @@ void Ladder::Delete(int network_id) {
     frame_buffer_req_render = true;
 }
 
-void Ladder::SetViewTopIndex(int16_t index) {
+void Ladder::SetViewTopIndex(int32_t index) {
     ESP_LOGI(TAG_Ladder, "SetViewTopIndex, index:%d", index);
     if (index < 0 || index + Ladder::MaxViewPortCount > size()) {
         return;
@@ -105,7 +107,7 @@ void Ladder::SetViewTopIndex(int16_t index) {
     frame_buffer_req_render = true;
 }
 
-void Ladder::SetSelectedNetworkIndex(int16_t index) {
+void Ladder::SetSelectedNetworkIndex(int32_t index) {
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -119,9 +121,12 @@ void Ladder::SetSelectedNetworkIndex(int16_t index) {
         return;
     }
 
+    index = std::clamp(index, view_top_index, (view_top_index + (int)Ladder::MaxViewPortCount) - 1);
+
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
             (*this)[index]->Select();
+            Controller::DesignStart();
             break;
 
         case EditableElement::ElementState::des_Selected:

@@ -432,14 +432,39 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_when_no_preselected)
     testable.Append(network2);
     testable.Append(network3);
 
+    testable.SetViewTopIndex(0);
     testable.SetSelectedNetworkIndex(1);
     CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
     CHECK_TRUE(network1->Selected());
 
+    testable.SetViewTopIndex(2);
     testable.SetSelectedNetworkIndex(3);
     CHECK_EQUAL(3, testable.PublicMorozov_GetSelectedNetwork());
     CHECK_FALSE(network1->Selected());
     CHECK_TRUE(network3->Selected());
+}
+
+TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_limit_with_ViewTopIndex_range) {
+    TestableLadder testable;
+    auto network0 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(LogicItemState::lisActive);
+    auto network3 = new Network(LogicItemState::lisActive);
+    testable.Append(network0);
+    testable.Append(network1);
+    testable.Append(network2);
+    testable.Append(network3);
+
+    testable.SetViewTopIndex(2);
+    testable.SetSelectedNetworkIndex(0);
+    CHECK_EQUAL(2, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(network2->Selected());
+
+    testable.SetViewTopIndex(0);
+    testable.SetSelectedNetworkIndex(3);
+    CHECK_EQUAL(1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_FALSE(network2->Selected());
+    CHECK_TRUE(network1->Selected());
 }
 
 TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_if_network_is_editing_then_do_nothing) {
@@ -563,6 +588,31 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_UpdateU
     CHECK_EQUAL(0, hotreload->selected_network);
     CHECK_FALSE(testable[0]->Editing());
     CHECK_FALSE(testable[0]->Selected());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_DesignStart) {
+    Controller::DesignEnd();
+    TestableLadder testable;
+
+    auto network0 = new Network(LogicItemState::lisActive);
+    network0->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(new Network(LogicItemState::lisActive));
+
+    CHECK_FALSE(Controller::InDesign());
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->Selected());
+    CHECK_TRUE(Controller::InDesign());
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->Editing());
+    CHECK_TRUE(Controller::InDesign());
+
+    testable.HandleButtonSelect();
+    CHECK_FALSE(testable[0]->Editing());
+    CHECK_FALSE(testable[0]->Selected());
+    CHECK_FALSE(Controller::InDesign());
 }
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_enter_to_advanced_editing) {

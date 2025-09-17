@@ -55,6 +55,6 @@ class Ladder : public std::vector<Network *> {
     void Store();
     static void DeleteStorage();
 
-    void SetViewTopIndex(int16_t index);
-    void SetSelectedNetworkIndex(int16_t index);
+    void SetViewTopIndex(int32_t index);
+    void SetSelectedNetworkIndex(int32_t index);
 };
