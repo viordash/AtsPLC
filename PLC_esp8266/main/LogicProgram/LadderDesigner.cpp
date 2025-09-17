@@ -317,8 +317,8 @@ void Ladder::HandleButtonSelect() {
                 }
                 Store();
                 Controller::UpdateUISelected(selected_network);
+                Controller::DesignEnd();
             }
-            Controller::DesignEnd();
             return;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
@@ -340,24 +340,28 @@ void Ladder::HandleButtonSelect() {
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
             Store();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Copying:
             (*this)[selected_network]->EndEditing();
             Duplicate(selected_network);
             Store();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Deleting:
             (*this)[selected_network]->EndEditing();
             Delete(selected_network);
             Store();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Disabling:
             (*this)[selected_network]->EndEditing();
             (*this)[selected_network]->SwitchState();
             Store();
+            Controller::DesignEnd();
             break;
 
         default:
@@ -384,34 +388,42 @@ void Ladder::HandleButtonOption() {
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Moving:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Copying:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Deleting:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Disabling:
             (*this)[selected_network]->EndEditing();
+            Controller::DesignEnd();
             break;
 
         default:
