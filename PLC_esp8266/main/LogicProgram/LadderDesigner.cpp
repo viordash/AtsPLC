@@ -80,6 +80,7 @@ bool Ladder::ScrollUp(int *selected_network) {
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
+    frame_buffer_req_render = true;
     return size() > 0;
 }
 
@@ -93,6 +94,7 @@ bool Ladder::ScrollDown(int *selected_network) {
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
+    frame_buffer_req_render = true;
     return *selected_network < (int)size();
 }
 

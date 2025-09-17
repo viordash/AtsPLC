@@ -1,4 +1,5 @@
 #include "LogicProgram/Ladder.h"
+#include "Display/ScrollBar.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -9,6 +10,7 @@
 
 Ladder::Ladder() {
     view_top_index = 0;
+    frame_buffer_req_render = false;
 }
 
 Ladder::~Ladder() {
@@ -43,12 +45,16 @@ IRAM_ATTR void Ladder::Render(FrameBuffer *fb) {
         at(i)->Render(fb, i - view_top_index);
     }
 
-    scroll_bar.Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
+    ScrollBar::Render(fb, size(), Ladder::MaxViewPortCount, view_top_index);
+
+    fb->has_changes |= frame_buffer_req_render;
+    frame_buffer_req_render = false;
 }
 
 void Ladder::Append(Network *network) {
     ESP_LOGD(TAG_Ladder, "append network: %p", network);
     push_back(network);
+    frame_buffer_req_render = true;
 }
 
 void Ladder::Duplicate(int network_id) {
@@ -78,6 +84,7 @@ void Ladder::Duplicate(int network_id) {
 
     auto pos = begin();
     insert(std::next(pos, network_id), new_network);
+    frame_buffer_req_render = true;
 }
 
 void Ladder::Delete(int network_id) {
@@ -86,6 +93,7 @@ void Ladder::Delete(int network_id) {
     auto network = *it;
     erase(it);
     delete network;
+    frame_buffer_req_render = true;
 }
 
 void Ladder::SetViewTopIndex(int16_t index) {
@@ -94,6 +102,7 @@ void Ladder::SetViewTopIndex(int16_t index) {
         return;
     }
     view_top_index = index;
+    frame_buffer_req_render = true;
 }
 
 void Ladder::SetSelectedNetworkIndex(int16_t index) {

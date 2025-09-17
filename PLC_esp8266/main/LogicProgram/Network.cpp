@@ -54,9 +54,8 @@ bool Network::DoAction() {
         prev_elem_state = element->state;
         any_changes |= prev_elem_changed;
     }
-    if (any_changes) {
-        frame_buffer_req_render = true;
-    }
+
+    frame_buffer_req_render |= any_changes;
     return any_changes;
 }
 
@@ -133,9 +132,7 @@ IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
 
     ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
 
-    if (!fb->has_changes) {
-        fb->has_changes = frame_buffer_req_render;
-    }
+    fb->has_changes |= frame_buffer_req_render;
     frame_buffer_req_render = false;
 }
 
