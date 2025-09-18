@@ -13,6 +13,7 @@ static const char *TAG_ProcessWakeupService = "ProcessWakeupService";
 bool ProcessWakeupService::Request(void *id,
                                    uint32_t delay_ms,
                                    ProcessWakeupRequestPriority priority) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     bool request_already_in = ids.find(id) != ids.end();
     if (request_already_in) {
         ESP_LOGD(TAG_ProcessWakeupService,
@@ -56,6 +57,7 @@ bool ProcessWakeupService::Request(void *id,
 }
 
 void ProcessWakeupService::RemoveRequest(void *id) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     auto id_it = ids.find(id);
     bool request_exists = id_it != ids.end();
     if (!request_exists) {
@@ -93,6 +95,7 @@ println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &r
 }
 
 uint32_t ProcessWakeupService::Get() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     if (requests.empty()) {
         ESP_LOGD(TAG_ProcessWakeupService, "Get def:%u", (unsigned int)default_delay);
         return default_delay;
@@ -120,6 +123,7 @@ uint32_t ProcessWakeupService::Get() {
 }
 
 int ProcessWakeupService::RemoveExpired() {
+    std::lock_guard<std::mutex> lock(lock_mutex);
     auto current_time = (uint64_t)esp_timer_get_time();
     int64_t timespan = default_delay;
     while (!requests.empty()) {

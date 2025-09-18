@@ -65,6 +65,7 @@ class ProcessWakeupService {
     static const uint32_t default_delay = -1;
     std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> requests;
     std::unordered_set<void *> ids;
+    std::mutex lock_mutex;
 
   public:
     bool Request(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
