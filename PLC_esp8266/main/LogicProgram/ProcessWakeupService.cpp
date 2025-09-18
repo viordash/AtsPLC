@@ -26,7 +26,7 @@ bool ProcessWakeupService::Request(void *id,
     auto current_time = (uint64_t)esp_timer_get_time();
     auto next_time = current_time + ((uint64_t)delay_ms * 1000);
 
-    ProcessWakeupRequestData request(id, next_time, priority);
+    ProcessWakeupRequestData request = { id, next_time, priority };
     auto upper = requests.upper_bound(request);
     if (upper != requests.end()) {
         auto &upper_req = *upper;

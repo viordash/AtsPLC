@@ -168,7 +168,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
     CHECK_EQUAL(2, testable.size());
 
     for (auto it = testable.begin(); it != testable.end(); it++) {
-        auto request = *it;
+        const auto &request = *it;
         CHECK(request.Type != RequestItemType::wqi_Station);
     }
 }
@@ -187,7 +187,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveAccessPoint) {
     CHECK_EQUAL(2, testable.size());
 
     for (auto it = testable.begin(); it != testable.end(); it++) {
-        auto request = *it;
+        const auto &request = *it;
         CHECK(request.Type != RequestItemType::wqi_AccessPoint);
     }
 }
