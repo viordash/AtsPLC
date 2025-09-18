@@ -17,6 +17,26 @@ struct ProcessWakeupRequestData {
     void *id;
     uint64_t next_time;
     ProcessWakeupRequestPriority priority;
+
+    ProcessWakeupRequestData(void *id, uint64_t next_time, ProcessWakeupRequestPriority priority)
+        : id(id), next_time(next_time), priority(priority) {
+    }
+
+    ProcessWakeupRequestData(ProcessWakeupRequestData &&other) noexcept
+        : ProcessWakeupRequestData(other.id, other.next_time, other.priority) {
+    }
+
+    ProcessWakeupRequestData &operator=(ProcessWakeupRequestData &&other) noexcept {
+        if (this != &other) {
+            id = other.id;
+            next_time = other.next_time;
+            priority = other.priority;
+        }
+        return *this;
+    }
+
+    ProcessWakeupRequestData(ProcessWakeupRequestData &) = delete;
+    ProcessWakeupRequestData &operator=(ProcessWakeupRequestData &) = delete;
 };
 
 struct ProcessWakeupRequestDataCmp {

@@ -24,7 +24,7 @@ namespace {
         void println() {
             std::cout << '[';
             bool first{ true };
-            for (auto x : requests) {
+            for (auto &x : requests) {
                 std::cout << (first ? first = false, "" : ", ") << x.id << "|"
                           << (x.next_time / 1000);
             }
@@ -34,7 +34,7 @@ namespace {
         size_t PublicMorozov_Get_requests_size() {
             return std::distance(requests.begin(), requests.end());
         }
-        ProcessWakeupRequestData PublicMorozov_Get_request(int index) {
+        const ProcessWakeupRequestData &PublicMorozov_Get_request(int index) {
             auto it = std::next(requests.begin(), index);
             return *it;
         }
