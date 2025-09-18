@@ -23,7 +23,7 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
 
 std::list<RequestItem>::iterator WiFiRequests::Find(RequestItem *request) {
     for (auto it = begin(); it != end(); it++) {
-        auto req = *it;
+        const auto &req = *it;
         if (Equals(&req, request)) {
             return it;
         }
@@ -48,7 +48,7 @@ bool WiFiRequests::Scan(const char *ssid) {
     auto item = Find(&request);
     bool new_req = item == end();
     if (new_req) {
-        push_front(request);
+        push_front(std::move(request));
     }
     ESP_LOGD(TAG_WiFiRequests, "Scan, ssid:%s, new_req:%u", ssid, new_req);
     return new_req;
@@ -74,7 +74,7 @@ bool WiFiRequests::AccessPoint(const char *ssid, const char *password, const cha
     auto item = Find(&request);
     bool new_req = item == end();
     if (new_req) {
-        push_front(request);
+        push_front(std::move(request));
     }
     ESP_LOGD(TAG_WiFiRequests, "AccessPoint, ssid:%s, new_req:%u", ssid, new_req);
     return new_req;
@@ -98,7 +98,7 @@ bool WiFiRequests::Station() {
     auto item = Find(&request);
     bool new_req = item == end();
     if (new_req) {
-        push_front(request);
+        push_front(std::move(request));
     }
     ESP_LOGD(TAG_WiFiRequests, "Station, is new req:%u", new_req);
     return new_req;
@@ -121,6 +121,8 @@ bool WiFiRequests::Pop(RequestItem *request) {
     if (empty()) {
         return false;
     }
-    *request = back();
+    auto &req = back();
+    request->Payload = req.Payload;
+    request->Type = req.Type;
     return true;
 }

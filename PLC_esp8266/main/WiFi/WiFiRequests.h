@@ -12,7 +12,7 @@ enum RequestItemType { //
 
 struct RequestItem {
     RequestItemType Type;
-    union {
+    union uPayload {
         struct {
             const char *ssid;
         } Scanner;
@@ -22,6 +22,23 @@ struct RequestItem {
             const char *mac;
         } AccessPoint;
     } Payload;
+
+    RequestItem() = default;
+    RequestItem(RequestItemType type, uPayload payload) : Type{ type }, Payload{ payload } {
+    }
+    RequestItem(RequestItem &) = delete;
+    RequestItem &operator=(RequestItem &) = delete;
+
+    RequestItem(RequestItem &&other) noexcept : RequestItem(other.Type, other.Payload) {
+    }
+
+    RequestItem &operator=(RequestItem &&other) noexcept {
+        if (this != &other) {
+            Type = other.Type;
+            Payload = other.Payload;
+        }
+        return *this;
+    }
 };
 
 class WiFiRequests : public std::list<RequestItem> {
