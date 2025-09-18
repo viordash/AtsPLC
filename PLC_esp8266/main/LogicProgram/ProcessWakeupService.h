@@ -17,6 +17,26 @@ struct ProcessWakeupRequestData {
     void *id;
     uint64_t next_time;
     ProcessWakeupRequestPriority priority;
+
+    ProcessWakeupRequestData(void *id, uint64_t next_time, ProcessWakeupRequestPriority priority)
+        : id(id), next_time(next_time), priority(priority) {
+    }
+
+    ProcessWakeupRequestData(ProcessWakeupRequestData &&other) noexcept
+        : ProcessWakeupRequestData(other.id, other.next_time, other.priority) {
+    }
+
+    ProcessWakeupRequestData &operator=(ProcessWakeupRequestData &&other) noexcept {
+        if (this != &other) {
+            id = other.id;
+            next_time = other.next_time;
+            priority = other.priority;
+        }
+        return *this;
+    }
+
+    ProcessWakeupRequestData(ProcessWakeupRequestData &) = delete;
+    ProcessWakeupRequestData &operator=(ProcessWakeupRequestData &) = delete;
 };
 
 struct ProcessWakeupRequestDataCmp {
@@ -25,18 +45,17 @@ struct ProcessWakeupRequestDataCmp {
         return (int64_t)timespan;
     }
 
-    bool operator()(const ProcessWakeupRequestData &fk1,
-                    const ProcessWakeupRequestData &fk2) const {
+    bool operator()(const ProcessWakeupRequestData &a, const ProcessWakeupRequestData &b) const {
+        int64_t timespan = GetTimespan(a.next_time, b.next_time);
+        bool a_earlier_than_b = timespan > 0;
 
-        int64_t timespan = GetTimespan(fk1.next_time, fk2.next_time);
-        bool further_large_values = timespan > 0;
-        if (further_large_values) {
+        if (a_earlier_than_b) {
             return true;
         }
-        if (fk1.next_time > fk2.next_time) {
+        if (a.next_time != b.next_time) {
             return false;
         }
-        return fk1.id < fk2.id;
+        return a.id < b.id;
     }
 };
 

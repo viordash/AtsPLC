@@ -19,7 +19,7 @@ bool ProcessWakeupService::Request(void *id,
                  "Request already in:%u, %p, size:%u",
                  (unsigned int)delay_ms,
                  id,
-                 (unsigned int)std::distance(requests.begin(), requests.end()));
+                 (unsigned int)requests.size());
         return false;
     }
 
@@ -29,7 +29,7 @@ bool ProcessWakeupService::Request(void *id,
     ProcessWakeupRequestData request = { id, next_time, priority };
     auto upper = requests.upper_bound(request);
     if (upper != requests.end()) {
-        auto upper_req = *upper;
+        auto &upper_req = *upper;
         bool request_can_be_joined = request.priority == ProcessWakeupRequestPriority::pwrp_Idle
                                   && (upper_req.next_time - next_time) < idle_dead_band_us;
         if (request_can_be_joined) {
@@ -43,14 +43,14 @@ bool ProcessWakeupService::Request(void *id,
         }
     }
 
-    requests.insert(request);
+    requests.insert(std::move(request));
     ids.insert(id);
 
     ESP_LOGD(TAG_ProcessWakeupService,
              "Request:%u, %p, size:%u, time:%u",
              (unsigned int)delay_ms,
              id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)(current_time / 1000));
     return true;
 }
@@ -64,7 +64,7 @@ void ProcessWakeupService::RemoveRequest(void *id) {
     ids.erase(id_it);
 
     for (auto it = requests.begin(); it != requests.end(); it++) {
-        auto req = *it;
+        auto &req = *it;
 
         if (req.id == id) {
             requests.erase(it);
@@ -75,7 +75,7 @@ void ProcessWakeupService::RemoveRequest(void *id) {
     ESP_LOGD(TAG_ProcessWakeupService,
              "RemoveRequest: %p, size:%u, systick:%u",
              id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)esp_timer_get_time());
 }
 
@@ -84,7 +84,7 @@ println(const std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> &r
     static char buffer[512];
     int pos = sprintf(buffer, "[");
     bool first{ true };
-    for (auto x : requests) {
+    for (auto &x : requests) {
         pos += sprintf(&buffer[pos], "%s", (first ? first = false, "" : ", "));
         pos += sprintf(&buffer[pos], "%p|%u", x.id, (unsigned int)(x.next_time / 1000));
     }
@@ -100,7 +100,7 @@ uint32_t ProcessWakeupService::Get() {
 
     auto current_time = (uint64_t)esp_timer_get_time();
     auto req_it = requests.begin();
-    auto req = *req_it;
+    auto &req = *req_it;
     int64_t timespan = req.next_time - current_time;
 
     uint32_t wait_ticks =
@@ -110,7 +110,7 @@ uint32_t ProcessWakeupService::Get() {
              "Get:%u, %p, size:%u, time:%u, %s",
              (unsigned int)wait_ticks,
              req.id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)(current_time / 1000),
              println(requests));
     if (timespan < 0) {
@@ -124,7 +124,7 @@ int ProcessWakeupService::RemoveExpired() {
     int64_t timespan = default_delay;
     while (!requests.empty()) {
         auto req_it = requests.begin();
-        auto req = *req_it;
+        auto &req = *req_it;
         timespan = req.next_time - current_time;
         bool expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
         if (expired) {
@@ -133,7 +133,7 @@ int ProcessWakeupService::RemoveExpired() {
             ESP_LOGD(TAG_ProcessWakeupService,
                      "RemoveExpired: %p, size:%u, systick:%u",
                      req.id,
-                     (unsigned int)std::distance(requests.begin(), requests.end()),
+                     (unsigned int)requests.size(),
                      (unsigned int)(current_time / 1000));
         } else {
             break;
