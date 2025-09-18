@@ -80,7 +80,6 @@ bool Ladder::ScrollUp(int *selected_network) {
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
-    frame_buffer_req_render = true;
     return size() > 0;
 }
 
@@ -94,11 +93,11 @@ bool Ladder::ScrollDown(int *selected_network) {
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
-    frame_buffer_req_render = true;
     return *selected_network < (int)size();
 }
 
 void Ladder::HandleButtonUp() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -163,6 +162,7 @@ void Ladder::HandleButtonUp() {
 }
 
 void Ladder::HandleButtonPageUp() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -183,6 +183,7 @@ void Ladder::HandleButtonPageUp() {
 }
 
 void Ladder::HandleButtonDown() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -254,6 +255,7 @@ void Ladder::HandleButtonDown() {
 }
 
 void Ladder::HandleButtonPageDown() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -274,6 +276,7 @@ void Ladder::HandleButtonPageDown() {
 }
 
 void Ladder::HandleButtonSelect() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
@@ -372,6 +375,7 @@ void Ladder::HandleButtonSelect() {
 }
 
 void Ladder::HandleButtonOption() {
+    frame_buffer_req_render = true;
     auto selected_network = GetSelectedNetwork();
     auto design_state = GetDesignState(selected_network);
 
