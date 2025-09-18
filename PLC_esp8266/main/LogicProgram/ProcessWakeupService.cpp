@@ -19,7 +19,7 @@ bool ProcessWakeupService::Request(void *id,
                  "Request already in:%u, %p, size:%u",
                  (unsigned int)delay_ms,
                  id,
-                 (unsigned int)std::distance(requests.begin(), requests.end()));
+                 (unsigned int)requests.size());
         return false;
     }
 
@@ -50,7 +50,7 @@ bool ProcessWakeupService::Request(void *id,
              "Request:%u, %p, size:%u, time:%u",
              (unsigned int)delay_ms,
              id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)(current_time / 1000));
     return true;
 }
@@ -75,7 +75,7 @@ void ProcessWakeupService::RemoveRequest(void *id) {
     ESP_LOGD(TAG_ProcessWakeupService,
              "RemoveRequest: %p, size:%u, systick:%u",
              id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)esp_timer_get_time());
 }
 
@@ -110,7 +110,7 @@ uint32_t ProcessWakeupService::Get() {
              "Get:%u, %p, size:%u, time:%u, %s",
              (unsigned int)wait_ticks,
              req.id,
-             (unsigned int)std::distance(requests.begin(), requests.end()),
+             (unsigned int)requests.size(),
              (unsigned int)(current_time / 1000),
              println(requests));
     if (timespan < 0) {
@@ -133,7 +133,7 @@ int ProcessWakeupService::RemoveExpired() {
             ESP_LOGD(TAG_ProcessWakeupService,
                      "RemoveExpired: %p, size:%u, systick:%u",
                      req.id,
-                     (unsigned int)std::distance(requests.begin(), requests.end()),
+                     (unsigned int)requests.size(),
                      (unsigned int)(current_time / 1000));
         } else {
             break;
