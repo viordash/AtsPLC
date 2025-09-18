@@ -50,7 +50,7 @@ IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     uint8_t body_width = width - income_width;
 
     bool blink_on_editing =
-        editable_state == EditableElement::ElementState::des_Editing && Blinking_50();
+        editable_state == EditableElement::ElementState::des_Editing && Blinking_50(fb);
 
     if (!blink_on_editing) {
         if (prev_elem_state == LogicItemState::lisActive) {

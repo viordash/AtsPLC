@@ -29,6 +29,7 @@ class EditableElement {
   protected:
     EditableElement::ElementState editable_state;
     int editing_property_id;
+    bool blink;
 
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;
@@ -44,9 +45,9 @@ class EditableElement {
 
     void Render(FrameBuffer *fb, Point *start_point);
 
-    bool Blinking_50();
-    const Bitmap *GetCursorBitmap();
-    uint16_t GetCursorWidth();
+    bool Blinking_50(FrameBuffer *fb);
+    const Bitmap *GetCursorBitmap(FrameBuffer *fb);
+    uint16_t GetCursorWidth(FrameBuffer *fb);
 
   public:
     explicit EditableElement();

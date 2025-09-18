@@ -4,9 +4,9 @@
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_attr.h"
-#include "lassert.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +54,7 @@ ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
     auto bitmap = GetCurrentBitmap();
     start_point->x -= bitmap->size.width;
 
-    auto cursor_width = GetCursorWidth();
+    auto cursor_width = GetCursorWidth(fb);
     start_point->x -= cursor_width;
 
     EditableElement::Render(fb, start_point);
@@ -63,7 +63,7 @@ ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (EditableElement::EditingPropertyId)editing_property_id
                                        == EditableElement::EditingPropertyId::cepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }

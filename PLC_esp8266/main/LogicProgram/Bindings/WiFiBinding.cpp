@@ -102,7 +102,7 @@ void WiFiBinding::RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
     }
     blink_ssid[sizeof(blink_ssid) - 1] = 0;
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         blink_ssid[char_pos] = ' ';
     }
 

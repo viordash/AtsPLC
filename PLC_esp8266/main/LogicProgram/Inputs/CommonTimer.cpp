@@ -72,7 +72,7 @@ CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonTimer::EditingPropertyId)editing_property_id
                                        == CommonTimer::EditingPropertyId::ctepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
@@ -80,7 +80,7 @@ CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
     bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonTimer::EditingPropertyId)editing_property_id
                                       == CommonTimer::EditingPropertyId::ctepi_ConfigureDelayTime
-                               && Blinking_50();
+                               && Blinking_50(fb);
 
     switch (str_size) {
         case 1:

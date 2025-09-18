@@ -227,8 +227,12 @@ TEST(LogicWiFiBindingTestsGroup, Ssid_with_partial_length) {
 
 TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     volatile uint64_t os_us = 0x80000;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
     mock()
-        .expectNCalls(24, "esp_timer_get_time")
+        .expectNCalls(1, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableWiFiBinding testable;

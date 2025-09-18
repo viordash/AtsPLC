@@ -12,7 +12,7 @@
 #include "Display/bitmaps/moving_up_down_1.h"
 #include "Display/display.h"
 #include "EditableElement.h"
-#include "lassert.h"
+#include "LogicProgram/Controller.h"
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -24,6 +24,7 @@
 EditableElement::EditableElement() {
     editable_state = EditableElement::ElementState::des_Regular;
     editing_property_id = EditingPropertyId::cepi_None;
+    blink = false;
 }
 
 EditableElement::~EditableElement() {
@@ -49,31 +50,31 @@ bool EditableElement::Selected() {
 }
 
 void EditableElement::Render(FrameBuffer *fb, Point *start_point) {
-    const Bitmap *bitmap = GetCursorBitmap();
+    const Bitmap *bitmap = GetCursorBitmap(fb);
     if (bitmap != NULL) {
         draw_bitmap(fb, start_point->x + 1, start_point->y + 2, bitmap);
     }
 }
 
-const Bitmap *EditableElement::GetCursorBitmap() {
+const Bitmap *EditableElement::GetCursorBitmap(FrameBuffer *fb) {
     switch (editable_state) {
         case EditableElement::ElementState::des_Selected:
-            return Blinking_50() ? &bitmap_selecting_blink_0 : &bitmap_selecting_blink_1;
+            return Blinking_50(fb) ? &bitmap_selecting_blink_0 : &bitmap_selecting_blink_1;
 
         case EditableElement::ElementState::des_Editing:
             return &bitmap_selecting_blink_2;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            return Blinking_50() ? &bitmap_moving_up_down_0 : &bitmap_moving_up_down_1;
+            return Blinking_50(fb) ? &bitmap_moving_up_down_0 : &bitmap_moving_up_down_1;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
-            return Blinking_50() ? &bitmap_copy_cursor_0 : &bitmap_copy_cursor_0;
+            return Blinking_50(fb) ? &bitmap_copy_cursor_0 : &bitmap_copy_cursor_0;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            return Blinking_50() ? &bitmap_delete_cursor_0 : &bitmap_delete_cursor_1;
+            return Blinking_50(fb) ? &bitmap_delete_cursor_0 : &bitmap_delete_cursor_1;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
-            return Blinking_50() ? &bitmap_disable_cursor_0 : &bitmap_disable_cursor_1;
+            return Blinking_50(fb) ? &bitmap_disable_cursor_0 : &bitmap_disable_cursor_1;
 
         case EditableElement::ElementState::des_Moving:
             return &bitmap_moving_up_down_0;
@@ -92,8 +93,8 @@ const Bitmap *EditableElement::GetCursorBitmap() {
     }
 }
 
-uint16_t EditableElement::GetCursorWidth() {
-    const Bitmap *bitmap = GetCursorBitmap();
+uint16_t EditableElement::GetCursorWidth(FrameBuffer *fb) {
+    const Bitmap *bitmap = GetCursorBitmap(fb);
     if (bitmap != NULL) {
         return bitmap->size.width;
     }
@@ -112,7 +113,17 @@ bool EditableElement::InEditingProperty() {
     return editing_property_id != EditableElement::EditingPropertyId::cepi_None;
 }
 
-bool EditableElement::Blinking_50() {
-    const int blink_timer_us = 0x80000;
-    return (esp_timer_get_time() & blink_timer_us) == blink_timer_us;
+bool EditableElement::Blinking_50(FrameBuffer *fb) {
+    const int blink_timer_ms = 400;
+
+    const int offset_Blinking_50 = 50;
+    auto blinking = Controller::RequestWakeupMs((void *)(this + offset_Blinking_50),
+                                                blink_timer_ms,
+                                                ProcessWakeupRequestPriority::pwrp_Idle);
+    if (blinking) {
+        Controller::WakeupProcessTask();
+        blink = !blink;
+        fb->has_changes = true;
+    }
+    return blink;
 }

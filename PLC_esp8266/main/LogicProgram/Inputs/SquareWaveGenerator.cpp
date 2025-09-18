@@ -88,7 +88,7 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (SquareWaveGenerator::EditingPropertyId)editing_property_id
                                        == SquareWaveGenerator::EditingPropertyId::ctepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, bitmap_top, bitmap);
     }
@@ -105,7 +105,7 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
         editable_state == EditableElement::ElementState::des_Editing
         && (SquareWaveGenerator::EditingPropertyId)editing_property_id
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod0
-        && Blinking_50();
+        && Blinking_50(fb);
 
     if (blink_period0_on_editing) {
         ASSERT(draw_text_f4X7(fb, text0_left, text0_top, str_period0) > 0);
@@ -115,7 +115,7 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
         editable_state == EditableElement::ElementState::des_Editing
         && (SquareWaveGenerator::EditingPropertyId)editing_property_id
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod1
-        && Blinking_50();
+        && Blinking_50(fb);
 
     if (!blink_period1_on_editing) {
         ASSERT(draw_text_f4X7(fb, text1_left, text1_top, str_period1) > 0);

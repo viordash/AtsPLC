@@ -34,7 +34,7 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonInput::EditingPropertyId)editing_property_id
                                       == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
-                               && Blinking_50() && label_width > 0;
+                               && Blinking_50(fb) && label_width > 0;
     if (!blink_label_on_editing) {
         label_width = draw_text_f6X12(fb,
                                       start_point->x + LeftPadding,
@@ -60,7 +60,7 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonInput::EditingPropertyId)editing_property_id
                                        == CommonInput::EditingPropertyId::ciepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }

@@ -19,9 +19,11 @@ static FrameBuffer frame_buffer = {};
 TEST_GROUP(LogicNetworkTestsGroup){ //
                                     TEST_SETUP(){ mock().disable();
 memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+Controller::Start(NULL, NULL, NULL, NULL);
 }
 
 TEST_TEARDOWN() {
+    Controller::Stop();
     mock().enable();
 }
 }
@@ -803,7 +805,8 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
     CHECK_EQUAL(TvElementType::et_Wire, testable[1]->GetElementType());
 }
 
-TEST(LogicNetworkTestsGroup, Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
+TEST(LogicNetworkTestsGroup,
+     Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
     Network testable(LogicItemState::lisActive);
 
     testable.Append(new TestableInputNC);

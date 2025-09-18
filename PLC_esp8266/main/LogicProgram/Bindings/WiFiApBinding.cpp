@@ -98,7 +98,7 @@ void WiFiApBinding::RenderEditedPassword(FrameBuffer *fb, uint8_t x, uint8_t y) 
     }
     blink_password[sizeof(blink_password) - 1] = 0;
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         blink_password[char_pos] = ' ';
     }
 
@@ -118,7 +118,7 @@ void WiFiApBinding::RenderEditedMac(FrameBuffer *fb, uint8_t x, uint8_t y) {
     }
     blink_mac[sizeof(blink_mac) - 1] = 0;
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         blink_mac[char_pos] = ' ';
     }
 

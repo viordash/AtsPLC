@@ -50,7 +50,7 @@ CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (CommonWiFiBinding::EditingPropertyId)editing_property_id
                                      == CommonWiFiBinding::EditingPropertyId::cwbepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
         ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
         ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
@@ -61,7 +61,7 @@ CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonWiFiBinding::EditingPropertyId)editing_property_id
                                       == CommonWiFiBinding::EditingPropertyId::cwbepi_ConfigureIOAdr
-                               && Blinking_50();
+                               && Blinking_50(fb);
 
     if (!blink_label_on_editing) {
         ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);

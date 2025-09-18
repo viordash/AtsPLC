@@ -132,7 +132,7 @@ Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (Indicator::EditingPropertyId)editing_property_id
                                      == Indicator::EditingPropertyId::ciepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
         ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
         ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
@@ -143,7 +143,7 @@ Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (Indicator::EditingPropertyId)editing_property_id
                                       == Indicator::EditingPropertyId::ciepi_ConfigureIOAdr
-                               && Blinking_50();
+                               && Blinking_50(fb);
     if (!blink_label_on_editing) {
         ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
@@ -201,7 +201,7 @@ void Indicator::RenderScales(FrameBuffer *fb, uint8_t x, uint8_t y) {
             break;
     }
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         switch (editing_property_id) {
             case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
             case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:

@@ -48,7 +48,7 @@ SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (SettingsElement::EditingPropertyId)editing_property_id
                                      == SettingsElement::EditingPropertyId::cwbepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
         ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
         ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
@@ -67,7 +67,7 @@ SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
     bool blink_name = editable_state == EditableElement::ElementState::des_Editing
                    && (SettingsElement::EditingPropertyId)editing_property_id
                           == SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator
-                   && Blinking_50();
+                   && Blinking_50(fb);
 
     if (!blink_name) {
         RenderName(fb, top_left.x, top_left.y);
@@ -210,7 +210,7 @@ void SettingsElement::RenderEditedValue(FrameBuffer *fb, uint8_t x, uint8_t y) {
     }
     blink_value[sizeof(blink_value) - 1] = 0;
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         blink_value[char_pos] = ' ';
     }
 

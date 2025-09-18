@@ -60,7 +60,7 @@ ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (EditableElement::EditingPropertyId)editing_property_id
                                        == EditableElement::EditingPropertyId::cepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, bitmap_top, bitmap);
     }

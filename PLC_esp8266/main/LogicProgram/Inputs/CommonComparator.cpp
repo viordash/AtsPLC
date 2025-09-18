@@ -74,7 +74,7 @@ CommonComparator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point 
         editable_state == EditableElement::ElementState::des_Editing
         && (CommonComparator::EditingPropertyId)editing_property_id
                == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
-        && Blinking_50() && label_width > 0;
+        && Blinking_50(fb) && label_width > 0;
     switch (str_size) {
         case 1:
             if (!blink_label_on_editing) {
