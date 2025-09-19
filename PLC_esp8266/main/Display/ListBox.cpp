@@ -13,6 +13,7 @@ ListBox::ListBox(const char *title) {
     selected = -1;
 
     BuildTitle(title);
+    frame_buffer_req_render = false;
 }
 
 void ListBox::BuildTitle(const char *title) {
@@ -49,6 +50,7 @@ void ListBox::Render(FrameBuffer *fb) {
     for (int i = 0; i < lines_count; i++) {
         ASSERT(draw_text_f6X12_colored(fb, x, y + height * i, lines[i], selected == i) >= 0);
     }
+    fb->has_changes |= frame_buffer_req_render;
 }
 
 bool ListBox::Insert(int pos, const char *text) {
@@ -65,9 +67,11 @@ bool ListBox::Insert(int pos, const char *text) {
     } else {
         strcpy(line, text);
     }
+    frame_buffer_req_render = true;
     return true;
 }
 
 void ListBox::Select(int index) {
     selected = index;
+    frame_buffer_req_render = true;
 }

@@ -16,6 +16,7 @@ class ListBox {
 
     int selected;
     int title_x;
+    bool frame_buffer_req_render;
 
     void BuildTitle(const char *title);
 

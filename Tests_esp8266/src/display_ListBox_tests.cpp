@@ -150,3 +150,20 @@ TEST(ListBoxTestsGroup, Render_selected_item) {
     CHECK_EQUAL(OLED_COLOR_BLACK, foreground_color);
     CHECK_EQUAL(OLED_COLOR_WHITE, background_color);
 }
+
+TEST(ListBoxTestsGroup, Insert_changed_frame_buffer) {
+    TestableListBox testable("");
+
+    testable.Insert(0, "text");
+    testable.Render(&frame_buffer);
+    CHECK_TRUE(frame_buffer.has_changes);
+}
+
+TEST(ListBoxTestsGroup, Select_changed_frame_buffer) {
+    TestableListBox testable("");
+
+    testable.Select(0);
+    testable.Render(&frame_buffer);
+    CHECK_TRUE(frame_buffer.has_changes);
+}
+
