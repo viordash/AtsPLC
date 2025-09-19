@@ -142,6 +142,7 @@ void ServiceModeHandler::ShowStatus(EventGroupHandle_t gpio_events,
                                : error_message)
            > 0);
     ASSERT(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") > 0);
+    fb->has_changes = true;
     end_render(fb);
 
     xEventGroupWaitBits(gpio_events, BUTTON_SELECT_IO_OPEN, true, false, portMAX_DELAY);

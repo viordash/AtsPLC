@@ -133,6 +133,7 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
     ASSERT(draw_text_f6X12(fb, x, y + height * 1, "Reset:") > 0);
     ASSERT(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) > 0);
     ASSERT(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") > 0);
+    fb->has_changes = true;
     end_render(fb);
     EventBits_t uxBits =
         xEventGroupWaitBits(gpio_events,
