@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,31 +32,23 @@ void ListBox::BuildTitle(const char *title) {
     const uint8_t x = 2;
     const uint8_t y = 2;
     int width = draw_text_f6X12(fb, x, y, this->title);
-    ESP_ERROR_CHECK(width <= 0);
+    ASSERT(width > 0);
     title_x = x + (DISPLAY_WIDTH - width) / 2;
-    ESP_ERROR_CHECK(title_x <= 0);
+    ASSERT(title_x > 0);
     delete fb;
 }
 
-bool ListBox::Render(FrameBuffer *fb) {
+void ListBox::Render(FrameBuffer *fb) {
     const uint8_t x = left_padding;
     uint8_t y = top_padding;
     uint8_t height = get_text_f6X12_height();
 
-    if (!draw_rectangle(fb, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)) {
-        return false;
-    }
-
-    if (draw_text_f6X12(fb, title_x, y, title) <= 0) {
-        return false;
-    }
+    ASSERT(draw_rectangle(fb, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    ASSERT(draw_text_f6X12(fb, title_x, y, title) > 0);
     y += height;
     for (int i = 0; i < lines_count; i++) {
-        if (draw_text_f6X12_colored(fb, x, y + height * i, lines[i], selected == i) < 0) {
-            return false;
-        }
+        ASSERT(draw_text_f6X12_colored(fb, x, y + height * i, lines[i], selected == i) >= 0);
     }
-    return true;
 }
 
 bool ListBox::Insert(int pos, const char *text) {

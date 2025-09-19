@@ -22,7 +22,7 @@ class ListBox {
   public:
     explicit ListBox(const char *title);
 
-    bool Render(FrameBuffer *fb);
+    void Render(FrameBuffer *fb);
     bool Insert(int pos, const char *text);
     void Select(int index);
 };
