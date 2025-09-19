@@ -5,6 +5,7 @@
 #include "buttons.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <stdlib.h>
@@ -130,14 +131,14 @@ void ServiceModeHandler::ShowStatus(EventGroupHandle_t gpio_events,
 
     xEventGroupClearBits(gpio_events, EXPECTED_BUTTONS);
     auto fb = begin_render();
-    ESP_ERROR_CHECK(draw_text_f6X12(fb,
-                                    x,
-                                    y + height * 1,
-                                    success //
-                                        ? success_message
-                                        : error_message)
-                    <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") <= 0);
+    ASSERT(draw_text_f6X12(fb,
+                           x,
+                           y + height * 1,
+                           success //
+                               ? success_message
+                               : error_message)
+           > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 2, "Press SELECT to exit") > 0);
     end_render(fb);
 
     xEventGroupWaitBits(gpio_events, BUTTON_SELECT_IO_OPEN, true, false, portMAX_DELAY);

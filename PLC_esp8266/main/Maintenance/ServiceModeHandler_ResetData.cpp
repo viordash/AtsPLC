@@ -8,6 +8,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "lassert.h"
 #include "partitions.h"
 #include "redundant_storage.h"
 #include "settings.h"
@@ -126,9 +127,9 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
     uint8_t height = get_text_f6X12_height();
 
     auto fb = begin_render();
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "Reset:") <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") <= 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 1, "Reset:") > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") > 0);
     end_render(fb);
     EventBits_t uxBits =
         xEventGroupWaitBits(gpio_events,
