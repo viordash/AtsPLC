@@ -190,14 +190,6 @@ void Controller::ProcessTask(void *parm) {
             Controller::RequestWakeupMs((void *)Controller::ProcessTask,
                                         loop_break_ms,
                                         ProcessWakeupRequestPriority::pwrp_Critical);
-        } else {
-            if (Controller::in_design) {
-                ESP_LOGD(TAG_Controller, "in_design");
-                const uint32_t process_loop_cycle_ms = 200;
-                Controller::RequestWakeupMs((void *)Controller::ProcessTask,
-                                            process_loop_cycle_ms,
-                                            ProcessWakeupRequestPriority::pwrp_Idle);
-            }
         }
 
         if (do_render || Controller::in_design) {
