@@ -61,14 +61,17 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
                  (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
+            case ButtonsPressType::UP_LONG_PRESSED:
                 mode = ChangeResetModeToPrev(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
+            case ButtonsPressType::DOWN_LONG_PRESSED:
                 mode = ChangeResetModeToNext(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
+            case ButtonsPressType::SELECT_LONG_PRESSED:
                 success = DoResetData(gpio_events, mode);
                 error = !success;
                 break;

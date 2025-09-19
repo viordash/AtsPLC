@@ -61,6 +61,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                  (unsigned int)uxBits);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
+            case ButtonsPressType::UP_LONG_PRESSED:
                 backup_fileno--;
                 if (backup_fileno < 0) {
                     backup_fileno = max_backup_files - 1;
@@ -68,6 +69,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
+            case ButtonsPressType::DOWN_LONG_PRESSED:
                 backup_fileno++;
                 if ((size_t)backup_fileno >= max_backup_files) {
                     backup_fileno = 0;
@@ -75,6 +77,7 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
+            case ButtonsPressType::SELECT_LONG_PRESSED:
                 success = CreateBackup(backup_fileno);
                 error = !success;
                 break;

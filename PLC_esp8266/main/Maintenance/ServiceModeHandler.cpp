@@ -52,14 +52,17 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
         ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
+            case ButtonsPressType::UP_LONG_PRESSED:
                 mode = ChangeModeToPrev(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
+            case ButtonsPressType::DOWN_LONG_PRESSED:
                 mode = ChangeModeToNext(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
+            case ButtonsPressType::SELECT_LONG_PRESSED:
                 Execute(gpio_events, mode);
                 return;
             default:
