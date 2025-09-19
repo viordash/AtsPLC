@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char *TAG_ListBox = "ListBox";
+
 ListBox::ListBox(const char *title) {
     memset(lines, 0, sizeof(lines));
     selected = -1;
@@ -74,4 +76,5 @@ bool ListBox::Insert(int pos, const char *text) {
 void ListBox::Select(int index) {
     selected = index;
     frame_buffer_req_render = true;
+    ESP_LOGI(TAG_ListBox, "Select:%d", index);
 }

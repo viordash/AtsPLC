@@ -32,4 +32,5 @@ void LogsList::Append(const char *message) {
         }
         strcpy(lines[lines_count - 1], line);
     }
+    frame_buffer_req_render = true;
 }
