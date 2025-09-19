@@ -63,7 +63,9 @@ IRAM_ATTR FrameBuffer *begin_render() {
     return &display.frame_buffer;
 }
 IRAM_ATTR void end_render(FrameBuffer *fb) {
-    ssd1306_load_frame_buffer(&display.dev, fb->buffer);
+    if (fb->has_changes) {
+        ssd1306_load_frame_buffer(&display.dev, fb->buffer);
+    }
 }
 
 IRAM_ATTR int draw_text_f4X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text) {
