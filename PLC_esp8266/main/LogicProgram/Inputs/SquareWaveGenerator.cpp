@@ -107,7 +107,7 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
                == SquareWaveGenerator::EditingPropertyId::ctepi_ConfigurePeriod0
         && Blinking_50(fb);
 
-    if (blink_period0_on_editing) {
+    if (!blink_period0_on_editing) {
         ASSERT(draw_text_f4X7(fb, text0_left, text0_top, str_period0) > 0);
     }
 
