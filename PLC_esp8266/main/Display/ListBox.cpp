@@ -53,6 +53,7 @@ void ListBox::Render(FrameBuffer *fb) {
         ASSERT(draw_text_f6X12_colored(fb, x, y + height * i, lines[i], selected == i) >= 0);
     }
     fb->has_changes |= frame_buffer_req_render;
+    frame_buffer_req_render = false;
 }
 
 bool ListBox::Insert(int pos, const char *text) {
