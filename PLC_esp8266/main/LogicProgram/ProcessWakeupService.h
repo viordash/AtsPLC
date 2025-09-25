@@ -14,11 +14,13 @@ enum ProcessWakeupRequestPriority {
 };
 
 struct ProcessWakeupRequestData {
-    void *id;
+    const void *id;
     uint64_t next_time;
     ProcessWakeupRequestPriority priority;
 
-    ProcessWakeupRequestData(void *id, uint64_t next_time, ProcessWakeupRequestPriority priority)
+    ProcessWakeupRequestData(const void *id,
+                             uint64_t next_time,
+                             ProcessWakeupRequestPriority priority)
         : id(id), next_time(next_time), priority(priority) {
     }
 
@@ -64,12 +66,12 @@ class ProcessWakeupService {
     static const uint64_t idle_dead_band_us = 100000;
     static const uint32_t default_delay = -1;
     std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> requests;
-    std::unordered_set<void *> ids;
+    std::unordered_set<const void *> ids;
     std::mutex lock_mutex;
 
   public:
-    bool Request(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
-    void RemoveRequest(void *id);
+    bool Request(const void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
+    void RemoveRequest(const void *id);
     uint32_t Get();
     int RemoveExpired();
 };

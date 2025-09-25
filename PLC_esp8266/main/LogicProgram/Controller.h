@@ -64,8 +64,9 @@ class Controller {
     static ControllerVariable V3;
     static ControllerVariable V4;
 
-    static bool RequestWakeupMs(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
-    static void RemoveRequestWakeupMs(void *id);
+    static bool
+    RequestWakeupMs(const void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
+    static void RemoveRequestWakeupMs(const void *id);
     static void RemoveExpiredWakeupRequests();
     static uint32_t GetWakeupTicks();
 

@@ -222,13 +222,13 @@ void Controller::CommitChanges() {
     Controller::V4.CommitChanges();
 }
 
-bool Controller::RequestWakeupMs(void *id,
+bool Controller::RequestWakeupMs(const void *id,
                                  uint32_t delay_ms,
                                  ProcessWakeupRequestPriority priority) {
     return processWakeupService->Request(id, delay_ms, priority);
 }
 
-void Controller::RemoveRequestWakeupMs(void *id) {
+void Controller::RemoveRequestWakeupMs(const void *id) {
     processWakeupService->RemoveRequest(id);
 }
 

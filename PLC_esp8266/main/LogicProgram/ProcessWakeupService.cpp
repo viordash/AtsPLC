@@ -10,7 +10,7 @@
 
 static const char *TAG_ProcessWakeupService = "ProcessWakeupService";
 
-bool ProcessWakeupService::Request(void *id,
+bool ProcessWakeupService::Request(const void *id,
                                    uint32_t delay_ms,
                                    ProcessWakeupRequestPriority priority) {
     std::lock_guard<std::mutex> lock(lock_mutex);
@@ -56,7 +56,7 @@ bool ProcessWakeupService::Request(void *id,
     return true;
 }
 
-void ProcessWakeupService::RemoveRequest(void *id) {
+void ProcessWakeupService::RemoveRequest(const void *id) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     auto id_it = ids.find(id);
     bool request_exists = id_it != ids.end();

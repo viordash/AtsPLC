@@ -38,7 +38,7 @@ namespace {
             auto it = std::next(requests.begin(), index);
             return *it;
         }
-        void *PublicMorozov_Get_id(int index) {
+        const void *PublicMorozov_Get_id(int index) {
             auto it = std::next(ids.begin(), index);
             return *it;
         }
