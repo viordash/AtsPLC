@@ -31,6 +31,7 @@ class RenderingService {
 
   public:
     RenderingService();
+    RenderingService(RenderingService &) = delete;
     ~RenderingService();
     void Start(Ladder *ladder);
     void Stop();
