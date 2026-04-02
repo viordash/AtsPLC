@@ -10,7 +10,7 @@
 
 #include "main/WiFi/WiFiRequests.h"
 
-TEST_GROUP(LogicWiFiRequestsTestsGroup){ //
+TEST_GROUP(WiFiRequestsTestsGroup){ //
                                          TEST_SETUP(){}
 
                                          TEST_TEARDOWN(){}
@@ -25,7 +25,7 @@ namespace {
     };
 } // namespace
 
-TEST(LogicWiFiRequestsTestsGroup, Equals_by_Type) {
+TEST(WiFiRequestsTestsGroup, Equals_by_Type) {
     TestableWiFiRequests testable;
 
     RequestItem a = {};
@@ -52,7 +52,7 @@ TEST(LogicWiFiRequestsTestsGroup, Equals_by_Type) {
     CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
+TEST(WiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
     TestableWiFiRequests testable;
 
     char ssid[16];
@@ -80,7 +80,7 @@ TEST(LogicWiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
     CHECK_TRUE_TEXT(testable.PublicMorozov_Equals(&a, &b), "status should not affect comparison");
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
+TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
     TestableWiFiRequests testable;
 
     char ssid[16];
@@ -104,7 +104,7 @@ TEST(LogicWiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
     CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Scan_is_unique) {
+TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
     TestableWiFiRequests testable;
 
     CHECK_EQUAL(0, testable.size());
@@ -120,7 +120,7 @@ TEST(LogicWiFiRequestsTestsGroup, Scan_is_unique) {
     CHECK_EQUAL(ssid, testable.back().Payload.Scanner.ssid);
 }
 
-TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
+TEST(WiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
@@ -154,7 +154,7 @@ TEST(LogicWiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     testable.pop_back();
 }
 
-TEST(LogicWiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
+TEST(WiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
@@ -173,7 +173,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
     }
 }
 
-TEST(LogicWiFiRequestsTestsGroup, RemoveAccessPoint) {
+TEST(WiFiRequestsTestsGroup, RemoveAccessPoint) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
@@ -192,7 +192,7 @@ TEST(LogicWiFiRequestsTestsGroup, RemoveAccessPoint) {
     }
 }
 
-TEST(LogicWiFiRequestsTestsGroup, RemoveScanner) {
+TEST(WiFiRequestsTestsGroup, RemoveScanner) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
