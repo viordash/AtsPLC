@@ -5,8 +5,6 @@
 #include "CppUTestExt/MockSupportPlugin.h"
 
 int main(int ac, char **av) {
-    ac = 1;
-
     MockSupportPlugin mockPlugin;
     TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
     return CommandLineTestRunner::RunAllTests(ac, av);
