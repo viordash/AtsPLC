@@ -199,9 +199,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_Co
     testable.BindToStaWiFi(&wifi_service);
 
     testable.FetchValue();
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_Station,
-                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_wifi_sta_client_does_nothing) {
@@ -213,7 +213,7 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_wifi_sta_client_does_n
 
     testable.WriteValue(42);
     testable.CommitChanges();
-    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(LogicControllerVariableTestsGroup,
@@ -236,11 +236,11 @@ TEST(LogicControllerVariableTestsGroup,
     TestableWiFiService wifi_service;
     wifi_service.ConnectToStation();
 
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     testable.BindToStaWiFi(&wifi_service);
 
     testable.CancelReadingProcess();
-    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scanner) {
@@ -257,9 +257,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scann
     testable.BindToInsecureWiFi(&wifi_service, "any_ssid");
 
     testable.FetchValue();
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_Scanner,
-                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_AccessPoint) {
@@ -277,9 +277,9 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_Acc
 
     testable.WriteValue(42);
     testable.CommitChanges();
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
-                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_calls_CancelScan) {
@@ -302,11 +302,11 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_c
     const char *ssid = "any_ssid";
     wifi_service.Scan(ssid);
 
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     testable.BindToInsecureWiFi(&wifi_service, ssid);
 
     testable.CancelReadingProcess();
-    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessPoint) {
@@ -323,9 +323,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessP
     testable.BindToSecureWiFi(&wifi_service, "any_ssid", "pass", "************");
 
     testable.FetchValue();
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
-                (wifi_service.PublicMorozov_Get_requests()->begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_SecureWiFi_does_nothing) {
@@ -337,7 +337,7 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_SecureWiFi_does_nothin
 
     testable.WriteValue(42);
     testable.CommitChanges();
-    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(LogicControllerVariableTestsGroup,
@@ -363,11 +363,11 @@ TEST(LogicControllerVariableTestsGroup,
     const char *mac = "************";
     wifi_service.AccessPoint(ssid, password, mac);
 
-    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     testable.BindToSecureWiFi(&wifi_service, ssid, password, mac);
 
     testable.CancelReadingProcess();
-    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, wifi_service.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_when_binded_to_datetime_seconds) {

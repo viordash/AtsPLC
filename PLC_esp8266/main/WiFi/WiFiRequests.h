@@ -41,11 +41,22 @@ struct RequestItem {
     }
 };
 
-class WiFiRequests : public std::list<RequestItem> {
+class WiFiRequests {
+  private:
+    std::list<RequestItem> items;
+
   protected:
-    std::mutex lock_mutex;
+    mutable std::mutex lock_mutex;
     bool Equals(const RequestItem *a, const RequestItem *b) const;
     std::list<RequestItem>::iterator Find(RequestItem *request);
+
+    size_t GetSize() const;
+    const RequestItem &GetBack() const;
+    void PopBack();
+    std::list<RequestItem>::iterator GetBegin();
+    std::list<RequestItem>::iterator GetEnd();
+    std::list<RequestItem>::const_iterator GetBegin() const;
+    std::list<RequestItem>::const_iterator GetEnd() const;
 
   public:
     bool Contains(RequestItem *request);
@@ -61,4 +72,8 @@ class WiFiRequests : public std::list<RequestItem> {
     bool RemoveStation();
 
     bool Pop(RequestItem *request);
+
+    size_t Size() const;
+    std::list<RequestItem>::const_iterator Begin() const;
+    std::list<RequestItem>::const_iterator End() const;
 };

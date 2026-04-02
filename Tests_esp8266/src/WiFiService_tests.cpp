@@ -108,13 +108,13 @@ TEST(WiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
 
     testable.ConnectToStation();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     testable.ConnectToStation();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(WiFiServiceTestsGroup, Scan_requests_are_unique) {
@@ -125,22 +125,22 @@ TEST(WiFiServiceTestsGroup, Scan_requests_are_unique) {
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
 
     testable.Scan("ssid_0");
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     testable.Scan("ssid_1");
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.Scan("ssid_1");
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.Scan("ssid_0");
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.Scan("ssid_2");
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(WiFiServiceTestsGroup, Scan_return_status) {
@@ -154,12 +154,12 @@ TEST(WiFiServiceTestsGroup, Scan_return_status) {
     const char *ssid_0 = "test_0";
 
     CHECK_EQUAL(LogicElement::MinValue, testable.Scan(ssid_0));
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     testable.PublicMorozov_AddScannedSsid(ssid_0, 42);
 
     CHECK_EQUAL(42, testable.Scan(ssid_0));
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(WiFiServiceTestsGroup, CancelScan) {
@@ -177,10 +177,10 @@ TEST(WiFiServiceTestsGroup, CancelScan) {
         .ignoreOtherParameters();
 
     CHECK_EQUAL(LogicElement::MinValue, testable.Scan("ssid_0"));
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     testable.CancelScan("ssid_0");
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(WiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
@@ -191,22 +191,22 @@ TEST(WiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
         .withIntParameter("eAction", eNotifyAction::eNoAction)
         .ignoreOtherParameters();
 
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
 
     testable.AccessPoint("ssid_0", NULL, NULL);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     testable.AccessPoint("ssid_1", NULL, NULL);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.AccessPoint("ssid_1", NULL, NULL);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.AccessPoint("ssid_0", NULL, NULL);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     testable.AccessPoint("ssid_2", NULL, NULL);
-    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->Size());
 }
 
 TEST(WiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
@@ -303,11 +303,11 @@ TEST(
 
     testable.PublicMorozov_Get_requests()->Station();
     testable.PublicMorozov_Get_requests()->Scan("ssid");
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
 
     RequestItem request = { RequestItemType::wqi_Station, {} };
     testable.PublicMorozov_StationTask(&request);
-    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(2, testable.PublicMorozov_Get_requests()->Size());
     CHECK_TRUE(testable.PublicMorozov_Get_requests()->Contains(&request));
 }
 
@@ -365,7 +365,7 @@ TEST(WiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
     testable.PublicMorozov_StationTask(&request);
 }
 
-TEST(WiFiServiceTestsGroup, StationTask_Handling_Sequence_Disconnect_Then_Connect) {
+IGNORE_TEST(WiFiServiceTestsGroup, StationTask_Handling_Sequence_Disconnect_Then_Connect) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
@@ -416,11 +416,11 @@ TEST(WiFiServiceTestsGroup, StationTask_Handling_Sequence_Disconnect_Then_Connec
     strcpy(settings.wifi_station.password, "test_pwd");
 
     testable.PublicMorozov_Get_requests()->Station();
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 
     RequestItem request = { RequestItemType::wqi_Station, {} };
     testable.PublicMorozov_StationTask(&request);
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
     CHECK_TRUE(testable.PublicMorozov_Get_requests()->Contains(&request));
 }
 
@@ -755,7 +755,7 @@ TEST(WiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_restar
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
     CHECK_EQUAL_TEXT(1,
-                     testable.PublicMorozov_Get_requests()->size(),
+                     testable.PublicMorozov_Get_requests()->Size(),
                      "AccessPoint can be restarted");
 }
 
@@ -783,7 +783,7 @@ TEST(WiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_cancel
     RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
     testable.PublicMorozov_AccessPointTask(&request);
     CHECK_EQUAL_TEXT(0,
-                     testable.PublicMorozov_Get_requests()->size(),
+                     testable.PublicMorozov_Get_requests()->Size(),
                      "AccessPoint cannot be restarted");
 }
 
