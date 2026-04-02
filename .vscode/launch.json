@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "args": [
+                // "-g",
+                // "WiFiServiceTestsGroup",
+                // "-n",
+                // "StationTask_Handling_Sequence_Disconnect_Then_Connect"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/Tests_esp8266",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "program": "${workspaceFolder}/Tests_esp8266/output/main",
+            "preLaunchTask": "Tests: build"
+        }
+    ]
+}
