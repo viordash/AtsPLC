@@ -13,7 +13,7 @@
 #include "main/WiFi/WiFiService.h"
 #include "main/settings.h"
 
-TEST_GROUP(LogicWiFiServiceTestsGroup){
+TEST_GROUP(WiFiServiceTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
@@ -100,7 +100,7 @@ namespace {
     };
 } // namespace
 
-TEST(LogicWiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
+TEST(WiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -117,7 +117,7 @@ TEST(LogicWiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
+TEST(WiFiServiceTestsGroup, Scan_requests_are_unique) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(3, "xTaskGenericNotify")
@@ -143,7 +143,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_requests_are_unique) {
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
+TEST(WiFiServiceTestsGroup, Scan_return_status) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -162,7 +162,7 @@ TEST(LogicWiFiServiceTestsGroup, Scan_return_status) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, CancelScan) {
+TEST(WiFiServiceTestsGroup, CancelScan) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -183,7 +183,7 @@ TEST(LogicWiFiServiceTestsGroup, CancelScan) {
     CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
+TEST(WiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
     TestableWiFiService testable;
     mock()
         .expectNCalls(3, "xTaskGenericNotify")
@@ -209,7 +209,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
+TEST(WiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
     TestableWiFiService testable;
 
     settings.wifi_station.ssid[0] = 0;
@@ -221,7 +221,7 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_w
     testable.PublicMorozov_StationTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
+TEST(WiFiServiceTestsGroup, StationTask_calls_connect) {
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
         .expectOneCall("esp_wifi_set_config")
@@ -259,7 +259,7 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_calls_connect) {
 }
 
 TEST(
-    LogicWiFiServiceTestsGroup,
+    WiFiServiceTestsGroup,
     StationTask_and_if_one_more_request_and_connection_occured_then_break_loop_but_request_recreates_for_further_restart) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
@@ -311,7 +311,7 @@ TEST(
     CHECK_TRUE(testable.PublicMorozov_Get_requests()->Contains(&request));
 }
 
-TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
+TEST(WiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
     mock().expectNCalls(2, "esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
         .expectNCalls(2, "esp_wifi_set_config")
@@ -366,7 +366,7 @@ TEST(LogicWiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
 }
 
 TEST(
-    LogicWiFiServiceTestsGroup,
+    WiFiServiceTestsGroup,
     ScannerTask_handle_CANCEL_REQUEST_BIT_and_then_stop_task_only_if_request_has_already_been_deleted) {
     TestableWiFiService testable;
 
@@ -401,7 +401,7 @@ TEST(
     testable.PublicMorozov_ScannerTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other_scan_requests) {
+TEST(WiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other_scan_requests) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
@@ -448,7 +448,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_ignore_CANCEL_REQUEST_BIT_for_other
     testable.PublicMorozov_ScannerTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, ScannerTask_before_stop_calls_WakeupProcessTask) {
+TEST(WiFiServiceTestsGroup, ScannerTask_before_stop_calls_WakeupProcessTask) {
     TestableWiFiService testable;
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock().expectOneCall("esp_wifi_start");
@@ -485,7 +485,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_before_stop_calls_WakeupProcessTask
     testable.PublicMorozov_ScannerTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
+TEST(WiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
@@ -532,7 +532,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_break_scan_by_timeout) {
     CHECK_FALSE(testable.PublicMorozov_FindScannedSsid(ssid_0, &rssi));
 }
 
-TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_is_usable) {
+TEST(WiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_is_usable) {
     TestableWiFiService testable;
 
     mock().expectNCalls(2, "esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
@@ -584,7 +584,7 @@ TEST(LogicWiFiServiceTestsGroup, ScannerTask_add_ssid_to_scanned_list_when_rssi_
 }
 
 TEST(
-    LogicWiFiServiceTestsGroup,
+    WiFiServiceTestsGroup,
     AccessPointTask_handle_CANCEL_REQUEST_BIT_and_then_stop_task_only_if_request_has_already_been_deleted) {
     TestableWiFiService testable;
 
@@ -613,7 +613,7 @@ TEST(
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_other_AP_requests) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_other_AP_requests) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -647,7 +647,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_ignore_CANCEL_REQUEST_BIT_for_o
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcessTask) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcessTask) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -672,7 +672,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_before_stop_calls_WakeupProcess
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_restart) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_restart) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -700,7 +700,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_recreates_request_for_further_r
                      "AccessPoint can be restarted");
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_canceled) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_canceled) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -728,7 +728,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_does_not_recreates_request_if_c
                      "AccessPoint cannot be restarted");
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -754,7 +754,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_timeout_only_if_other_requests)
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_denies_access_if_configured_as_insecure) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_denies_access_if_configured_as_insecure) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -782,7 +782,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_denies_access_if_configured_as_
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_secure) {
+TEST(WiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_secure) {
     TestableWiFiService testable;
 
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_AP);
@@ -812,7 +812,7 @@ TEST(LogicWiFiServiceTestsGroup, AccessPointTask_allow_access_if_configured_as_s
     testable.PublicMorozov_AccessPointTask(&request);
 }
 
-TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
+TEST(WiFiServiceTestsGroup, ScaleRssiToPercent04) {
     TestableWiFiService testable;
     CurrentSettings::wifi_scanner_settings scanner_settings = { 0, -26, -120 };
 
@@ -826,7 +826,7 @@ TEST(LogicWiFiServiceTestsGroup, ScaleRssiToPercent04) {
     CHECK_EQUAL(255, testable.PublicMorozov_ScaleRssiToPercent04(127, &scanner_settings));
 }
 
-TEST(LogicWiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_exists) {
+TEST(WiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_exists) {
     TestableWiFiService testable;
 
     uint8_t rssi;
@@ -841,7 +841,7 @@ TEST(LogicWiFiServiceTestsGroup, AddScannedSsid_update_rssi_if_record_already_ex
     CHECK_EQUAL(19, rssi);
 }
 
-TEST(LogicWiFiServiceTestsGroup, AddApClient_increase_clients_count_on_every_addition) {
+TEST(WiFiServiceTestsGroup, AddApClient_increase_clients_count_on_every_addition) {
     TestableWiFiService testable;
 
     const char *ssid_0 = "test_0";
@@ -869,7 +869,7 @@ TEST(LogicWiFiServiceTestsGroup, AddApClient_increase_clients_count_on_every_add
     CHECK_EQUAL(3, testable.PublicMorozov_GetApClientsCount(ssid_1));
 }
 
-TEST(LogicWiFiServiceTestsGroup, set_of_ap_clients_is_unique) {
+TEST(WiFiServiceTestsGroup, set_of_ap_clients_is_unique) {
     TestableWiFiService testable;
 
     const char *ssid_0 = "test_0";
@@ -892,7 +892,7 @@ TEST(LogicWiFiServiceTestsGroup, set_of_ap_clients_is_unique) {
     CHECK_EQUAL(2, testable.PublicMorozov_GetApClientsCount(ssid_0));
 }
 
-TEST(LogicWiFiServiceTestsGroup,
+TEST(WiFiServiceTestsGroup,
      RemoveApClient_decrease_clients_count_and_erase_ssid_when_down_to_zero) {
     TestableWiFiService testable;
 
@@ -935,7 +935,7 @@ TEST(LogicWiFiServiceTestsGroup,
     CHECK_EQUAL(0, testable.PublicMorozov_Get_ap_clients().size());
 }
 
-TEST(LogicWiFiServiceTestsGroup, RemoveApClients) {
+TEST(WiFiServiceTestsGroup, RemoveApClients) {
     TestableWiFiService testable;
 
     const char *ssid_0 = "test_0";
@@ -961,7 +961,7 @@ TEST(LogicWiFiServiceTestsGroup, RemoveApClients) {
     CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid_1));
 }
 
-TEST(LogicWiFiServiceTestsGroup,
+TEST(WiFiServiceTestsGroup,
      AccessPoint_when_connect_then_calls_WakeupProcessTask_and_add_connected_client) {
     TestableWiFiService testable;
 
@@ -983,7 +983,7 @@ TEST(LogicWiFiServiceTestsGroup,
     CHECK_EQUAL(1, testable.PublicMorozov_GetApClientsCount(ssid));
 }
 
-TEST(LogicWiFiServiceTestsGroup,
+TEST(WiFiServiceTestsGroup,
      AccessPoint_when_disconnect_then_calls_WakeupProcessTask_and_remove_connected_client) {
     TestableWiFiService testable;
 
@@ -1008,7 +1008,7 @@ TEST(LogicWiFiServiceTestsGroup,
     CHECK_EQUAL(0, testable.PublicMorozov_GetApClientsCount(ssid));
 }
 
-TEST(LogicWiFiServiceTestsGroup, AccessPoint_reject_connection_for_unknown_mac) {
+TEST(WiFiServiceTestsGroup, AccessPoint_reject_connection_for_unknown_mac) {
     TestableWiFiService testable;
 
     const char *ssid = "test";
