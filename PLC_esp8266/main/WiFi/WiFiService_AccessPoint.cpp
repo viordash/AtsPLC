@@ -31,7 +31,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                       && strlen(request->Payload.AccessPoint.password) > 0;
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "start, ssid:'%s', password:'%s', mac:'%s'",
+             "start, ssid:'%.24s', password:'%.16s', mac:'%.12s'",
              request->Payload.AccessPoint.ssid,
              secure_client ? request->Payload.AccessPoint.password : "",
              secure_client ? request->Payload.AccessPoint.mac : "");
