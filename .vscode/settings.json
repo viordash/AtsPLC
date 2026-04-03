@@ -1,4 +1,8 @@
 {
+    "files.exclude": {
+        "**/*.d": true,
+        "**/*.o": true
+    },
     "files.associations": {
         "*.Single": "makefile",
         "rtc.h": "c",
