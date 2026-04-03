@@ -121,9 +121,8 @@ bool WiFiRequests::Pop(RequestItem *request) {
     if (items.empty()) {
         return false;
     }
-    auto &req = items.back();
-    request->Payload = req.Payload;
-    request->Type = req.Type;
+    *request = std::move(items.back());
+    items.pop_back();
     return true;
 }
 

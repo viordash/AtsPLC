@@ -258,9 +258,8 @@ TEST(WiFiServiceTestsGroup, StationTask_calls_connect) {
     testable.PublicMorozov_StationTask(&request);
 }
 
-TEST(
-    WiFiServiceTestsGroup,
-    StationTask_and_if_one_more_request_and_connection_occured_then_break_loop_but_request_recreates_for_further_restart) {
+TEST(WiFiServiceTestsGroup,
+     StationTask_and_if_one_more_request_and_connection_occured_then_break_loop) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
@@ -365,7 +364,7 @@ TEST(WiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
     testable.PublicMorozov_StationTask(&request);
 }
 
-IGNORE_TEST(WiFiServiceTestsGroup, StationTask_Handling_Sequence_Disconnect_Then_Connect) {
+TEST(WiFiServiceTestsGroup, StationTask_Handling_Does_not_remove_request) {
     mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
@@ -373,7 +372,7 @@ IGNORE_TEST(WiFiServiceTestsGroup, StationTask_Handling_Sequence_Disconnect_Then
         .withIntParameter("interface", ESP_IF_WIFI_STA)
         .ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_start");
-    mock().expectNCalls(2, "esp_timer_get_time").ignoreOtherParameters();
+    mock().expectNCalls(1, "esp_timer_get_time").ignoreOtherParameters();
 
     uint32_t notifVal = WiFiService::CONNECTED_BIT;
     mock()

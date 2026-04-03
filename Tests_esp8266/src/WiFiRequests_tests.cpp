@@ -29,9 +29,6 @@ namespace {
         const RequestItem &PublicMorozov_back() const {
             return GetBack();
         }
-        void PublicMorozov_pop_back() {
-            PopBack();
-        }
         std::list<RequestItem>::iterator PublicMorozov_begin() {
             return GetBegin();
         }
@@ -136,7 +133,7 @@ TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
     CHECK_EQUAL(ssid, testable.PublicMorozov_back().Payload.Scanner.ssid);
 }
 
-TEST(WiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
+TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
@@ -152,22 +149,22 @@ TEST(WiFiRequestsTestsGroup, Pop_is_FIFO_compliant) {
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
     STRCMP_EQUAL("test_0", request.Payload.Scanner.ssid);
-    testable.PublicMorozov_pop_back();
+    CHECK_EQUAL(3, testable.PublicMorozov_size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_0", request.Payload.AccessPoint.ssid);
-    testable.PublicMorozov_pop_back();
+    CHECK_EQUAL(2, testable.PublicMorozov_size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.Scanner.ssid);
-    testable.PublicMorozov_pop_back();
+    CHECK_EQUAL(1, testable.PublicMorozov_size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.AccessPoint.ssid);
-    testable.PublicMorozov_pop_back();
+    CHECK_EQUAL(0, testable.PublicMorozov_size());
 }
 
 TEST(WiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {

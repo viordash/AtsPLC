@@ -130,7 +130,6 @@ void WiFiService::ScannerTask(RequestItem *request) {
     } else {
         RemoveScannedSsid(request->Payload.Scanner.ssid);
     }
-    requests.RemoveScanner(request->Payload.Scanner.ssid);
     if (!canceled) {
         Controller::WakeupProcessTask();
     }

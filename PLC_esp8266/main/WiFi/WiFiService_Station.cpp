@@ -176,7 +176,6 @@ void WiFiService::StationTask(RequestItem *request) {
         ESP_LOGI(TAG_WiFiService_Station, "not fully disconnected");
     }
 
-    requests.RemoveStation();
     if (!cancel) {
         requests.Station();
     }

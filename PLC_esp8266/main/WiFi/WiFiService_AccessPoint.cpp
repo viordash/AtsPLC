@@ -114,7 +114,6 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                                                  WIFI_EVENT_AP_STADISCONNECTED,
                                                  &ap_disconnect_wifi_event_handler));
 
-    requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
     if (!cancel) {
         requests.AccessPoint(request->Payload.AccessPoint.ssid,
                              request->Payload.AccessPoint.password,
