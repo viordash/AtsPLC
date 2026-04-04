@@ -38,9 +38,10 @@ void WiFiService::Start() {
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "ConnectToStation");
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
+    } else {
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation req, rssi:%u", station_rssi);
     }
-    ESP_LOGD(TAG_WiFiService, "ConnectToStation, rssi:%u", station_rssi);
     return station_rssi;
 }
 
@@ -62,10 +63,12 @@ uint8_t WiFiService::Scan(const char *ssid) {
     if (requests.Scan(ssid)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService,
-                 "Scan, ssid:%s, found:%u, rssi:%u",
+                 "Scan new req, ssid:%s, found:%u, rssi:%u",
                  ssid,
                  (unsigned int)found,
                  (unsigned int)rssi);
+    } else {
+        ESP_LOGD(TAG_WiFiService, "Scan req, ssid:%s", ssid);
     }
     return rssi;
 }
@@ -82,7 +85,9 @@ void WiFiService::CancelScan(const char *ssid) {
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
+        ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
+    } else {
+        ESP_LOGD(TAG_WiFiService, "AccessPoint req, ssid:%s", ssid);
     }
     return GetApClientsCount(ssid);
 }
