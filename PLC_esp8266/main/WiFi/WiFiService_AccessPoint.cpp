@@ -92,7 +92,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             break;
         }
 
-        if (notify_wait_timeout && requests.OneMoreInQueue()) {
+        if (notify_wait_timeout && requests.HasAnother(request)) {
             ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");
             break;
         }

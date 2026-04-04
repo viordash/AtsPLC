@@ -60,7 +60,7 @@ class WiFiRequests {
 
   public:
     bool Contains(RequestItem *request);
-    bool OneMoreInQueue();
+    bool HasAnother(RequestItem *current);
 
     bool Scan(const char *ssid);
     bool AccessPoint(const char *ssid, const char *password, const char *mac);

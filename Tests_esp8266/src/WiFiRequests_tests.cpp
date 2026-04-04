@@ -139,13 +139,18 @@ TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
 
+    testable.Station();
     testable.Scan(ssid_0);
     testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Scan(ssid_1);
     testable.AccessPoint(ssid_1, NULL, NULL);
-    CHECK_EQUAL(4, testable.PublicMorozov_size());
+    CHECK_EQUAL(5, testable.PublicMorozov_size());
 
     RequestItem request;
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_Station, request.Type);
+    CHECK_EQUAL(4, testable.PublicMorozov_size());
+
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
     STRCMP_EQUAL("test_0", request.Payload.Scanner.ssid);
@@ -165,4 +170,48 @@ TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.AccessPoint.ssid);
     CHECK_EQUAL(0, testable.PublicMorozov_size());
+}
+
+TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Station) {
+    TestableWiFiRequests testable;
+
+    RequestItem current_req = { RequestItemType::wqi_Station, {} };
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    testable.Station();
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    const char *ssid_0 = "test_0";
+    testable.Scan(ssid_0);
+    CHECK_TRUE(testable.HasAnother(&current_req));
+}
+
+TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Scanner) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    RequestItem current_req = { RequestItemType::wqi_Scanner, { ssid_0 } };
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    testable.Scan(ssid_0);
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    const char *ssid_1 = "test_1";
+    testable.Scan(ssid_1);
+    CHECK_TRUE(testable.HasAnother(&current_req));
+}
+
+TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_AccessPoint) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    RequestItem current_req = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    testable.AccessPoint(ssid_0, NULL, NULL);
+    CHECK_FALSE(testable.HasAnother(&current_req));
+
+    const char *ssid_1 = "test_1";
+    testable.AccessPoint(ssid_1, NULL, NULL);
+    CHECK_TRUE(testable.HasAnother(&current_req));
 }

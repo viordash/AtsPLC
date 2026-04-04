@@ -37,9 +37,14 @@ bool WiFiRequests::Contains(RequestItem *request) {
     return item != items.end();
 }
 
-bool WiFiRequests::OneMoreInQueue() {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    return items.size() > 0;
+bool WiFiRequests::HasAnother(RequestItem *current) {
+    for (auto it = items.begin(); it != items.end(); it++) {
+        const auto &req = *it;
+        if (!Equals(&req, current)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool WiFiRequests::Scan(const char *ssid) {

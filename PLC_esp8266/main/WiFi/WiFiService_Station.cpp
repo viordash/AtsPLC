@@ -17,7 +17,6 @@ static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern CurrentSettings::device_settings settings;
 
 void WiFiService::StationTask(RequestItem *request) {
-    (void)request;
     ESP_LOGD(TAG_WiFiService_Station, "start");
 
     int connect_retries_num = 0;
@@ -77,7 +76,6 @@ void WiFiService::StationTask(RequestItem *request) {
             break;
         }
 
-        bool one_more_request = requests.OneMoreInQueue();
         bool any_failure = (notified_event & STA_FAILED_BIT) != 0;
         if (any_failure) {
             has_connect = false;
@@ -94,7 +92,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 if (connect_retries_num >= retries_num_before_no_station) {
                     station_rssi = LogicElement::MinValue;
                     Controller::WakeupProcessTask();
-                    if (one_more_request) {
+                    if (requests.HasAnother(request)) {
                         ESP_LOGI(TAG_WiFiService_Station,
                                  "Stop connecting to station due to new request");
                         break;
@@ -139,7 +137,7 @@ void WiFiService::StationTask(RequestItem *request) {
             ESP_LOGI(TAG_WiFiService_Station, "ConnectToStation, rssi:%u", station_rssi);
         }
 
-        if (one_more_request && has_connect) {
+        if (has_connect && requests.HasAnother(request)) {
             int64_t timespan =
                 (connection_start_time + (min_worktime_ms * 1000)) - (uint64_t)esp_timer_get_time();
 
