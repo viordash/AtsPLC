@@ -11,9 +11,9 @@
 #include "main/WiFi/WiFiRequests.h"
 
 TEST_GROUP(WiFiRequestsTestsGroup){ //
-                                         TEST_SETUP(){}
+                                    TEST_SETUP(){}
 
-                                         TEST_TEARDOWN(){}
+                                    TEST_TEARDOWN(){}
 };
 
 namespace {
@@ -165,63 +165,4 @@ TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.AccessPoint.ssid);
     CHECK_EQUAL(0, testable.PublicMorozov_size());
-}
-
-TEST(WiFiRequestsTestsGroup, RemoveStation_removes_Station_request) {
-    TestableWiFiRequests testable;
-
-    const char *ssid_0 = "test_0";
-
-    testable.Scan(ssid_0);
-    testable.AccessPoint(ssid_0, NULL, NULL);
-    testable.Station();
-    CHECK_EQUAL(3, testable.PublicMorozov_size());
-
-    testable.RemoveStation();
-    CHECK_EQUAL(2, testable.PublicMorozov_size());
-
-    for (auto it = testable.PublicMorozov_begin(); it != testable.PublicMorozov_end(); it++) {
-        const auto &request = *it;
-        CHECK(request.Type != RequestItemType::wqi_Station);
-    }
-}
-
-TEST(WiFiRequestsTestsGroup, RemoveAccessPoint) {
-    TestableWiFiRequests testable;
-
-    const char *ssid_0 = "test_0";
-
-    testable.Scan(ssid_0);
-    testable.AccessPoint(ssid_0, NULL, NULL);
-    testable.Station();
-    CHECK_EQUAL(3, testable.PublicMorozov_size());
-
-    testable.RemoveAccessPoint(ssid_0);
-    CHECK_EQUAL(2, testable.PublicMorozov_size());
-
-    for (auto it = testable.PublicMorozov_begin(); it != testable.PublicMorozov_end(); it++) {
-        const auto &request = *it;
-        CHECK(request.Type != RequestItemType::wqi_AccessPoint);
-    }
-}
-
-TEST(WiFiRequestsTestsGroup, RemoveScanner) {
-    TestableWiFiRequests testable;
-
-    const char *ssid_0 = "test_0";
-    const char *ssid_0_but_diff_address = "test_0";
-    const char *ssid_1 = "test_1";
-
-    testable.AccessPoint(ssid_0, NULL, NULL);
-    testable.Scan(ssid_0);
-    testable.Scan(ssid_1);
-    testable.AccessPoint(ssid_1, NULL, NULL);
-    testable.Station();
-    CHECK_EQUAL(5, testable.PublicMorozov_size());
-
-    CHECK_TRUE(testable.RemoveScanner(ssid_0));
-    CHECK_EQUAL(4, testable.PublicMorozov_size());
-
-    CHECK_FALSE(testable.RemoveScanner(ssid_0_but_diff_address));
-    CHECK_EQUAL(4, testable.PublicMorozov_size());
 }

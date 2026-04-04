@@ -41,7 +41,6 @@ void WiFiService::StationTask(RequestItem *request) {
     bool has_wifi_sta_settings = wifi_config.sta.ssid[0] != 0;
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
-        requests.RemoveStation();
         station_rssi = LogicElement::MinValue;
         return;
     }
