@@ -39,7 +39,7 @@ bool WiFiRequests::Contains(RequestItem *request) {
 
 bool WiFiRequests::OneMoreInQueue() {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    return items.size() > 1;
+    return items.size() > 0;
 }
 
 bool WiFiRequests::Scan(const char *ssid) {
