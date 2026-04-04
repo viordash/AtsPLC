@@ -4,6 +4,7 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <cassert>
@@ -110,10 +111,8 @@ void WiFiService::Task(void *parm) {
 
     uint32_t ulNotifiedValue = 0;
     while (true) {
-        xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY);
-        if ((ulNotifiedValue & STOP_BIT) != 0) {
-            break;
-        }
+        ASSERT(xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE);
+
         ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
         while (wifi_service->requests.Pop(&new_request)) {

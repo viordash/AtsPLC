@@ -17,6 +17,7 @@ static const char *TAG_WiFiService_Station = "WiFiService.Station";
 extern CurrentSettings::device_settings settings;
 
 void WiFiService::StationTask(RequestItem *request) {
+    (void)request;
     ESP_LOGD(TAG_WiFiService_Station, "start");
 
     int connect_retries_num = 0;
@@ -72,12 +73,7 @@ void WiFiService::StationTask(RequestItem *request) {
         uint32_t notified_event = ulNotifiedValue;
         ulNotifiedValue = 0;
 
-        bool to_stop = (notified_event & STOP_BIT) != 0;
-        if (to_stop) {
-            break;
-        }
-
-        cancel = (notified_event & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        cancel = (notified_event & CANCEL_REQUEST_BIT) != 0;
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_Station, "Cancel");
             break;

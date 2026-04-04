@@ -87,13 +87,8 @@ int8_t WiFiService::Scanning(RequestItem *request,
         if (timespan <= 0) {
             break;
         }
-        bool to_stop = !notify_wait_timeout && (ulNotifiedValue & STOP_BIT) != 0;
-        if (to_stop) {
-            break;
-        }
 
-        *canceled = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0
-                 && !requests.Contains(request);
+        *canceled = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0;
         if (*canceled) {
             ESP_LOGI(TAG_WiFiService_Scanner,
                      "Cancel request, ssid:%s",

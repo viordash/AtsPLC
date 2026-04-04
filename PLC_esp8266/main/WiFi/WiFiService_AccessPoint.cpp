@@ -90,12 +90,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             break;
         }
 
-        bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
-        if (to_stop) {
-            break;
-        }
-
-        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0;
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_AccessPoint,
                      "Cancel request, ssid:%s",
