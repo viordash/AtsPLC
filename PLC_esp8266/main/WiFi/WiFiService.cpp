@@ -38,6 +38,9 @@ void WiFiService::Start() {
 
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
+        ASSERT(xTaskNotifyWait(0, STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT, NULL, 0)
+               == pdTRUE);
+
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
     } else {
@@ -47,11 +50,8 @@ uint8_t WiFiService::ConnectToStation() {
 }
 
 void WiFiService::DisconnectFromStation() {
-    bool removed = requests.RemoveStation();
-    ESP_LOGI(TAG_WiFiService, "DisconnectFromStation, removed:%d", removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "DisconnectFromStation");
+    xTaskNotify(task_handle, STA_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -62,6 +62,7 @@ uint8_t WiFiService::Scan(const char *ssid) {
     }
 
     if (requests.Scan(ssid)) {
+        ASSERT(xTaskNotifyWait(0, SCAN_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService,
                  "Scan new req, ssid:%s, found:%u, rssi:%u",
@@ -76,15 +77,13 @@ uint8_t WiFiService::Scan(const char *ssid) {
 
 void WiFiService::CancelScan(const char *ssid) {
     RemoveScannedSsid(ssid);
-    bool removed = requests.RemoveScanner(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%u", ssid, (unsigned int)removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s", ssid);
+    xTaskNotify(task_handle, SCAN_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
+        ASSERT(xTaskNotifyWait(0, AP_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
     } else {
@@ -95,14 +94,8 @@ size_t WiFiService::AccessPoint(const char *ssid, const char *password, const ch
 
 void WiFiService::CancelAccessPoint(const char *ssid) {
     RemoveApClients(ssid);
-    bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService,
-             "CancelAccessPoint, ssid:%s, removed:%u",
-             ssid,
-             (unsigned int)removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s", ssid);
+    xTaskNotify(task_handle, AP_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 void WiFiService::Task(void *parm) {

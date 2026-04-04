@@ -87,9 +87,11 @@ class WiFiService {
     void RemoveApClients(const char *ssid);
 
   public:
-    static const int FAILED_BIT = BIT1;
-    static const int CONNECTED_BIT = BIT2;
-    static const int CANCEL_REQUEST_BIT = BIT3;
+    static const int STA_FAILED_BIT = BIT1;
+    static const int STA_CONNECTED_BIT = BIT2;
+    static const int STA_BREAK_BIT = BIT3;
+    static const int SCAN_BREAK_BIT = BIT4;
+    static const int AP_BREAK_BIT = BIT5;
 
     WiFiService();
     ~WiFiService();

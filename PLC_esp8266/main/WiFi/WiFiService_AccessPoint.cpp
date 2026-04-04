@@ -76,7 +76,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     while (true) {
         bool notify_wait_timeout =
             xTaskNotifyWait(0,
-                            CANCEL_REQUEST_BIT,
+                            AP_BREAK_BIT,
                             &ulNotifiedValue,
                             access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
             == pdFALSE;
@@ -90,7 +90,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
             break;
         }
 
-        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0;
+        cancel = (ulNotifiedValue & AP_BREAK_BIT) != 0;
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_AccessPoint,
                      "Cancel request, ssid:%s",
