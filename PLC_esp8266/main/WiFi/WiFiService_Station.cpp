@@ -138,18 +138,22 @@ void WiFiService::StationTask(RequestItem *request) {
         }
 
         if (has_connect && requests.HasAnother(request)) {
-            int64_t timespan =
-                (connection_start_time + (min_worktime_ms * 1000)) - (uint64_t)esp_timer_get_time();
-
-            if (timespan > 0) {
+            int64_t timespan;
+            while ((timespan = (connection_start_time + (min_worktime_ms * 1000))
+                             - (uint64_t)esp_timer_get_time())
+                   > 0) {
                 const TickType_t delay_before_disconnect = (timespan / 1000) / portTICK_PERIOD_MS;
                 ESP_LOGI(TAG_WiFiService_Station,
                          "Wait %u ticks before disconnect",
                          (unsigned int)delay_before_disconnect);
-                xTaskNotifyWait(0,
-                                STA_BREAK_BIT | STA_FAILED_BIT,
-                                &ulNotifiedValue,
-                                delay_before_disconnect);
+                bool timeout = xTaskNotifyWait(0,
+                                               STA_BREAK_BIT | STA_FAILED_BIT,
+                                               &ulNotifiedValue,
+                                               delay_before_disconnect)
+                            == pdFALSE;
+                if (timeout) {
+                    break;
+                }
             }
             ESP_LOGI(TAG_WiFiService_Station, "Disconnect station due to new request");
             break;
