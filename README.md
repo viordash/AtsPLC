@@ -24,7 +24,7 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 ```
 AtsPLC/
 ├── PLC_esp8266/              # Main ESP8266 application (embedded firmware)
-│   ├── main/                 # Source code (264 .cpp/.h files)
+│   ├── main/                 # Source code (.cpp/.h files)
 │   │   ├── LogicProgram/     # PLC logic engine
 │   │   │   ├── Inputs/       # Input elements (NO, NC, Timers, Comparators)
 │   │   │   ├── Outputs/      # Output elements (Direct, Set, Reset, Inc/Dec)
@@ -43,7 +43,6 @@ AtsPLC/
 │
 ├── Tests_esp8266/            # Unit testing framework (runs on Linux)
 │   ├── src/                  # Test files
-│   └── lib/                  # Mock implementations
 │
 ├── SDK/                      # Dependencies
 │   ├── ESP8266_RTOS_SDK/     # Espressif RTOS SDK (submodule)
@@ -138,6 +137,21 @@ Binds date/time parameters to controller variables (V1–V4):
 
 ---
 
+## Service Mode
+
+Enter service mode by powering on with the **UP** button held down.
+
+Available functions:
+- **SmartConfig** — WiFi provisioning via mobile app
+- **Backup** — Save program to one of 4 slots (ladder_0 – ladder_3)
+- **Restore** — Restore program from backup slot
+- **Reset Settings** — Restore default settings
+- **Reset Ladder program** — Delete working program
+- **Reset Backups** — Delete all backups
+- **Factory reset** — Complete factory reset
+
+---
+
 ## Building and Flashing
 
 ### Prerequisites
@@ -202,21 +216,6 @@ The project includes VSCode configuration for development:
 
 **Debug:**
 - Press F5 to run and debug tests
-
----
-
-## Service Mode
-
-Enter service mode by powering on with the **UP** button held down.
-
-Available functions:
-- **SmartConfig** — WiFi provisioning via mobile app
-- **Backup** — Save program to one of 4 slots (ladder_0 – ladder_3)
-- **Restore** — Restore program from backup slot
-- **Reset Settings** — Restore default settings
-- **Reset Ladder program** — Delete working program
-- **Reset Backups** — Delete all backups
-- **Factory reset** — Complete factory reset
 
 ---
 
