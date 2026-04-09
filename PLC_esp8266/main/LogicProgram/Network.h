@@ -7,8 +7,9 @@
 #include <unistd.h>
 #include <vector>
 
-class Network : public std::vector<LogicElement *>, public EditableElement {
+class Network : public EditableElement {
   protected:
+    std::vector<LogicElement *> items;
     LogicItemState state;
     bool state_changed;
     bool frame_buffer_req_render;
@@ -28,6 +29,12 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     explicit Network();
     explicit Network(LogicItemState state);
     virtual ~Network();
+
+    size_t size() const;
+    bool empty() const;
+    LogicElement *&operator[](size_t index);
+    LogicElement *const &operator[](size_t index) const;
+    LogicElement *&at(size_t index);
 
     void ChangeState(LogicItemState state);
     LogicItemState GetState();
