@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "PLC: build",
+            "label": "build",
             "type": "shell",
             "command": "cd PLC_esp8266 && make -j $(nproc) size",
             "problemMatcher": [],
@@ -20,7 +20,7 @@
             }
         },
         {
-            "label": "PLC: rebuild",
+            "label": "rebuild",
             "type": "shell",
             "command": "cd PLC_esp8266 && make -j $(nproc) project_prepare && make -j $(nproc) clean && make -j $(nproc) size",
             "problemMatcher": [],
@@ -40,7 +40,7 @@
             }
         },
         {
-            "label": "PLC: build & ota",
+            "label": "build & ota",
             "type": "shell",
             "command": "cd PLC_esp8266 && make -j $(nproc) ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.0.106/update",
             "problemMatcher": [],
