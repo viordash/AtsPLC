@@ -16,8 +16,8 @@ class WiFiBinding : public CommonWiFiBinding {
     void SelectPriorSymbol(char *symbol);
     void SelectNextSymbol(char *symbol);
 
-    void RenderSsidWithElipsis(FrameBuffer *fb,uint8_t x, uint8_t y, int leverage);
-    void RenderEditedSsid(FrameBuffer *fb,uint8_t x, uint8_t y);
+    void RenderSsidWithElipsis(FrameBuffer *fb, uint8_t x, uint8_t y, int leverage);
+    void RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y);
     bool IsLastSsidChar();
     bool ChangeSsid();
 
