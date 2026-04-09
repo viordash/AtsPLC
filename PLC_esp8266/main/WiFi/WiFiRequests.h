@@ -42,10 +42,8 @@ struct RequestItem {
 };
 
 class WiFiRequests {
-  private:
-    std::list<RequestItem> items;
-
   protected:
+    std::list<RequestItem> items;
     mutable std::mutex lock_mutex;
     bool Equals(const RequestItem *a, const RequestItem *b) const;
     std::list<RequestItem>::iterator Find(RequestItem *request);

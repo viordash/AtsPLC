@@ -70,7 +70,7 @@ size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    reserve(networks_count);
+    items.reserve(networks_count);
     for (size_t i = 0; i < networks_count; i++) {
         auto network = new Network();
         size_t network_readed = network->Deserialize(&buffer[readed], buffer_size - readed);
@@ -88,7 +88,7 @@ size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
 size_t Ladder::Serialize(uint8_t *buffer, size_t buffer_size) {
     size_t writed = 0;
 
-    uint16_t networks_count = size();
+    uint16_t networks_count = items.size();
     if (networks_count < Ladder::MinNetworksCount) {
         return 0;
     }
@@ -100,7 +100,7 @@ size_t Ladder::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
-    for (auto it = begin(); it != end(); ++it) {
+    for (auto it = items.begin(); it != items.end(); ++it) {
         auto *network = *it;
         uint8_t *p;
         bool just_obtain_size = buffer == NULL;

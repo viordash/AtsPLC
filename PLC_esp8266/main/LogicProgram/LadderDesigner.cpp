@@ -10,19 +10,19 @@
 #include <string.h>
 
 bool Ladder::CanScrollAuto() {
-    return (size_t)view_top_index == size() - Ladder::MaxViewPortCount;
+    return (size_t)view_top_index == items.size() - Ladder::MaxViewPortCount;
 }
 
 void Ladder::AutoScroll() {
-    if (size() > Ladder::MaxViewPortCount) {
-        view_top_index = size() - Ladder::MaxViewPortCount;
+    if (items.size() > Ladder::MaxViewPortCount) {
+        view_top_index = items.size() - Ladder::MaxViewPortCount;
         Controller::UpdateUIViewTop(view_top_index);
     }
 }
 
 int Ladder::GetSelectedNetwork() {
-    for (int i = 0; i < (int)size(); i++) {
-        auto network = (*this)[i];
+    for (int i = 0; i < (int)items.size(); i++) {
+        auto network = items[i];
         switch (network->GetEditable_state()) {
             case EditableElement::ElementState::des_Selected:
             case EditableElement::ElementState::des_Editing:
@@ -48,7 +48,7 @@ EditableElement::ElementState Ladder::GetDesignState(int selected_network) {
         return EditableElement::ElementState::des_Regular;
     }
 
-    auto network = (*this)[selected_network];
+    auto network = items[selected_network];
     switch (network->GetEditable_state()) {
         case EditableElement::ElementState::des_Selected:
         case EditableElement::ElementState::des_Editing:
@@ -80,20 +80,20 @@ bool Ladder::ScrollUp(int *selected_network) {
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
-    return size() > 0;
+    return items.size() > 0;
 }
 
 bool Ladder::ScrollDown(int *selected_network) {
     if (*selected_network + 1 < view_top_index + (int)Ladder::MaxViewPortCount) {
         (*selected_network)++;
         Controller::UpdateUISelected(*selected_network);
-    } else if (view_top_index + Ladder::MaxViewPortCount <= size()) {
+    } else if (view_top_index + Ladder::MaxViewPortCount <= items.size()) {
         view_top_index++;
         (*selected_network)++;
         Controller::UpdateUIViewTop(view_top_index);
         Controller::UpdateUISelected(*selected_network);
     }
-    return *selected_network < (int)size();
+    return *selected_network < (int)items.size();
 }
 
 void Ladder::HandleButtonUp() {
@@ -116,36 +116,36 @@ void Ladder::HandleButtonUp() {
             break;
 
         case EditableElement::ElementState::des_Selected:
-            (*this)[selected_network]->CancelSelection();
+            items[selected_network]->CancelSelection();
             RemoveNetworkIfEmpty(selected_network);
             if (ScrollUp(&selected_network)) {
-                (*this)[selected_network]->Select();
+                items[selected_network]->Select();
             }
             break;
 
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->SelectPrior();
+            items[selected_network]->SelectPrior();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
+            items[selected_network]->SwitchToAdvancedSelectDisable();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
-            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            items[selected_network]->SwitchToAdvancedSelectMove();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            (*this)[selected_network]->SwitchToAdvancedSelectCopy();
+            items[selected_network]->SwitchToAdvancedSelectCopy();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
-            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
+            items[selected_network]->SwitchToAdvancedSelectDelete();
             break;
 
         case EditableElement::ElementState::des_Moving:
             if (selected_network > 0) {
-                std::swap(at(selected_network), at(selected_network - 1));
+                std::swap(items.at(selected_network), items.at(selected_network - 1));
             }
             ScrollUp(&selected_network);
             break;
@@ -174,7 +174,7 @@ void Ladder::HandleButtonPageUp() {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->PageUp();
+            items[selected_network]->PageUp();
             return;
         default:
             HandleButtonUp();
@@ -195,50 +195,50 @@ void Ladder::HandleButtonDown() {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
-            if (view_top_index + Ladder::MaxViewPortCount < size()) {
+            if (view_top_index + Ladder::MaxViewPortCount < items.size()) {
                 view_top_index++;
                 Controller::UpdateUIViewTop(view_top_index);
             }
             break;
 
         case EditableElement::ElementState::des_Selected:
-            (*this)[selected_network]->CancelSelection();
+            items[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
                 ScrollDown(&selected_network);
             }
 
-            if (selected_network == (int)size()) {
+            if (selected_network == (int)items.size()) {
                 auto new_network = new Network(LogicItemState::lisActive);
                 Append(new_network);
             }
 
-            (*this)[selected_network]->Select();
+            items[selected_network]->Select();
             break;
 
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->SelectNext();
+            items[selected_network]->SelectNext();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            (*this)[selected_network]->SwitchToAdvancedSelectCopy();
+            items[selected_network]->SwitchToAdvancedSelectCopy();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
-            (*this)[selected_network]->SwitchToAdvancedSelectDelete();
+            items[selected_network]->SwitchToAdvancedSelectDelete();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            (*this)[selected_network]->SwitchToAdvancedSelectDisable();
+            items[selected_network]->SwitchToAdvancedSelectDisable();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
-            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            items[selected_network]->SwitchToAdvancedSelectMove();
             break;
 
         case EditableElement::ElementState::des_Moving:
-            if (selected_network + 1 < (int)size()) {
-                std::swap(at(selected_network), at(selected_network + 1));
+            if (selected_network + 1 < (int)items.size()) {
+                std::swap(items.at(selected_network), items.at(selected_network + 1));
             }
             ScrollDown(&selected_network);
             break;
@@ -267,7 +267,7 @@ void Ladder::HandleButtonPageDown() {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->PageDown();
+            items[selected_network]->PageDown();
             return;
         default:
             HandleButtonDown();
@@ -288,7 +288,7 @@ void Ladder::HandleButtonSelect() {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular: {
-            if (size() == 0) {
+            if (items.size() == 0) {
                 auto new_network = new Network(LogicItemState::lisActive);
                 Append(new_network);
             }
@@ -299,10 +299,10 @@ void Ladder::HandleButtonSelect() {
                            view_top_index,
                            (view_top_index + (int)Ladder::MaxViewPortCount) - 1);
 
-            if (last_selected_network >= 0 && last_selected_network < (int)size()) {
-                (*this)[last_selected_network]->Select();
+            if (last_selected_network >= 0 && last_selected_network < (int)items.size()) {
+                items[last_selected_network]->Select();
             } else {
-                (*this)[view_top_index]->Select();
+                items[view_top_index]->Select();
                 Controller::UpdateUISelected(view_top_index);
             }
             Controller::DesignStart();
@@ -310,13 +310,13 @@ void Ladder::HandleButtonSelect() {
         }
 
         case EditableElement::ElementState::des_Selected:
-            (*this)[selected_network]->BeginEditing();
+            items[selected_network]->BeginEditing();
             Controller::UpdateUISelected(selected_network);
             break;
 
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->Change();
-            if (!(*this)[selected_network]->Editing()) {
+            items[selected_network]->Change();
+            if (!items[selected_network]->Editing()) {
                 if (RemoveNetworkIfEmpty(selected_network)) {
                     selected_network = -1;
                 }
@@ -327,44 +327,44 @@ void Ladder::HandleButtonSelect() {
             return;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            (*this)[selected_network]->SwitchToMoving();
+            items[selected_network]->SwitchToMoving();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
-            (*this)[selected_network]->SwitchToCopying();
+            items[selected_network]->SwitchToCopying();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            (*this)[selected_network]->SwitchToDeleting();
+            items[selected_network]->SwitchToDeleting();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
-            (*this)[selected_network]->SwitchToDisabling();
+            items[selected_network]->SwitchToDisabling();
             break;
 
         case EditableElement::ElementState::des_Moving:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Store();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Copying:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Duplicate(selected_network);
             Store();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Deleting:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Delete(selected_network);
             Store();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Disabling:
-            (*this)[selected_network]->EndEditing();
-            (*this)[selected_network]->SwitchState();
+            items[selected_network]->EndEditing();
+            items[selected_network]->SwitchState();
             Store();
             Controller::DesignEnd();
             break;
@@ -385,50 +385,50 @@ void Ladder::HandleButtonOption() {
              selected_network);
     switch (design_state) {
         case EditableElement::ElementState::des_Editing:
-            (*this)[selected_network]->Option();
+            items[selected_network]->Option();
             break;
 
         case EditableElement::ElementState::des_Selected:
-            (*this)[selected_network]->SwitchToAdvancedSelectMove();
+            items[selected_network]->SwitchToAdvancedSelectMove();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectMove:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectCopy:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDelete:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_AdvancedSelectDisable:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Moving:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Copying:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Deleting:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
         case EditableElement::ElementState::des_Disabling:
-            (*this)[selected_network]->EndEditing();
+            items[selected_network]->EndEditing();
             Controller::DesignEnd();
             break;
 
@@ -438,11 +438,11 @@ void Ladder::HandleButtonOption() {
 }
 
 bool Ladder::RemoveNetworkIfEmpty(int network_id) {
-    auto network = (*this)[network_id];
+    auto network = items[network_id];
     if (network->empty()) {
-        for (auto it = begin(); it != end(); ++it) {
+        for (auto it = items.begin(); it != items.end(); ++it) {
             if (network == *it) {
-                erase(it);
+                items.erase(it);
                 ESP_LOGI(TAG_Ladder, "delete network: %p", network);
                 delete network;
                 return true;
