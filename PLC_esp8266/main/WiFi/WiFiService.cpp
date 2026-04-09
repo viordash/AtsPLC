@@ -4,6 +4,7 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <cassert>
@@ -37,19 +38,20 @@ void WiFiService::Start() {
 
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
+        ASSERT(xTaskNotifyWait(0, STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT, NULL, 0)
+               == pdTRUE);
+
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "ConnectToStation");
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
+    } else {
+        ESP_LOGD(TAG_WiFiService, "ConnectToStation req, rssi:%u", station_rssi);
     }
-    ESP_LOGD(TAG_WiFiService, "ConnectToStation, rssi:%u", station_rssi);
     return station_rssi;
 }
 
 void WiFiService::DisconnectFromStation() {
-    bool removed = requests.RemoveStation();
-    ESP_LOGI(TAG_WiFiService, "DisconnectFromStation, removed:%d", removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "DisconnectFromStation");
+    xTaskNotify(task_handle, STA_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -60,43 +62,40 @@ uint8_t WiFiService::Scan(const char *ssid) {
     }
 
     if (requests.Scan(ssid)) {
+        ASSERT(xTaskNotifyWait(0, SCAN_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService,
-                 "Scan, ssid:%s, found:%u, rssi:%u",
+                 "Scan new req, ssid:%s, found:%u, rssi:%u",
                  ssid,
                  (unsigned int)found,
                  (unsigned int)rssi);
+    } else {
+        ESP_LOGD(TAG_WiFiService, "Scan req, ssid:%s", ssid);
     }
     return rssi;
 }
 
 void WiFiService::CancelScan(const char *ssid) {
     RemoveScannedSsid(ssid);
-    bool removed = requests.RemoveScanner(ssid);
-    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s, removed:%u", ssid, (unsigned int)removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s", ssid);
+    xTaskNotify(task_handle, SCAN_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
+        ASSERT(xTaskNotifyWait(0, AP_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
-        ESP_LOGD(TAG_WiFiService, "AccessPoint, ssid:%s", ssid);
+        ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
+    } else {
+        ESP_LOGD(TAG_WiFiService, "AccessPoint req, ssid:%s", ssid);
     }
     return GetApClientsCount(ssid);
 }
 
 void WiFiService::CancelAccessPoint(const char *ssid) {
     RemoveApClients(ssid);
-    bool removed = requests.RemoveAccessPoint(ssid);
-    ESP_LOGI(TAG_WiFiService,
-             "CancelAccessPoint, ssid:%s, removed:%u",
-             ssid,
-             (unsigned int)removed);
-    if (removed) {
-        xTaskNotify(task_handle, CANCEL_REQUEST_BIT, eNotifyAction::eSetBits);
-    }
+    ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s", ssid);
+    xTaskNotify(task_handle, AP_BREAK_BIT, eNotifyAction::eSetBits);
 }
 
 void WiFiService::Task(void *parm) {
@@ -105,10 +104,8 @@ void WiFiService::Task(void *parm) {
 
     uint32_t ulNotifiedValue = 0;
     while (true) {
-        xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY);
-        if ((ulNotifiedValue & STOP_BIT) != 0) {
-            break;
-        }
+        ASSERT(xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE);
+
         ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
         while (wifi_service->requests.Pop(&new_request)) {

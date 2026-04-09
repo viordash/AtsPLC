@@ -1,0 +1,100 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "cd PLC_esp8266 && make -j $(nproc) size",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "cd PLC_esp8266 && make -j $(nproc) project_prepare && make -j $(nproc) clean && make -j $(nproc) size",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "build & install",
+            "type": "shell",
+            "command": "cd PLC_esp8266 && make -j $(nproc) flash",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "build & ota",
+            "type": "shell",
+            "command": "cd PLC_esp8266 && make -j $(nproc) ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.0.106/update",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Tests: build",
+            "type": "shell",
+            "command": "cd Tests_esp8266 && make -j $(nproc)",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Tests: rebuild",
+            "type": "shell",
+            "command": "cd Tests_esp8266 && make -j $(nproc) clean && make -j $(nproc)",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Tests: run",
+            "type": "shell",
+            "command": "cd Tests_esp8266 && make run",
+            "problemMatcher": [],
+            "dependsOn": ["Tests: build"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        }
+    ]
+}

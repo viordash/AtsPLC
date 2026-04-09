@@ -31,7 +31,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                       && strlen(request->Payload.AccessPoint.password) > 0;
 
     ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "start, ssid:'%s', password:'%s', mac:'%s'",
+             "start, ssid:'%.24s', password:'%.16s', mac:'%.12s'",
              request->Payload.AccessPoint.ssid,
              secure_client ? request->Payload.AccessPoint.password : "",
              secure_client ? request->Payload.AccessPoint.mac : "");
@@ -71,12 +71,11 @@ void WiFiService::AccessPointTask(RequestItem *request) {
              "generating ssid:'%s'...",
              request->Payload.AccessPoint.ssid);
 
-    bool cancel = false;
     uint32_t ulNotifiedValue = 0;
     while (true) {
         bool notify_wait_timeout =
             xTaskNotifyWait(0,
-                            CANCEL_REQUEST_BIT,
+                            AP_BREAK_BIT,
                             &ulNotifiedValue,
                             access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
             == pdFALSE;
@@ -85,21 +84,16 @@ void WiFiService::AccessPointTask(RequestItem *request) {
                  "process, uxBits:0x%08X",
                  (unsigned int)ulNotifiedValue);
 
-        if (notify_wait_timeout && requests.OneMoreInQueue()) {
-            ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");
-            break;
-        }
-
-        bool to_stop = (ulNotifiedValue & STOP_BIT) != 0;
-        if (to_stop) {
-            break;
-        }
-
-        cancel = (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0 && !requests.Contains(request);
+        bool cancel = (ulNotifiedValue & AP_BREAK_BIT) != 0;
         if (cancel) {
             ESP_LOGI(TAG_WiFiService_AccessPoint,
                      "Cancel request, ssid:%s",
                      request->Payload.AccessPoint.ssid);
+            break;
+        }
+
+        if (notify_wait_timeout && requests.HasAnother(request)) {
+            ESP_LOGI(TAG_WiFiService_AccessPoint, "Stop AP due to new request");
             break;
         }
     }
@@ -113,13 +107,6 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT,
                                                  WIFI_EVENT_AP_STADISCONNECTED,
                                                  &ap_disconnect_wifi_event_handler));
-
-    requests.RemoveAccessPoint(request->Payload.AccessPoint.ssid);
-    if (!cancel) {
-        requests.AccessPoint(request->Payload.AccessPoint.ssid,
-                             request->Payload.AccessPoint.password,
-                             request->Payload.AccessPoint.mac);
-    }
 
     ESP_LOGI(TAG_WiFiService_AccessPoint, "finish");
 }

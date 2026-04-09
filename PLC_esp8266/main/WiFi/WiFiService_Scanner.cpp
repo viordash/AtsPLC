@@ -73,7 +73,7 @@ int8_t WiFiService::Scanning(RequestItem *request,
 
         bool notify_wait_timeout =
             xTaskNotifyWait(0,
-                            CANCEL_REQUEST_BIT,
+                            SCAN_BREAK_BIT,
                             &ulNotifiedValue,
                             scanner_settings->per_channel_scan_time_ms / portTICK_PERIOD_MS)
             == pdFALSE;
@@ -87,13 +87,8 @@ int8_t WiFiService::Scanning(RequestItem *request,
         if (timespan <= 0) {
             break;
         }
-        bool to_stop = !notify_wait_timeout && (ulNotifiedValue & STOP_BIT) != 0;
-        if (to_stop) {
-            break;
-        }
 
-        *canceled = !notify_wait_timeout && (ulNotifiedValue & CANCEL_REQUEST_BIT) != 0
-                 && !requests.Contains(request);
+        *canceled = !notify_wait_timeout && (ulNotifiedValue & SCAN_BREAK_BIT) != 0;
         if (*canceled) {
             ESP_LOGI(TAG_WiFiService_Scanner,
                      "Cancel request, ssid:%s",
@@ -130,7 +125,6 @@ void WiFiService::ScannerTask(RequestItem *request) {
     } else {
         RemoveScannedSsid(request->Payload.Scanner.ssid);
     }
-    requests.RemoveScanner(request->Payload.Scanner.ssid);
     if (!canceled) {
         Controller::WakeupProcessTask();
     }

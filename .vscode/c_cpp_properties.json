@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}",
-                "${workspaceFolder}/../SDK/ESP8266_RTOS_SDK/**"
+                "${workspaceFolder}/SDK/ESP8266_RTOS_SDK/**"
             ],
             "defines": [
                 "__ESP_FILE__=1",
@@ -23,7 +23,7 @@
                 "path": [
                     "${workspaceFolder}/**",
                     "${workspaceFolder}",
-                    "${workspaceFolder}/../SDK/ESP8266_RTOS_SDK/**"
+                    "${workspaceFolder}/SDK/ESP8266_RTOS_SDK/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }

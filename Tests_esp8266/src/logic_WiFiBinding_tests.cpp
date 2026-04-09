@@ -78,6 +78,11 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
+        .ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -88,6 +93,10 @@ TEST(LogicWiFiBindingTestsGroup,
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
+        .ignoreOtherParameters();
 
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
@@ -100,6 +109,11 @@ TEST(LogicWiFiBindingTestsGroup,
 }
 
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    mock()
+        .expectNCalls(2, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
+        .ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
