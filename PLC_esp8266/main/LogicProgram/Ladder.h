@@ -35,10 +35,6 @@ class Ladder {
     explicit Ladder();
     ~Ladder();
 
-    size_t size() const;
-    Network *&operator[](size_t index);
-    Network *const &operator[](size_t index) const;
-
     bool DoAction();
     void Render(FrameBuffer *fb);
     void AtLeastOneNetwork();

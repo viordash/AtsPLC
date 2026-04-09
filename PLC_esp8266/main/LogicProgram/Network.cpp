@@ -33,12 +33,16 @@ Network::~Network() {
     }
 }
 
-size_t Network::size() const {
+bool Network::Empty() const {
+    return items.empty();
+}
+
+size_t Network::Size() const {
     return items.size();
 }
 
-bool Network::empty() const {
-    return items.empty();
+LogicElement *&Network::At(size_t index) {
+    return items.at(index);
 }
 
 LogicElement *&Network::operator[](size_t index) {
@@ -47,10 +51,6 @@ LogicElement *&Network::operator[](size_t index) {
 
 LogicElement *const &Network::operator[](size_t index) const {
     return items[index];
-}
-
-LogicElement *&Network::at(size_t index) {
-    return items.at(index);
 }
 
 void Network::ChangeState(LogicItemState state) {

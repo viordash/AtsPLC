@@ -19,18 +19,6 @@ Ladder::~Ladder() {
     RemoveAll();
 }
 
-size_t Ladder::size() const {
-    return items.size();
-}
-
-Network *&Ladder::operator[](size_t index) {
-    return items[index];
-}
-
-Network *const &Ladder::operator[](size_t index) const {
-    return items[index];
-}
-
 void Ladder::RemoveAll() {
     while (!items.empty()) {
         auto it = items.begin();

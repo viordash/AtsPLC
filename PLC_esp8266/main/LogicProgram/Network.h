@@ -30,11 +30,11 @@ class Network : public EditableElement {
     explicit Network(LogicItemState state);
     virtual ~Network();
 
-    size_t size() const;
-    bool empty() const;
+    bool Empty() const;
+    size_t Size() const;
+    LogicElement *&At(size_t index);
     LogicElement *&operator[](size_t index);
     LogicElement *const &operator[](size_t index) const;
-    LogicElement *&at(size_t index);
 
     void ChangeState(LogicItemState state);
     LogicItemState GetState();

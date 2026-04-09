@@ -45,6 +45,15 @@ namespace {
       public:
         TestableLadder() : Ladder() {
         }
+        size_t size() const {
+            return items.size();
+        }
+        Network *&operator[](size_t index) {
+            return items[index];
+        }
+        Network *const &operator[](size_t index) const {
+            return items[index];
+        }
     };
 
     class TestableNetwork : public Network, public MonitorLogicElement {
@@ -144,7 +153,7 @@ namespace {
 } // namespace
 
 TEST(LogicLadderTestsGroup, Store_Load) {
-    Ladder ladder_store;
+    TestableLadder ladder_store;
 
     auto network_store = new Network(LogicItemState::lisActive);
     ladder_store.Append(network_store);
@@ -155,13 +164,13 @@ TEST(LogicLadderTestsGroup, Store_Load) {
     network_store->Append(new TestableDirectOutput(MapIO::O1));
     ladder_store.Store();
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());
 
     auto network_load = ladder_load[0];
-    CHECK_EQUAL(4, network_load->size());
+    CHECK_EQUAL(4, network_load->Size());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
     CHECK_EQUAL(MapIO::DI, ((TestableInputNC *)(*network_load)[0])->GetIoAdr());
     CHECK(&Controller::DI == ((TestableInputNC *)(*network_load)[0])->Input);
@@ -180,7 +189,7 @@ TEST(LogicLadderTestsGroup, Store_Load) {
 }
 
 TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
-    Ladder ladder_store;
+    TestableLadder ladder_store;
 
     auto network0 = new Network(LogicItemState::lisActive);
     network0->Append(new TestableInputNC(MapIO::DI));
@@ -202,20 +211,20 @@ TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
     ladder_store.Append(network2);
     ladder_store.Store();
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Append(new Network());
     ladder_load.Append(new Network());
     ladder_load.Load();
 
     CHECK_EQUAL(3, ladder_load.size());
 
-    CHECK_EQUAL(2, ladder_load[0]->size());
-    CHECK_EQUAL(3, ladder_load[1]->size());
-    CHECK_EQUAL(4, ladder_load[2]->size());
+    CHECK_EQUAL(2, ladder_load[0]->Size());
+    CHECK_EQUAL(3, ladder_load[1]->Size());
+    CHECK_EQUAL(4, ladder_load[2]->Size());
 }
 
 TEST(LogicLadderTestsGroup, initial_load_when_empty_storage) {
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(0, ladder_load.size());
@@ -234,7 +243,7 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
                             ladder_storage_name,
                             &storage);
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
     CHECK_EQUAL(0, ladder_load.size());
 }
@@ -407,7 +416,7 @@ TEST(LogicLadderTestsGroup, AtLeastOneNetwork__if_no_networks_then_create_ones_a
 }
 
 TEST(LogicLadderTestsGroup, Delete_storage) {
-    Ladder ladder_store;
+    TestableLadder ladder_store;
 
     auto network_store = new Network(LogicItemState::lisActive);
     ladder_store.Append(network_store);
@@ -420,7 +429,7 @@ TEST(LogicLadderTestsGroup, Delete_storage) {
 
     Ladder::DeleteStorage();
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(0, ladder_load.size());

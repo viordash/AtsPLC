@@ -95,45 +95,14 @@ bool WiFiRequests::Pop(RequestItem *request) {
     return true;
 }
 
-size_t WiFiRequests::GetSize() const {
-    return items.size();
-}
-
-const RequestItem &WiFiRequests::GetBack() const {
-    return items.back();
-}
-
-void WiFiRequests::PopBack() {
-    items.pop_back();
-}
-
-std::list<RequestItem>::iterator WiFiRequests::GetBegin() {
-    return items.begin();
-}
-
-std::list<RequestItem>::iterator WiFiRequests::GetEnd() {
-    return items.end();
-}
-
-std::list<RequestItem>::const_iterator WiFiRequests::GetBegin() const {
-    return items.begin();
-}
-
-std::list<RequestItem>::const_iterator WiFiRequests::GetEnd() const {
-    return items.end();
-}
-
 size_t WiFiRequests::Size() const {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     return items.size();
 }
 
 std::list<RequestItem>::const_iterator WiFiRequests::Begin() const {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     return items.begin();
 }
 
 std::list<RequestItem>::const_iterator WiFiRequests::End() const {
-    std::lock_guard<std::mutex> lock(lock_mutex);
     return items.end();
 }

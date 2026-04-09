@@ -439,7 +439,7 @@ void Ladder::HandleButtonOption() {
 
 bool Ladder::RemoveNetworkIfEmpty(int network_id) {
     auto network = items[network_id];
-    if (network->empty()) {
+    if (network->Empty()) {
         for (auto it = items.begin(); it != items.end(); ++it) {
             if (network == *it) {
                 items.erase(it);
