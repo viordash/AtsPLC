@@ -64,6 +64,15 @@ namespace {
         bool PublicMorozov_RemoveNetworkIfEmpty(int network_id) {
             return RemoveNetworkIfEmpty(network_id);
         }
+        size_t size() const {
+            return items.size();
+        }
+        Network *&operator[](size_t index) {
+            return items[index];
+        }
+        Network *const &operator[](size_t index) const {
+            return items[index];
+        }
     };
 
     class TestableNetwork : public Network {
@@ -359,12 +368,12 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
 
     testable.HandleButtonSelect();
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());
     auto network_load = ladder_load[0];
-    CHECK_EQUAL(2, network_load->size());
+    CHECK_EQUAL(2, network_load->Size());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
     CHECK_EQUAL(MapIO::DI, ((InputNC *)(*network_load)[0])->GetIoAdr());
     CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[1]->GetElementType());
@@ -865,8 +874,8 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network) {
     testable.HandleButtonSelect();
     CHECK_EQUAL(2, testable.size());
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(1, testable[0]->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->at(0)->GetElementType());
+    CHECK_EQUAL(1, testable[0]->Size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->At(0)->GetElementType());
 }
 
 TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__delete_network) {

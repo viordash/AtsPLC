@@ -12,8 +12,9 @@
 
 #define LADDER_VERSION ((uint32_t)0x20240905)
 
-class Ladder : public std::vector<Network *> {
+class Ladder {
   protected:
+    std::vector<Network *> items;
     int32_t view_top_index;
     bool frame_buffer_req_render;
 

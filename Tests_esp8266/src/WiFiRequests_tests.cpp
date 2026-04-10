@@ -23,17 +23,8 @@ namespace {
             return Equals(a, b);
         }
 
-        size_t PublicMorozov_size() const {
-            return GetSize();
-        }
         const RequestItem &PublicMorozov_back() const {
-            return GetBack();
-        }
-        std::list<RequestItem>::iterator PublicMorozov_begin() {
-            return GetBegin();
-        }
-        std::list<RequestItem>::iterator PublicMorozov_end() {
-            return GetEnd();
+            return items.back();
         }
     };
 } // namespace
@@ -120,15 +111,15 @@ TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
 TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
     TestableWiFiRequests testable;
 
-    CHECK_EQUAL(0, testable.PublicMorozov_size());
+    CHECK_EQUAL(0, testable.Size());
 
     const char *ssid = "test";
 
     testable.Scan(ssid);
-    CHECK_EQUAL(1, testable.PublicMorozov_size());
+    CHECK_EQUAL(1, testable.Size());
 
     testable.Scan(ssid);
-    CHECK_EQUAL(1, testable.PublicMorozov_size());
+    CHECK_EQUAL(1, testable.Size());
     CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.PublicMorozov_back().Type);
     CHECK_EQUAL(ssid, testable.PublicMorozov_back().Payload.Scanner.ssid);
 }
@@ -144,32 +135,32 @@ TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     testable.AccessPoint(ssid_0, NULL, NULL);
     testable.Scan(ssid_1);
     testable.AccessPoint(ssid_1, NULL, NULL);
-    CHECK_EQUAL(5, testable.PublicMorozov_size());
+    CHECK_EQUAL(5, testable.Size());
 
     RequestItem request;
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Station, request.Type);
-    CHECK_EQUAL(4, testable.PublicMorozov_size());
+    CHECK_EQUAL(4, testable.Size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
     STRCMP_EQUAL("test_0", request.Payload.Scanner.ssid);
-    CHECK_EQUAL(3, testable.PublicMorozov_size());
+    CHECK_EQUAL(3, testable.Size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_0", request.Payload.AccessPoint.ssid);
-    CHECK_EQUAL(2, testable.PublicMorozov_size());
+    CHECK_EQUAL(2, testable.Size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.Scanner.ssid);
-    CHECK_EQUAL(1, testable.PublicMorozov_size());
+    CHECK_EQUAL(1, testable.Size());
 
     CHECK_TRUE(testable.Pop(&request));
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
     STRCMP_EQUAL("test_1", request.Payload.AccessPoint.ssid);
-    CHECK_EQUAL(0, testable.PublicMorozov_size());
+    CHECK_EQUAL(0, testable.Size());
 }
 
 TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Station) {
