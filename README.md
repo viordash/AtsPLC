@@ -163,6 +163,15 @@ cd PLC_esp8266
 make project_prepare  # Extract toolchain and apply patches
 ```
 
+The SDK build scripts also need a Python interpreter satisfying `SDK/ESP8266_RTOS_SDK/requirements.txt`. On distros that block `pip install` outside a virtualenv (PEP 668, e.g. Ubuntu 23.10+), create a dedicated venv once:
+
+```bash
+python3 -m venv SDK/.venv
+SDK/.venv/bin/python -m pip install "setuptools<81" -r SDK/ESP8266_RTOS_SDK/requirements.txt
+```
+
+`PLC_esp8266/Makefile` automatically prepends `SDK/.venv/bin` to `PATH` when it exists, so once the venv above is created, plain `make` works the same from a terminal or from VSCode.
+
 ### Build
 
 ```bash

@@ -9,7 +9,11 @@ export IDF_PATH := $(PWD)/../SDK/ESP8266_RTOS_SDK
 
 CURR_DIR := $(PWD)
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
-PATH  := $(PATH):$(PWD)/../SDK/xtensa-lx106-elf/bin
+# Prepend the SDK's own Python venv (see README "Prerequisites") so the build
+# works from a plain terminal, without relying on VSCode task env overrides.
+# Missing dirs on PATH are silently skipped, so this is a no-op if the venv
+# was never created (e.g. system python already satisfies requirements.txt).
+PATH  := $(PWD)/../SDK/.venv/bin:$(PATH):$(PWD)/../SDK/xtensa-lx106-elf/bin
 SHELL := env PATH=$(PATH) /bin/bash
 
 project_prepare: .project_prepare .apply-patches 

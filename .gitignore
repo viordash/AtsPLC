@@ -41,3 +41,6 @@
 **/main/MigrateAnyData/MigrateAnyData.h
 
 .apply-patches
+
+# local Python venv for ESP8266_RTOS_SDK build tools
+**/SDK/.venv/
