@@ -92,6 +92,16 @@ TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
     strcpy(ssid, "test");
     strcpy(ssid_with_same_value_but_diff_address, "test");
 
+    char password[16];
+    char password_with_same_value_but_diff_address[16];
+    strcpy(password, "pwd");
+    strcpy(password_with_same_value_but_diff_address, "pwd");
+
+    char mac[16];
+    char mac_with_same_value_but_diff_address[16];
+    strcpy(mac, "AABBCCDDEEFF");
+    strcpy(mac_with_same_value_but_diff_address, "AABBCCDDEEFF");
+
     RequestItem a = {};
     RequestItem b = {};
 
@@ -106,6 +116,21 @@ TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
 
     a.Payload.AccessPoint.ssid = ssid_with_same_value_but_diff_address;
     CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
+
+    a.Payload.AccessPoint.password = password;
+    b.Payload.AccessPoint.password = password;
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
+
+    b.Payload.AccessPoint.password = password_with_same_value_but_diff_address;
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
+
+    b.Payload.AccessPoint.password = password;
+    a.Payload.AccessPoint.mac = mac;
+    b.Payload.AccessPoint.mac = mac;
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
+
+    b.Payload.AccessPoint.mac = mac_with_same_value_but_diff_address;
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 }
 
 TEST(WiFiRequestsTestsGroup, Scan_is_unique) {

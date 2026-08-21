@@ -16,7 +16,9 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
             return a->Payload.Scanner.ssid == b->Payload.Scanner.ssid;
 
         case wqi_AccessPoint:
-            return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid;
+            return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid
+                && a->Payload.AccessPoint.password == b->Payload.AccessPoint.password
+                && a->Payload.AccessPoint.mac == b->Payload.AccessPoint.mac;
     }
     return true;
 }
