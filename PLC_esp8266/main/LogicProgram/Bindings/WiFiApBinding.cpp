@@ -18,9 +18,13 @@ WiFiApBinding::WiFiApBinding() : WiFiBinding() {
     mac[0] = 0;
 }
 
-WiFiApBinding::WiFiApBinding(const MapIO io_adr, const char *ssid, const char *password)
+WiFiApBinding::WiFiApBinding(const MapIO io_adr,
+                             const char *ssid,
+                             const char *password,
+                             const char *mac)
     : WiFiBinding(io_adr, ssid) {
     SetPassword(password);
+    SetMac(mac);
 }
 
 WiFiApBinding::~WiFiApBinding() {

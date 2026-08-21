@@ -71,6 +71,13 @@ namespace {
     };
 } // namespace
 
+TEST(LogicWiFiApBindingTestsGroup, Ctor_with_params_initializes_password_and_mac) {
+    WiFiApBinding testable(MapIO::V1, "ssid", "password", "aabb");
+
+    STRCMP_EQUAL("password", testable.GetPassword());
+    STRCMP_EQUAL("AABB********", testable.GetMac());
+}
+
 TEST(LogicWiFiApBindingTestsGroup, DoAction_skip_when_incoming_passive) {
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
