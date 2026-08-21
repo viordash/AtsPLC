@@ -97,6 +97,7 @@
         "span": "cpp",
         "stop_token": "cpp",
         "expected": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "stacktrace": "cpp"
     }
 }
