@@ -16,4 +16,6 @@ current_seconds:=$(shell date +'%s')
 minutes_since=$(shell echo "($(current_seconds) - $(DEVICE_VERSION_seconds)) / 60" | bc)
 BUILD_NUMBER:=$(minutes_since)
 $(info ----build version-----------------v$(DEVICE_VERSION).$(BUILD_NUMBER)------ )
-CPPFLAGS :=-std=gnu++17 -DDEVICE_SETTINGS_VERSION=0x${DEVICE_VERSION} -DBUILD_NUMBER=${BUILD_NUMBER}
+# must match the ota_0/ota_1 partition size in partitions.csv
+CPPFLAGS :=-std=gnu++17 -DDEVICE_SETTINGS_VERSION=0x${DEVICE_VERSION} -DBUILD_NUMBER=${BUILD_NUMBER} \
+	-DFIRMWARE_MAXSIZE=1048576

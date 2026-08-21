@@ -43,6 +43,14 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
 }
 
 bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
+    if (req->content_len > FIRMWARE_MAXSIZE) {
+        ESP_LOGE(TAG_UpdateController,
+                 "Uploaded firmware size exceeds the limit, '%u' > '%u'",
+                 (unsigned int)req->content_len,
+                 (unsigned int)FIRMWARE_MAXSIZE);
+        SendHttpError_400(req);
+        return false;
+    }
     ESP_LOGI(TAG_UpdateController, "ReceiveFile, size: '%u'", (unsigned int)req->content_len);
 
     esp_err_t err;
@@ -102,6 +110,15 @@ bool UpdateController::BeginOta(const esp_partition_t **update_partition,
     esp_err_t err;
     const esp_partition_t *configured = esp_ota_get_boot_partition();
     const esp_partition_t *running = esp_ota_get_running_partition();
+
+    if (configured == NULL) {
+        ESP_LOGE(TAG_UpdateController, "configured == NULL");
+        return false;
+    }
+    if (running == NULL) {
+        ESP_LOGE(TAG_UpdateController, "running == NULL");
+        return false;
+    }
 
     if (configured != running) {
         ESP_LOGW(TAG_UpdateController,
