@@ -116,8 +116,8 @@ bool EditableElement::InEditingProperty() {
 bool EditableElement::Blinking_50(FrameBuffer *fb) {
     const int blink_timer_ms = 400;
 
-    const int offset_Blinking_50 = 50;
-    auto blinking = Controller::RequestWakeupMs((void *)(this + offset_Blinking_50),
+    const void *blinking_id = &blink;
+    auto blinking = Controller::RequestWakeupMs(blinking_id,
                                                 blink_timer_ms,
                                                 ProcessWakeupRequestPriority::pwrp_Idle);
     if (blinking) {
