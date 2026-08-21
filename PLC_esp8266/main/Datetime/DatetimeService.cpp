@@ -15,6 +15,8 @@
 static const char *TAG_DatetimeService = "DatetimeService";
 extern CurrentSettings::device_settings settings;
 
+static CurrentSettings::datetime_settings sntp_settings;
+
 DatetimeService::DatetimeService() : task_handle(NULL) {
 }
 
@@ -99,8 +101,11 @@ void DatetimeService::Task(void *parm) {
     vTaskDelete(NULL);
 }
 bool DatetimeService::EnableSntp() {
-    bool enable = settings.datetime.sntp_server_primary[0] != 0
-               || settings.datetime.sntp_server_secondary[0] != 0;
+    bool enable;
+    SAFETY_SETTINGS( //
+        enable = settings.datetime.sntp_server_primary[0] != 0
+              || settings.datetime.sntp_server_secondary[0] != 0; //
+    );
     return enable;
 }
 
@@ -118,27 +123,28 @@ static void time_sync_notification_cb(struct timeval *tv) {
 }
 
 void DatetimeService::StartSntp() {
+    SAFETY_SETTINGS(                       //
+        sntp_settings = settings.datetime; //
+    );
+
     ESP_LOGI(TAG_DatetimeService,
              "Start SNTP, serv_0:%s, serv_1:%s, tz:%s",
-             settings.datetime.sntp_server_primary,
-             settings.datetime.sntp_server_secondary,
-             settings.datetime.timezone);
+             sntp_settings.sntp_server_primary,
+             sntp_settings.sntp_server_secondary,
+             sntp_settings.timezone);
 
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    if (strnlen(settings.datetime.sntp_server_primary,
-                sizeof(settings.datetime.sntp_server_primary))
-        > 0) {
-        sntp_setservername(0, settings.datetime.sntp_server_primary);
+    if (strnlen(sntp_settings.sntp_server_primary, sizeof(sntp_settings.sntp_server_primary)) > 0) {
+        sntp_setservername(0, sntp_settings.sntp_server_primary);
     }
-    if (strnlen(settings.datetime.sntp_server_secondary,
-                sizeof(settings.datetime.sntp_server_secondary))
+    if (strnlen(sntp_settings.sntp_server_secondary, sizeof(sntp_settings.sntp_server_secondary))
         > 0) {
-        sntp_setservername(1, settings.datetime.sntp_server_secondary);
+        sntp_setservername(1, sntp_settings.sntp_server_secondary);
     }
     sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     sntp_init();
 
-    setenv("TZ", settings.datetime.timezone, 1);
+    setenv("TZ", sntp_settings.timezone, 1);
     tzset();
 }
 
