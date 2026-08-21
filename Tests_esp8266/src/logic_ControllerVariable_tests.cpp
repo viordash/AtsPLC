@@ -191,13 +191,6 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_reset_values_when_b
 }
 
 TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_ConnectToStation) {
-    mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::STA_BREAK_BIT | WiFiService::STA_CONNECTED_BIT
-                                      | WiFiService::STA_FAILED_BIT)
-        .ignoreOtherParameters();
-
     TestableControllerVariable testable;
     testable.Init();
 
@@ -234,13 +227,6 @@ TEST(LogicControllerVariableTestsGroup,
     testable.Init();
 
     mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit",
-                                  WiFiService::STA_BREAK_BIT | WiFiService::STA_CONNECTED_BIT
-                                      | WiFiService::STA_FAILED_BIT)
-        .ignoreOtherParameters();
-
-    mock()
         .expectNCalls(1, "xTaskGenericNotify")
         .withUnsignedIntParameter("ulValue", 0)
         .withIntParameter("eAction", eNotifyAction::eNoAction)
@@ -267,11 +253,6 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scann
     testable.Init();
 
     mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
-
-    mock()
         .expectNCalls(1, "xTaskGenericNotify")
         .withUnsignedIntParameter("ulValue", 0)
         .withIntParameter("eAction", eNotifyAction::eNoAction)
@@ -289,11 +270,6 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scann
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_AccessPoint) {
     TestableControllerVariable testable;
     testable.Init();
-
-    mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::AP_BREAK_BIT)
-        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -314,11 +290,6 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_Acc
 TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_calls_CancelScan) {
     TestableControllerVariable testable;
     testable.Init();
-
-    mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -346,11 +317,6 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_c
 TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessPoint) {
     TestableControllerVariable testable;
     testable.Init();
-
-    mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::AP_BREAK_BIT)
-        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
@@ -383,11 +349,6 @@ TEST(LogicControllerVariableTestsGroup,
      CancelReadingProcess_from_SecureWiFi_calls_CancelAccessPoint) {
     TestableControllerVariable testable;
     testable.Init();
-
-    mock()
-        .expectNCalls(1, "xTaskNotifyWait")
-        .withUnsignedIntParameter("ulBitsToClearOnExit", WiFiService::AP_BREAK_BIT)
-        .ignoreOtherParameters();
 
     mock()
         .expectNCalls(1, "xTaskGenericNotify")

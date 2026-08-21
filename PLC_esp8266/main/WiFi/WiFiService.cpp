@@ -38,9 +38,6 @@ void WiFiService::Start() {
 
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
-        ASSERT(xTaskNotifyWait(0, STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT, NULL, 0)
-               == pdTRUE);
-
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
     } else {
@@ -62,7 +59,6 @@ uint8_t WiFiService::Scan(const char *ssid) {
     }
 
     if (requests.Scan(ssid)) {
-        ASSERT(xTaskNotifyWait(0, SCAN_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService,
                  "Scan new req, ssid:%s, found:%u, rssi:%u",
@@ -83,7 +79,6 @@ void WiFiService::CancelScan(const char *ssid) {
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
-        ASSERT(xTaskNotifyWait(0, AP_BREAK_BIT, NULL, 0) == pdTRUE);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
     } else {
