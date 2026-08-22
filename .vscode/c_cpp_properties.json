@@ -13,7 +13,9 @@
                 "CONFIG_ESP8266_WIFI_RX_PKT_NUM=7",
                 "CONFIG_ESP8266_WIFI_TX_PKT_NUM=6",
                 "CONFIG_ESP8266_WIFI_LEFT_CONTINUOUS_RX_BUFFER_NUM=16",
-                "CONFIG_FREERTOS_HZ=100"
+                "CONFIG_FREERTOS_HZ=100",
+                "DEVICE_SETTINGS_VERSION=0x1",
+                "BUILD_NUMBER=0x2"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
