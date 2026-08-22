@@ -20,13 +20,41 @@
             }
         },
         {
-            "label": "rebuild",
+            "label": "Web: build",
             "type": "shell",
-            "command": "cd PLC_esp8266 && make -j $(nproc) project_prepare && make -j $(nproc) clean && make -j $(nproc) size",
+            "command": "make web",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "cd PLC_esp8266 && make -j $(nproc) project_prepare && make -j $(nproc) clean && make -j $(nproc) size",
+            "problemMatcher": [],
+            "dependsOn": ["Web: build"],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
             }
         },
         {
@@ -44,9 +72,19 @@
             "type": "shell",
             "command": "cd PLC_esp8266 && make -j $(nproc) ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.0.106/update",
             "problemMatcher": [],
+            "dependsOn": ["Web: build"],
+            "dependsOrder": "sequence",
             "group": {
                 "kind": "build",
                 "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
             }
         },
         {
