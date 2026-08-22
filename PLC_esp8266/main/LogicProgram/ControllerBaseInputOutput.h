@@ -1,14 +1,14 @@
 #pragma once
 
 #include "LogicProgram/ControllerBaseInput.h"
-#include <mutex>
+#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 
 class ControllerBaseInputOutput : public ControllerBaseInput {
   protected:
     uint8_t out_value;
-    bool required_writing;
+    std::atomic<bool> required_writing;
 
   public:
     ControllerBaseInputOutput();

@@ -23,10 +23,10 @@ namespace {
       public:
         TestableControllerDO(gpio_output gpio) : ControllerDO(gpio) {
         }
-        bool *PublicMorozov_Get_required_reading() {
+        std::atomic<bool> *PublicMorozov_Get_required_reading() {
             return &required_reading;
         }
-        bool *PublicMorozov_Get_required_writing() {
+        std::atomic<bool> *PublicMorozov_Get_required_writing() {
             return &required_writing;
         }
         uint8_t *PublicMorozov_Get_out_value() {

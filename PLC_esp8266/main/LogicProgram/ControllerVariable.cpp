@@ -20,10 +20,10 @@ ControllerVariable::ControllerVariable() : ControllerBaseInputOutput() {
 }
 
 void ControllerVariable::FetchValue() {
-    if (!required_reading) {
+    if (!required_reading.load(std::memory_order_acquire)) {
         return;
     }
-    required_reading = false;
+    required_reading.store(false, std::memory_order_release);
 
     if (BindedToWiFi()) {
         bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
@@ -67,10 +67,10 @@ void ControllerVariable::FetchValue() {
 }
 
 void ControllerVariable::CommitChanges() {
-    if (!required_writing) {
+    if (!required_writing.load(std::memory_order_acquire)) {
         return;
     }
-    required_writing = false;
+    required_writing.store(false, std::memory_order_release);
     UpdateValue(out_value);
     if (BindedToWiFi()) {
         bool wifi_sta_client = ssid == NULL;
@@ -138,7 +138,7 @@ void ControllerVariable::CancelReadingProcess() {
              "CancelReadingProcess, wifi:%u, date_time:%u, required:%u",
              BindedToWiFi(),
              BindedToDateTime(),
-             required_reading);
+             required_reading.load(std::memory_order_acquire));
     if (BindedToWiFi()) {
         bool insecure_scan = ssid != NULL && password == NULL && mac == NULL;
         bool secure_ap = ssid != NULL && password != NULL && mac != NULL;

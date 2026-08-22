@@ -15,7 +15,7 @@ ControllerAI::ControllerAI() : ControllerBaseInput() {
 }
 
 void ControllerAI::FetchValue() {
-    if (!required_reading) {
+    if (!required_reading.load(std::memory_order_acquire)) {
         return;
     }
     if (!Controller::RequestWakeupMs((void *)&Controller::AI,
@@ -23,7 +23,7 @@ void ControllerAI::FetchValue() {
                                      ProcessWakeupRequestPriority::pwrp_Idle)) {
         return;
     }
-    required_reading = false;
+    required_reading.store(false, std::memory_order_release);
 
     uint16_t val_10bit = get_analog_value();
     uint8_t percent04 = val_10bit / 4;

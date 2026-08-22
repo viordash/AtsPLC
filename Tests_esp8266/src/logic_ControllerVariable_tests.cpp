@@ -22,16 +22,16 @@ TEST_GROUP(LogicControllerVariableTestsGroup){ //
 namespace {
     class TestableControllerVariable : public ControllerVariable {
       public:
-        bool *PublicMorozov_Get_required_reading() {
+        std::atomic<bool> *PublicMorozov_Get_required_reading() {
             return &required_reading;
         }
-        bool *PublicMorozov_Get_required_writing() {
+        std::atomic<bool> *PublicMorozov_Get_required_writing() {
             return &required_writing;
         }
         uint8_t *PublicMorozov_Get_out_value() {
             return &out_value;
         }
-        uint8_t *PublicMorozov_Get_value() {
+        std::atomic<uint8_t> *PublicMorozov_Get_value() {
             return &value;
         }
     };

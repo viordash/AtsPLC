@@ -1,14 +1,13 @@
 #pragma once
 
-#include <mutex>
+#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 
 class ControllerBaseInput {
   protected:
-    bool required_reading;
-    uint8_t value;
-    std::mutex lock_value;
+    std::atomic<bool> required_reading;
+    std::atomic<uint8_t> value;
 
   public:
     ControllerBaseInput();
@@ -21,5 +20,5 @@ class ControllerBaseInput {
     uint8_t ReadValue();
     uint8_t PeekValue();
     void UpdateValue(uint8_t new_value);
-    virtual void CancelReadingProcess() {};
+    virtual void CancelReadingProcess();
 };
