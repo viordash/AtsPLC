@@ -18,51 +18,50 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
 
     bool success = false;
     bool error = false;
+
+    SmartConfigProgress(logs_list, "Prepare");
+
     start_smartconfig();
     while (!success && !error) {
         switch (smartconfig_status()) {
             case scs_Start:
-                logs_list.Append("Start");
+                SmartConfigProgress(logs_list, "Start");
                 break;
 
             case scs_Started:
-                logs_list.Append("Started");
+                SmartConfigProgress(logs_list, "Started");
                 break;
 
             case scs_Disconnected:
-                logs_list.Append("Disconnected");
+                SmartConfigProgress(logs_list, "Disconnected");
                 break;
 
             case scs_GotIP:
-                logs_list.Append("Got IP");
+                SmartConfigProgress(logs_list, "Got IP");
                 break;
 
             case scs_ScanDone:
-                logs_list.Append("Scanning");
+                SmartConfigProgress(logs_list, "Scanning");
                 break;
 
             case scs_FoundChannel:
-                logs_list.Append("Found channel");
+                SmartConfigProgress(logs_list, "Found channel");
                 break;
 
             case scs_GotCreds:
-                logs_list.Append("Got credentials");
+                SmartConfigProgress(logs_list, "Got credentials");
                 break;
 
             case scs_Completed:
-                logs_list.Append("Completed");
+                SmartConfigProgress(logs_list, "Completed");
                 success = true;
                 break;
 
             case scs_Error:
-                logs_list.Append("Error");
+                SmartConfigProgress(logs_list, "Error");
                 error = true;
                 break;
         }
-
-        auto fb = begin_render();
-        logs_list.Render(fb);
-        end_render(fb);
     }
 
     const int show_logs_time_ms = 3000;
@@ -74,4 +73,11 @@ void ServiceModeHandler::SmartConfig(EventGroupHandle_t gpio_events) {
 
     ShowStatus(gpio_events, success, "SC completed!", "SC error!");
     finish_smartconfig();
+}
+
+void ServiceModeHandler::SmartConfigProgress(LogsList &logs_list, const char *message) {
+    logs_list.Append(message);
+    auto fb = begin_render();
+    logs_list.Render(fb);
+    end_render(fb);
 }

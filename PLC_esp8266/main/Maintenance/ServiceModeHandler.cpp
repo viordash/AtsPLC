@@ -17,16 +17,27 @@ static const char *TAG_ServiceModeHandler = "ServiceMode";
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
      | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
 
-void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
+ListBox ServiceModeHandler::CreateModesList() {
     char buffer[64];
-    Mode mode = Mode::sm_SmartConfig;
 
-    sprintf(buffer, "v%08X.%u", DEVICE_SETTINGS_VERSION, (unsigned)BUILD_NUMBER);
+    snprintf(buffer,
+             sizeof(buffer),
+             "v%08X.%u",
+             (unsigned int)DEVICE_SETTINGS_VERSION,
+             (unsigned int)BUILD_NUMBER);
     ListBox listBox(buffer);
+
     listBox.Insert(0, "Smart config");
     listBox.Insert(1, "Backup logic");
     listBox.Insert(2, "Restore logic");
     listBox.Insert(3, "Reset to default");
+    return listBox;
+}
+
+void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
+    Mode mode = Mode::sm_SmartConfig;
+
+    ListBox listBox = CreateModesList();
     listBox.Select(mode);
 
     while (true) {

@@ -12,6 +12,9 @@ extern "C" {
 }
 #endif
 
+#include "Display/ListBox.h"
+#include "Display/LogsList.h"
+
 #define EXPECTED_BUTTONS                                                                           \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
      | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
@@ -36,8 +39,10 @@ class ServiceModeHandler {
 
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
+    static ListBox CreateModesList();
     static void Execute(EventGroupHandle_t gpio_events, Mode mode);
     static void SmartConfig(EventGroupHandle_t gpio_events);
+    static void SmartConfigProgress(LogsList &logs_list, const char *message);
 
     static void Backup(EventGroupHandle_t gpio_events);
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
