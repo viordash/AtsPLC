@@ -286,6 +286,12 @@ void Ladder::HandleButtonSelect() {
                 Append(new_network);
             }
 
+            Controller::DesignStart(work_mode);
+            if (!Controller::InDesign()) {
+                ESP_LOGE(TAG_Ladder, "Designing in Run mode is prohibited");
+                break;
+            }
+
             int32_t last_selected_network = Controller::GetLastUpdatedUISelected();
             last_selected_network =
                 std::clamp(last_selected_network,
@@ -298,7 +304,6 @@ void Ladder::HandleButtonSelect() {
                 items[view_top_index]->Select();
                 Controller::UpdateUISelected(view_top_index);
             }
-            Controller::DesignStart();
             break;
         }
 

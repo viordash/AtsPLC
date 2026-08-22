@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "hotreload_service.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,7 @@ void Ladder::Load() {
         || Deserialize(storage.data, storage.size) == 0) {
         ESP_LOGI(TAG_Ladder, "Nothing to load");
         RemoveAll();
+        ChangeWorkMode(work_mode, hotreload->enable_debug);
     }
     delete[] storage.data;
 }

@@ -134,8 +134,12 @@ void Ladder::SetSelectedNetworkIndex(int32_t index) {
 
     switch (design_state) {
         case EditableElement::ElementState::des_Regular:
+            Controller::DesignStart(work_mode);
+            if (!Controller::InDesign()) {
+                ESP_LOGE(TAG_Ladder, "Designing in Run mode is prohibited");
+                break;
+            }
             items[index]->Select();
-            Controller::DesignStart();
             break;
 
         case EditableElement::ElementState::des_Selected:

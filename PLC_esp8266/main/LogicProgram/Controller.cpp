@@ -43,6 +43,7 @@ WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
 LogicItemState Controller::network_continuation = LogicItemState::lisPassive;
+Ladder Controller::ladder;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -103,7 +104,7 @@ void Controller::ProcessTask(void *parm) {
 
     network_continuation = LogicItemState::lisPassive;
 
-    Ladder ladder;
+    Ladder &ladder = Controller::ladder;
     ladder.Load();
     if (hotreload->is_hotstart) {
         ladder.SetViewTopIndex(hotreload->view_top_index);
@@ -428,8 +429,15 @@ int32_t Controller::GetLastUpdatedUISelected() {
     return hotreload->selected_network;
 }
 
-void Controller::DesignStart() {
-    Controller::in_design = true;
+Ladder &Controller::GetLadder() {
+    return ladder;
+}
+
+void Controller::DesignStart(WorkMode work_mode) {
+    bool enable_debug;
+    SAFETY_HOTRELOAD({ enable_debug = hotreload->enable_debug; });
+
+    Controller::in_design = work_mode == WorkMode::Stop || enable_debug;
     Controller::WakeupProcessTask();
     ESP_LOGI(TAG_Controller, "DesignStart");
 }

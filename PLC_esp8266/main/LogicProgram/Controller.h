@@ -26,9 +26,10 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
+#include "LogicProgram/Ladder.h"
+
 class RenderingService;
 class WiFiService;
-class Ladder;
 class DatetimeService;
 class Controller {
   protected:
@@ -41,6 +42,7 @@ class Controller {
     static RenderingService *rendering_service;
     static DatetimeService *datetime_service;
     static LogicItemState network_continuation;
+    static Ladder ladder;
 
   public:
     static const int WAKEUP_PROCESS_TASK = BIT15;
@@ -54,6 +56,8 @@ class Controller {
     static void CommitChanges();
 
     static void ProcessTask(void *parm);
+
+    static Ladder &GetLadder();
 
     static ControllerDI DI;
     static ControllerAI AI;
@@ -93,7 +97,7 @@ class Controller {
 
     static void UpdateUIViewTop(int32_t view_top_index);
     static void UpdateUISelected(int32_t selected_network);
-    static void DesignStart();
+    static void DesignStart(WorkMode work_mode);
     static void DesignEnd();
     static bool InDesign();
     static int32_t GetLastUpdatedUISelected();

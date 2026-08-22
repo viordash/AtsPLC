@@ -317,9 +317,8 @@ TEST(LogicLadderDesignerTestsGroup,
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network_editing) {
     TestableLadder testable;
-    testable.ChangeWorkMode(WorkMode::Run, false);
 
-    auto network0 = new Network(NetworkState::nsActive);
+    auto network0 = new Network(NetworkState::nsStopFromActive);
     network0->Append(new InputNC(MapIO::DI));
     network0->Append(new DirectOutput(MapIO::O1));
     testable.Append(network0);
@@ -344,6 +343,28 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
     CHECK_EQUAL(MapIO::DI, ((InputNC *)(*network_load)[0])->GetIoAdr());
     CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[1]->GetElementType());
     CHECK_EQUAL(MapIO::O1, ((DirectOutput *)(*network_load)[1])->GetIoAdr());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_is_prohibited_in_run_mode) {
+    TestableLadder testable;
+    testable.ChangeWorkMode(WorkMode::Run, false);
+    testable.Append(new Network(NetworkState::nsActive));
+
+    testable.HandleButtonSelect();
+
+    CHECK_EQUAL(-1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_FALSE(Controller::InDesign());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_is_allowed_in_stop_mode) {
+    TestableLadder testable;
+    testable.ChangeWorkMode(WorkMode::Stop, false);
+    testable.Append(new Network(NetworkState::nsStopFromActive));
+
+    testable.HandleButtonSelect();
+
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(Controller::InDesign());
 }
 
 TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex_do_nothing_when_incorrect_index) {
