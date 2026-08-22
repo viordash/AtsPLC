@@ -30,15 +30,22 @@ bool Wire::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
 }
 
 IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    ESP_LOGD(TAG_Wire, "Render w:%u", width);
-    if (width == 0) {
+    uint8_t l_width;
+    EditableElement::ElementState l_editable_state;
+    {
+        std::lock_guard<std::mutex> lock(lock_mutex);
+        l_width = width;
+        l_editable_state = editable_state;
+    }
+
+    ESP_LOGD(TAG_Wire, "Render w:%u", l_width);
+    if (l_width == 0) {
         return;
     }
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     uint8_t income_width = 0;
-    if (width > WIRE_BLINK_BODY_WIDTH) {
-        income_width = width - WIRE_BLINK_BODY_WIDTH;
+    if (l_width > WIRE_BLINK_BODY_WIDTH) {
+        income_width = l_width - WIRE_BLINK_BODY_WIDTH;
         if (prev_elem_state == LogicItemState::lisActive) {
             ASSERT(draw_active_network(fb, start_point->x, start_point->y, income_width));
         } else {
@@ -47,10 +54,10 @@ IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
 
         start_point->x += income_width;
     }
-    uint8_t body_width = width - income_width;
+    uint8_t body_width = l_width - income_width;
 
     bool blink_on_editing =
-        editable_state == EditableElement::ElementState::des_Editing && Blinking_50(fb);
+        l_editable_state == EditableElement::ElementState::des_Editing && Blinking_50(fb);
 
     if (!blink_on_editing) {
         if (prev_elem_state == LogicItemState::lisActive) {
