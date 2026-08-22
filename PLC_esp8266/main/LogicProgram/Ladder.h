@@ -28,9 +28,9 @@ class Ladder {
     bool RemoveNetworkIfEmpty(int network_id);
 
   public:
-    const size_t MinNetworksCount = 1;
-    const size_t MaxNetworksCount = 80;
-    const size_t MaxViewPortCount = 2;
+    static constexpr size_t MinNetworksCount = 1;
+    static constexpr size_t MaxNetworksCount = 80;
+    static constexpr size_t MaxViewPortCount = 2;
 
     explicit Ladder();
     ~Ladder();

@@ -58,8 +58,8 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
         OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
     static const uint8_t Top = -13;
     static const uint8_t Height = 22;
-    const float MinScale = -9999999.0f;
-    const float MaxScale = 99999990.0f;
+    static constexpr float MinScale = -9999999.0f;
+    static constexpr float MaxScale = 99999990.0f;
 
     explicit Indicator();
     explicit Indicator(const MapIO io_adr);
