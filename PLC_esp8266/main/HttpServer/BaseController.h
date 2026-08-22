@@ -17,10 +17,9 @@ class BaseController {
     esp_err_t
     GetUrlQueryParamValue(httpd_req_t *req, const char *key, char *value, size_t valueSize);
 
+    static esp_err_t SendError(httpd_req_t *req, const char *status, const char *message);
+
     esp_err_t SendHttpError_400(httpd_req_t *req);
     esp_err_t SendHttpError_408(httpd_req_t *req);
     esp_err_t SendHttpError_500(httpd_req_t *req);
-
-  private:
-    esp_err_t SendHttpError(httpd_req_t *req, const char *status, const char *msg);
 };
