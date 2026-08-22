@@ -6,6 +6,7 @@
 #include "MainController.h"
 #include "UpdateController.h"
 #include <stdint.h>
+#include <vector>
 #include <stdio.h>
 #include <string.h>
 
@@ -20,15 +21,18 @@ void start_http_server() {
         stop_http_server();
         return;
     }
-    RenderingService *rendering_service = Controller::GetRenderingService();
-    if (rendering_service == NULL) {
-        return;
-    }
-
     mainController = new MainController();
     updateController = new UpdateController();
-    displayController = new DisplayController(*rendering_service);
-    httpServer = new HttpServer({ updateController, mainController, displayController });
+    std::vector<BaseController *> controllers = { updateController, mainController };
+
+    RenderingService *rendering_service = Controller::GetRenderingService();
+    displayController = NULL;
+    if (rendering_service != NULL) {
+        displayController = new DisplayController(*rendering_service);
+        controllers.push_back(displayController);
+    }
+
+    httpServer = new HttpServer(controllers);
     httpServer->Start();
     http_server_started = true;
 }
@@ -38,7 +42,10 @@ void stop_http_server() {
         return;
     }
     httpServer->Stop();
-    delete displayController;
+    if (displayController != NULL) {
+        delete displayController;
+        displayController = NULL;
+    }
     delete updateController;
     delete mainController;
     delete httpServer;

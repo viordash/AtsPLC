@@ -356,6 +356,26 @@ esp_err_t httpd_resp_send(httpd_req_t *r, const char *buf, ssize_t buf_len) {
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
 
+esp_err_t httpd_resp_set_hdr(httpd_req_t *r, const char *field, const char *value) {
+    return mock_c()
+        ->actualCall("httpd_resp_set_hdr")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("field", field)
+        ->withStringParameters("value", value)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+esp_err_t
+httpd_req_get_hdr_value_str(httpd_req_t *r, const char *field, char *val, size_t val_size) {
+    return mock_c()
+        ->actualCall("httpd_req_get_hdr_value_str")
+        ->withPointerParameters("r", r)
+        ->withStringParameters("field", field)
+        ->withOutputParameter("val", val)
+        ->withUnsignedIntParameters("val_size", val_size)
+        ->returnUnsignedIntValueOrDefault(ESP_FAIL);
+}
+
 esp_err_t httpd_register_uri_handler(httpd_handle_t handle, const httpd_uri_t *uri_handler) {
     return mock_c()
         ->actualCall("httpd_register_uri_handler")

@@ -64,8 +64,10 @@
 
 #include "HttpServer/BaseController.cpp"
 #include "HttpServer/HttpServer.cpp"
+#include "HttpServer/DisplayController.cpp"
 #include "HttpServer/MainController.cpp"
 #include "HttpServer/UpdateController.cpp"
+#include "HttpServer/UriHelper.cpp"
 #include "HttpServer/http_server.cpp"
 
 #include "main/Display/ListBox.cpp"
