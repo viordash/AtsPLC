@@ -13,10 +13,6 @@
 
 static const char *TAG_ServiceModeHandler = "ServiceMode";
 
-#define EXPECTED_BUTTONS                                                                           \
-    (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
-     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
-
 ListBox ServiceModeHandler::CreateModesList() {
     char buffer[64];
 
@@ -61,7 +57,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
         }
 
         ButtonsPressType pressed_button = handle_buttons(uxBits);
-        ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
+        ESP_LOGI(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
             case ButtonsPressType::UP_LONG_PRESSED:
