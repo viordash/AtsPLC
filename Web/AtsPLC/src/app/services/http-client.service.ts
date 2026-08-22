@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
-import { DataPaging, DisplayData, DeviceConfig, ForceRefreshTarget, KeyPress, WorkMode } from '../main/models';
+import { DataPaging, DisplayData, DeviceConfig, KeyPress, WorkMode } from '../main/models';
 
 const deviceConfigPath: string = '/devconfig';
 const bitmapPath: string = '/bitmap';
@@ -76,6 +76,14 @@ export class HttpClientService {
 	}
 
 
+	private parseForceRefreshSeq(header: string | null): number {
+		if (!header) {
+			return 0;
+		}
+		const seq = Number(header);
+		return Number.isInteger(seq) ? seq : 0;
+	}
+
 	private async throwOnError(response: Response): Promise<void> {
 		if (response.ok) {
 			return;
@@ -119,18 +127,14 @@ export class HttpClientService {
 					}
 					const dataPaging = JSON.parse(dataPagingHdr) as DataPaging;
 
-					const forceRefreshHdr = response.headers.get('X-ForceRefresh');
-					const parsedForceRefresh = forceRefreshHdr ? Number(forceRefreshHdr) : NaN;
-					const forceRefresh = Number.isInteger(parsedForceRefresh)
-						? parsedForceRefresh
-						: ForceRefreshTarget.None;
+					const forceRefreshSeq = this.parseForceRefreshSeq(response.headers.get('X-ForceRefresh'));
 
 					const newETag = response.headers.get('ETag');
 					if (newETag && newETag === this.lastETag) {
 						return {
 							dataPaging: dataPaging,
 							bitmap: new ArrayBuffer(0),
-							forceRefresh: forceRefresh
+							forceRefreshSeq: forceRefreshSeq
 						} as DisplayData;
 					}
 					this.lastETag = newETag;
@@ -139,7 +143,7 @@ export class HttpClientService {
 					return {
 						dataPaging: dataPaging,
 						bitmap: arrayBuffer,
-						forceRefresh: forceRefresh
+						forceRefreshSeq: forceRefreshSeq
 					} as DisplayData;
 				})
 		);

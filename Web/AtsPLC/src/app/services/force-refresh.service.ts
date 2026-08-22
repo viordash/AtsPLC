@@ -5,13 +5,23 @@ import { Subject, Observable } from 'rxjs';
 	providedIn: 'root'
 })
 export class ForceRefreshService {
-	private requests = new Subject<number>();
+	private requests = new Subject<void>();
+	private lastSeq: number | null = null;
 
-	get requests$(): Observable<number> {
+	get requests$(): Observable<void> {
 		return this.requests.asObservable();
 	}
 
-	request(targets: number): void {
-		this.requests.next(targets);
+	notify(seq: number): void {
+		if (this.lastSeq === seq) {
+			return;
+		}
+		const seqKnown = this.lastSeq !== null;
+		this.lastSeq = seq;
+
+		if (!seqKnown) {
+			return;
+		}
+		this.requests.next();
 	}
 }

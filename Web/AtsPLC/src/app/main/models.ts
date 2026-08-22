@@ -20,12 +20,7 @@ export interface DataPaging {
 export interface DisplayData {
 	dataPaging: DataPaging;
 	bitmap: ArrayBuffer;
-	forceRefresh: number;
-}
-
-export enum ForceRefreshTarget {
-	None = 0,
-	WorkMode = 1 << 0
+	forceRefreshSeq: number;
 }
 
 export interface Scroll {

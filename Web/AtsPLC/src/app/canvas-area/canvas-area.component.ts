@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef, HostListener, AfterViewInit, OnDestro
 import { Subject, takeUntil } from 'rxjs';
 import { HttpClientService } from '../services/http-client.service';
 import { ForceRefreshService } from '../services/force-refresh.service';
-import { DisplayData, DeviceConfig, ForceRefreshTarget, StoredImage } from '../main/models';
+import { DisplayData, DeviceConfig, StoredImage } from '../main/models';
 
 @Component({
 	selector: 'app-canvas-area',
@@ -87,9 +87,7 @@ export class CanvasAreaComponent implements AfterViewInit, OnDestroy {
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (displayData: DisplayData) => {
-					if (displayData.forceRefresh !== ForceRefreshTarget.None) {
-						this.forceRefreshService.request(displayData.forceRefresh);
-					}
+					this.forceRefreshService.notify(displayData.forceRefreshSeq);
 
 					const retryIntervals = [20, 50, 100, 200, 300, 500, 500, 500, 700, 700, 1000, 1000, 1000, 1500, 1500, 2000];
 

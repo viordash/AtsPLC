@@ -138,7 +138,8 @@ esp_err_t DisplayController::CreateNotModifiedResponse(httpd_req_t *req, const c
 
     res = httpd_resp_set_hdr(req, "ETag", etag);
     if (res != ESP_OK) {
-        ESP_LOGE(TAG_DisplayController, "CreateNotModifiedResponse httpd_resp_set_hdr 'ETag' error");
+        ESP_LOGE(TAG_DisplayController,
+                 "CreateNotModifiedResponse httpd_resp_set_hdr 'ETag' error");
         return res;
     }
 
@@ -159,15 +160,7 @@ esp_err_t DisplayController::CreateNotModifiedResponse(httpd_req_t *req, const c
 }
 
 esp_err_t DisplayController::SetForceRefreshHeader(httpd_req_t *req, char *dst, size_t size) {
-    ForceRefreshUI force_refresh = Controller::TakeForceRefreshUI();
-
-    switch (force_refresh) {
-        case ForceRefreshUI::fru_None:
-            return ESP_OK;
-
-        case ForceRefreshUI::fru_WorkMode:
-            snprintf(dst, size, "%u", (unsigned int)force_refresh);
-            return httpd_resp_set_hdr(req, "X-ForceRefresh", dst);
-    }
-    return ESP_FAIL;
+    uint32_t force_refresh_seq = Controller::GetForceRefreshUISeq();
+    snprintf(dst, size, "%u", (unsigned int)force_refresh_seq);
+    return httpd_resp_set_hdr(req, "X-ForceRefresh", dst);
 }

@@ -5,7 +5,7 @@ import { HttpClientService } from '../services/http-client.service';
 import { ConfirmDialogService } from '../services/confirm-dialog.service';
 import { ErrorDialogService } from '../services/error-dialog.service';
 import { ForceRefreshService } from '../services/force-refresh.service';
-import { WorkMode, ForceRefreshTarget } from '../main/models';
+import { WorkMode } from '../main/models';
 
 @Component({
 	selector: 'app-sidebar',
@@ -30,10 +30,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
 	) { }
 
 	ngOnInit(): void {
-		this.forceRefreshSubscription = this.forceRefreshService.requests$.subscribe(targets => {
-			if (targets & ForceRefreshTarget.WorkMode) {
-				this.loadWorkMode();
-			}
+		this.forceRefreshSubscription = this.forceRefreshService.requests$.subscribe(() => {
+			this.loadWorkMode();
 		});
 		this.loadWorkMode();
 	}

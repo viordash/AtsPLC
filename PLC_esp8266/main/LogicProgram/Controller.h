@@ -27,7 +27,6 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
-#include "LogicProgram/ForceRefreshUI.h"
 #include "LogicProgram/Ladder.h"
 
 class RenderingService;
@@ -44,7 +43,7 @@ class Controller {
     static DatetimeService *datetime_service;
     static LogicItemState network_continuation;
     static Ladder ladder;
-    static uint8_t force_refresh_ui;
+    static uint32_t force_refresh_seq;
     static std::mutex force_refresh_mutex;
 
   public:
@@ -66,8 +65,8 @@ class Controller {
 
     static void ChangeWorkMode(EventBits_t flags);
 
-    static void RequestForceRefreshUI(ForceRefreshUI flags);
-    static ForceRefreshUI TakeForceRefreshUI();
+    static void RequestForceRefreshUI();
+    static uint32_t GetForceRefreshUISeq();
 
     static ControllerDI DI;
     static ControllerAI AI;

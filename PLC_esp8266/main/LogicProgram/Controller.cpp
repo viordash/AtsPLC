@@ -45,7 +45,7 @@ RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
 LogicItemState Controller::network_continuation = LogicItemState::lisPassive;
 Ladder Controller::ladder;
-uint8_t Controller::force_refresh_ui = fru_None;
+uint32_t Controller::force_refresh_seq = 0;
 std::mutex Controller::force_refresh_mutex;
 
 ControllerDI Controller::DI;
@@ -463,16 +463,14 @@ bool Controller::InDesign() {
     return Controller::in_design;
 }
 
-void Controller::RequestForceRefreshUI(ForceRefreshUI flags) {
+void Controller::RequestForceRefreshUI() {
     std::lock_guard<std::mutex> lock(force_refresh_mutex);
-    force_refresh_ui |= flags;
+    force_refresh_seq++;
 }
 
-ForceRefreshUI Controller::TakeForceRefreshUI() {
+uint32_t Controller::GetForceRefreshUISeq() {
     std::lock_guard<std::mutex> lock(force_refresh_mutex);
-    ForceRefreshUI taken = (ForceRefreshUI)force_refresh_ui;
-    force_refresh_ui = fru_None;
-    return taken;
+    return force_refresh_seq;
 }
 
 void Controller::ChangeWorkMode(EventBits_t flags) {
