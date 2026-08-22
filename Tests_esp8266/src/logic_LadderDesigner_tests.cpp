@@ -317,6 +317,7 @@ TEST(LogicLadderDesignerTestsGroup,
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network_editing) {
     TestableLadder testable;
+    testable.ChangeWorkMode(WorkMode::Run, false);
 
     auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));

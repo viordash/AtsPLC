@@ -77,11 +77,11 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
         case TvElementType::et_InputNC:
         case TvElementType::et_InputNO:
         case TvElementType::et_ComparatorEq:
+        case TvElementType::et_ComparatorNe:
         case TvElementType::et_ComparatorGE:
         case TvElementType::et_ComparatorGr:
         case TvElementType::et_ComparatorLE:
         case TvElementType::et_ComparatorLs:
-        case TvElementType::et_ComparatorNe:
             return static_cast<CommonInput *>(logic_element);
 
         default:

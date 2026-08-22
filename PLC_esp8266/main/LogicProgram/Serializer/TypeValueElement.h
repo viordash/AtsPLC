@@ -11,6 +11,7 @@ enum TvElementType : uint8_t {
     et_TimerSecs,
     et_TimerMSecs,
     et_ComparatorEq,
+    et_ComparatorNe,
     et_ComparatorGE,
     et_ComparatorGr,
     et_ComparatorLE,
@@ -26,7 +27,6 @@ enum TvElementType : uint8_t {
     et_WiFiApBinding,
     et_Settings,
     et_DateTimeBinding,
-    et_ComparatorNe,
     et_SquareWaveGenerator,
     et_ContinuationIn,
     et_ContinuationOut,
@@ -44,11 +44,11 @@ static inline bool IsInputElement(TvElementType element_type) {
         case et_TimerSecs:
         case et_TimerMSecs:
         case et_ComparatorEq:
+        case et_ComparatorNe:
         case et_ComparatorGE:
         case et_ComparatorGr:
         case et_ComparatorLE:
         case et_ComparatorLs:
-        case et_ComparatorNe:
         case et_SquareWaveGenerator:
             return true;
         default:

@@ -56,6 +56,14 @@ void Ladder::Store() {
 size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
+    WorkMode _work_mode;
+    if (!Record::Read(&_work_mode, sizeof(_work_mode), buffer, buffer_size, &readed)) {
+        return 0;
+    }
+    if (!ValidateWorkMode(_work_mode)) {
+        return 0;
+    }
+
     uint16_t networks_count;
     if (!Record::Read(&networks_count, sizeof(networks_count), buffer, buffer_size, &readed)) {
         ESP_LOGE(TAG_Ladder, "Deserialize, count read error");
@@ -70,15 +78,44 @@ size_t Ladder::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
 
+    work_mode = _work_mode;
     items.reserve(networks_count);
     for (size_t i = 0; i < networks_count; i++) {
-        auto network = new Network();
+        auto network = work_mode == WorkMode::Stop ? new Network(NetworkState::nsStopFromPassive)
+                                                   : new Network(NetworkState::nsPassive);
         size_t network_readed = network->Deserialize(&buffer[readed], buffer_size - readed);
         if (network_readed == 0) {
             delete network;
             ESP_LOGE(TAG_Ladder, "Deserialize, network read error");
             return 0;
         }
+
+        switch (network->GetState()) {
+            case NetworkState::nsPassive:
+            case NetworkState::nsActive:
+                if (work_mode != WorkMode::Run) {
+                    ESP_LOGE(TAG_Ladder,
+                             "Deserialize, network state error, ladder mode:%u, network state:%u",
+                             (unsigned int)work_mode,
+                             (unsigned int)network->GetState());
+                    delete network;
+                    return 0;
+                }
+                break;
+
+            case NetworkState::nsStopFromPassive:
+            case NetworkState::nsStopFromActive:
+                if (work_mode != WorkMode::Stop) {
+                    ESP_LOGE(TAG_Ladder,
+                             "Deserialize, network state error, ladder mode:%u, network state:%u",
+                             (unsigned int)work_mode,
+                             (unsigned int)network->GetState());
+                    delete network;
+                    return 0;
+                }
+                break;
+        }
+
         readed += network_readed;
         Append(network);
     }
@@ -93,6 +130,10 @@ size_t Ladder::Serialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     if (networks_count > Ladder::MaxNetworksCount) {
+        return 0;
+    }
+
+    if (!Record::Write(&work_mode, sizeof(work_mode), buffer, buffer_size, &writed)) {
         return 0;
     }
 

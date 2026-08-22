@@ -154,6 +154,7 @@ namespace {
 
 TEST(LogicLadderTestsGroup, Store_Load) {
     TestableLadder ladder_store;
+    ladder_store.ChangeWorkMode(WorkMode::Run, false);
 
     auto network_store = new Network(NetworkState::nsActive);
     ladder_store.Append(network_store);
@@ -190,6 +191,7 @@ TEST(LogicLadderTestsGroup, Store_Load) {
 
 TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
     TestableLadder ladder_store;
+    ladder_store.ChangeWorkMode(WorkMode::Run, false);
 
     auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new TestableInputNC(MapIO::DI));

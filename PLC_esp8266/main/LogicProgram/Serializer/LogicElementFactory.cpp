@@ -30,6 +30,9 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
         case et_ComparatorEq:
             element = new ComparatorEq();
             break;
+        case et_ComparatorNe:
+            element = new ComparatorNe();
+            break;
         case et_ComparatorGE:
             element = new ComparatorGE();
             break;
@@ -77,9 +80,6 @@ LogicElement *LogicElementFactory::Create(TvElementType element_type) {
             break;
         case et_DateTimeBinding:
             element = new DateTimeBinding();
-            break;
-        case et_ComparatorNe:
-            element = new ComparatorNe();
             break;
         case et_SquareWaveGenerator:
             element = new SquareWaveGenerator();

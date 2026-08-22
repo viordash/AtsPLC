@@ -198,7 +198,9 @@ void Ladder::HandleButtonDown() {
             }
 
             if (selected_network == (int)items.size()) {
-                auto new_network = new Network(NetworkState::nsActive);
+                auto new_network = work_mode == WorkMode::Stop
+                                     ? new Network(NetworkState::nsStopFromActive)
+                                     : new Network(NetworkState::nsActive);
                 Append(new_network);
             }
 
@@ -278,7 +280,9 @@ void Ladder::HandleButtonSelect() {
     switch (design_state) {
         case EditableElement::ElementState::des_Regular: {
             if (items.size() == 0) {
-                auto new_network = new Network(NetworkState::nsActive);
+                auto new_network = work_mode == WorkMode::Stop
+                                     ? new Network(NetworkState::nsStopFromActive)
+                                     : new Network(NetworkState::nsActive);
                 Append(new_network);
             }
 

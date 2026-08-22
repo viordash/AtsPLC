@@ -10,6 +10,7 @@ typedef struct {
     uint32_t restart_count;
     int32_t view_top_index;
     int32_t selected_network;
+    int32_t enable_debug;
     Datetime current_datetime;
 } hotreload_data;
 

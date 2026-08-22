@@ -35,6 +35,7 @@ static_assert(sizeof(hotreload->is_hotstart) == 4, "sizeof(is_hotstart)");
 static_assert(sizeof(hotreload->restart_count) == 4, "sizeof(restart_count)");
 static_assert(sizeof(hotreload->view_top_index) == 4, "sizeof(view_top_index)");
 static_assert(sizeof(hotreload->selected_network) == 4, "sizeof(selected_network)");
+static_assert(sizeof(hotreload->enable_debug) == 4, "sizeof(enable_debug)");
 static_assert(sizeof(hotreload->current_datetime.year) == 4, "sizeof(current_datetime.year)");
 static_assert(sizeof(hotreload->current_datetime.month) == 4, "sizeof(current_datetime.month)");
 static_assert(sizeof(hotreload->current_datetime.day) == 4, "sizeof(current_datetime.day)");
@@ -47,6 +48,7 @@ void init_hotreload() {
     hotreload->restart_count = 0;
     hotreload->view_top_index = 0;
     hotreload->selected_network = -1;
+    hotreload->enable_debug = false;
 
     hotreload->current_datetime.year = 2025;
     hotreload->current_datetime.month = 01;

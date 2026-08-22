@@ -4,6 +4,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "hotreload_service.h"
 #include "lassert.h"
 #include <algorithm>
 #include <stdio.h>
@@ -13,6 +14,7 @@
 Ladder::Ladder() {
     view_top_index = 0;
     frame_buffer_req_render = false;
+    work_mode = WorkMode::Stop;
 }
 
 Ladder::~Ladder() {
@@ -81,7 +83,8 @@ void Ladder::Duplicate(int network_id) {
         return;
     }
 
-    auto new_network = new Network();
+    auto new_network = work_mode == WorkMode::Stop ? new Network(NetworkState::nsStopFromPassive)
+                                                   : new Network(NetworkState::nsPassive);
     size_t network_readed = new_network->Deserialize(data, buf_size);
     delete[] data;
     if (network_readed == 0) {
@@ -176,4 +179,47 @@ void Ladder::AtLeastOneNetwork() {
     }
     ESP_LOGI(TAG_Ladder, "requires at least one network");
     HandleButtonSelect();
+}
+
+WorkMode Ladder::GetWorkMode() {
+    return work_mode;
+}
+
+void Ladder::ChangeWorkMode(WorkMode new_mode, bool enable_debug) {
+    NetworkState active_state;
+    NetworkState passive_state;
+    if (new_mode == WorkMode::Run) {
+        active_state = NetworkState::nsActive;
+        passive_state = NetworkState::nsPassive;
+        work_mode = WorkMode::Run;
+    } else {
+        active_state = NetworkState::nsStopFromActive;
+        passive_state = NetworkState::nsStopFromPassive;
+        work_mode = WorkMode::Stop;
+    }
+
+    SAFETY_HOTRELOAD({
+        hotreload->enable_debug = enable_debug;
+        store_hotreload();
+    });
+
+    for (auto &network : items) {
+        switch (network->GetState()) {
+            case NetworkState::nsActive:
+            case NetworkState::nsStopFromActive:
+                network->ChangeState(active_state);
+                break;
+
+            case NetworkState::nsPassive:
+            case NetworkState::nsStopFromPassive:
+                network->ChangeState(passive_state);
+                break;
+        }
+    }
+
+    Store();
+    ESP_LOGI(TAG_Ladder,
+             "ChangeWorkMode work_mode:%u, enable_debug:%u",
+             (unsigned int)work_mode,
+             (unsigned int)enable_debug);
 }

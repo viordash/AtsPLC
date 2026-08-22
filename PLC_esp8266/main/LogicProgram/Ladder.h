@@ -1,6 +1,7 @@
 #pragma once
 #include "Display/EditableElement.h"
 #include "LogicProgram/Network.h"
+#include "LogicProgram/WorkMode.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
@@ -10,13 +11,14 @@
 
 #define TAG_Ladder "Ladder"
 
-#define LADDER_VERSION ((uint32_t)0x20240905)
+#define LADDER_VERSION ((uint32_t)0x20260822)
 
 class Ladder {
   protected:
     std::vector<Network *> items;
     int32_t view_top_index;
     bool frame_buffer_req_render;
+    WorkMode work_mode;
 
     size_t Deserialize(uint8_t *buffer, size_t buffer_size);
     size_t Serialize(uint8_t *buffer, size_t buffer_size);
@@ -56,4 +58,7 @@ class Ladder {
 
     void SetViewTopIndex(int32_t index);
     void SetSelectedNetworkIndex(int32_t index);
+
+    WorkMode GetWorkMode();
+    void ChangeWorkMode(WorkMode new_mode, bool enable_debug);
 };
