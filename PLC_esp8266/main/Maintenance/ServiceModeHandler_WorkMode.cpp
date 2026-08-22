@@ -140,7 +140,7 @@ bool ServiceModeHandler::DoChangeWorkMode(EventGroupHandle_t gpio_events, Effect
 
     ESP_LOGI(TAG_ServiceModeHandler_WorkMode, "bits:0x%08X", (unsigned int)uxBits);
 
-    bool button_up_released = (uxBits & BUTTON_UP_IO_OPEN) != 0;
+    bool button_up_released = (uxBits & (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN)) != 0;
     if (!button_up_released) {
         ESP_LOGI(TAG_ServiceModeHandler_WorkMode, "Canceled");
         return false;

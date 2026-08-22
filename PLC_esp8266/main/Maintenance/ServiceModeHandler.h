@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 #include "Display/ListBox.h"
-#include "LogicProgram/WorkMode.h"
 #include "Display/LogsList.h"
+#include "LogicProgram/WorkMode.h"
 
 #define EXPECTED_BUTTONS                                                                           \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \

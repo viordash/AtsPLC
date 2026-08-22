@@ -144,7 +144,7 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
 
     ESP_LOGI(TAG_ServiceModeHandler_Reset, "bits:0x%08X", (unsigned int)uxBits);
 
-    bool button_up_released = (uxBits & BUTTON_UP_IO_OPEN) != 0;
+    bool button_up_released = (uxBits & (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN)) != 0;
     if (!button_up_released) {
         ESP_LOGI(TAG_ServiceModeHandler_Reset, "Canceled");
         return false;
