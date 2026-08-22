@@ -31,28 +31,35 @@ WiFiApBinding::~WiFiApBinding() {
 }
 
 bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        Controller::BindVariableToSecureWiFi(GetIoAdr(), GetSsid(), GetPassword(), GetMac());
-    } else if (prev_elem_state != LogicItemState::lisActive
-               && state != LogicItemState::lisPassive) {
-        state = LogicItemState::lisPassive;
-        Controller::UnbindVariable(GetIoAdr());
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-        ESP_LOGD(TAG_WiFiApBinding, ".");
+    state = prev_elem_state;
+
+    switch (state) {
+        case LogicItemState::lisActive:
+            Controller::BindVariableToSecureWiFi(GetIoAdr(), GetSsid(), GetPassword(), GetMac());
+            break;
+
+        case LogicItemState::lisPassive:
+            Controller::UnbindVariable(GetIoAdr());
+            break;
+
+        case LogicItemState::lisStop:
+            Controller::UnbindVariable(GetIoAdr());
+            break;
     }
-    return any_changes;
+
+    ESP_LOGD(TAG_WiFiApBinding, ".");
+
+    return true;
 }
 
 IRAM_ATTR void

@@ -20,34 +20,39 @@ ResetOutput::~ResetOutput() {
 }
 
 bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        if (state == LogicItemState::lisActive) {
+    state = prev_elem_state;
+
+    switch (state) {
+        case LogicItemState::lisActive:
             Output->WriteValue(LogicElement::MinValue);
-        }
-        any_changes = true;
-        ESP_LOGD(TAG_ResetOutput, ".");
+            break;
+
+        case LogicItemState::lisPassive:
+            break;
+
+        case LogicItemState::lisStop:
+            break;
     }
 
-    return any_changes;
+    ESP_LOGD(TAG_ResetOutput, ".");
+
+    return true;
 }
 
 const Bitmap *ResetOutput::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ResetOutput::bitmap_active;
 
         default:

@@ -15,3 +15,19 @@ LogicElement::~LogicElement() {
 LogicItemState LogicElement::GetState() {
     return state;
 }
+
+bool LogicElement::DoActionGuard(bool prev_elem_changed, LogicItemState prev_elem_state) {
+    if (prev_elem_changed) {
+        return true;
+    }
+
+    if (prev_elem_state == LogicItemState::lisActive) {
+        return true;
+    }
+
+    if (prev_elem_state == LogicItemState::lisStop) {
+        return true;
+    }
+
+    return false;
+}

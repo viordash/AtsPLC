@@ -21,32 +21,45 @@ InputNC::~InputNC() {
 }
 
 bool InputNC::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    state = LogicItemState::lisPassive;
-    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
-        Input->CancelReadingProcess();
-    } else if (prev_elem_state == LogicItemState::lisActive //
-               && Input->ReadValue() == LogicElement::MinValue) {
-        state = LogicItemState::lisActive;
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            if (Input->ReadValue() == LogicElement::MinValue) {
+                state = LogicItemState::lisActive;
+            } else {
+                state = LogicItemState::lisPassive;
+            }
+            break;
+
+        case LogicItemState::lisPassive:
+            if (prev_elem_changed) {
+                Input->CancelReadingProcess();
+            }
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
     if (state != prev_state) {
-        any_changes = true;
         ESP_LOGD(TAG_InputNC, ".");
     }
-    return any_changes;
+
+    return state != prev_state;
 }
 
 const Bitmap *InputNC::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &InputNC::bitmap_active;
 
         default:

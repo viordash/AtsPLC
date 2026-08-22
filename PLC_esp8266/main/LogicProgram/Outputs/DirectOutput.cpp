@@ -20,33 +20,41 @@ DirectOutput::~DirectOutput() {
 }
 
 bool DirectOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        Output->WriteValue(state == LogicItemState::lisActive ? LogicElement::MaxValue
-                                                              : LogicElement::MinValue);
-        any_changes = true;
-        ESP_LOGD(TAG_DirectOutput, ".");
+    state = prev_elem_state;
+
+    switch (state) {
+        case LogicItemState::lisActive:
+            Output->WriteValue(LogicElement::MaxValue);
+            break;
+
+        case LogicItemState::lisPassive:
+            Output->WriteValue(LogicElement::MinValue);
+            break;
+
+        case LogicItemState::lisStop:
+            Output->WriteValue(LogicElement::MinValue);
+            break;
     }
 
-    return any_changes;
+    ESP_LOGD(TAG_DirectOutput, ".");
+
+    return true;
 }
 
 const Bitmap *DirectOutput::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &DirectOutput::bitmap_active;
 
         default:

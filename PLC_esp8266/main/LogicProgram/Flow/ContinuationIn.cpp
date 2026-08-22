@@ -22,26 +22,20 @@ ContinuationIn::~ContinuationIn() {
 bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     Controller::SetNetworkContinuation(prev_elem_state);
 
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-        ESP_LOGD(TAG_ContinuationIn, ".");
-    }
+    state = prev_elem_state;
+    ESP_LOGD(TAG_ContinuationIn, ".");
 
-    return any_changes;
+    return true;
 }
 
 IRAM_ATTR void
@@ -72,6 +66,7 @@ ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
 const Bitmap *ContinuationIn::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ContinuationIn::bitmap_active;
         default:
             return &ContinuationIn::bitmap_passive;

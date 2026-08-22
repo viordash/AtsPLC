@@ -20,7 +20,7 @@ ContinuationOut::~ContinuationOut() {
 }
 
 bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
@@ -33,10 +33,18 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = network_continuation;
-    } else {
-        state = LogicItemState::lisPassive;
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            state = network_continuation;
+            break;
+
+        case LogicItemState::lisPassive:
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
     if (state != prev_state) {
@@ -73,6 +81,7 @@ ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
 const Bitmap *ContinuationOut::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ContinuationOut::bitmap_active;
         default:
             return &ContinuationOut::bitmap_passive;

@@ -38,6 +38,7 @@ uint64_t TimerMSecs::GetTimeUs() {
 const Bitmap *TimerMSecs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &TimerMSecs::bitmap_active;
 
         default:

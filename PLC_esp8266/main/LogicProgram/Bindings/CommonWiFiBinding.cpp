@@ -35,7 +35,9 @@ void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
 
 IRAM_ATTR void
 CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    if (prev_elem_state == LogicItemState::lisActive) {
+    bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                         || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
         ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));

@@ -28,28 +28,33 @@ void DateTimeBinding::SetIoAdr(const MapIO io_adr) {
 }
 
 bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        Controller::RemoveRequestWakeupMs(this);
+    Controller::RemoveRequestWakeupMs(this);
+
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
+    if (prev_elem_state != state) {
+        state = prev_elem_state;
+        switch (state) {
+            case LogicItemState::lisActive:
+                Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
+                break;
 
-    } else if (prev_elem_state != LogicItemState::lisActive
-               && state != LogicItemState::lisPassive) {
-        state = LogicItemState::lisPassive;
-        Controller::UnbindVariable(GetIoAdr());
+            case LogicItemState::lisPassive:
+                Controller::UnbindVariable(GetIoAdr());
+                break;
+
+            case LogicItemState::lisStop:
+                Controller::UnbindVariable(GetIoAdr());
+                break;
+        }
     }
 
     if (state == LogicItemState::lisActive) {
-        Controller::RemoveRequestWakeupMs(this);
-
         uint32_t event_period_ms;
         switch (datetime_part) {
             case DatetimePart::t_second:
@@ -70,23 +75,22 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
         Controller::RequestWakeupMs(this,
                                     event_period_ms,
                                     ProcessWakeupRequestPriority::pwrp_Critical);
-    } else {
-        Controller::RemoveRequestWakeupMs(this);
-        ESP_LOGD(TAG_DateTimeBinding, "%p ", this);
     }
 
     if (state != prev_state) {
-        any_changes = true;
         ESP_LOGD(TAG_DateTimeBinding, ".");
     }
-    return any_changes;
+
+    return prev_state != state;
 }
 
 IRAM_ATTR void
 DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::mutex> lock(lock_mutex);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
+    bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                         || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
         ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));

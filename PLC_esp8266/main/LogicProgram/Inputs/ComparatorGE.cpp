@@ -17,6 +17,7 @@ ComparatorGE::ComparatorGE(uint8_t ref_percent04, const MapIO io_adr)
 const Bitmap *ComparatorGE::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ComparatorGE::bitmap_active;
 
         default:

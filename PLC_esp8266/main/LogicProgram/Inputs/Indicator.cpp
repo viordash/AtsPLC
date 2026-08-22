@@ -79,37 +79,43 @@ void Indicator::SetIoAdr(const MapIO io_adr) {
 }
 
 bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        if (Controller::RequestWakeupMs(this,
-                                        update_period_ms,
-                                        ProcessWakeupRequestPriority::pwrp_Idle)
-            || prev_elem_changed) {
-            any_changes = true;
-            switch (editing_property_id) {
-                case Indicator::EditingPropertyId::ciepi_None:
-                    PrintOutValue(Input->ReadValue());
-                    break;
-                default:
-                    break;
+    bool any_changes = state != prev_elem_state;
+    state = prev_elem_state;
+
+    switch (state) {
+        case LogicItemState::lisActive:
+            if (Controller::RequestWakeupMs(this,
+                                            update_period_ms,
+                                            ProcessWakeupRequestPriority::pwrp_Idle)
+                || prev_elem_changed) {
+                any_changes = true;
+                switch (editing_property_id) {
+                    case Indicator::EditingPropertyId::ciepi_None:
+                        PrintOutValue(Input->ReadValue());
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
-    } else {
-        state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisPassive:
+            break;
+
+        case LogicItemState::lisStop:
+            break;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
+    if (any_changes) {
         ESP_LOGD(TAG_Indicator, ".");
     }
+
     return any_changes;
 }
 
@@ -117,7 +123,9 @@ IRAM_ATTR void
 Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::mutex> lock(lock_mutex);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
+    bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                         || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
         ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));

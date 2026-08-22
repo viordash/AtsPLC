@@ -28,46 +28,57 @@ SquareWaveGenerator::~SquareWaveGenerator() {
 }
 
 bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         Controller::RemoveRequestWakeupMs(this);
         return false;
     }
-    if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
+
+    if (prev_elem_changed) {
         Controller::RemoveRequestWakeupMs(this);
-        Controller::RequestWakeupMs(this,
-                                    period0_us / 1000LL,
-                                    ProcessWakeupRequestPriority::pwrp_Critical);
     }
 
-    bool any_changes = false;
     std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state != LogicItemState::lisActive) {
-        state = LogicItemState::lisPassive;
-    } else if (state != LogicItemState::lisActive) {
-        bool timer_completed =
-            Controller::RequestWakeupMs(this,
-                                        period1_us / 1000LL,
-                                        ProcessWakeupRequestPriority::pwrp_Critical);
-        if (timer_completed) {
-            state = LogicItemState::lisActive;
-        }
-    } else {
-        bool timer_completed =
-            Controller::RequestWakeupMs(this,
-                                        period0_us / 1000LL,
-                                        ProcessWakeupRequestPriority::pwrp_Critical);
-        if (timer_completed) {
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            if (prev_elem_changed) {
+                Controller::RequestWakeupMs(this,
+                                            period0_us / 1000LL,
+                                            ProcessWakeupRequestPriority::pwrp_Critical);
+            } else if (state != LogicItemState::lisActive) {
+                bool timer_completed =
+                    Controller::RequestWakeupMs(this,
+                                                period1_us / 1000LL,
+                                                ProcessWakeupRequestPriority::pwrp_Critical);
+                if (timer_completed) {
+                    state = LogicItemState::lisActive;
+                }
+            } else {
+                bool timer_completed =
+                    Controller::RequestWakeupMs(this,
+                                                period0_us / 1000LL,
+                                                ProcessWakeupRequestPriority::pwrp_Critical);
+                if (timer_completed) {
+                    state = LogicItemState::lisPassive;
+                }
+            }
+            break;
+
+        case LogicItemState::lisPassive:
             state = LogicItemState::lisPassive;
-        }
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
     if (state != prev_state) {
-        any_changes = true;
         ESP_LOGD(TAG_SquareWaveGenerator, ".");
     }
-    return any_changes;
+
+    return state != prev_state;
 }
 
 IRAM_ATTR void
@@ -76,7 +87,9 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
 
     auto bitmap = GetCurrentBitmap(state);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
+    bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                         || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {
         ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
@@ -163,6 +176,7 @@ uint64_t SquareWaveGenerator::GetPeriod1Us() {
 const Bitmap *SquareWaveGenerator::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &SquareWaveGenerator::bitmap_active;
 
         default:

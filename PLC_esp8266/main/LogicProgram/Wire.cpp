@@ -46,7 +46,9 @@ IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     uint8_t income_width = 0;
     if (l_width > WIRE_BLINK_BODY_WIDTH) {
         income_width = l_width - WIRE_BLINK_BODY_WIDTH;
-        if (prev_elem_state == LogicItemState::lisActive) {
+        bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                             || prev_elem_state == LogicItemState::lisStop;
+        if (prev_elem_active) {
             ASSERT(draw_active_network(fb, start_point->x, start_point->y, income_width));
         } else {
             ASSERT(draw_passive_network(fb, start_point->x, start_point->y, income_width, false));
@@ -60,7 +62,9 @@ IRAM_ATTR void Wire::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
         l_editable_state == EditableElement::ElementState::des_Editing && Blinking_50(fb);
 
     if (!blink_on_editing) {
-        if (prev_elem_state == LogicItemState::lisActive) {
+        bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
+                             || prev_elem_state == LogicItemState::lisStop;
+        if (prev_elem_active) {
             ASSERT(draw_active_network(fb, start_point->x, start_point->y, body_width));
         } else {
             ASSERT(draw_passive_network(fb, start_point->x, start_point->y, body_width, false));

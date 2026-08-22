@@ -17,6 +17,7 @@ ComparatorEq::ComparatorEq(uint8_t ref_percent04, const MapIO io_adr)
 const Bitmap *ComparatorEq::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ComparatorEq::bitmap_active;
 
         default:

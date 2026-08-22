@@ -17,6 +17,7 @@ ComparatorNe::ComparatorNe(uint8_t ref_percent04, const MapIO io_adr)
 const Bitmap *ComparatorNe::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ComparatorNe::bitmap_active;
 
         default:

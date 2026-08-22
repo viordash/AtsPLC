@@ -20,6 +20,8 @@ class LogicElement : public EditableElement {
     friend Network;
     friend ElementsBox;
 
+    bool DoActionGuard(bool prev_elem_changed, LogicItemState prev_elem_state);
+
   public:
     static const uint8_t MinValue = 0;
     static const uint8_t MaxValue = 255;
