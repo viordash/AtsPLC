@@ -70,7 +70,7 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
-        bool PublicMorozov_ValidateDiscriminator(Discriminator *discriminator) {
+        bool PublicMorozov_ValidateDiscriminator(Discriminator discriminator) {
             return ValidateDiscriminator(discriminator);
         }
         Discriminator *PublicMorozov_Get_discriminator() {
@@ -106,50 +106,50 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     TestableSettingsElement testable;
     SettingsElement::Discriminator discriminator =
         SettingsElement::Discriminator::t_wifi_station_settings_ssid;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_password;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator =
         SettingsElement::Discriminator::t_wifi_station_settings_scan_station_rssi_period_ms;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_max_rssi;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_min_rssi;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator =
         SettingsElement::Discriminator::t_wifi_scanner_settings_per_channel_scan_time_ms;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_scanner_settings_max_rssi;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_scanner_settings_min_rssi;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_access_point_settings_generation_time_ms;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_access_point_settings_ssid_hidden;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_current_date;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_current_time;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_datetime_sntp_server_primary;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_datetime_sntp_server_secondary;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_datetime_timezone;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_min_worktime_ms;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
 
     discriminator = (SettingsElement::Discriminator)-1;
-    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = (SettingsElement::Discriminator)19;
-    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = (SettingsElement::Discriminator)100;
-    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(&discriminator));
+    CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
 }
 
 TEST(LogicSettingsElementTestsGroup, Serialize) {

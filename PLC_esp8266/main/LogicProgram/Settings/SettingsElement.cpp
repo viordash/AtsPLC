@@ -237,7 +237,7 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_discriminator, sizeof(_discriminator), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (!ValidateDiscriminator(&_discriminator)) {
+    if (!ValidateDiscriminator(_discriminator)) {
         return 0;
     }
 
@@ -245,8 +245,8 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
-bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
-    switch (*discriminator) {
+bool SettingsElement::ValidateDiscriminator(Discriminator discriminator) {
+    switch (discriminator) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
         case t_wifi_station_settings_connect_max_retry_count:
@@ -573,7 +573,7 @@ void SettingsElement::SelectPrior() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_adc_scan_period_ms;
             }
             discriminator = _discriminator;
@@ -597,7 +597,7 @@ void SettingsElement::SelectNext() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator + 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_wifi_station_settings_ssid;
             }
             discriminator = _discriminator;

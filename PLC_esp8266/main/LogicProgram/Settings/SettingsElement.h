@@ -44,7 +44,7 @@ class SettingsElement : public LogicElement {
     const static Bitmap bitmap;
 
     Discriminator discriminator;
-    bool ValidateDiscriminator(Discriminator *discriminator);
+    bool ValidateDiscriminator(Discriminator discriminator);
 
     void RenderName(FrameBuffer *fb, uint8_t x, uint8_t y);
     void RenderValue(FrameBuffer *fb, uint8_t x, uint8_t y);
