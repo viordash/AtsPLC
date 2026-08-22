@@ -44,10 +44,16 @@ bool HttpServer::Start() {
     }
     ESP_LOGI(TAG_HttpServer, "Starting, listen port:%u", config.server_port);
 
+    httpd_uri_t uri_handlers[BaseController::max_uri_handlers];
     for (const auto &controller : controllers) {
-        for (const auto &uriHandler : controller->GetUriHandlers()) {
-            ESP_LOGI(TAG_HttpServer, "reg URI:%s", uriHandler->uri);
-            httpd_register_uri_handler(server, uriHandler);
+        size_t count = controller->GetUriHandlers(uri_handlers, BaseController::max_uri_handlers);
+        for (size_t i = 0; i < count; i++) {
+            esp_err_t res = httpd_register_uri_handler(server, &uri_handlers[i]);
+            if (res == ESP_OK) {
+                ESP_LOGI(TAG_HttpServer, "reg URI:%s", uri_handlers[i].uri);
+            } else {
+                ESP_LOGE(TAG_HttpServer, "reg URI:%s, error:0x%04X", uri_handlers[i].uri, res);
+            }
         }
     }
     return true;

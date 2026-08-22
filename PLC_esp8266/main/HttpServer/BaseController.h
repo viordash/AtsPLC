@@ -1,15 +1,17 @@
 #pragma once
 
+#include "lassert.h"
 #include <esp_http_server.h>
-#include <vector>
 
 #define HTTPD_RESP_USE_STRLEN -1
 class BaseController {
   public:
+    static constexpr size_t max_uri_handlers = 8;
+
     BaseController();
     virtual ~BaseController();
 
-    virtual std::vector<httpd_uri_t *> GetUriHandlers() = 0;
+    virtual size_t GetUriHandlers(httpd_uri_t *handlers, size_t capacity) = 0;
 
   protected:
     esp_err_t

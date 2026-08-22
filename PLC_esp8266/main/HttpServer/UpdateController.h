@@ -8,13 +8,11 @@ class UpdateController : public BaseController {
     UpdateController();
     ~UpdateController();
 
-    std::vector<httpd_uri_t *> GetUriHandlers() override;
+    size_t GetUriHandlers(httpd_uri_t *handlers, size_t capacity) override;
 
     static esp_err_t Handler(httpd_req_t *req);
 
   private:
-    httpd_uri_t uriHandler;
-
     bool ReceiveFile(httpd_req_t *req, char *buffer);
     bool BeginOta(const esp_partition_t **update_partition,
                   esp_ota_handle_t *update_handle,

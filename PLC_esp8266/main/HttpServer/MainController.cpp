@@ -6,20 +6,19 @@
 static const char *TAG_MainController = "main_controller";
 
 MainController::MainController() : BaseController() {
-    uriDefaultGet = {
-        .uri = "/",
-        .method = HTTP_GET,
-        .handler = MainController::DefaultHandlerGet,
-        .user_ctx = this //
-    };
 }
 
 MainController::~MainController() {
 }
 
-std::vector<httpd_uri_t *> MainController::GetUriHandlers() {
-    std::vector<httpd_uri_t *> handlers = { &uriDefaultGet };
-    return handlers;
+size_t MainController::GetUriHandlers(httpd_uri_t *handlers, size_t capacity) {
+    const size_t count = 1;
+    ASSERT(capacity >= count);
+    handlers[0] = { .uri = "/",
+                    .method = HTTP_GET,
+                    .handler = MainController::DefaultHandlerGet,
+                    .user_ctx = this };
+    return count;
 }
 
 esp_err_t MainController::DefaultHandlerGet(httpd_req_t *req) {

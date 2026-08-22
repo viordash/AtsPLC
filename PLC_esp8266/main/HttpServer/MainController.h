@@ -7,10 +7,7 @@ class MainController : public BaseController {
     MainController();
     ~MainController();
 
-    std::vector<httpd_uri_t *> GetUriHandlers() override;
+    size_t GetUriHandlers(httpd_uri_t *handlers, size_t capacity) override;
 
     static esp_err_t DefaultHandlerGet(httpd_req_t *req);
-
-  private:
-    httpd_uri_t uriDefaultGet;
 };

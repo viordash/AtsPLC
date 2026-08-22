@@ -8,21 +8,19 @@ static const char *TAG_UpdateController = "update_controller";
 #define SCRATCH_BUFSIZE 4096
 
 UpdateController::UpdateController() : BaseController() {
-
-    uriHandler = {
-        .uri = "/update",
-        .method = HTTP_POST,
-        .handler = UpdateController::Handler,
-        .user_ctx = this //
-    };
 }
 
 UpdateController::~UpdateController() {
 }
 
-std::vector<httpd_uri_t *> UpdateController::GetUriHandlers() {
-    std::vector<httpd_uri_t *> handlers = { &uriHandler };
-    return handlers;
+size_t UpdateController::GetUriHandlers(httpd_uri_t *handlers, size_t capacity) {
+    const size_t count = 1;
+    ASSERT(capacity >= count);
+    handlers[0] = { .uri = "/update",
+                    .method = HTTP_POST,
+                    .handler = UpdateController::Handler,
+                    .user_ctx = this };
+    return count;
 }
 
 esp_err_t UpdateController::Handler(httpd_req_t *req) {
