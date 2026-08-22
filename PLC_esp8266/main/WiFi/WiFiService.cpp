@@ -16,8 +16,9 @@
 static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
-WiFiService::WiFiService() : task_handle(NULL) {
-    station_rssi = LogicElement::MinValue;
+WiFiService::WiFiService()
+    : scanned_ssids{}, scanned_ssids_count{ 0 }, station_rssi{ LogicElement::MinValue },
+      ap_clients{}, ap_clients_count{ 0 }, task_handle(NULL) {
 }
 
 WiFiService::~WiFiService() {

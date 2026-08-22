@@ -6,6 +6,7 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <stdio.h>
@@ -40,7 +41,7 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     if (secure_client) {
         strcpy((char *)wifi_config.ap.password, request->Payload.AccessPoint.password);
     }
-    wifi_config.ap.max_connection = secure_client ? 4 : 0;
+    wifi_config.ap.max_connection = secure_client ? WiFi_Hotspot_Max_Clients : 0;
     wifi_config.ap.ssid_hidden = access_point_settings.ssid_hidden;
 
     err = esp_wifi_set_mode(WIFI_MODE_AP);
@@ -159,50 +160,90 @@ void WiFiService::ap_disconnect_wifi_event_handler(void *arg,
     }
 }
 
+ApClients *WiFiService::FindApClients(const char *ssid) {
+    for (size_t i = 0; i < ap_clients_count; i++) {
+        if (ap_clients[i].ssid == ssid) {
+            return &ap_clients[i];
+        }
+    }
+    return NULL;
+}
+
 void WiFiService::AddApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
-    auto it = ap_clients.insert({ ssid, { mac } });
-    if (!it.second) {
-        it.first->second.insert(mac);
+    ApClients *ap = FindApClients(ssid);
+    if (ap == NULL) {
+        ASSERT(ap_clients_count < WiFi_SsidLimit);
+        ap = &ap_clients[ap_clients_count];
+        ap->ssid = ssid;
+        ap->count = 0;
+        ap_clients_count++;
     }
+
+    for (size_t i = 0; i < ap->count; i++) {
+        if (ap->clients[i] == mac) {
+            return;
+        }
+    }
+
+    bool has_free_slot = ap->count < WiFi_Hotspot_Max_Clients;
+    if (!has_free_slot) {
+        ESP_LOGE(TAG_WiFiService_AccessPoint, "AddApClient, no free slot, ssid:'%s'", ssid);
+        return;
+    }
+    ap->clients[ap->count] = mac;
+    ap->count++;
+
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "AddApClient, ssid_cnt: %u, ssid_clients:%u",
-             (unsigned int)ap_clients.size(),
-             (unsigned int)it.first->second.size());
+             (unsigned int)ap_clients_count,
+             (unsigned int)ap->count);
 }
 
 size_t WiFiService::GetApClientsCount(const char *ssid) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
-    auto it = ap_clients.find(ssid);
-    bool found = it != ap_clients.end();
+    const ApClients *ap = FindApClients(ssid);
+    bool found = ap != NULL;
     ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", (unsigned int)found);
     if (found) {
-        return it->second.size();
+        return ap->count;
     }
     return 0;
 }
 
 void WiFiService::RemoveApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
-    auto it = ap_clients.find(ssid);
-    bool found = it != ap_clients.end();
+    ApClients *ap = FindApClients(ssid);
+    bool found = ap != NULL;
     ESP_LOGD(TAG_WiFiService_AccessPoint, "FindApClient, found:%u", (unsigned int)found);
     if (found) {
-        it->second.erase(mac);
-        bool empty_ssid_to_be_delete = it->second.size() == 0;
+        for (size_t i = 0; i < ap->count; i++) {
+            if (ap->clients[i] != mac) {
+                continue;
+            }
+            ap->clients[i] = ap->clients[ap->count - 1];
+            ap->count--;
+            break;
+        }
+        bool empty_ssid_to_be_delete = ap->count == 0;
         if (empty_ssid_to_be_delete) {
-            ap_clients.erase(ssid);
+            *ap = ap_clients[ap_clients_count - 1];
+            ap_clients_count--;
         }
     }
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "RemoveApClient, cnt:%u",
-             (unsigned int)ap_clients.size());
+             (unsigned int)ap_clients_count);
 }
 
 void WiFiService::RemoveApClients(const char *ssid) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
-    ap_clients.erase(ssid);
+    ApClients *ap = FindApClients(ssid);
+    if (ap != NULL) {
+        *ap = ap_clients[ap_clients_count - 1];
+        ap_clients_count--;
+    }
     ESP_LOGI(TAG_WiFiService_AccessPoint,
              "RemoveApClients, cnt:%u",
-             (unsigned int)ap_clients.size());
+             (unsigned int)ap_clients_count);
 }

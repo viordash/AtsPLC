@@ -7,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
+#include "lassert.h"
 #include "sys_gpio.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,30 +148,47 @@ uint8_t WiFiService::ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t m
     return (uint8_t)fl;
 }
 
+ScannedSsid *WiFiService::FindScanned(const char *ssid) {
+    for (size_t i = 0; i < scanned_ssids_count; i++) {
+        if (scanned_ssids[i].ssid == ssid) {
+            return &scanned_ssids[i];
+        }
+    }
+    return NULL;
+}
+
 void WiFiService::AddScannedSsid(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    auto it = scanned_ssid.insert({ ssid, rssi });
-    if (!it.second) {
-        it.first->second = rssi;
+    ScannedSsid *scanned = FindScanned(ssid);
+    if (scanned == NULL) {
+        ASSERT(scanned_ssids_count < WiFi_SsidLimit);
+        scanned = &scanned_ssids[scanned_ssids_count];
+        scanned->ssid = ssid;
+        scanned_ssids_count++;
     }
-    ESP_LOGD(TAG_WiFiService_Scanner, "AddScannedSsid, cnt:%u", (unsigned int)scanned_ssid.size());
+    scanned->rssi = rssi;
+    ESP_LOGD(TAG_WiFiService_Scanner, "AddScannedSsid, cnt:%u", (unsigned int)scanned_ssids_count);
 }
 
 bool WiFiService::FindScannedSsid(const char *ssid, uint8_t *rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    auto it = scanned_ssid.find(ssid);
-    bool found = it != scanned_ssid.end();
+    const ScannedSsid *scanned = FindScanned(ssid);
+    bool found = scanned != NULL;
     ESP_LOGD(TAG_WiFiService_Scanner, "FindScannedSsid, found:%u", (unsigned int)found);
     if (found) {
-        *rssi = it->second;
+        *rssi = scanned->rssi;
     }
     return found;
 }
 
 void WiFiService::RemoveScannedSsid(const char *ssid) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
-    scanned_ssid.erase(ssid);
+    ScannedSsid *scanned = FindScanned(ssid);
+    if (scanned != NULL) {
+        *scanned = scanned_ssids[scanned_ssids_count - 1];
+        scanned_ssids_count--;
+    }
     ESP_LOGD(TAG_WiFiService_Scanner,
              "RemoveScannedSsid, cnt:%u",
-             (unsigned int)scanned_ssid.size());
+             (unsigned int)scanned_ssids_count);
 }
