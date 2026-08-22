@@ -15,6 +15,7 @@ static const char *TAG_RenderingService = "RenderingService";
 RenderingService::RenderingService() {
     task_handle = NULL;
     task_arg = {};
+    last_change_time_ms = 0;
 }
 
 RenderingService::~RenderingService() {
@@ -49,10 +50,16 @@ void RenderingService::Task(void *parm) {
 
         if (ulNotifiedValue & DO_RENDERING) {
             int64_t time_before_render = esp_timer_get_time();
-            auto fb = begin_render();
-            statusBar.Render(fb);
-            arg->ladder->Render(fb);
-            end_render(fb);
+            {
+                std::lock_guard<std::mutex> lock(arg->service->render_mutex);
+                auto fb = begin_render();
+                statusBar.Render(fb);
+                arg->ladder->Render(fb);
+                end_render(fb);
+                if (fb->has_changes) {
+                    arg->service->last_change_time_ms = time_before_render / 1000;
+                }
+            }
 
             int64_t time_after_render = esp_timer_get_time();
             static int64_t loop_time = 0;
@@ -94,4 +101,19 @@ void RenderingService::Do() {
     }
     ESP_LOGD(TAG_RenderingService, "do");
     xTaskNotify(task_handle, DO_RENDERING, eNotifyAction::eSetBits);
+}
+
+RenderingService::CachedBitmap RenderingService::BeginRenderOnExternal() {
+    render_mutex.lock();
+    FrameBuffer *fb = peek_framebuffer();
+
+    ESP_LOGD(TAG_RenderingService,
+             "BeginRenderOnExternal, last_change_time_ms:%u",
+             (unsigned int)last_change_time_ms);
+
+    return { fb->buffer, last_change_time_ms, fb->view_offset, fb->view_count };
+}
+
+void RenderingService::EndRenderOnExternal() {
+    render_mutex.unlock();
 }

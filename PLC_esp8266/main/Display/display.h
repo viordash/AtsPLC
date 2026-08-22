@@ -33,9 +33,12 @@ void display_init();
 typedef struct {
     uint8_t buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
     bool has_changes;
+    int32_t view_offset;
+    uint32_t view_count;
 } FrameBuffer;
 
 FrameBuffer *begin_render();
+FrameBuffer *peek_framebuffer();
 void end_render(FrameBuffer *fb);
 int draw_text_f4X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);
 int draw_text_f5X7(FrameBuffer *fb, uint8_t x, uint8_t y, const char *text);

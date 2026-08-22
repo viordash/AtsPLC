@@ -62,6 +62,10 @@ IRAM_ATTR FrameBuffer *begin_render() {
     display.frame_buffer.has_changes = false;
     return &display.frame_buffer;
 }
+FrameBuffer *peek_framebuffer() {
+    return &display.frame_buffer;
+}
+
 IRAM_ATTR void end_render(FrameBuffer *fb) {
     if (fb->has_changes) {
         ssd1306_load_frame_buffer(&display.dev, fb->buffer);

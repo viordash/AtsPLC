@@ -57,6 +57,9 @@ IRAM_ATTR void Ladder::Render(FrameBuffer *fb) {
                       Ladder::MaxViewPortCount,
                       view_top_index);
 
+    fb->view_offset = view_top_index;
+    fb->view_count = items.size();
+
     fb->has_changes |= frame_buffer_req_render || Controller::InDesign();
     frame_buffer_req_render = false;
 }
