@@ -1,12 +1,11 @@
 #pragma once
 
 #include <mutex>
-#include <set>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <unordered_set>
+#include <vector>
 
 enum ProcessWakeupRequestPriority {
     pwrp_Idle,
@@ -65,13 +64,19 @@ class ProcessWakeupService {
   protected:
     static const uint64_t idle_dead_band_us = 100000;
     static const uint32_t default_delay = -1;
-    std::set<ProcessWakeupRequestData, ProcessWakeupRequestDataCmp> requests;
-    std::unordered_set<const void *> ids;
+    static const size_t reserved_requests_count = 16;
+    std::vector<ProcessWakeupRequestData> requests;
     std::mutex lock_mutex;
 
+    std::vector<ProcessWakeupRequestData>::iterator Find(const void *id);
+    std::vector<ProcessWakeupRequestData>::iterator
+    UpperBound(const ProcessWakeupRequestData &request);
+
   public:
+    ProcessWakeupService();
+
     bool Request(const void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
     void RemoveRequest(const void *id);
     uint32_t Get();
-    int RemoveExpired();
+    void RemoveExpired();
 };
