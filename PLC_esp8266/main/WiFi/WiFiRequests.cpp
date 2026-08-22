@@ -4,6 +4,9 @@
 
 static const char *TAG_WiFiRequests = "WiFiRequests";
 
+WiFiRequests::WiFiRequests() : items{}, count{ 0 } {
+}
+
 bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     if (a->Type != b->Type) {
         return false;
@@ -23,26 +26,39 @@ bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
     return true;
 }
 
-std::list<RequestItem>::iterator WiFiRequests::Find(RequestItem *request) {
-    for (auto it = items.begin(); it != items.end(); it++) {
-        const auto &req = *it;
-        if (Equals(&req, request)) {
-            return it;
+bool WiFiRequests::Find(const RequestItem *request) const {
+    for (size_t i = 0; i < count; i++) {
+        if (Equals(&items[i], request)) {
+            return true;
         }
     }
-    return items.end();
+    return false;
 }
 
-bool WiFiRequests::Contains(RequestItem *request) {
+bool WiFiRequests::Add(RequestItem *request) {
+    if (Find(request)) {
+        return false;
+    }
+    if (count >= WiFi_RequestsLimit) {
+        ESP_LOGE(TAG_WiFiRequests,
+                 "Add, items count exceeded limit to %u",
+                 (unsigned int)WiFi_RequestsLimit);
+        return false;
+    }
+    items[count] = std::move(*request);
+    count++;
+    return true;
+}
+
+bool WiFiRequests::Contains(const RequestItem *request) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto item = Find(request);
-    return item != items.end();
+    return Find(request);
 }
 
-bool WiFiRequests::HasAnother(RequestItem *current) {
-    for (auto it = items.begin(); it != items.end(); it++) {
-        const auto &req = *it;
-        if (!Equals(&req, current)) {
+bool WiFiRequests::HasAnother(const RequestItem *current) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    for (size_t i = 0; i < count; i++) {
+        if (!Equals(&items[i], current)) {
             return true;
         }
     }
@@ -52,11 +68,7 @@ bool WiFiRequests::HasAnother(RequestItem *current) {
 bool WiFiRequests::Scan(const char *ssid) {
     RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto item = Find(&request);
-    bool new_req = item == items.end();
-    if (new_req) {
-        items.push_front(std::move(request));
-    }
+    bool new_req = Add(&request);
     ESP_LOGD(TAG_WiFiRequests, "Scan, ssid:%s, new_req:%u", ssid, new_req);
     return new_req;
 }
@@ -66,11 +78,7 @@ bool WiFiRequests::AccessPoint(const char *ssid, const char *password, const cha
     request.Payload.AccessPoint.password = password;
     request.Payload.AccessPoint.mac = mac;
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto item = Find(&request);
-    bool new_req = item == items.end();
-    if (new_req) {
-        items.push_front(std::move(request));
-    }
+    bool new_req = Add(&request);
     ESP_LOGD(TAG_WiFiRequests, "AccessPoint, ssid:%s, new_req:%u", ssid, new_req);
     return new_req;
 }
@@ -78,33 +86,28 @@ bool WiFiRequests::AccessPoint(const char *ssid, const char *password, const cha
 bool WiFiRequests::Station() {
     RequestItem request = { RequestItemType::wqi_Station, {} };
     std::lock_guard<std::mutex> lock(lock_mutex);
-    auto item = Find(&request);
-    bool new_req = item == items.end();
-    if (new_req) {
-        items.push_front(std::move(request));
-    }
+    bool new_req = Add(&request);
     ESP_LOGD(TAG_WiFiRequests, "Station, is new req:%u", new_req);
     return new_req;
 }
 
 bool WiFiRequests::Pop(RequestItem *request) {
     std::lock_guard<std::mutex> lock(lock_mutex);
-    if (items.empty()) {
+    if (count == 0) {
         return false;
     }
-    *request = std::move(items.back());
-    items.pop_back();
+    *request = std::move(items[0]);
+    count--;
+    for (size_t i = 0; i < count; i++) {
+        items[i] = std::move(items[i + 1]);
+    }
     return true;
 }
 
 size_t WiFiRequests::Size() const {
-    return items.size();
+    return count;
 }
 
-std::list<RequestItem>::const_iterator WiFiRequests::Begin() const {
-    return items.begin();
-}
-
-std::list<RequestItem>::const_iterator WiFiRequests::End() const {
-    return items.end();
+const RequestItem *WiFiRequests::First() const {
+    return &items[0];
 }

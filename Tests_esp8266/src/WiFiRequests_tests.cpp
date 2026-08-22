@@ -22,10 +22,6 @@ namespace {
         bool PublicMorozov_Equals(const RequestItem *a, const RequestItem *b) const {
             return Equals(a, b);
         }
-
-        const RequestItem &PublicMorozov_back() const {
-            return items.back();
-        }
     };
 } // namespace
 
@@ -145,8 +141,8 @@ TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
 
     testable.Scan(ssid);
     CHECK_EQUAL(1, testable.Size());
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.PublicMorozov_back().Type);
-    CHECK_EQUAL(ssid, testable.PublicMorozov_back().Payload.Scanner.ssid);
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.First()->Type);
+    CHECK_EQUAL(ssid, testable.First()->Payload.Scanner.ssid);
 }
 
 TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {

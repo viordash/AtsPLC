@@ -206,7 +206,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_Co
     testable.FetchValue();
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_Station,
-                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->First())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_wifi_sta_client_does_nothing) {
@@ -264,7 +264,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scann
     testable.FetchValue();
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_Scanner,
-                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->First())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_AccessPoint) {
@@ -284,7 +284,7 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_Acc
     testable.CommitChanges();
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
-                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->First())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_calls_CancelScan) {
@@ -330,7 +330,7 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessP
     testable.FetchValue();
     CHECK_EQUAL(1, wifi_service.PublicMorozov_Get_requests()->Size());
     CHECK_EQUAL(RequestItemType::wqi_AccessPoint,
-                (wifi_service.PublicMorozov_Get_requests()->Begin())->Type);
+                (wifi_service.PublicMorozov_Get_requests()->First())->Type);
 }
 
 TEST(LogicControllerVariableTestsGroup, CommitChanges_for_SecureWiFi_does_nothing) {
