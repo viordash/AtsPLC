@@ -14,6 +14,7 @@
 #include "main/Maintenance/ServiceModeHandler_ResetData.cpp"
 #include "main/Maintenance/ServiceModeHandler_Restore.cpp"
 #include "main/Maintenance/ServiceModeHandler_SmartConfig.cpp"
+#include "main/Maintenance/ServiceModeHandler_WorkMode.cpp"
 
 #include "main/redundant_storage.h"
 
@@ -69,6 +70,10 @@ namespace {
 TEST(ServiceModeHandlerTestsGroup, ChangeModeToPrev) {
     CHECK_EQUAL(ServiceModeHandler::Mode::sm_ResetToDefault,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToPrev(
+                    ServiceModeHandler::Mode::sm_WorkMode));
+
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_WorkMode,
+                TestableServiceModeHandler::PublicMorozov_ChangeModeToPrev(
                     ServiceModeHandler::Mode::sm_SmartConfig));
 
     CHECK_EQUAL(ServiceModeHandler::Mode::sm_RestoreLogic,
@@ -85,6 +90,10 @@ TEST(ServiceModeHandlerTestsGroup, ChangeModeToPrev) {
 }
 
 TEST(ServiceModeHandlerTestsGroup, ChangeModeToNext) {
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_SmartConfig,
+                TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
+                    ServiceModeHandler::Mode::sm_WorkMode));
+
     CHECK_EQUAL(ServiceModeHandler::Mode::sm_BackupLogic,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_SmartConfig));
@@ -97,7 +106,7 @@ TEST(ServiceModeHandlerTestsGroup, ChangeModeToNext) {
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_RestoreLogic));
 
-    CHECK_EQUAL(ServiceModeHandler::Mode::sm_SmartConfig,
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_WorkMode,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_ResetToDefault));
 }

@@ -27,15 +27,16 @@ ListBox ServiceModeHandler::CreateModesList() {
              (unsigned int)BUILD_NUMBER);
     ListBox listBox(buffer);
 
-    listBox.Insert(0, "Smart config");
-    listBox.Insert(1, "Backup logic");
-    listBox.Insert(2, "Restore logic");
-    listBox.Insert(3, "Reset to default");
+    listBox.Insert(0, "Work mode");
+    listBox.Insert(1, "Smart config");
+    listBox.Insert(2, "Backup logic");
+    listBox.Insert(3, "Restore logic");
+    listBox.Insert(4, "Reset to default");
     return listBox;
 }
 
 void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
-    Mode mode = Mode::sm_SmartConfig;
+    Mode mode = Mode::sm_WorkMode;
 
     ListBox listBox = CreateModesList();
     listBox.Select(mode);
@@ -84,8 +85,11 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
 
 ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
     switch (mode) {
-        case Mode::sm_SmartConfig:
+        case Mode::sm_WorkMode:
             mode = Mode::sm_ResetToDefault;
+            break;
+        case Mode::sm_SmartConfig:
+            mode = Mode::sm_WorkMode;
             break;
         case Mode::sm_BackupLogic:
             mode = Mode::sm_SmartConfig;
@@ -102,6 +106,9 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler
 
 ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
     switch (mode) {
+        case Mode::sm_WorkMode:
+            mode = Mode::sm_SmartConfig;
+            break;
         case Mode::sm_SmartConfig:
             mode = Mode::sm_BackupLogic;
             break;
@@ -112,7 +119,7 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler
             mode = Mode::sm_ResetToDefault;
             break;
         case Mode::sm_ResetToDefault:
-            mode = Mode::sm_SmartConfig;
+            mode = Mode::sm_WorkMode;
             break;
     }
     return mode;
@@ -120,6 +127,9 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler
 
 void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
     switch (mode) {
+        case Mode::sm_WorkMode:
+            ChangeWorkMode(gpio_events);
+            break;
         case Mode::sm_SmartConfig:
             SmartConfig(gpio_events);
             break;

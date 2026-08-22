@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include "Display/ListBox.h"
+#include "LogicProgram/WorkMode.h"
 #include "Display/LogsList.h"
 
 #define EXPECTED_BUTTONS                                                                           \
@@ -24,10 +25,11 @@ extern "C" {
 class ServiceModeHandler {
   public:
     enum Mode {
-        sm_SmartConfig = 0,
-        sm_BackupLogic = 1,
-        sm_RestoreLogic = 2,
-        sm_ResetToDefault = 3
+        sm_WorkMode = 0,
+        sm_SmartConfig = 1,
+        sm_BackupLogic = 2,
+        sm_RestoreLogic = 3,
+        sm_ResetToDefault = 4
     };
 
     enum ResetMode { rd_Settings = 0, rd_Ladder = 1, rd_Backups = 2, rd_FactoryReset = 3 };
@@ -36,11 +38,17 @@ class ServiceModeHandler {
     static const int service_mode_timeout_ms = 120000;
     static const size_t max_backup_files = 4;
     static const char *reset_data_names[];
+    static const char *work_mode_names[];
 
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
     static ListBox CreateModesList();
     static void Execute(EventGroupHandle_t gpio_events, Mode mode);
+    static void ChangeWorkMode(EventGroupHandle_t gpio_events);
+    static EffectiveWorkMode ChangeWorkModeToPrev(EffectiveWorkMode mode);
+    static EffectiveWorkMode ChangeWorkModeToNext(EffectiveWorkMode mode);
+    static bool DoChangeWorkMode(EventGroupHandle_t gpio_events, EffectiveWorkMode mode);
+
     static void SmartConfig(EventGroupHandle_t gpio_events);
     static void SmartConfigProgress(LogsList &logs_list, const char *message);
 
