@@ -6,8 +6,6 @@
 #define HTTPD_RESP_USE_STRLEN -1
 class BaseController {
   public:
-    static constexpr size_t max_uri_handlers = 8;
-
     BaseController();
     virtual ~BaseController();
 

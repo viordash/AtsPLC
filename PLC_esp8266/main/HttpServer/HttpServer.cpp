@@ -22,8 +22,8 @@ bool HttpServer::Start() {
                               .stack_size = 4096,
                               .server_port = 80,
                               .ctrl_port = 32768,
-                              .max_open_sockets = 7,
-                              .max_uri_handlers = 8,
+                              .max_open_sockets = 4,
+                              .max_uri_handlers = 14,
                               .max_resp_headers = 8,
                               .backlog_conn = 5,
                               .lru_purge_enable = false,
@@ -44,9 +44,9 @@ bool HttpServer::Start() {
     }
     ESP_LOGI(TAG_HttpServer, "Starting, listen port:%u", config.server_port);
 
-    httpd_uri_t uri_handlers[BaseController::max_uri_handlers];
+    httpd_uri_t uri_handlers[config.max_uri_handlers];
     for (const auto &controller : controllers) {
-        size_t count = controller->GetUriHandlers(uri_handlers, BaseController::max_uri_handlers);
+        size_t count = controller->GetUriHandlers(uri_handlers, config.max_uri_handlers);
         for (size_t i = 0; i < count; i++) {
             esp_err_t res = httpd_register_uri_handler(server, &uri_handlers[i]);
             if (res == ESP_OK) {
