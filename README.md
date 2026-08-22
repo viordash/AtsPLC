@@ -7,6 +7,19 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 
 ---
 
+## Documentation
+
+| Документ | О чём |
+|----------|-------|
+| [Docs/BUILD.md](Docs/BUILD.md) | Сборка, прошивка, тесты, тулинг |
+| [Docs/LADDER_ELEMENTS.md](Docs/LADDER_ELEMENTS.md) | Элементы Ladder Diagram и редактирование |
+| [Docs/WORK_MODES.md](Docs/WORK_MODES.md) | Режимы работы Stop / Run / Debug |
+| [Docs/SERVICE_MODE.md](Docs/SERVICE_MODE.md) | Сервисный режим: backup, restore, reset |
+| [Docs/WIFI.md](Docs/WIFI.md) | Станция, сканер, точка доступа |
+| [Docs/WEB_INTERFACE.md](Docs/WEB_INTERFACE.md) | Web-интерфейс и REST API |
+
+---
+
 ## Key Features
 
 - **On-Device Programming** — Create and edit Ladder Diagram programs directly on the controller using a 0.96" OLED display

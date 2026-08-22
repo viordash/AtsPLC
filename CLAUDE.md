@@ -2,7 +2,9 @@
 
 ## General
 
-- Start each new conversation by reading `README.md` to understand the project context
+- Start each new conversation by reading `claude-context/context-claude.md` to understand the project context
+- For deeper context on specific areas, read the relevant file from `claude-context/` directory
+- User-facing documentation lives in `Docs/`; `README.md` is the entry point
 
 ## Naming Conventions
 
@@ -20,9 +22,20 @@
 ## Build
 
 ```bash
+make web      # Angular SPA, once after frontend changes
+make app      # firmware
+make tests    # unit tests
+```
+
+Or directly:
+
+```bash
 cd PLC_esp8266 && make -j $(nproc) size
 cd Tests_esp8266 && make -j $(nproc)
 ```
+
+- Header dependencies are not tracked by the firmware build: after editing any `.h`,
+  run `rm -rf PLC_esp8266/build/main` before `make app`.
 
 ## Angular
 
