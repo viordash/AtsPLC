@@ -229,6 +229,34 @@ IRAM_ATTR bool draw_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
     return err == 0;
 }
 
+IRAM_ATTR bool draw_passive_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
+    int err;
+    y -= OUTCOME_RAIL_NETWORK_TOP;
+    uint8_t last_y = y + OUTCOME_RAIL_HEIGHT;
+    err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, OUTCOME_RAIL_HEIGHT, OLED_COLOR_WHITE);
+    if (err == 0) {
+        int dashed_line_height = OUTCOME_RAIL_HEIGHT / 3;
+
+        uint8_t height = OUTCOME_RAIL_HEIGHT / 3;
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, height, OLED_COLOR_WHITE);
+        y += height;
+
+        ssd1306_color_t color_line = OLED_COLOR_WHITE;
+        while (err == 0 && dashed_line_height >= 2) {
+            err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, 2, color_line);
+            dashed_line_height -= 2;
+            y += 2;
+            color_line = color_line == OLED_COLOR_BLACK ? OLED_COLOR_WHITE : OLED_COLOR_BLACK;
+        }
+
+        if (err == 0) {
+            height = last_y - y;
+            ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, height, OLED_COLOR_WHITE);
+        }
+    }
+    return err == 0;
+}
+
 IRAM_ATTR bool draw_vert_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04) {
     int err = 0;
     int height = (VERT_PROGRESS_BAR_HEIGHT * percent04) / 250;

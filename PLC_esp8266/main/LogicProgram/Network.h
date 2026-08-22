@@ -3,6 +3,7 @@
 #include "Display/EditableElement.h"
 #include "LogicProgram/LogicElement.h"
 #include "LogicProgram/LogicItemState.h"
+#include "LogicProgram/NetworkState.h"
 #include <atomic>
 #include <stdint.h>
 #include <unistd.h>
@@ -11,7 +12,7 @@
 class Network : public EditableElement {
   protected:
     std::vector<LogicElement *> items;
-    LogicItemState state;
+    NetworkState state;
     bool state_changed;
     std::atomic<bool> frame_buffer_req_render;
     uint8_t fill_wire;
@@ -29,7 +30,7 @@ class Network : public EditableElement {
     const static size_t MinElementsCount = 1;
     const static size_t MaxElementsCount = 5;
     explicit Network();
-    explicit Network(LogicItemState state);
+    explicit Network(NetworkState state);
     virtual ~Network();
 
     bool Empty() const;
@@ -38,8 +39,8 @@ class Network : public EditableElement {
     LogicElement *&operator[](size_t index);
     LogicElement *const &operator[](size_t index) const;
 
-    void ChangeState(LogicItemState state);
-    LogicItemState GetState();
+    void ChangeState(NetworkState state);
+    NetworkState GetState();
 
     virtual bool DoAction();
     virtual void Render(FrameBuffer *fb, uint8_t network_number);

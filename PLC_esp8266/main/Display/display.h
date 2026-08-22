@@ -55,6 +55,7 @@ bool draw_passive_network(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w, bool
 bool draw_active_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
 bool draw_passive_income_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
 bool draw_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
+bool draw_passive_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y);
 bool draw_vert_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04);
 bool draw_horz_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04);
 bool draw_vert_line(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t w);
