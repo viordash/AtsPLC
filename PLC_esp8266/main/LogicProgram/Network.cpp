@@ -18,12 +18,16 @@ static const char *TAG_Network = "Network";
 Network::Network(LogicItemState state) : EditableElement() {
     fill_wire = 0;
     ChangeState(state);
-    frame_buffer_req_render = false;
+    frame_buffer_req_render.store(false, std::memory_order_relaxed);
 }
 Network::Network() : Network(LogicItemState::lisPassive) {
 }
 
 Network::~Network() {
+    RemoveAll();
+}
+
+void Network::RemoveAll() {
     while (!items.empty()) {
         auto it = items.begin();
         auto element = *it;
@@ -75,7 +79,9 @@ bool Network::DoAction() {
         any_changes |= prev_elem_changed;
     }
 
-    frame_buffer_req_render |= any_changes;
+    frame_buffer_req_render.store(frame_buffer_req_render.load(std::memory_order_relaxed)
+                                      | any_changes,
+                                  std::memory_order_relaxed);
     return any_changes;
 }
 
@@ -152,8 +158,8 @@ IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
 
     ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
 
-    fb->has_changes |= frame_buffer_req_render;
-    frame_buffer_req_render = false;
+    fb->has_changes |= frame_buffer_req_render.load(std::memory_order_relaxed);
+    frame_buffer_req_render.store(false, std::memory_order_relaxed);
 }
 
 void Network::Append(LogicElement *element) {
@@ -228,17 +234,20 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     for (size_t i = 0; i < elements_count; i++) {
         TvElement tvElement;
         if (!Record::Read(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
+            RemoveAll();
             return 0;
         }
 
         auto element = LogicElementFactory::Create(tvElement.type);
         if (element == NULL) {
+            RemoveAll();
             return 0;
         }
 
         size_t element_readed = element->Deserialize(&buffer[readed], buffer_size - readed);
         if (element_readed == 0) {
             delete element;
+            RemoveAll();
             return 0;
         }
         readed += element_readed;

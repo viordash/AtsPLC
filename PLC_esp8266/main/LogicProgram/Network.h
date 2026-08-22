@@ -3,6 +3,7 @@
 #include "Display/EditableElement.h"
 #include "LogicProgram/LogicElement.h"
 #include "LogicProgram/LogicItemState.h"
+#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
@@ -12,9 +13,10 @@ class Network : public EditableElement {
     std::vector<LogicElement *> items;
     LogicItemState state;
     bool state_changed;
-    bool frame_buffer_req_render;
+    std::atomic<bool> frame_buffer_req_render;
     uint8_t fill_wire;
 
+    void RemoveAll();
     bool EnoughSpaceForNewElement(LogicElement *new_element);
     void AddSpaceForNewElement();
     void RemoveSpaceForNewElement();
