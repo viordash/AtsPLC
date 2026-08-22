@@ -5,8 +5,6 @@
 
 static const char *TAG_UpdateController = "update_controller";
 
-#define SCRATCH_BUFSIZE 4096
-
 UpdateController::UpdateController() : BaseController() {
 }
 

@@ -1,0 +1,46 @@
+<div class="content">
+	<div class="display-wrapper">
+		<div class="canvas-area">
+			<div class="status-bar-wrapper">
+				<canvas #statusBarCanvas class="status-bar-canvas"></canvas>
+			</div>
+			<div class="main-canvas-container" #mainCanvasContainer tabindex="0">
+				<canvas #mainCanvas class="main-canvas"></canvas>
+				<canvas #overlayCanvas class="overlay-canvas"></canvas>
+			</div>
+		</div>
+
+		<div class="controls-column">
+			<button class="scale-button" (click)="toggleScale()">x{{currentScale()}}</button>
+
+			<div></div>
+			<button class="control-button"
+				(mousedown)="onButtonDown($event, 38)"
+				(mouseup)="onButtonUp($event, 38)"
+				(touchstart)="onButtonDown($event, 38)"
+				(touchend)="onButtonUp($event, 38)"
+				(contextmenu)="$event.preventDefault()"
+				title="Arrow Up">
+				Up
+			</button>
+			<button class="control-button"
+				(mousedown)="onButtonDown($event, 16)"
+				(mouseup)="onButtonUp($event, 16)"
+				(touchstart)="onButtonDown($event, 16)"
+				(touchend)="onButtonUp($event, 16)"
+				(contextmenu)="$event.preventDefault()"
+				title="Right Shift">
+				Ok
+			</button>
+			<button class="control-button"
+				(mousedown)="onButtonDown($event, 40)"
+				(mouseup)="onButtonUp($event, 40)"
+				(touchstart)="onButtonDown($event, 40)"
+				(touchend)="onButtonUp($event, 40)"
+				(contextmenu)="$event.preventDefault()"
+				title="Arrow Down">
+				Down
+			</button>
+		</div>
+	</div>
+</div>

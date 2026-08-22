@@ -356,6 +356,25 @@ esp_err_t httpd_resp_send(httpd_req_t *r, const char *buf, ssize_t buf_len) {
         ->returnUnsignedIntValueOrDefault(ESP_OK);
 }
 
+esp_err_t httpd_resp_send_chunk(httpd_req_t *r, const char *buf, ssize_t buf_len) {
+    return mock_c()
+        ->actualCall("httpd_resp_send_chunk")
+        ->withPointerParameters("r", r)
+        ->withMemoryBufferParameter("buf", (const unsigned char *)buf, buf_len < 0 ? 0 : buf_len)
+        ->returnUnsignedIntValueOrDefault(ESP_OK);
+}
+
+/* the linker gets these from COMPONENT_EMBED_FILES in the firmware build */
+#define EMBEDDED_FILE_STUB(symbol) EMBEDDED_FILE_STUB_IMPL(symbol)
+#define EMBEDDED_FILE_STUB_IMPL(symbol)                                                            \
+    uint8_t _binary_##symbol##_start[1] = { 0 };                                                   \
+    uint8_t _binary_##symbol##_end = 0;
+
+EMBEDDED_FILE_STUB(index_html_symbol)
+EMBEDDED_FILE_STUB(favicon_ico_symbol)
+EMBEDDED_FILE_STUB(main_js_symbol)
+EMBEDDED_FILE_STUB(styles_css_symbol)
+
 esp_err_t httpd_resp_set_hdr(httpd_req_t *r, const char *field, const char *value) {
     return mock_c()
         ->actualCall("httpd_resp_set_hdr")

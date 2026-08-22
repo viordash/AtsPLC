@@ -258,7 +258,7 @@ TEST(WiFiServiceTestsGroup, StationTask_calls_connect) {
 }
 
 TEST(WiFiServiceTestsGroup, StationTask_and_if_no_another_request_then_loop_forever) {
-    mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
+    mock().expectNCalls(8, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
         .expectOneCall("esp_wifi_set_config")
@@ -320,7 +320,7 @@ TEST(WiFiServiceTestsGroup, StationTask_and_if_no_another_request_then_loop_fore
 
 TEST(WiFiServiceTestsGroup,
      StationTask_and_if_has_another_request_and_connection_occured_then_break_loop) {
-    mock().expectNCalls(3, "httpd_register_uri_handler").ignoreOtherParameters();
+    mock().expectNCalls(8, "httpd_register_uri_handler").ignoreOtherParameters();
     mock().expectOneCall("esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
         .expectOneCall("esp_wifi_set_config")

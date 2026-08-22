@@ -1,0 +1,52 @@
+<input type="file" #fileInput hidden accept=".dat,*.*" (change)="onFileSelected($event)">
+
+<aside class="sidebar" [class.collapsed]="collapsed">
+	<div class="sidebar-header">
+		<button class="sidebar-toggle" (click)="toggleSidebar()">
+			{{ collapsed ? '»' : '«' }}
+		</button>
+	</div>
+
+	<div class="sidebar-content" *ngIf="!collapsed">
+		<div class="sidebar-group">
+			<h3 class="group-title">Program</h3>
+			<div class="button-group">
+				<button class="sidebar-button" (click)="onDownloadClick()">
+					<span class="button-icon">&#x2913;</span>
+					<span class="button-text">Download</span>
+				</button>
+				<button class="sidebar-button" (click)="fileInput.click()">
+					<span class="button-icon">&#x2912;</span>
+					<span class="button-text">Upload</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="sidebar-group">
+			<h3 class="group-title">Work mode</h3>
+			<div class="button-group">
+				<button class="sidebar-button" [class.active]="currentWorkMode() === WorkMode.Stop"
+					[class.inactive]="currentWorkMode() !== WorkMode.Stop" [disabled]="workModeSwitching()"
+					(click)="onWorkModeClick(WorkMode.Stop)">
+					<span class="button-icon">&#x23F9;</span>
+					<span class="button-text">Stop</span>
+					<span class="mode-indicator" *ngIf="currentWorkMode() === WorkMode.Stop">&#x25CF;</span>
+				</button>
+				<button class="sidebar-button" [class.active]="currentWorkMode() === WorkMode.Run"
+					[class.inactive]="currentWorkMode() !== WorkMode.Run" [disabled]="workModeSwitching()"
+					(click)="onWorkModeClick(WorkMode.Run)">
+					<span class="button-icon">&#x25B6;</span>
+					<span class="button-text">Run</span>
+					<span class="mode-indicator" *ngIf="currentWorkMode() === WorkMode.Run">&#x25CF;</span>
+				</button>
+				<button class="sidebar-button" [class.active]="currentWorkMode() === WorkMode.Debug"
+					[class.inactive]="currentWorkMode() !== WorkMode.Debug" [disabled]="workModeSwitching()"
+					(click)="onWorkModeClick(WorkMode.Debug)">
+					<span class="button-icon">&#x1F41E;</span>
+					<span class="button-text">Debug</span>
+					<span class="mode-indicator" *ngIf="currentWorkMode() === WorkMode.Debug">&#x25CF;</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</aside>

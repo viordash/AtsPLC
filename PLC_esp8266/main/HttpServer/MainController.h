@@ -9,5 +9,6 @@ class MainController : public BaseController {
 
     size_t GetUriHandlers(httpd_uri_t *handlers, size_t capacity) override;
 
-    static esp_err_t DefaultHandlerGet(httpd_req_t *req);
+  protected:
+    static esp_err_t SendingFile(httpd_req_t *req);
 };
