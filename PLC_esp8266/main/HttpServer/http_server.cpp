@@ -2,6 +2,9 @@
 #include "http_server.h"
 #include "DisplayController.h"
 #include "HttpServer.h"
+#include "InputController.h"
+#include "ProgramController.h"
+#include "WorkModeController.h"
 #include "LogicProgram/Controller.h"
 #include "MainController.h"
 #include "UpdateController.h"
@@ -14,6 +17,9 @@ static bool http_server_started = false;
 MainController *mainController;
 UpdateController *updateController;
 DisplayController *displayController;
+InputController *inputController;
+ProgramController *programController;
+WorkModeController *workModeController;
 HttpServer *httpServer;
 
 void start_http_server() {
@@ -23,7 +29,14 @@ void start_http_server() {
     }
     mainController = new MainController();
     updateController = new UpdateController();
-    std::vector<BaseController *> controllers = { updateController, mainController };
+    inputController = new InputController();
+    programController = new ProgramController();
+    workModeController = new WorkModeController();
+    std::vector<BaseController *> controllers = { updateController,
+                                                  mainController,
+                                                  inputController,
+                                                  programController,
+                                                  workModeController };
 
     RenderingService *rendering_service = Controller::GetRenderingService();
     displayController = NULL;
@@ -46,6 +59,9 @@ void stop_http_server() {
         delete displayController;
         displayController = NULL;
     }
+    delete workModeController;
+    delete programController;
+    delete inputController;
     delete updateController;
     delete mainController;
     delete httpServer;

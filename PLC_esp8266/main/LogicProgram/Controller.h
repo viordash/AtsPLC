@@ -37,7 +37,6 @@ class Controller {
   protected:
     static bool runned;
     static bool in_design;
-    static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
     static ProcessWakeupService *processWakeupService;
     static WiFiService *wifi_service;
@@ -49,6 +48,7 @@ class Controller {
     static std::mutex force_refresh_mutex;
 
   public:
+    static EventGroupHandle_t gpio_events;
     static const int WAKEUP_PROCESS_TASK = BIT15;
 
     static void Start(EventGroupHandle_t gpio_events,
@@ -63,6 +63,8 @@ class Controller {
 
     static Ladder &GetLadder();
     static RenderingService *GetRenderingService();
+
+    static void ChangeWorkMode(EventBits_t flags);
 
     static void RequestForceRefreshUI(ForceRefreshUI flags);
     static ForceRefreshUI TakeForceRefreshUI();

@@ -26,7 +26,8 @@ static const char *TAG_Controller = "controller";
 
 #define GPIO_EVENTS_ALL_BITS                                                                       \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
-     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
+     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN         \
+     | WORK_MODES_EVENTS_BITS)
 
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
@@ -131,8 +132,13 @@ void Controller::ProcessTask(void *parm) {
         Controller::RemoveExpiredWakeupRequests();
 
         ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
+
+        if (uxBits & WORK_MODES_EVENTS_BITS) {
+            Controller::ChangeWorkMode(uxBits);
+        }
+
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
-        bool buttons_changed = !inputs_changed && uxBits != 0;
+        bool buttons_changed = !inputs_changed && (uxBits & ~WORK_MODES_EVENTS_BITS) != 0;
         bool do_render = inputs_changed;
 
         if (buttons_changed) {
@@ -467,4 +473,19 @@ ForceRefreshUI Controller::TakeForceRefreshUI() {
     ForceRefreshUI taken = (ForceRefreshUI)force_refresh_ui;
     force_refresh_ui = fru_None;
     return taken;
+}
+
+void Controller::ChangeWorkMode(EventBits_t flags) {
+    if ((flags & WORK_MODES_EVENTS_BITS) == WORK_MODES_EVENTS_BITS) {
+        GetLadder().ChangeWorkMode(WorkMode::Run, true);
+        return;
+    }
+    if ((flags & WORK_MODES_0) == WORK_MODES_0) {
+        GetLadder().ChangeWorkMode(WorkMode::Stop, false);
+        return;
+    }
+    if ((flags & WORK_MODES_1) == WORK_MODES_1) {
+        GetLadder().ChangeWorkMode(WorkMode::Run, false);
+        return;
+    }
 }

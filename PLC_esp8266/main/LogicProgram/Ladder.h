@@ -20,10 +20,6 @@ class Ladder {
     bool frame_buffer_req_render;
     WorkMode work_mode;
 
-    size_t Deserialize(uint8_t *buffer, size_t buffer_size);
-    size_t Serialize(uint8_t *buffer, size_t buffer_size);
-
-    void RemoveAll();
 
     EditableElement::ElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
@@ -51,6 +47,10 @@ class Ladder {
     void HandleButtonPageDown();
     void HandleButtonSelect();
     void HandleButtonOption();
+
+    size_t Deserialize(uint8_t *buffer, size_t buffer_size);
+    size_t Serialize(uint8_t *buffer, size_t buffer_size);
+    void RemoveAll();
 
     void Load();
     void Store();
