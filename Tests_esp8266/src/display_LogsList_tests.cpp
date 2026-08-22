@@ -26,7 +26,7 @@ TEST_TEARDOWN() {
 
 class TestableLogsList : public LogsList {
   public:
-    const static int lines_count = 4;
+    const static int lines_count = 8;
 
     explicit TestableLogsList(const char *title) : LogsList(title) {
         static_assert(lines_count == LogsList::lines_count);

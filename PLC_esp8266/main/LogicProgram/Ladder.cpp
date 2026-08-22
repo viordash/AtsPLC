@@ -47,7 +47,13 @@ IRAM_ATTR void Ladder::Render(FrameBuffer *fb) {
         items.at(i)->Render(fb, i - view_top_index);
     }
 
-    ScrollBar::Render(fb, items.size(), Ladder::MaxViewPortCount, view_top_index);
+    ScrollBar::Render(fb,
+                      SCROLLBAR_LEFT,
+                      SCROLLBAR_TOP,
+                      SCROLLBAR_HEIGHT,
+                      items.size(),
+                      Ladder::MaxViewPortCount,
+                      view_top_index);
 
     fb->has_changes |= frame_buffer_req_render || Controller::InDesign();
     frame_buffer_req_render = false;

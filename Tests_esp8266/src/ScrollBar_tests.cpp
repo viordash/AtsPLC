@@ -25,7 +25,13 @@ TEST_TEARDOWN() {
 
 TEST(ScrollBarTestsGroup, Render) {
     ScrollBar testable;
-    testable.Render(&frame_buffer, 4, 2, 0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    4,
+                    2,
+                    0);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
@@ -39,7 +45,13 @@ TEST(ScrollBarTestsGroup, Render) {
 
 TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
     ScrollBar testable;
-    testable.Render(&frame_buffer, 40, 40, 0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    40,
+                    40,
+                    0);
 
     bool any_pixel_coloring = false;
     for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
@@ -53,14 +65,62 @@ TEST(ScrollBarTestsGroup, Skip_render_if_nothing_to_scroll) {
 
 TEST(ScrollBarTestsGroup, No_screen_overflow) {
     ScrollBar testable;
-    testable.Render(&frame_buffer, 0, 0, 0);
-    testable.Render(&frame_buffer, 100, 2, 0);
-    testable.Render(&frame_buffer, 100, 2, 1);
-    testable.Render(&frame_buffer, 100, 2, 99);
-    testable.Render(&frame_buffer, 4, 2, 0);
-    testable.Render(&frame_buffer, 4, 2, 1);
-    testable.Render(&frame_buffer, 4, 2, 2);
-    testable.Render(&frame_buffer, 3, 2, 0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    0,
+                    0,
+                    0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    100,
+                    2,
+                    0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    100,
+                    2,
+                    1);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    100,
+                    2,
+                    99);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    4,
+                    2,
+                    0);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    4,
+                    2,
+                    1);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    4,
+                    2,
+                    2);
+    testable.Render(&frame_buffer,
+                    SCROLLBAR_LEFT,
+                    SCROLLBAR_TOP,
+                    SCROLLBAR_HEIGHT,
+                    3,
+                    2,
+                    0);
 
     bool any_overflow_pixel = false;
     size_t possible_line1_position_in_buffer =
