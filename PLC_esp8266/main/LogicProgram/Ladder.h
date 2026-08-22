@@ -41,8 +41,6 @@ class Ladder {
     void Append(Network *network);
     void Duplicate(int network_id);
     void Delete(int network_id);
-    bool CanScrollAuto();
-    void AutoScroll();
     bool ScrollUp(int *selected_network);
     bool ScrollDown(int *selected_network);
     void HandleButtonUp();

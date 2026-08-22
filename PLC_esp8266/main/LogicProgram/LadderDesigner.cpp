@@ -9,17 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool Ladder::CanScrollAuto() {
-    return (size_t)view_top_index == items.size() - Ladder::MaxViewPortCount;
-}
-
-void Ladder::AutoScroll() {
-    if (items.size() > Ladder::MaxViewPortCount) {
-        view_top_index = items.size() - Ladder::MaxViewPortCount;
-        Controller::UpdateUIViewTop(view_top_index);
-    }
-}
-
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)items.size(); i++) {
         auto network = items[i];

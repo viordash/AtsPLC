@@ -285,7 +285,7 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.SetViewTopIndex(4);
 
     testable.Render(&frame_buffer);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
@@ -380,7 +380,7 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     TestableLadder testable;
 
     testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
 
     testable.Render(&frame_buffer);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);

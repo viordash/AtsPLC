@@ -86,41 +86,6 @@ namespace {
 
 } // namespace
 
-TEST(LogicLadderDesignerTestsGroup, CanScrollAuto_after_appending_second_network) {
-    TestableLadder testable;
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_TRUE(testable.CanScrollAuto());
-}
-
-TEST(LogicLadderDesignerTestsGroup, AutoScroll_when_append_new_networks) {
-    TestableLadder testable;
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-}
-
 TEST(LogicLadderDesignerTestsGroup,
      HandleButtonDown_HandleButtonUp_can_scroll_from_first_to_last_network) {
     TestableLadder testable;
@@ -131,7 +96,7 @@ TEST(LogicLadderDesignerTestsGroup,
     testable.Append(new Network(LogicItemState::lisActive));
     testable.Append(new Network(LogicItemState::lisActive));
     testable.Append(new Network(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.SetViewTopIndex(5);
 
     CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
@@ -164,7 +129,7 @@ TEST(LogicLadderDesignerTestsGroup,
     TestableLadder testable;
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
@@ -173,7 +138,7 @@ TEST(LogicLadderDesignerTestsGroup,
 
     testable.Append(new Network(LogicItemState::lisActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
@@ -182,7 +147,7 @@ TEST(LogicLadderDesignerTestsGroup,
 
     testable.Append(new Network(LogicItemState::lisActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
@@ -191,7 +156,7 @@ TEST(LogicLadderDesignerTestsGroup,
 
     testable.Append(new Network(LogicItemState::lisActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(1);
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
