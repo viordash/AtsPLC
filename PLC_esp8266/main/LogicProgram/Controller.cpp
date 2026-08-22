@@ -44,6 +44,8 @@ RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
 LogicItemState Controller::network_continuation = LogicItemState::lisPassive;
 Ladder Controller::ladder;
+uint8_t Controller::force_refresh_ui = fru_None;
+std::mutex Controller::force_refresh_mutex;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -433,6 +435,10 @@ Ladder &Controller::GetLadder() {
     return ladder;
 }
 
+RenderingService *Controller::GetRenderingService() {
+    return rendering_service;
+}
+
 void Controller::DesignStart(WorkMode work_mode) {
     bool enable_debug;
     SAFETY_HOTRELOAD({ enable_debug = hotreload->enable_debug; });
@@ -449,4 +455,16 @@ void Controller::DesignEnd() {
 
 bool Controller::InDesign() {
     return Controller::in_design;
+}
+
+void Controller::RequestForceRefreshUI(ForceRefreshUI flags) {
+    std::lock_guard<std::mutex> lock(force_refresh_mutex);
+    force_refresh_ui |= flags;
+}
+
+ForceRefreshUI Controller::TakeForceRefreshUI() {
+    std::lock_guard<std::mutex> lock(force_refresh_mutex);
+    ForceRefreshUI taken = (ForceRefreshUI)force_refresh_ui;
+    force_refresh_ui = fru_None;
+    return taken;
 }

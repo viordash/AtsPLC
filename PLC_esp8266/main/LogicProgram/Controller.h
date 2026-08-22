@@ -22,10 +22,12 @@ extern "C" {
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "LogicProgram/ForceRefreshUI.h"
 #include "LogicProgram/Ladder.h"
 
 class RenderingService;
@@ -43,6 +45,8 @@ class Controller {
     static DatetimeService *datetime_service;
     static LogicItemState network_continuation;
     static Ladder ladder;
+    static uint8_t force_refresh_ui;
+    static std::mutex force_refresh_mutex;
 
   public:
     static const int WAKEUP_PROCESS_TASK = BIT15;
@@ -58,6 +62,10 @@ class Controller {
     static void ProcessTask(void *parm);
 
     static Ladder &GetLadder();
+    static RenderingService *GetRenderingService();
+
+    static void RequestForceRefreshUI(ForceRefreshUI flags);
+    static ForceRefreshUI TakeForceRefreshUI();
 
     static ControllerDI DI;
     static ControllerAI AI;

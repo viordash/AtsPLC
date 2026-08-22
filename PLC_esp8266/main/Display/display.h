@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#define DISPLAY_ID "ssd1306"
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
 #define DISPLAY_HEIGHT_IN_BYTES ((DISPLAY_HEIGHT + 7) / 8)

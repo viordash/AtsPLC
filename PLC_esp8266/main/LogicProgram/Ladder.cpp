@@ -225,6 +225,8 @@ void Ladder::ChangeWorkMode(WorkMode new_mode, bool enable_debug) {
     }
 
     Store();
+    Controller::RequestForceRefreshUI(fru_WorkMode);
+
     ESP_LOGI(TAG_Ladder,
              "ChangeWorkMode work_mode:%u, enable_debug:%u",
              (unsigned int)work_mode,
