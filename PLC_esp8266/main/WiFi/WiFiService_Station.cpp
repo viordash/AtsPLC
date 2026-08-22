@@ -186,7 +186,7 @@ bool WiFiService::ObtainStationRssi() {
     SAFETY_SETTINGS({ wifi_station = settings.wifi_station; });
 
     station_rssi = ScaleRssiToPercent04(ap.rssi, wifi_station.max_rssi, wifi_station.min_rssi);
-    ESP_LOGI(TAG_WiFiService_Station, "rssi:%d[%u]", (int)ap.rssi, (unsigned int)station_rssi);
+    ESP_LOGD(TAG_WiFiService_Station, "rssi:%d[%u]", (int)ap.rssi, (unsigned int)station_rssi);
     return true;
 }
 
