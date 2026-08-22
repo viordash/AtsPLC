@@ -5,6 +5,7 @@
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,12 +24,7 @@ TimerMSecs::~TimerMSecs() {
 }
 
 void TimerMSecs::SetTime(uint32_t delay_time_ms) {
-    if (delay_time_ms < TimerMSecs::min_delay_time_ms) {
-        delay_time_ms = TimerMSecs::min_delay_time_ms;
-    }
-    if (delay_time_ms > TimerMSecs::max_delay_time_ms) {
-        delay_time_ms = TimerMSecs::max_delay_time_ms;
-    }
+    delay_time_ms = std::clamp(delay_time_ms, TimerMSecs::min_delay_time_ms, TimerMSecs::max_delay_time_ms);
     this->delay_time_us = delay_time_ms * 1000LL;
     str_size = sprintf(this->str_time, "%u", (unsigned int)delay_time_ms);
 
@@ -95,39 +91,23 @@ TimerMSecs *TimerMSecs::TryToCast(CommonTimer *common_timer) {
 void TimerMSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerMSecs, "SelectPrior");
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - step_ms) {
-        SetTime(delay_time_ms + step_ms);
-    } else {
-        SetTime(TimerMSecs::max_delay_time_ms);
-    }
+    SetTime(delay_time_ms + TimerMSecs::step_ms);
 }
 
 void TimerMSecs::SelectNext() {
     ESP_LOGI(TAG_TimerMSecs, "SelectNext");
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + step_ms) {
-        SetTime(delay_time_ms - step_ms);
-    } else {
-        SetTime(TimerMSecs::min_delay_time_ms);
-    }
+    SetTime(std::max(delay_time_ms, TimerMSecs::step_ms) - TimerMSecs::step_ms);
 }
 
 void TimerMSecs::PageUp() {
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms <= TimerMSecs::max_delay_time_ms - faststep_ms) {
-        SetTime(delay_time_ms + faststep_ms);
-    } else {
-        SetTime(TimerMSecs::max_delay_time_ms);
-    }
+    SetTime(delay_time_ms + TimerMSecs::faststep_ms);
 }
 
 void TimerMSecs::PageDown() {
     uint32_t delay_time_ms = GetTimeUs() / 1000L;
-    if (delay_time_ms >= TimerMSecs::min_delay_time_ms + faststep_ms) {
-        SetTime(delay_time_ms - faststep_ms);
-    } else {
-        SetTime(TimerMSecs::min_delay_time_ms);
-    }
+    SetTime(std::max(delay_time_ms, TimerMSecs::faststep_ms) - TimerMSecs::faststep_ms);
 }
 
 void TimerMSecs::Change() {
