@@ -84,7 +84,7 @@ void Controller::Start(EventGroupHandle_t gpio_events,
                                 "ctrl_actions_task",
                                 4096,
                                 NULL,
-                                3,
+                                tskIDLE_PRIORITY + 3,
                                 &Controller::process_task_handle)
                             != pdPASS
                         ? ESP_FAIL
@@ -131,7 +131,7 @@ void Controller::ProcessTask(void *parm) {
 
         Controller::RemoveExpiredWakeupRequests();
 
-        ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
+        ESP_LOGI(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
 
         if (uxBits & WORK_MODES_EVENTS_BITS) {
             Controller::ChangeWorkMode(uxBits);
@@ -143,7 +143,7 @@ void Controller::ProcessTask(void *parm) {
 
         if (buttons_changed) {
             ButtonsPressType pressed_button = handle_buttons(uxBits);
-            ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
+            ESP_LOGI(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
                     ladder.HandleButtonUp();

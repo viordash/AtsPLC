@@ -18,7 +18,7 @@ HttpServer::~HttpServer() {
 
 bool HttpServer::Start() {
     httpd_config_t config = { //
-                              .task_priority = tskIDLE_PRIORITY + 5,
+                              .task_priority = tskIDLE_PRIORITY + 1,
                               .stack_size = 4096,
                               .server_port = 80,
                               .ctrl_port = 32768,
