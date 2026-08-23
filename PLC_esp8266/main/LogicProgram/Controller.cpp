@@ -139,40 +139,36 @@ void Controller::ProcessTask(void *parm) {
         }
 
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
-        bool buttons_changed = !inputs_changed && (uxBits & ~WORK_MODES_EVENTS_BITS) != 0;
         bool do_render = inputs_changed;
 
-        if (buttons_changed) {
-            ButtonsPressType pressed_button = handle_buttons(uxBits);
-            ESP_LOGI(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
-            switch (pressed_button) {
-                case ButtonsPressType::UP_PRESSED:
-                    ladder.HandleButtonUp();
-                    do_render = true;
-                    break;
-                case ButtonsPressType::UP_LONG_PRESSED:
-                    ladder.HandleButtonPageUp();
-                    do_render = true;
-                    break;
-                case ButtonsPressType::DOWN_PRESSED:
-                    ladder.HandleButtonDown();
-                    do_render = true;
-                    break;
-                case ButtonsPressType::DOWN_LONG_PRESSED:
-                    ladder.HandleButtonPageDown();
-                    do_render = true;
-                    break;
-                case ButtonsPressType::SELECT_PRESSED:
-                    ladder.HandleButtonSelect();
-                    do_render = true;
-                    break;
-                case ButtonsPressType::SELECT_LONG_PRESSED:
-                    ladder.HandleButtonOption();
-                    do_render = true;
-                    break;
-                default:
-                    break;
-            }
+        ButtonsPressType pressed_button = handle_buttons(uxBits, processWakeupService);
+        switch (pressed_button) {
+            case ButtonsPressType::UP_PRESSED:
+                ladder.HandleButtonUp();
+                do_render = true;
+                break;
+            case ButtonsPressType::UP_LONG_PRESSED:
+                ladder.HandleButtonPageUp();
+                do_render = true;
+                break;
+            case ButtonsPressType::DOWN_PRESSED:
+                ladder.HandleButtonDown();
+                do_render = true;
+                break;
+            case ButtonsPressType::DOWN_LONG_PRESSED:
+                ladder.HandleButtonPageDown();
+                do_render = true;
+                break;
+            case ButtonsPressType::SELECT_PRESSED:
+                ladder.HandleButtonSelect();
+                do_render = true;
+                break;
+            case ButtonsPressType::SELECT_LONG_PRESSED:
+                ladder.HandleButtonOption();
+                do_render = true;
+                break;
+            case ButtonsPressType::NOTHING_PRESSED:
+                break;
         }
 
         bool looped_actions = false;

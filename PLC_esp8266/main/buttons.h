@@ -12,10 +12,12 @@ typedef enum { //
     UP_LONG_PRESSED,
     DOWN_PRESSED,
     DOWN_LONG_PRESSED,
-    RIGHT_PRESSED,
-    RIGHT_LONG_PRESSED,
     SELECT_PRESSED,
     SELECT_LONG_PRESSED
 } ButtonsPressType;
 
-ButtonsPressType handle_buttons(EventBits_t uxBits);
+class ProcessWakeupService;
+
+ButtonsPressType handle_buttons(EventBits_t uxBits, ProcessWakeupService *wakeup_service);
+
+ButtonsPressType handle_buttons_immediately(EventBits_t uxBits);

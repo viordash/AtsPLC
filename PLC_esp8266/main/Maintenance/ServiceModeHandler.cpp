@@ -56,7 +56,7 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits);
+        ButtonsPressType pressed_button = handle_buttons_immediately(uxBits);
         ESP_LOGI(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:

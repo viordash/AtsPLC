@@ -54,7 +54,7 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits);
+        ButtonsPressType pressed_button = handle_buttons_immediately(uxBits);
         ESP_LOGD(TAG_ServiceModeHandler_Restore,
                  "buttons_changed, pressed_button:%u, bits:0x%08X",
                  (unsigned int)pressed_button,
