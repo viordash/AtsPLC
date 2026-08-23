@@ -127,11 +127,12 @@ void Controller::ProcessTask(void *parm) {
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
                                                  true,
                                                  false,
-                                                 Controller::GetWakeupTicks());
+                                                 Controller::GetWakeupTicks())
+                           & ~WAKEUP_PROCESS_TASK;
 
         Controller::RemoveExpiredWakeupRequests();
 
-        ESP_LOGI(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
+        ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
 
         if (uxBits & WORK_MODES_EVENTS_BITS) {
             Controller::ChangeWorkMode(uxBits);
