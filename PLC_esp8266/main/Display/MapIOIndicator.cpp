@@ -24,7 +24,7 @@ IRAM_ATTR void MapIOIndicator::Render(FrameBuffer *fb, Point *start_point, uint8
 
     ASSERT(draw_text_f5X7(fb,
                           start_point->x + margin,
-                          start_point->y + margin + HORZ_PROGRESS_BAR_HEIGHT,
+                          start_point->y + HORZ_PROGRESS_BAR_HEIGHT,
                           name)
            > 0);
 
@@ -35,5 +35,5 @@ IRAM_ATTR void MapIOIndicator::Render(FrameBuffer *fb, Point *start_point, uint8
 }
 
 uint8_t MapIOIndicator::GetHeight() {
-    return HORZ_PROGRESS_BAR_HEIGHT + text_height;
+    return HORZ_PROGRESS_BAR_HEIGHT + get_text_f5X7_height() + bottom_padding;
 }

@@ -44,18 +44,13 @@ SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
     start_point->x += LeftPadding;
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (SettingsElement::EditingPropertyId)editing_property_id
                                      == SettingsElement::EditingPropertyId::cwbepi_None
                               && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
-        ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
-        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
-        ASSERT(draw_vert_line(fb, top_right.x, top_right.y, Height));
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
         draw_bitmap(fb, top_left.x + 1, top_left.y + 6, &bitmap);
     }
 
