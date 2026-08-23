@@ -34,9 +34,6 @@ cd PLC_esp8266 && make -j $(nproc) size
 cd Tests_esp8266 && make -j $(nproc)
 ```
 
-- Header dependencies are not tracked by the firmware build: after editing any `.h`,
-  run `rm -rf PLC_esp8266/build/main` before `make app`.
-
 ## Angular
 
 - Components must use separate files for template and styles:

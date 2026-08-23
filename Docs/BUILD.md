@@ -44,9 +44,6 @@ make -j$(nproc) flash        # заливка через USB
 make -j$(nproc) size         # разбор занятого места
 ```
 
-После правки любого заголовка перед сборкой нужно `rm -rf PLC_esp8266/build/main`:
-зависимости от `.h` сборка не отслеживает.
-
 OTA-обновление - `POST /update` с файлом прошивки, см.
 [WEB_INTERFACE.md](WEB_INTERFACE.md).
 

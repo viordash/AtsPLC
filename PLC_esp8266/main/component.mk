@@ -19,7 +19,7 @@ $(info ----build version-----------------v$(DEVICE_VERSION).$(BUILD_NUMBER)-----
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
 # must match the ota_0/ota_1 partition size in partitions.csv
-CPPFLAGS :=-std=gnu++17 -DDEVICE_SETTINGS_VERSION=0x${DEVICE_VERSION} -DBUILD_NUMBER=${BUILD_NUMBER} \
+CPPFLAGS +=-std=gnu++17 -DDEVICE_SETTINGS_VERSION=0x${DEVICE_VERSION} -DBUILD_NUMBER=${BUILD_NUMBER} \
 	-DFIRMWARE_MAXSIZE=1048576
 
 COMMON_FLAGS :=
