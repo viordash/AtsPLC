@@ -32,10 +32,7 @@ button::state button::handle(EventBits_t bits) {
         if (duration_ms >= button::long_pressed_time_ms) {
             return button::state::btLongPressed;
         }
-        if (duration_ms >= button::pressed_time_ms) {
-            return button::state::btPressed;
-        }
-        return button::state::btShortPressed;
+        return button::state::btPressed;
     }
     return button::state::btNone;
 }
