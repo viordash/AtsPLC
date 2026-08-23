@@ -75,6 +75,7 @@ class ProcessWakeupService {
   public:
     ProcessWakeupService();
 
+    bool Contains(const void *id);
     bool Request(const void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
     void RemoveRequest(const void *id);
     uint32_t Get();

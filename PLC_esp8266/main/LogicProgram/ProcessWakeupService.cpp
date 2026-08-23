@@ -32,6 +32,12 @@ ProcessWakeupService::UpperBound(const ProcessWakeupRequestData &request) {
                             ProcessWakeupRequestDataCmp());
 }
 
+bool ProcessWakeupService::Contains(const void *id) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    bool request_already_in = Find(id) != requests.end();
+    return request_already_in;
+}
+
 bool ProcessWakeupService::Request(const void *id,
                                    uint32_t delay_ms,
                                    ProcessWakeupRequestPriority priority) {
