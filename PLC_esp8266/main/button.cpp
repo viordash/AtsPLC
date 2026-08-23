@@ -20,7 +20,9 @@ button::state button::handle(EventBits_t bits) {
     if (!down && (bits & close_bit) != 0) {
         down_time = (uint64_t)esp_timer_get_time();
         down = true;
-        return button::state::btDown;
+        if ((bits & open_bit) == 0) {
+            return button::state::btDown;
+        }
     }
 
     if (down && (bits & open_bit) != 0) {
