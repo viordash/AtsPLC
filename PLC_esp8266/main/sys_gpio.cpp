@@ -12,6 +12,7 @@ extern "C" {
 
 #include "esp_attr.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "sys_gpio.h"
 
 #define GPIO_OUTPUT_IO_0 GPIO_NUM_2
@@ -31,6 +32,8 @@ extern "C" {
     ((1ULL << BUTTON_UP_IO) | (1ULL << BUTTON_DOWN_IO) | (1ULL << BUTTON_SELECT_IO)                \
      | (1ULL << INPUT_1_IO))
 
+#define BUTTONS_DEBOUNCE_US (20 * 1000)
+
 #define GPIO_ACTIVE 0
 #define GPIO_PASSIVE 1
 #define INPUT_NC_VALUE 0
@@ -40,6 +43,9 @@ static const char *TAG_gpio = "gpio";
 
 static struct {
     EventGroupHandle_t event;
+    uint32_t button_up_last_edge_us;
+    uint32_t button_down_last_edge_us;
+    uint32_t button_select_last_edge_us;
 } gpio;
 
 static void outputs_init() {
@@ -54,10 +60,22 @@ static void outputs_init() {
     set_digital_value(OUTPUT_1, false);
 }
 
+static IRAM_ATTR bool debounce_passed(uint32_t *last_edge_us) {
+    uint32_t now_us = (uint32_t)esp_timer_get_time();
+    uint32_t elapsed_us = now_us - *last_edge_us;
+    *last_edge_us = now_us;
+    return elapsed_us >= BUTTONS_DEBOUNCE_US;
+}
+
 static IRAM_ATTR void BUTTON_UP_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
+
+    if (!debounce_passed(&gpio.button_up_last_edge_us)) {
+        return;
+    }
+
     if (gpio_get_level(BUTTON_UP_IO) == INPUT_NC_VALUE) {
         xResult =
             xEventGroupSetBitsFromISR(gpio.event, BUTTON_UP_IO_CLOSE, &xHigherPriorityTaskWoken);
@@ -73,6 +91,11 @@ static IRAM_ATTR void BUTTON_DOWN_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
+
+    if (!debounce_passed(&gpio.button_down_last_edge_us)) {
+        return;
+    }
+
     if (gpio_get_level(BUTTON_DOWN_IO) == INPUT_NC_VALUE) {
         xResult =
             xEventGroupSetBitsFromISR(gpio.event, BUTTON_DOWN_IO_CLOSE, &xHigherPriorityTaskWoken);
@@ -102,6 +125,11 @@ static IRAM_ATTR void BUTTON_SELECT_IO_isr_handler(void *arg) {
     (void)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     BaseType_t xResult;
+
+    if (!debounce_passed(&gpio.button_select_last_edge_us)) {
+        return;
+    }
+
     if (gpio_get_level(BUTTON_SELECT_IO) == INPUT_NC_VALUE) {
         xResult = xEventGroupSetBitsFromISR(gpio.event,
                                             BUTTON_SELECT_IO_CLOSE,
@@ -124,6 +152,10 @@ static void inputs_init() {
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     gpio_install_isr_service(0);
+
+    gpio.button_up_last_edge_us = 0;
+    gpio.button_down_last_edge_us = 0;
+    gpio.button_select_last_edge_us = 0;
 
     gpio_isr_handler_add(BUTTON_UP_IO, BUTTON_UP_IO_isr_handler, NULL);
     gpio_isr_handler_add(BUTTON_DOWN_IO, BUTTON_DOWN_IO_isr_handler, NULL);
