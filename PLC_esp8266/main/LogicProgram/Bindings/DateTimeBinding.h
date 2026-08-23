@@ -28,8 +28,8 @@ class DateTimeBinding : public LogicElement, public InputElement, public Labeled
     static const uint8_t RightPadding = 12;
     static const uint8_t Width =
         OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
-    static const uint8_t Top = -13;
     static const uint8_t Height = 22;
+    static const uint8_t Top = -(Height / 2);
 
     explicit DateTimeBinding();
     explicit DateTimeBinding(const MapIO io_adr);
