@@ -1,4 +1,4 @@
-include $(PWD)/../TestsFramework/cpputest.mk
+include $(CURDIR)/../TestsFramework/cpputest.mk
 #
 # 'make'        build executable file 'main'
 # 'make clean'  removes all .o and executable files
@@ -6,20 +6,20 @@ include $(PWD)/../TestsFramework/cpputest.mk
 
 
 SOURCE_PROJECT_DIR := \
-	-I$(PWD)/../PLC_esp8266 -I$(PWD)/../PLC_esp8266/main \
-	-I$(PWD)/../PLC_esp8266/main/Display \
-	-I$(PWD)/../PLC_esp8266/main/LogicProgram \
-	-I$(PWD)/../PLC_esp8266/main/LogicProgram/Inputs \
-	-I$(PWD)/../PLC_esp8266/main/LogicProgram/Outputs \
-	-I$(PWD)/../PLC_esp8266/main/WiFi
+	-I$(CURDIR)/../PLC_esp8266 -I$(CURDIR)/../PLC_esp8266/main \
+	-I$(CURDIR)/../PLC_esp8266/main/Display \
+	-I$(CURDIR)/../PLC_esp8266/main/LogicProgram \
+	-I$(CURDIR)/../PLC_esp8266/main/LogicProgram/Inputs \
+	-I$(CURDIR)/../PLC_esp8266/main/LogicProgram/Outputs \
+	-I$(CURDIR)/../PLC_esp8266/main/WiFi
 
-CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
+CPPUTEST_INCLUDE_DIR := $(CURDIR)/../TestsFramework/CppUTest/include
 
 # каталог для объектников, собранных из файлов SPA (нужен в web_files.mk)
 BUILD := build
 LD := ld
 
-include $(PWD)/../PLC_esp8266/main/component.mk
+include $(CURDIR)/../PLC_esp8266/main/component.mk
 
 # define the Cpp compiler to use
 CXX = g++

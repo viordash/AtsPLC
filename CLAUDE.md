@@ -22,10 +22,14 @@
 ## Build
 
 ```bash
-make web      # Angular SPA, once after frontend changes
+make web      # Angular SPA, rebuild after frontend changes
 make app      # firmware
 make tests    # unit tests
 ```
+
+`make app` / `make flash` / `make tests` build the SPA themselves when it is missing, so
+`make web` is only needed to pick up frontend changes. Building directly from
+`PLC_esp8266` / `Tests_esp8266` does not - it stops with a hint to run `make web` first.
 
 Or directly:
 

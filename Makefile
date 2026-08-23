@@ -2,15 +2,19 @@ ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
 .PHONY: web app flash tests
 
-# Собирает Web SPA один раз - прошивка встраивает её результат
+WEB_INDEX := $(ROOT_DIR)/Web/output/browser/index.html
+
 web:
 	cd Web/AtsPLC && npm install && npm run build
 
-app:
+$(WEB_INDEX):
+	$(MAKE) web
+
+app: $(WEB_INDEX)
 	$(MAKE) -C PLC_esp8266 app
 
-flash:
+flash: $(WEB_INDEX)
 	$(MAKE) -C PLC_esp8266 flash
 
-tests:
+tests: $(WEB_INDEX)
 	$(MAKE) -C Tests_esp8266

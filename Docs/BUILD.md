@@ -63,7 +63,9 @@ make -j$(nproc)
 
 Тесты подключают `HttpServer/MainController.cpp`, которому нужны символы встроенной SPA.
 В прошивке их создаёт `COMPONENT_EMBED_FILES`, в тестах - правило `build/web/%.o`
-(`ld -r -b binary`). Поэтому перед `make tests` нужен хотя бы один `make web`.
+(`ld -r -b binary`). Корневые `make app` / `make flash` / `make tests` собирают SPA сами,
+если её ещё нет; при прямом вызове из `PLC_esp8266` или `Tests_esp8266` сборка остановится
+с подсказкой запустить `make web`.
 
 ## Размер
 

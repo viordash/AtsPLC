@@ -14,7 +14,16 @@ WEB_DIST_SOURCES += $(INDEX_HTML_FILE)
 WEB_DIST_SOURCES += $(MAIN_JS_FILE)
 WEB_DIST_SOURCES += $(STYLES_CSS_FILE)
 
+ifdef BUILD
 WEB_DIST_OBJECTS := $(patsubst $(WEB_DIST)/%,$(BUILD)/web/%.o,$(WEB_DIST_SOURCES))
+endif
+
+WEB_NOT_REQUIRED_GOALS := clean cleanlib project_prepare
+ifeq ($(strip $(WEB_DIST_SOURCES)),)
+ifeq ($(filter $(WEB_NOT_REQUIRED_GOALS),$(MAKECMDGOALS)),)
+$(error Web SPA is not built ($(WEB_DIST) is empty): run `make web` from the repo root)
+endif
+endif
 
 FAVICON_ICO_SYMBOL:=-Dfavicon_ico_symbol=$(call sanitize_symbol,$(notdir $(FAVICON_ICO_FILE)))
 FAVICON_ICO_NAME:=-Dfavicon_ico_name=\"$(notdir $(FAVICON_ICO_FILE))\"
