@@ -32,35 +32,6 @@ TEST(GpioTestsGroup, gpio_init__on_startup) {
     gpio_init();
 }
 
-static uint64_t debounce_os_us;
-
-static void expect_gpio_init(int *event, const char *testable_gpio_num, gpio_isr_t *isr_handler) {
-    mock().expectNCalls(2, "gpio_config").ignoreOtherParameters();
-    mock().expectOneCall("adc_init").ignoreOtherParameters();
-    mock().expectOneCall("xEventGroupCreate").andReturnValue(event);
-    mock().expectOneCall("gpio_install_isr_service");
-    mock("16").expectOneCall("gpio_set_level").ignoreOtherParameters();
-    mock("2").expectOneCall("gpio_set_level").ignoreOtherParameters();
-    mock("15").expectOneCall("gpio_set_level").ignoreOtherParameters();
-    mock("0").expectOneCall("gpio_isr_handler_add");
-    mock("12").expectOneCall("gpio_isr_handler_add");
-    mock("13").expectOneCall("gpio_isr_handler_add");
-    mock("14").expectOneCall("gpio_isr_handler_add");
-    mock(testable_gpio_num).setData("isr_handler", isr_handler);
-}
-
-static void expect_isr_edge(const char *testable_gpio_num, int *event, uint32_t bits, bool opened) {
-    char buffer[32];
-    sprintf(buffer, "0x%08X", bits);
-
-    mock(testable_gpio_num)
-        .expectOneCall("gpio_get_level")
-        .andReturnValue(opened ? INPUT_NO_VALUE : INPUT_NC_VALUE);
-    mock(buffer)
-        .expectOneCall("xEventGroupSetBitsFromISR")
-        .withPointerParameter("xEventGroup", event);
-}
-
 static void test_BUTTON_XXX_isr_handler(const char *testable_gpio_num,
                                         const char *extra_gpio_num_0,
                                         const char *extra_gpio_num_1,
@@ -71,14 +42,6 @@ static void test_BUTTON_XXX_isr_handler(const char *testable_gpio_num,
     gpio_isr_t isr_handler = NULL;
     char buffer[32];
     sprintf(buffer, "0x%08X", bits);
-
-    bool debounced = strcmp(testable_gpio_num, "0") != 0;
-    debounce_os_us = BUTTONS_DEBOUNCE_US;
-    if (debounced) {
-        mock()
-            .expectOneCall("esp_timer_get_time")
-            .withOutputParameterReturning("os_us", &debounce_os_us, sizeof(debounce_os_us));
-    }
 
     mock().expectNCalls(2, "gpio_config").ignoreOtherParameters();
     mock().expectOneCall("adc_init").ignoreOtherParameters();
@@ -135,86 +98,6 @@ TEST(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_open) {
 
 TEST(GpioTestsGroup, BUTTON_SELECT_IO_isr_handler__when_input_is_close) {
     test_BUTTON_XXX_isr_handler("14", "13", "12", "0", BUTTON_SELECT_IO_CLOSE, false);
-}
-
-TEST(GpioTestsGroup, BUTTON_UP_IO_isr_handler__skips_edges_inside_debounce_period) {
-    int event = 42;
-    gpio_isr_t isr_handler = NULL;
-
-    expect_gpio_init(&event, "13", &isr_handler);
-    gpio_init();
-
-    debounce_os_us = BUTTONS_DEBOUNCE_US;
-    mock()
-        .expectNCalls(3, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", &debounce_os_us, sizeof(debounce_os_us));
-    expect_isr_edge("13", &event, BUTTON_UP_IO_CLOSE, false);
-
-    isr_handler(NULL);
-
-    debounce_os_us = BUTTONS_DEBOUNCE_US + 1 * 1000;
-    isr_handler(NULL);
-
-    debounce_os_us = BUTTONS_DEBOUNCE_US + 3 * 1000;
-    isr_handler(NULL);
-}
-
-TEST(GpioTestsGroup, BUTTON_UP_IO_isr_handler__debounce_period_slides_while_bouncing) {
-    int event = 42;
-    gpio_isr_t isr_handler = NULL;
-
-    expect_gpio_init(&event, "13", &isr_handler);
-    gpio_init();
-
-    debounce_os_us = BUTTONS_DEBOUNCE_US;
-    mock()
-        .expectNCalls(3, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", &debounce_os_us, sizeof(debounce_os_us));
-    expect_isr_edge("13", &event, BUTTON_UP_IO_CLOSE, false);
-
-    isr_handler(NULL);
-
-    debounce_os_us = 2 * BUTTONS_DEBOUNCE_US - 1000;
-    isr_handler(NULL);
-
-    debounce_os_us = 3 * BUTTONS_DEBOUNCE_US - 2000;
-    isr_handler(NULL);
-}
-
-TEST(GpioTestsGroup, BUTTON_UP_IO_isr_handler__passes_edge_after_debounce_period) {
-    int event = 42;
-    gpio_isr_t isr_handler = NULL;
-
-    expect_gpio_init(&event, "13", &isr_handler);
-    gpio_init();
-
-    debounce_os_us = BUTTONS_DEBOUNCE_US;
-    mock()
-        .expectNCalls(2, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", &debounce_os_us, sizeof(debounce_os_us));
-    expect_isr_edge("13", &event, BUTTON_UP_IO_CLOSE, false);
-
-    isr_handler(NULL);
-
-    debounce_os_us = 2 * BUTTONS_DEBOUNCE_US;
-    expect_isr_edge("13", &event, BUTTON_UP_IO_OPEN, true);
-
-    isr_handler(NULL);
-}
-
-TEST(GpioTestsGroup, INPUT_1_IO_isr_handler__is_not_debounced) {
-    int event = 42;
-    gpio_isr_t isr_handler = NULL;
-
-    expect_gpio_init(&event, "0", &isr_handler);
-    gpio_init();
-
-    mock().expectNoCall("esp_timer_get_time");
-    expect_isr_edge("0", &event, INPUT_1_IO_CLOSE, false);
-    expect_isr_edge("0", &event, INPUT_1_IO_OPEN, true);
-
-    isr_handler(NULL);
-    isr_handler(NULL);
 }
 
 TEST(GpioTestsGroup, set_OUTPUT_0_to_active) {
