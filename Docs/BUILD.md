@@ -64,6 +64,10 @@ make -j$(nproc)
 `Tests_esp8266/src/LogicProgram.cpp`. `Tests_esp8266/Makefile` подключает
 `PLC_esp8266/main/component.mk`, поэтому дефайны сборки доезжают до тестов.
 
+Тесты подключают `HttpServer/MainController.cpp`, которому нужны символы встроенной SPA.
+В прошивке их создаёт `COMPONENT_EMBED_FILES`, в тестах - правило `build/web/%.o`
+(`ld -r -b binary`). Поэтому перед `make tests` нужен хотя бы один `make web`.
+
 ## Размер
 
 | Что | Значение |

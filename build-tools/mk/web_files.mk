@@ -14,6 +14,8 @@ WEB_DIST_SOURCES += $(INDEX_HTML_FILE)
 WEB_DIST_SOURCES += $(MAIN_JS_FILE)
 WEB_DIST_SOURCES += $(STYLES_CSS_FILE)
 
+WEB_DIST_OBJECTS := $(patsubst $(WEB_DIST)/%,$(BUILD)/web/%.o,$(WEB_DIST_SOURCES))
+
 FAVICON_ICO_SYMBOL:=-Dfavicon_ico_symbol=$(call sanitize_symbol,$(notdir $(FAVICON_ICO_FILE)))
 FAVICON_ICO_NAME:=-Dfavicon_ico_name=\"$(notdir $(FAVICON_ICO_FILE))\"
 

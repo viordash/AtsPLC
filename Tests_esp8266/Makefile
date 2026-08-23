@@ -15,6 +15,10 @@ SOURCE_PROJECT_DIR := \
 
 CPPUTEST_INCLUDE_DIR := $(PWD)/../TestsFramework/CppUTest/include
 
+# каталог для объектников, собранных из файлов SPA (нужен в web_files.mk)
+BUILD := build
+LD := ld
+
 include $(PWD)/../PLC_esp8266/main/component.mk
 
 # define the Cpp compiler to use
@@ -29,7 +33,7 @@ CFLAGS	:= -Wall -Wextra -g $(CPPFLAGS) $(SDK_CONFIG_FLAGS)
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS = -lCppUTest
+LFLAGS = -lCppUTest -Wl,-z,noexecstack
 
 # define output directory
 OUTPUT	:= output
@@ -93,8 +97,15 @@ all: $(OUTPUT) $(MAIN)
 $(OUTPUT):
 	$(MD) $(OUTPUT)
 
-$(MAIN): libCppUTest.a $(CXX_OBJECTS) $(C_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES_CXX) -o $(OUTPUTMAIN) $(CXX_OBJECTS) $(C_OBJECTS) $(LIBS) $(LFLAGS)
+$(MAIN): libCppUTest.a $(CXX_OBJECTS) $(C_OBJECTS) $(WEB_DIST_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES_CXX) -o $(OUTPUTMAIN) $(CXX_OBJECTS) $(C_OBJECTS) $(WEB_DIST_OBJECTS) $(LIBS) $(LFLAGS)
+
+# объектники из файлов SPA: символы _binary_<file>_start/_end, которые в прошивочной
+# сборке создаёт COMPONENT_EMBED_FILES.
+# cd в каталог обязателен - ld строит имя символа из пути в командной строке
+$(BUILD)/web/%.o: $(WEB_DIST)/%
+	@$(MD) $(dir $@)
+	@cd $(WEB_DIST) && $(LD) -r -b binary $(notdir $<) -o $(abspath $@)
 
 # include all .d files
 -include $(DEPS)
@@ -116,6 +127,7 @@ clean: cleanlib
 	-$(RM) $(call FIXPATH,$(DEPS))
 	-$(RM) $(call FIXPATH,$(CXX_OBJECTS))
 	-$(RM) $(call FIXPATH,$(C_OBJECTS))
+	-$(RM) $(call FIXPATH,$(WEB_DIST_OBJECTS))
 	@echo Cleanup complete!
 
 run: all
