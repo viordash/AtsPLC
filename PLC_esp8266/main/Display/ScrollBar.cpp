@@ -57,5 +57,4 @@ IRAM_ATTR void ScrollBar::Render(FrameBuffer *fb,
              (unsigned int)view_topindex);
 
     ASSERT(draw_vert_line(fb, left, y, height));
-    ASSERT(draw_vert_line(fb, left + 1, y, height));
 }
