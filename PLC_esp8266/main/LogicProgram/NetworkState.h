@@ -4,12 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 
-enum NetworkState : uint8_t {
-    nsPassive = 0,
-    nsActive,
-    nsStopFromPassive,
-    nsStopFromActive
-};
+enum NetworkState : uint8_t { nsPassive = 0, nsActive, nsStopFromPassive, nsStopFromActive };
 
 static inline bool ValidateNetworkState(NetworkState state) {
     switch (state) {

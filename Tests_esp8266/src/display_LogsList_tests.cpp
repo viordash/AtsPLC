@@ -13,8 +13,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogsListTestsGroup){ //
-                                TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(LogsListTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -141,7 +142,7 @@ TEST(LogsListTestsGroup, Render) {
     testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;

@@ -546,7 +546,7 @@ TEST(LogicControllerVariableTestsGroup, Unbind_remove_InsecureWiFi_binding) {
 TEST(LogicControllerVariableTestsGroup, Unbind_remove_StaWiFi_binding) {
     TestableControllerVariable testable;
     testable.Init();
-    
+
     mock()
         .expectNCalls(1, "xTaskGenericNotify")
         .withUnsignedIntParameter("ulValue", WiFiService::STA_BREAK_BIT)

@@ -20,7 +20,6 @@ class Ladder {
     bool frame_buffer_req_render;
     WorkMode work_mode;
 
-
     EditableElement::ElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
     bool RemoveNetworkIfEmpty(int network_id);

@@ -8,7 +8,9 @@
 #include <unistd.h>
 
 enum SmartconfigStatus smartconfig_status() {
-    return (SmartconfigStatus)mock().actualCall("smartconfig_status").returnIntValueOrDefault(scs_Error);
+    return (SmartconfigStatus)mock()
+        .actualCall("smartconfig_status")
+        .returnIntValueOrDefault(scs_Error);
 }
 
 void start_smartconfig() {

@@ -231,9 +231,7 @@ void WiFiService::RemoveApClient(const char *ssid, t_mac mac) {
             ap_clients_count--;
         }
     }
-    ESP_LOGI(TAG_WiFiService_AccessPoint,
-             "RemoveApClient, cnt:%u",
-             (unsigned int)ap_clients_count);
+    ESP_LOGI(TAG_WiFiService_AccessPoint, "RemoveApClient, cnt:%u", (unsigned int)ap_clients_count);
 }
 
 void WiFiService::RemoveApClients(const char *ssid) {

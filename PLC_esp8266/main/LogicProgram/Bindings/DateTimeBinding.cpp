@@ -88,8 +88,8 @@ IRAM_ATTR void
 DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     std::lock_guard<std::mutex> lock(lock_mutex);
 
-    bool prev_elem_active = prev_elem_state == LogicItemState::lisActive
-                         || prev_elem_state == LogicItemState::lisStop;
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
     if (prev_elem_active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
     } else {

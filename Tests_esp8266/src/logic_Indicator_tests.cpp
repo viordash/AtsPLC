@@ -14,8 +14,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogicIndicatorTestsGroup){ //
-                                      TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(LogicIndicatorTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 Controller::Start(NULL, NULL, NULL, NULL);
 }
@@ -74,7 +75,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -92,7 +93,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_passive) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;

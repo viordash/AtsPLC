@@ -3,15 +3,15 @@
 #include "DisplayController.h"
 #include "HttpServer.h"
 #include "InputController.h"
-#include "ProgramController.h"
-#include "WorkModeController.h"
 #include "LogicProgram/Controller.h"
 #include "MainController.h"
+#include "ProgramController.h"
 #include "UpdateController.h"
+#include "WorkModeController.h"
 #include <stdint.h>
-#include <vector>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 
 static bool http_server_started = false;
 MainController *mainController;

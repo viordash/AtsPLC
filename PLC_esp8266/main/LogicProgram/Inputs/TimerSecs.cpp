@@ -25,7 +25,8 @@ TimerSecs::~TimerSecs() {
 }
 
 void TimerSecs::SetTime(uint32_t delay_time_s) {
-    delay_time_s = std::clamp(delay_time_s, TimerSecs::min_delay_time_s, TimerSecs::max_delay_time_s);
+    delay_time_s =
+        std::clamp(delay_time_s, TimerSecs::min_delay_time_s, TimerSecs::max_delay_time_s);
     this->delay_time_us = delay_time_s * 1000000LL;
     str_size = sprintf(this->str_time, "%u", (unsigned int)delay_time_s);
 

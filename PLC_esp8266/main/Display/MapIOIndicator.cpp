@@ -22,11 +22,9 @@ IRAM_ATTR void MapIOIndicator::Render(FrameBuffer *fb, Point *start_point, uint8
 
     ASSERT(draw_horz_progress_bar(fb, start_point->x, start_point->y, progress));
 
-    ASSERT(draw_text_f5X7(fb,
-                          start_point->x + margin,
-                          start_point->y + HORZ_PROGRESS_BAR_HEIGHT,
-                          name)
-           > 0);
+    ASSERT(
+        draw_text_f5X7(fb, start_point->x + margin, start_point->y + HORZ_PROGRESS_BAR_HEIGHT, name)
+        > 0);
 
     start_point->x += (text_width * name_size) + margin + margin;
 

@@ -92,7 +92,7 @@ TEST(LogicSettingsElementTestsGroup, Render) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -217,8 +217,9 @@ TEST(LogicSettingsElementTestsGroup, Deserialize_with_wrong_discriminator) {
 
     TestableSettingsElement testable;
 
-    *((SettingsElement::Discriminator *)&buffer[1]) = (SettingsElement::Discriminator)(
-        SettingsElement::Discriminator::t_wifi_station_settings_ssid - 1);
+    *((SettingsElement::Discriminator *)&buffer[1]) =
+        (SettingsElement::
+             Discriminator)(SettingsElement::Discriminator::t_wifi_station_settings_ssid - 1);
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(0, readed);
 

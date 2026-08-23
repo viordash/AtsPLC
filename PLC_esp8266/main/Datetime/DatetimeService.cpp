@@ -94,9 +94,8 @@ void DatetimeService::Task(void *parm) {
             }
         }
 
-        TickType_t ticks_to_wait = datetime_are_valid || use_ntp
-                                     ? update_time_ms / portTICK_PERIOD_MS
-                                     : portMAX_DELAY;
+        TickType_t ticks_to_wait =
+            datetime_are_valid || use_ntp ? update_time_ms / portTICK_PERIOD_MS : portMAX_DELAY;
         if (xTaskNotifyWait(0, STORE_BIT | RESTART_SNTP_BIT, &ulNotifiedValue, ticks_to_wait)
             != pdPASS) {
             ulNotifiedValue = 0;

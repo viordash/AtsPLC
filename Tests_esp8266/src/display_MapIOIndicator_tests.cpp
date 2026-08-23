@@ -12,8 +12,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(MapIOIndicatorTestsGroup){ //
-                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(MapIOIndicatorTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -22,7 +23,6 @@ TEST_TEARDOWN() {
 }
 }
 ;
-
 
 TEST(MapIOIndicatorTestsGroup, New_progress_value_changed_frame_buffer) {
     MapIOIndicator testable(MapIO::V1);

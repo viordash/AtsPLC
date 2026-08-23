@@ -18,3 +18,8 @@ flash: $(WEB_INDEX)
 
 tests: $(WEB_INDEX)
 	$(MAKE) -C Tests_esp8266
+
+
+export CF_SRC := PLC_esp8266/main Tests_esp8266/src
+export CF_EXCLUDE_DIRS := PLC_esp8266/main/MigrateAnyData PLC_esp8266/main/Display/fonts Tests_esp8266/src/esp8266 Tests_esp8266/src/freertos
+include $(ROOT_DIR)/check_format.mk

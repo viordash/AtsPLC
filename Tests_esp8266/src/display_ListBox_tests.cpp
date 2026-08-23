@@ -20,8 +20,9 @@ static FrameBuffer frame_buffer = {};
 extern ssd1306_color_t foreground_color;
 extern ssd1306_color_t background_color;
 
-TEST_GROUP(ListBoxTestsGroup){ //
-                               TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(ListBoxTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {
@@ -120,7 +121,7 @@ TEST(ListBoxTestsGroup, Render) {
     testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -167,4 +168,3 @@ TEST(ListBoxTestsGroup, Select_changed_frame_buffer) {
     testable.Render(&frame_buffer);
     CHECK_TRUE(frame_buffer.has_changes);
 }
-

@@ -148,7 +148,7 @@ TEST(ProcessWakeupServiceTestsGroup, Requests_ordered_by_time) {
     CHECK_EQUAL(360000, testable.Get());
     testable.RemoveRequest((void *)1);
 
-    CHECK_EQUAL(8640000, testable.Get());  
+    CHECK_EQUAL(8640000, testable.Get());
 }
 
 TEST(ProcessWakeupServiceTestsGroup, RemoveRequest) {

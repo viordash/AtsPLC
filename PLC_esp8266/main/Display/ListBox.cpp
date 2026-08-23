@@ -62,8 +62,9 @@ void ListBox::Render(FrameBuffer *fb) {
         if (index >= items_count) {
             break;
         }
-        ASSERT(draw_text_f6X12_colored(fb, x, y + height * row, lines[index], selected == (int)index)
-               >= 0);
+        ASSERT(
+            draw_text_f6X12_colored(fb, x, y + height * row, lines[index], selected == (int)index)
+            >= 0);
     }
 
     ScrollBar::Render(fb,

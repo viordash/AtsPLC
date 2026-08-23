@@ -63,14 +63,14 @@
 #include "main/settings.cpp"
 
 #include "HttpServer/BaseController.cpp"
-#include "HttpServer/HttpServer.cpp"
 #include "HttpServer/DisplayController.cpp"
+#include "HttpServer/HttpServer.cpp"
 #include "HttpServer/InputController.cpp"
 #include "HttpServer/MainController.cpp"
 #include "HttpServer/ProgramController.cpp"
-#include "HttpServer/WorkModeController.cpp"
 #include "HttpServer/UpdateController.cpp"
 #include "HttpServer/UriHelper.cpp"
+#include "HttpServer/WorkModeController.cpp"
 #include "HttpServer/http_server.cpp"
 
 #include "main/Display/ListBox.cpp"
