@@ -312,7 +312,7 @@ TEST(ServiceModeHandlerTestsGroup, DoResetData__FactoryReset) {
     mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("backups").expectNCalls(4, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
-    EventGroupHandle_t gpio_events;
+    EventGroupHandle_t gpio_events = 0;
     CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_DoResetData(
         gpio_events,
         ServiceModeHandler::ResetMode::rd_FactoryReset));
@@ -365,7 +365,7 @@ TEST(ServiceModeHandlerTestsGroup, DoResetData__return_false_if_button_up_not_pr
         .ignoreOtherParameters()
         .andReturnValue(BUTTON_SELECT_IO_OPEN);
 
-    EventGroupHandle_t gpio_events;
+    EventGroupHandle_t gpio_events = 0;
     CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoResetData(
         gpio_events,
         ServiceModeHandler::ResetMode::rd_FactoryReset));
