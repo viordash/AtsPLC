@@ -41,6 +41,8 @@ timeval TestableDatetimeService::time_value;
 
 TestableDatetimeService *datetimeService;
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicSettingsElementTestsGroup){
     //
     TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
@@ -48,12 +50,14 @@ create_storage_0();
 create_storage_1();
 mock().disable();
 datetimeService = new TestableDatetimeService();
-Controller::Start(NULL, NULL, NULL, datetimeService);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, datetimeService, process_wakeup_service);
 load_settings();
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     delete datetimeService;
     remove_storage_0();
     remove_storage_1();

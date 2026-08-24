@@ -16,14 +16,18 @@
 
 static FrameBuffer frame_buffer = {};
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicNetworkTestsGroup){ //
                                     TEST_SETUP(){ mock().disable();
 memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
 }
 }

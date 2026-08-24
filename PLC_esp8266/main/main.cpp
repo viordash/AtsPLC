@@ -13,6 +13,7 @@ extern "C" {
 #include "Display/RenderingService.h"
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "WiFi/WiFiService.h"
 #include "buttons.h"
@@ -75,14 +76,18 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    if (!hotreload->is_hotstart && up_button_pressed()) {
-        ServiceModeHandler::Start(gpio_events);
+    ProcessWakeupService process_wakeup_service;
+
     }
 
     WiFiService wifi_service;
     wifi_service.Start();
     RenderingService rendering_service;
-    Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
+    Controller::Start(gpio_events,
+                      &wifi_service,
+                      &rendering_service,
+                      &datetime_service,
+                      &process_wakeup_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
     printf("mem: %u\n", (unsigned int)free_mem);

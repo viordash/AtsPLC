@@ -39,7 +39,7 @@ bool Controller::in_design = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-ProcessWakeupService *Controller::processWakeupService = NULL;
+ProcessWakeupService *Controller::process_wakeup_service = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
@@ -60,11 +60,13 @@ ControllerVariable Controller::V4;
 void Controller::Start(EventGroupHandle_t gpio_events,
                        WiFiService *wifi_service,
                        RenderingService *rendering_service,
-                       DatetimeService *datetime_service) {
+                       DatetimeService *datetime_service,
+                       ProcessWakeupService *process_wakeup_service) {
     Controller::gpio_events = gpio_events;
     Controller::wifi_service = wifi_service;
     Controller::rendering_service = rendering_service;
     Controller::datetime_service = datetime_service;
+    Controller::process_wakeup_service = process_wakeup_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -76,8 +78,6 @@ void Controller::Start(EventGroupHandle_t gpio_events,
     Controller::V4.Init();
 
     ESP_LOGI(TAG_Controller, "start");
-
-    processWakeupService = new ProcessWakeupService();
 
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
@@ -97,7 +97,6 @@ void Controller::Stop() {
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
-    delete processWakeupService;
 }
 
 void Controller::ProcessTask(void *parm) {
@@ -141,7 +140,7 @@ void Controller::ProcessTask(void *parm) {
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool do_render = inputs_changed;
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits, processWakeupService);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
                 ladder.HandleButtonUp();
@@ -231,19 +230,19 @@ void Controller::CommitChanges() {
 bool Controller::RequestWakeupMs(const void *id,
                                  uint32_t delay_ms,
                                  ProcessWakeupRequestPriority priority) {
-    return processWakeupService->Request(id, delay_ms, priority);
+    return process_wakeup_service->Request(id, delay_ms, priority);
 }
 
 void Controller::RemoveRequestWakeupMs(const void *id) {
-    processWakeupService->RemoveRequest(id);
+    process_wakeup_service->RemoveRequest(id);
 }
 
 void Controller::RemoveExpiredWakeupRequests() {
-    processWakeupService->RemoveExpired();
+    process_wakeup_service->RemoveExpired();
 }
 
 uint32_t Controller::GetWakeupTicks() {
-    return processWakeupService->Get();
+    return process_wakeup_service->Get();
 }
 
 void Controller::BindVariableToSecureWiFi(const MapIO io_adr,

@@ -24,17 +24,21 @@ namespace {
 TestableWiFiService *wifi_service;
 static DatetimeService *datetime_service;
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicControllerTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new TestableWiFiService();
 datetime_service = new DatetimeService();
-Controller::Start(NULL, wifi_service, NULL, datetime_service);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     delete wifi_service;
     delete datetime_service;
 }

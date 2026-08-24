@@ -37,7 +37,7 @@ class Controller {
     static bool runned;
     static bool in_design;
     static TaskHandle_t process_task_handle;
-    static ProcessWakeupService *processWakeupService;
+    static ProcessWakeupService *process_wakeup_service;
     static WiFiService *wifi_service;
     static RenderingService *rendering_service;
     static DatetimeService *datetime_service;
@@ -53,7 +53,8 @@ class Controller {
     static void Start(EventGroupHandle_t gpio_events,
                       WiFiService *wifi_service,
                       RenderingService *rendering_service,
-                      DatetimeService *datetime_service);
+                      DatetimeService *datetime_service,
+                      ProcessWakeupService *process_wakeup_service);
     static void Stop();
     static void FetchIOValues();
     static void CommitChanges();

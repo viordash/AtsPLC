@@ -20,12 +20,15 @@ static FrameBuffer frame_buffer = {};
 static WiFiService *wifi_service;
 static DatetimeService *datetime_service;
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicElementsBoxTestsGroup){ //
                                         TEST_SETUP(){ mock().disable();
 memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 wifi_service = new WiFiService();
 datetime_service = new DatetimeService();
-Controller::Start(NULL, wifi_service, NULL, datetime_service);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
@@ -34,6 +37,7 @@ TEST_TEARDOWN() {
     Controller::V3.Unbind();
     Controller::V4.Unbind();
     Controller::Stop();
+    delete process_wakeup_service;
     delete wifi_service;
     delete datetime_service;
     mock().enable();

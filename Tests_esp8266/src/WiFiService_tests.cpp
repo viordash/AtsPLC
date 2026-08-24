@@ -13,6 +13,8 @@
 #include "main/WiFi/WiFiService.h"
 #include "main/settings.h"
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(WiFiServiceTestsGroup){
     //
     TEST_SETUP(){ mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
@@ -26,11 +28,13 @@ settings.wifi_station.connect_max_retry_count = -1;
 settings.wifi_station.reconnect_delay_ms = 3000;
 settings.wifi_station.scan_station_rssi_period_ms = 5000;
 
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
 }
 }
 ;
