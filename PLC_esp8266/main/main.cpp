@@ -78,6 +78,8 @@ void app_main() {
 
     ProcessWakeupService process_wakeup_service;
 
+    if (!hotreload->is_hotstart && up_button_pressed()) {
+        ServiceModeHandler::Start(gpio_events, &process_wakeup_service);
     }
 
     WiFiService wifi_service;
