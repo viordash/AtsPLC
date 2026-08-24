@@ -22,6 +22,8 @@ extern "C" {
 
 #define BACKUPS_VERSION ((uint32_t)0x20250202)
 
+class ProcessWakeupService;
+
 class ServiceModeHandler {
   public:
     enum Mode {
@@ -43,8 +45,11 @@ class ServiceModeHandler {
     static Mode ChangeModeToPrev(Mode mode);
     static Mode ChangeModeToNext(Mode mode);
     static ListBox CreateModesList();
-    static void Execute(EventGroupHandle_t gpio_events, Mode mode);
-    static void ChangeWorkMode(EventGroupHandle_t gpio_events);
+    static void Execute(EventGroupHandle_t gpio_events,
+                        Mode mode,
+                        ProcessWakeupService *process_wakeup_service);
+    static void ChangeWorkMode(EventGroupHandle_t gpio_events,
+                               ProcessWakeupService *process_wakeup_service);
     static EffectiveWorkMode ChangeWorkModeToPrev(EffectiveWorkMode mode);
     static EffectiveWorkMode ChangeWorkModeToNext(EffectiveWorkMode mode);
     static bool DoChangeWorkMode(EventGroupHandle_t gpio_events, EffectiveWorkMode mode);
@@ -52,16 +57,19 @@ class ServiceModeHandler {
     static void SmartConfig(EventGroupHandle_t gpio_events);
     static void SmartConfigProgress(LogsList &logs_list, const char *message);
 
-    static void Backup(EventGroupHandle_t gpio_events);
+    static void Backup(EventGroupHandle_t gpio_events,
+                       ProcessWakeupService *process_wakeup_service);
     static void GetBackupFilesStat(bool *files_stat, size_t files_count);
     static void CreateBackupName(uint32_t fileno, char *name);
     static bool CreateBackup(uint32_t fileno);
     static void DeleteBackupFiles(size_t files_count);
 
-    static void Restore(EventGroupHandle_t gpio_events);
+    static void Restore(EventGroupHandle_t gpio_events,
+                        ProcessWakeupService *process_wakeup_service);
     static bool DoRestore(uint32_t fileno);
 
-    static void ResetData(EventGroupHandle_t gpio_events);
+    static void ResetData(EventGroupHandle_t gpio_events,
+                          ProcessWakeupService *process_wakeup_service);
     static ResetMode ChangeResetModeToPrev(ResetMode mode);
     static ResetMode ChangeResetModeToNext(ResetMode mode);
     static bool DoResetData(EventGroupHandle_t gpio_events, ResetMode mode);
@@ -72,5 +80,5 @@ class ServiceModeHandler {
                            const char *error_message);
 
   public:
-    static void Start(EventGroupHandle_t gpio_events);
+    static void Start(EventGroupHandle_t gpio_events, ProcessWakeupService *process_wakeup_service);
 };

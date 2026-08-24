@@ -2,6 +2,7 @@
 #include "Display/Common.h"
 #include "Display/ListBox.h"
 #include "Display/display.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "buttons.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -31,11 +32,17 @@ ListBox ServiceModeHandler::CreateModesList() {
     return listBox;
 }
 
-void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::Start(EventGroupHandle_t gpio_events,
+                               ProcessWakeupService *process_wakeup_service) {
     Mode mode = Mode::sm_WorkMode;
 
     ListBox listBox = CreateModesList();
     listBox.Select(mode);
+
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
 
     while (true) {
         auto fb = begin_render();
@@ -46,18 +53,20 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
+
+        process_wakeup_service->RemoveExpired();
 
         ESP_LOGD(TAG_ServiceModeHandler, "bits:0x%08X", (unsigned int)uxBits);
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons_immediately(uxBits);
-        ESP_LOGI(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
+        ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
             case ButtonsPressType::UP_LONG_PRESSED:
@@ -71,11 +80,16 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                 break;
             case ButtonsPressType::SELECT_PRESSED:
             case ButtonsPressType::SELECT_LONG_PRESSED:
-                Execute(gpio_events, mode);
+                Execute(gpio_events, mode, process_wakeup_service);
                 return;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
 }
 
@@ -121,22 +135,24 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler
     return mode;
 }
 
-void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
+void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events,
+                                 Mode mode,
+                                 ProcessWakeupService *process_wakeup_service) {
     switch (mode) {
         case Mode::sm_WorkMode:
-            ChangeWorkMode(gpio_events);
+            ChangeWorkMode(gpio_events, process_wakeup_service);
             break;
         case Mode::sm_SmartConfig:
             SmartConfig(gpio_events);
             break;
         case Mode::sm_BackupLogic:
-            Backup(gpio_events);
+            Backup(gpio_events, process_wakeup_service);
             break;
         case Mode::sm_RestoreLogic:
-            Restore(gpio_events);
+            Restore(gpio_events, process_wakeup_service);
             break;
         case Mode::sm_ResetToDefault:
-            ResetData(gpio_events);
+            ResetData(gpio_events, process_wakeup_service);
             break;
     }
 }

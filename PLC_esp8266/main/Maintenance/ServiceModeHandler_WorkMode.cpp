@@ -2,6 +2,7 @@
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
 #include "LogicProgram/Ladder.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "buttons.h"
 #include "esp_err.h"
@@ -17,7 +18,8 @@ static const char *TAG_ServiceModeHandler_WorkMode = "ServiceMode.WorkMode";
 
 const char *ServiceModeHandler::work_mode_names[] = { "Stop", "Run", "Debug" };
 
-void ServiceModeHandler::ChangeWorkMode(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::ChangeWorkMode(EventGroupHandle_t gpio_events,
+                                        ProcessWakeupService *process_wakeup_service) {
     ESP_LOGI(TAG_ServiceModeHandler_WorkMode, "execute");
 
     Controller::GetLadder().Load();
@@ -39,6 +41,11 @@ void ServiceModeHandler::ChangeWorkMode(EventGroupHandle_t gpio_events) {
     }
     listBox.Select(mode);
 
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
+
     bool success = false;
     bool error = false;
     while (!success && !error) {
@@ -50,19 +57,22 @@ void ServiceModeHandler::ChangeWorkMode(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        process_wakeup_service->RemoveExpired();
+
+        ESP_LOGD(TAG_ServiceModeHandler_WorkMode, "bits:0x%08X", (unsigned int)uxBits);
+
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler_WorkMode, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons_immediately(uxBits);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         ESP_LOGD(TAG_ServiceModeHandler_WorkMode,
-                 "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 (unsigned int)pressed_button,
-                 (unsigned int)uxBits);
+                 "buttons_changed, pressed_button:%u",
+                 pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
             case ButtonsPressType::UP_LONG_PRESSED:
@@ -79,9 +89,14 @@ void ServiceModeHandler::ChangeWorkMode(EventGroupHandle_t gpio_events) {
                 success = DoChangeWorkMode(gpio_events, mode);
                 error = !success;
                 break;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
     ShowStatus(gpio_events, success, "Completed!", "Canceled!");
     esp_restart();

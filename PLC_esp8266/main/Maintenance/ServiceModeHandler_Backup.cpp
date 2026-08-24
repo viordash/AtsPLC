@@ -2,6 +2,7 @@
 #include "Display/LogsList.h"
 #include "Display/display.h"
 #include "LogicProgram/Ladder.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "Maintenance/backups_storage.h"
 #include "buttons.h"
@@ -15,7 +16,8 @@
 
 static const char *TAG_ServiceModeHandler_Backup = "ServiceMode.Backup";
 
-void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events,
+                                ProcessWakeupService *process_wakeup_service) {
     ESP_LOGI(TAG_ServiceModeHandler_Backup, "execute");
 
     int backup_fileno = 0;
@@ -35,6 +37,11 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
 
     listBox.Select(backup_fileno);
 
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
+
     bool success = false;
     bool error = false;
     while (!success && !error) {
@@ -46,19 +53,22 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        process_wakeup_service->RemoveExpired();
+
+        ESP_LOGD(TAG_ServiceModeHandler_Backup, "bits:0x%08X", (unsigned int)uxBits);
+
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler_Backup, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons_immediately(uxBits);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         ESP_LOGD(TAG_ServiceModeHandler_Backup,
-                 "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 (unsigned int)pressed_button,
-                 (unsigned int)uxBits);
+                 "buttons_changed, pressed_button:%u",
+                 pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
             case ButtonsPressType::UP_LONG_PRESSED:
@@ -81,9 +91,14 @@ void ServiceModeHandler::Backup(EventGroupHandle_t gpio_events) {
                 success = CreateBackup(backup_fileno);
                 error = !success;
                 break;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
     ShowStatus(gpio_events, success, "Backup completed!", "Backup error!");
 }

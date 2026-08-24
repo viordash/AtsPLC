@@ -62,22 +62,6 @@ static ButtonsPressType process_buttons(EventBits_t uxBits) {
     return ButtonsPressType::NOTHING_PRESSED;
 }
 
-ButtonsPressType handle_buttons_immediately(EventBits_t uxBits) {
-    EventBits_t button_close_bits = (uxBits & buttons_close_bits);
-    EventBits_t button_open_bits = (uxBits & buttons_open_bits);
-
-    deffered_button_bits = 0;
-
-    if (button_close_bits != 0) {
-        process_buttons(button_close_bits);
-    }
-
-    if (button_open_bits == 0) {
-        return ButtonsPressType::NOTHING_PRESSED;
-    }
-    return process_buttons(button_open_bits);
-}
-
 ButtonsPressType handle_buttons(EventBits_t uxBits, ProcessWakeupService *wakeup_service) {
     ASSERT(wakeup_service != NULL);
 

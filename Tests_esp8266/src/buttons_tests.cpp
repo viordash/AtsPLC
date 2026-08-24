@@ -139,25 +139,3 @@ TEST(ButtonsTestsGroup, long_press_is_reported) {
     os_us = 640 * 1000;
     CHECK_EQUAL(ButtonsPressType::UP_LONG_PRESSED, process_task_iteration(0));
 }
-
-TEST(ButtonsTestsGroup, handle_buttons_immediately_reports_press_without_deferring) {
-    volatile uint64_t os_us = 10 * 1000;
-    mock()
-        .expectNCalls(2, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    CHECK_EQUAL(ButtonsPressType::NOTHING_PRESSED, handle_buttons_immediately(BUTTON_UP_IO_CLOSE));
-
-    os_us = 12 * 1000;
-    CHECK_EQUAL(ButtonsPressType::UP_PRESSED, handle_buttons_immediately(BUTTON_UP_IO_OPEN));
-}
-
-TEST(ButtonsTestsGroup, handle_buttons_immediately_reports_coalesced_bits) {
-    volatile uint64_t os_us = 10 * 1000;
-    mock()
-        .expectNCalls(2, "esp_timer_get_time")
-        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
-
-    CHECK_EQUAL(ButtonsPressType::UP_PRESSED,
-                handle_buttons_immediately(BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN));
-}

@@ -19,5 +19,3 @@ typedef enum { //
 class ProcessWakeupService;
 
 ButtonsPressType handle_buttons(EventBits_t uxBits, ProcessWakeupService *wakeup_service);
-
-ButtonsPressType handle_buttons_immediately(EventBits_t uxBits);
