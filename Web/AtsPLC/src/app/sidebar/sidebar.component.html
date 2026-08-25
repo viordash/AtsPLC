@@ -15,7 +15,8 @@
 					<span class="button-icon">&#x2913;</span>
 					<span class="button-text">Download</span>
 				</button>
-				<button class="sidebar-button" (click)="fileInput.click()">
+				<button class="sidebar-button" [disabled]="currentWorkMode() !== WorkMode.Stop"
+					title="Upload is available in Stop mode only" (click)="fileInput.click()">
 					<span class="button-icon">&#x2912;</span>
 					<span class="button-text">Upload</span>
 				</button>

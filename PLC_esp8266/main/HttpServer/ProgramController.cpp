@@ -28,6 +28,12 @@ size_t ProgramController::GetUriHandlers(httpd_uri_t *handlers, size_t capacity)
 }
 
 esp_err_t ProgramController::Upload(httpd_req_t *req) {
+    if (Controller::GetLadder().GetWorkMode() != WorkMode::Stop) {
+        ESP_LOGE(TAG_ProgramController, "Upload is not allowed, device is running");
+        SendError(req, "400 Bad Request", "device is running, stop it before uploading");
+        return ESP_FAIL;
+    }
+
     if (req->content_len > PROGRAM_MAXSIZE) {
         ESP_LOGE(TAG_ProgramController,
                  "Uploaded program size exceeds the limit, '%u' > '%u'",
