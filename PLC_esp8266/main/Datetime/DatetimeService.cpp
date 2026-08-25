@@ -15,9 +15,7 @@
 static const char *TAG_DatetimeService = "DatetimeService";
 extern CurrentSettings::device_settings settings;
 
-static CurrentSettings::datetime_settings sntp_settings;
-
-DatetimeService::DatetimeService() : task_handle(NULL) {
+DatetimeService::DatetimeService() : task_handle(NULL), sntp_settings{} {
 }
 
 DatetimeService::~DatetimeService() {

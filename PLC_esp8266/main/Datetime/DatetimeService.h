@@ -26,6 +26,7 @@ extern "C" {
 class DatetimeService {
   protected:
     TaskHandle_t task_handle;
+    CurrentSettings::datetime_settings sntp_settings;
 
     static void Task(void *parm);
     virtual void GetCurrent(timeval *tv);
