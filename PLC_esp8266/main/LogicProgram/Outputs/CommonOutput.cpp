@@ -37,7 +37,8 @@ CommonOutput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *sta
 
     EditableElement::Render(fb, start_point);
 
-    if (state == LogicItemState::lisActive) {
+    bool active = state == LogicItemState::lisActive || state == LogicItemState::lisStop;
+    if (active) {
         ASSERT(draw_active_network(fb, start_point->x, start_point->y, label_max_width));
     } else {
         ASSERT(draw_passive_network(fb, start_point->x, start_point->y, label_max_width, true));
