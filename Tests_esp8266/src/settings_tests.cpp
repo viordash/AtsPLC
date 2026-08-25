@@ -10,6 +10,7 @@
 
 #include "tests_utils.h"
 
+#include "main/redundant_storage.h"
 #include "main/settings.h"
 
 TEST_GROUP(SettingsTestsGroup){ //
@@ -25,6 +26,20 @@ TEST_TEARDOWN() {
 }
 }
 ;
+
+static void store_raw_settings(uint32_t version, const void *data, size_t size) {
+    redundant_storage storage;
+    storage.data = (uint8_t *)data;
+    storage.size = size;
+    storage.version = version;
+
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            settings_storage_name,
+                            &storage);
+}
 
 TEST(SettingsTestsGroup, load_if_clear_storage_return_default_settings) {
     settings.smartconfig.counter = 42;
@@ -99,6 +114,100 @@ TEST(SettingsTestsGroup, delete_settings) {
     CHECK_EQUAL(-120, settings.wifi_scanner.min_rssi);
     CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
     CHECK_FALSE(settings.wifi_access_point.ssid_hidden);
+}
+
+TEST(SettingsTestsGroup, load_if_stored_size_greater_than_settings_return_default_settings) {
+    settings.smartconfig.counter = 42;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    uint8_t oversized[sizeof(settings) + 4];
+    memset(oversized, 0, sizeof(oversized));
+    memcpy(oversized, &settings, sizeof(settings));
+    store_raw_settings(DEVICE_SETTINGS_VERSION, oversized, sizeof(oversized));
+
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(0, settings.smartconfig.counter);
+    STRCMP_EQUAL("", settings.wifi_station.ssid);
+    STRCMP_EQUAL("", settings.wifi_station.password);
+    CHECK_EQUAL(-26, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
+    CHECK_EQUAL(1000, settings.adc.scan_period_ms);
+}
+
+TEST(SettingsTestsGroup, load_if_stored_size_less_than_settings_return_default_settings) {
+    settings.smartconfig.counter = 42;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    store_raw_settings(DEVICE_SETTINGS_VERSION, &settings, sizeof(settings) - 4);
+
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(0, settings.smartconfig.counter);
+    STRCMP_EQUAL("", settings.wifi_station.ssid);
+    STRCMP_EQUAL("", settings.wifi_station.password);
+    CHECK_EQUAL(-26, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
+    CHECK_EQUAL(1000, settings.adc.scan_period_ms);
+}
+
+TEST(SettingsTestsGroup, load_if_stored_version_is_unknown_return_default_settings) {
+    settings.smartconfig.counter = 42;
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    store_raw_settings(0x29990101, &settings, sizeof(settings));
+
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(0, settings.smartconfig.counter);
+    STRCMP_EQUAL("", settings.wifi_station.ssid);
+    STRCMP_EQUAL("", settings.wifi_station.password);
+    CHECK_EQUAL(-26, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(20000, settings.wifi_access_point.generation_time_ms);
+    CHECK_EQUAL(1000, settings.adc.scan_period_ms);
+}
+
+TEST(SettingsTestsGroup, load_if_stored_size_matches_previous_version_then_migrate) {
+    MigrateSettings::v20250413::Snapshot::device_settings prev_settings = {};
+    prev_settings.smartconfig.counter = 42;
+    strcpy(prev_settings.wifi_station.ssid, "test_ssid");
+    strcpy(prev_settings.wifi_station.password, "test_pwd");
+    prev_settings.wifi_station.connect_max_retry_count = 7;
+    prev_settings.wifi_station.reconnect_delay_ms = 5000;
+    prev_settings.wifi_station.scan_station_rssi_period_ms = 6000;
+    prev_settings.wifi_station.max_rssi = -20;
+    prev_settings.wifi_station.min_rssi = -100;
+    prev_settings.wifi_scanner.per_channel_scan_time_ms = 300;
+    prev_settings.wifi_scanner.max_rssi = -30;
+    prev_settings.wifi_scanner.min_rssi = -110;
+    prev_settings.wifi_access_point.generation_time_ms = 90123;
+    prev_settings.wifi_access_point.ssid_hidden = true;
+    strcpy(prev_settings.datetime.sntp_server_primary, "ru.pool.ntp.org");
+    strcpy(prev_settings.datetime.sntp_server_secondary, "pool.ntp.org");
+    strcpy(prev_settings.datetime.timezone, "GMT-3");
+
+    store_raw_settings(MigrateSettings::v20250413::DataMigrate.Version,
+                       &prev_settings,
+                       sizeof(prev_settings));
+
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(42, settings.smartconfig.counter);
+    STRCMP_EQUAL("test_ssid", settings.wifi_station.ssid);
+    STRCMP_EQUAL("test_pwd", settings.wifi_station.password);
+    CHECK_EQUAL(-30, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(-110, settings.wifi_scanner.min_rssi);
+    CHECK_EQUAL(90123, settings.wifi_access_point.generation_time_ms);
+    CHECK_TRUE(settings.wifi_access_point.ssid_hidden);
+    STRCMP_EQUAL("GMT-3", settings.datetime.timezone);
+    CHECK_EQUAL(1000, settings.adc.scan_period_ms);
 }
 
 TEST(SettingsTestsGroup, validate_settings) {
