@@ -15,7 +15,8 @@
                 "CONFIG_ESP8266_WIFI_LEFT_CONTINUOUS_RX_BUFFER_NUM=16",
                 "CONFIG_FREERTOS_HZ=100",
                 "DEVICE_SETTINGS_VERSION=0x1",
-                "BUILD_NUMBER=0x2"
+                "BUILD_NUMBER=0x2",
+                "FIRMWARE_MAXSIZE=1048576"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
