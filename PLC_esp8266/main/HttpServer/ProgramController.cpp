@@ -31,7 +31,10 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
     if (Controller::GetLadder().GetWorkMode() != WorkMode::Stop) {
         ESP_LOGE(TAG_ProgramController, "Upload is not allowed, device is running");
         SendError(req, "400 Bad Request", "device is running, stop it before uploading");
-        return ESP_FAIL;
+    }
+    if (Controller::InDesign()) {
+        SendError(req, "400 Bad Request", "device is being edited, upload is locked");
+        return ESP_OK;
     }
 
     if (req->content_len > PROGRAM_MAXSIZE) {
