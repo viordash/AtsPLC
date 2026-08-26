@@ -31,6 +31,7 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
     if (Controller::GetLadder().GetWorkMode() != WorkMode::Stop) {
         ESP_LOGE(TAG_ProgramController, "Upload is not allowed, device is running");
         SendError(req, "400 Bad Request", "device is running, stop it before uploading");
+        return ESP_OK;
     }
     if (Controller::InDesign()) {
         SendError(req, "400 Bad Request", "device is being edited, upload is locked");
@@ -43,7 +44,7 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
                  (unsigned int)req->content_len,
                  (unsigned int)PROGRAM_MAXSIZE);
         SendError(req, "400 Bad Request", "uploaded program size exceeds the limit");
-        return ESP_FAIL;
+        return ESP_OK;
     }
     ESP_LOGI(TAG_ProgramController, "Upload, content_len: %u", (unsigned int)req->content_len);
 
@@ -76,7 +77,7 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
         SendError(req, "400 Bad Request", "uploaded program has errors");
         Controller::GetLadder().Load();
         delete[] buffer;
-        return ESP_FAIL;
+        return ESP_OK;
     }
 
     delete[] buffer;
@@ -97,7 +98,7 @@ esp_err_t ProgramController::Download(httpd_req_t *req) {
     if (program_size == 0) {
         ESP_LOGE(TAG_ProgramController, "Download, get ladder data error");
         SendError(req, "500 Server Error", "get ladder data error");
-        return ESP_FAIL;
+        return ESP_OK;
     }
 
     uint8_t *program_data = new uint8_t[program_size];
@@ -106,7 +107,7 @@ esp_err_t ProgramController::Download(httpd_req_t *req) {
         ESP_LOGE(TAG_ProgramController, "Download, serialize ladder error");
         SendError(req, "500 Server Error", "serialize ladder error");
         delete[] program_data;
-        return ESP_FAIL;
+        return ESP_OK;
     }
 
     httpd_resp_set_type(req, "application/octet-stream");
