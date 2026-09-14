@@ -110,6 +110,7 @@ void WiFiService::StationTask(RequestItem *request) {
             }
 
             stop_http_server();
+            Controller::StopSntp();
             Disconnect();
 
             bool delay_before_reconnect =
@@ -160,6 +161,7 @@ void WiFiService::StationTask(RequestItem *request) {
         }
     }
     stop_http_server();
+    Controller::StopSntp();
     Disconnect();
 
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler));

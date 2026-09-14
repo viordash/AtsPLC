@@ -397,6 +397,13 @@ void Controller::RestartSntp() {
     Controller::datetime_service->SntpStateChanged();
 }
 
+void Controller::StopSntp() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->StopSntp();
+}
+
 void Controller::StoreSystemDatetime() {
     if (Controller::datetime_service == NULL) {
         return;

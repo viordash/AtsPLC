@@ -101,6 +101,7 @@ class Controller {
     static bool ManualSetSystemDatetime(Datetime *dt);
     static void GetSystemDatetime(Datetime *dt);
     static void RestartSntp();
+    static void StopSntp();
     static void StoreSystemDatetime();
     static void SetNetworkContinuation(LogicItemState state);
     static LogicItemState GetNetworkContinuation();
