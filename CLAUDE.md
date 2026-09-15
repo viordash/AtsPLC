@@ -48,7 +48,7 @@ cd Tests_esp8266 && make -j $(nproc)
 
 ## Tests
 
-- Source files from the project that need to be included in tests should be added via `#include` in `tests/sources.cpp`
+- Source files from the project that need to be included in tests should be added via `#include` in `Tests_esp8266/src/LogicProgram.cpp`
 - NEVER TRY TO REPAIR TESTS THAT REQUIRE root
 - Do NOT call `mock().checkExpectations()` manually — it is called automatically for all tests
 - If a code module (class, struct, or functions) is in a separate file, its tests must be in a separate test file (e.g., `base32.cpp` → `base32_tests.cpp`, `totp.cpp` → `totp_tests.cpp`)

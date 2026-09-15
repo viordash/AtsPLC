@@ -52,8 +52,9 @@ PLC_esp8266/main/component.mk  COMPONENT_EMBED_FILES := $(WEB_DIST_SOURCES)
   `If-None-Match`, отдаётся `304` без тела.
 - `X-DataPaging` - `{"offset":<индекс верхней сети>,"count":<всего сетей>}`, чтобы браузер
   мог нарисовать своё положение в программе.
-- `X-ForceRefresh` - взводится, когда сменился режим работы. Клиент по нему перечитывает
-  `/workmode`.
+- `X-ForceRefresh` - счётчик смен режима работы (`Controller::GetForceRefreshUISeq`), есть
+  в каждом ответе, включая `304`. Клиент сравнивает его с предыдущим значением и на
+  расхождение перечитывает `/workmode`.
 
 Пока идёт чтение кадра, задача отрисовки блокируется: `BeginRenderOnExternal` берёт
 `render_mutex`, `EndRenderOnExternal` отпускает.

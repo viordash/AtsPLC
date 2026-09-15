@@ -108,9 +108,9 @@ AtsPLC/
 ### Bindings
 
 #### WiFiBinding
-Binds WiFi network to a controller variable (V1–V4):
-- **Read** — Triggers network scan, writes RSSI of found network to variable (0–255)
-- **Write** — Creates WiFi network with specified SSID
+Binds a WiFi network to a controller variable (V1–V4): while the element is active it keeps
+requesting a scan for the given SSID and writes the RSSI of the found network to the variable
+(0–255, zero means "not found"). Creating a network is done by WiFiApBinding, not by this element.
 
 Parameters: SSID (up to 24 characters)
 
@@ -154,14 +154,14 @@ Binds date/time parameters to controller variables (V1–V4):
 
 Enter service mode by powering on with the **UP** button held down.
 
-Available functions:
-- **SmartConfig** — WiFi provisioning via mobile app
-- **Backup** — Save program to one of 4 slots (ladder_0 – ladder_3)
-- **Restore** — Restore program from backup slot
-- **Reset Settings** — Restore default settings
-- **Reset Ladder program** — Delete working program
-- **Reset Backups** — Delete all backups
-- **Factory reset** — Complete factory reset
+Menu items:
+- **Work mode** — Switch between Stop / Run / Debug (device reboots afterwards)
+- **Smart config** — WiFi provisioning via mobile app (ESP-Touch v2)
+- **Backup logic** — Save program to one of 4 slots (ladder_0 – ladder_3)
+- **Restore logic** — Restore program from backup slot
+- **Reset to default** — Submenu with four levels: Settings, Ladder program, Backups, Factory reset
+
+The menu times out after 120 seconds of inactivity and the device continues its normal startup.
 
 ---
 
@@ -188,8 +188,15 @@ SDK/.venv/bin/python -m pip install "setuptools<81" -r SDK/ESP8266_RTOS_SDK/requ
 ### Build
 
 ```bash
+make app                          # from the repository root: builds the SPA if needed, then the firmware
+```
+
+Or directly, when the SPA is already built (`make web`):
+
+```bash
 cd PLC_esp8266
-make build
+make -j$(nproc) app               # build
+make -j$(nproc) size              # build + flash usage breakdown
 ```
 
 ### Flash via USB
@@ -203,7 +210,9 @@ make flash
 
 ```bash
 cd PLC_esp8266
-make ota_upload OTA_HOST=192.168.1.100
+make -j$(nproc) ota
+curl -H 'Content-Type:application/octet-stream' \
+     --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.1.100/update
 ```
 
 ---
