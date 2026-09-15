@@ -1,74 +1,77 @@
-# Режимы работы
+# Work modes
 
-Режим работы определяет три вещи: исполняются ли цепи программы, что происходит с
-физическими выходами и разрешено ли редактирование программы на устройстве.
+The work mode determines three things: whether program networks execute, what happens to
+the physical outputs, and whether on-device program editing is allowed.
 
-| Режим | Цепи | Физические выходы | Редактирование |
-|-------|------|-------------------|----------------|
-| **Stop** | не исполняются | сброшены в 0 | разрешено |
-| **Run** | исполняются | по логике программы | запрещено |
-| **Debug** | исполняются | по логике программы | разрешено |
+| Mode | Networks | Physical outputs | Editing |
+|------|----------|-------------------|---------|
+| **Stop** | not executed | reset to 0 | allowed |
+| **Run** | executed | follow program logic | forbidden |
+| **Debug** | executed | follow program logic | allowed |
 
 ## Stop
 
-Все сети переводятся в остановленное состояние, элементы перестают вычисляться, опрос входов
-на результат не влияет.
+All networks switch to the stopped state, elements stop computing, polling inputs has no
+effect on the result.
 
-- Выходные элементы (прямое присваивание, установка, инкремент, декремент) один раз
-  записывают в свой адрес 0. Защёлка, установленная элементом Set, снимается. Элементу
-  сброса писать нечего: он и в работе пишет только 0, поэтому в Stop просто замирает.
-- Таймеры и генератор импульсов снимают запросы на пробуждение - контроллер перестаёт
-  просыпаться по их периодам.
-- Привязки к WiFi-сети, WiFi-станции, точке доступа и дате/времени отвязывают свои переменные.
-- Выходная шина каждой сети рисуется штриховой. Провода и иконки элементов рисуются как
-  активные, чтобы программа оставалась читаемой.
+- Output elements (direct assignment, set, increment, decrement) write 0 to their address
+  once. A latch set by the Set element is released. The reset element has nothing to write:
+  it only ever writes 0, so in Stop it simply stays idle.
+- Timers and the pulse generator drop their wakeup requests - the controller stops waking up
+  for their periods.
+- Bindings to a WiFi network, a WiFi station, an access point, and date/time unbind their
+  variables.
+- Each network's outgoing rail is drawn dashed. Wires and element icons are drawn as active,
+  so the program stays readable.
 
-Значение переменной, изменённое элементами инкремента и декремента, при переходе в Stop
-сбрасывается в 0.
+A variable value changed by increment or decrement elements resets to 0 when switching to
+Stop.
 
 ## Run
 
-Сети исполняются, выходы следуют логике программы. Вход в редактор с устройства запрещён:
-нажатие Select на главном экране не открывает выбор сети, в лог пишется сообщение.
-Обе шины каждой сети рисуются сплошными.
+Networks execute, outputs follow program logic. On-device editing is forbidden: pressing
+Select on the main screen doesn't open network selection, and a message is logged. Both
+rails of each network are drawn solid.
 
 ## Debug
 
-Отличается от Run только тем, что редактирование программы на устройстве разрешено.
-Цепи исполняются, выходы живые.
+Differs from Run only in that on-device program editing is allowed. Networks execute,
+outputs are live.
 
-На экране Debug неотличим от Run - текущий режим показывает пункт **Work mode** сервисного
-режима.
+Debug looks the same as Run on screen - the current mode is only shown by the **Work mode**
+item in service mode.
 
-Признак Debug не переживает обесточивание: после снятия питания устройство поднимается в Run.
-Программный перезапуск, в том числе после OTA-обновления, режим сохраняет.
+The Debug flag doesn't survive a power loss: after power is removed, the device comes up in
+Run. A software restart, including after an OTA update, keeps the mode.
 
-## Выключенные сети
+## Disabled networks
 
-Отдельную сеть можно выключить (расширенный режим редактирования, Disable). Смена режима
-работы это состояние сохраняет: сеть, выключенная до перехода в Stop, вернётся выключенной
-при обратном переходе. Выключенная сеть в любом режиме рисуется со штриховой входной шиной.
+A single network can be disabled (advanced editing mode, Disable). Switching the work mode
+preserves this: a network disabled before switching to Stop comes back disabled after
+switching back. A disabled network is drawn with a dashed incoming rail in any mode.
 
-## Хранение
+## Storage
 
-- **Stop / Run** хранится в файле программы вместе с состояниями сетей и переживает
-  обесточивание. Значение по умолчанию - Stop.
-- **Признак Debug** хранится в RTC-памяти. Он переживает программный перезапуск и теряется
-  при снятии питания.
+- **Stop / Run** is stored in the program file together with network states and survives a
+  power loss. The default is Stop.
+- **The Debug flag** is stored in RTC memory. It survives a software restart and is lost on
+  power loss.
 
-Опасная комбинация "живые выходы + разрешённая правка" в постоянном хранилище не
-представима: сбросить её нечего, обесточивание роняет Debug в чистый Run.
+The dangerous combination of "live outputs + editing allowed" can't be represented in
+persistent storage: there's nothing to reset - a power loss always drops Debug down to
+plain Run.
 
-## Смена режима
+## Changing the mode
 
-Два пути:
+Two ways:
 
-- **С устройства.** Включение питания с зажатой кнопкой **UP**, пункт **Work mode**, выбор
-  Stop / Run / Debug кнопками Вверх/Вниз, Select. Select открывает экран подтверждения:
-  режим применяет кнопка **UP**, любая другая отменяет. Устройство перезагружается в обоих
-  случаях - в выбранном режиме или в прежнем.
-- **Из браузера.** `POST /workmode` с телом `{"mode":<0|1|2>}`. Смена запрещена, пока
-  программа редактируется на устройстве. Описание - [WEB_INTERFACE.md](WEB_INTERFACE.md).
+- **From the device.** Power on with **UP** held, pick **Work mode**, choose Stop / Run /
+  Debug with Up/Down, Select. Select opens a confirmation screen: **UP** applies the mode,
+  any other button cancels. The device reboots either way - into the chosen mode or back
+  into the previous one.
+- **From the browser.** `POST /workmode` with `{"mode":<0|1|2>}`. Changing the mode is
+  forbidden while the program is being edited on the device. See
+  [WEB_INTERFACE.md](WEB_INTERFACE.md).
 
-Формат файла программы изменился при добавлении режимов: `LADDER_VERSION` поднят,
-программы, сохранённые прошивками до этого, не загружаются.
+The program file format changed when work modes were added: `LADDER_VERSION` was bumped, so
+programs saved by earlier firmware don't load.

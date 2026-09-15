@@ -1,79 +1,80 @@
-# Сборка, тулинг, VSCode
+# Build, tooling, VSCode
 
-## Структура сборки
+## Build layout
 
 ```
-Makefile                        корневая точка входа
-PLC_esp8266/Makefile            прошивка, ESP8266_RTOS_SDK
-Tests_esp8266/Makefile          юнит-тесты, CppUTest
+Makefile                        root entry point
+PLC_esp8266/Makefile            firmware, ESP8266_RTOS_SDK
+Tests_esp8266/Makefile          unit tests, CppUTest
 Web/AtsPLC/                     Angular SPA
-build-tools/mk/web_files.mk     список встраиваемых файлов SPA и -D дефайны
+build-tools/mk/web_files.mk     list of embedded SPA files and -D defines
 ```
 
-Всё, что собирает проект, но не является самим проектом, лежит в `build-tools/`.
-Новый `.mk` кладётся туда же и подключается как
-`$(ROOT_DIR)/build-tools/mk/<name>.mk`, где `ROOT_DIR` вычисляется через
+Everything that builds the project but isn't the project itself lives in `build-tools/`.
+A new `.mk` file goes there too and is included as
+`$(ROOT_DIR)/build-tools/mk/<name>.mk`, where `ROOT_DIR` is resolved via
 `git rev-parse --show-toplevel`.
 
-## Первоначальная подготовка (один раз)
+## One-time setup
 
 ```bash
 cd SDK
 tar -xzf xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz
 ```
 
-Патчи SDK применяются автоматически при первой сборке прошивки.
+SDK patches are applied automatically on the first firmware build.
 
-## Корневой Makefile
+## Root Makefile
 
 ```bash
-make web      # npm install && ng build, результат в Web/output/browser
-make app      # прошивка
-make flash    # прошивка + заливка через USB
-make tests    # юнит-тесты
+make web      # npm install && ng build, output in Web/output/browser
+make app      # firmware
+make flash    # firmware + flash over USB
+make tests    # unit tests
 ```
 
-`make web` нужен один раз после правок фронтенда: прошивка встраивает уже собранный результат.
+`make web` is only needed once after frontend changes: the firmware embeds the already
+built output.
 
-## Прошивка
+## Firmware
 
 ```bash
 cd PLC_esp8266
-make -j$(nproc) app          # сборка
-make -j$(nproc) flash        # заливка через USB
-make -j$(nproc) size         # разбор занятого места
+make -j$(nproc) app          # build
+make -j$(nproc) flash        # flash over USB
+make -j$(nproc) size         # flash usage breakdown
 ```
 
-OTA-обновление - `POST /update` с файлом прошивки, см.
+OTA update - `POST /update` with the firmware file, see
 [WEB_INTERFACE.md](WEB_INTERFACE.md).
 
-## Тесты
+## Tests
 
 ```bash
 cd Tests_esp8266
 make -j$(nproc)
-./output/main                        # весь набор
-./output/main -sg <GroupName>        # одна группа
-./output/main -sn <TestName>         # один тест
+./output/main                        # whole suite
+./output/main -sg <GroupName>        # one group
+./output/main -sn <TestName>         # one test
 ```
 
-Новый файл прошивки, попадающий в тесты, добавляется через `#include` в
-`Tests_esp8266/src/LogicProgram.cpp`. `Tests_esp8266/Makefile` подключает
-`PLC_esp8266/main/component.mk`, поэтому дефайны сборки доезжают до тестов.
+A new firmware file that needs to be covered by tests is added via `#include` in
+`Tests_esp8266/src/LogicProgram.cpp`. `Tests_esp8266/Makefile` includes
+`PLC_esp8266/main/component.mk`, so build defines reach the tests too.
 
-Тесты подключают `HttpServer/MainController.cpp`, которому нужны символы встроенной SPA.
-В прошивке их создаёт `COMPONENT_EMBED_FILES`, в тестах - правило `build/web/%.o`
-(`ld -r -b binary`). Корневые `make app` / `make flash` / `make tests` собирают SPA сами,
-если её ещё нет; при прямом вызове из `PLC_esp8266` или `Tests_esp8266` сборка остановится
-с подсказкой запустить `make web`.
+Tests build `HttpServer/MainController.cpp`, which needs the embedded SPA symbols.
+The firmware creates them via `COMPONENT_EMBED_FILES`; tests use a `build/web/%.o` rule
+(`ld -r -b binary`). The root `make app` / `make flash` / `make tests` build the SPA
+themselves if it's missing; calling `PLC_esp8266` or `Tests_esp8266` directly stops with
+a hint to run `make web` first.
 
-## Размер
+## Size
 
-| Что | Значение |
-|-----|----------|
-| Раздел под прошивку | 1 МБ (`ota_0` / `ota_1`) |
-| Прошивка с встроенной SPA | около 855 KiB (`build/AtsPLC-esp8266.bin`) |
+| What | Value |
+|------|-------|
+| Firmware partition | 1 MB (`ota_0` / `ota_1`) |
+| Firmware with embedded SPA | about 855 KiB (`build/AtsPLC-esp8266.bin`) |
 
 ## VSCode
 
-Задачи сборки и отладки лежат в `.vscode/`. Отладка прошивки - через `esp_gdbstub`.
+Build and debug tasks live in `.vscode/`. Firmware debugging goes through `esp_gdbstub`.

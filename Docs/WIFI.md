@@ -1,76 +1,75 @@
 # WiFi
 
-Радиомодуль один, а режимов три: станция, сканер, точка доступа. Одновременно работает
-только один. `WiFiService` держит очередь запросов и переключает режимы.
+One radio, three modes: station, scanner, access point. Only one runs at a time.
+`WiFiService` keeps a request queue and switches modes.
 
-Запросы приходят из элементов программы: `WiFiStaBinding` просит станцию, `WiFiBinding` -
-сканирование, `WiFiApBinding` - точку доступа.
+Requests come from program elements: `WiFiStaBinding` asks for the station, `WiFiBinding`
+for scanning, `WiFiApBinding` for the access point.
 
-## Очередь запросов (`WiFiRequests.cpp`)
+## Request queue (`WiFiRequests.cpp`)
 
-### Запрос
+### Request
 
-| Тип | Полезная нагрузка |
-|-----|-------------------|
-| `wqi_Station` | нет |
+| Type | Payload |
+|------|---------|
+| `wqi_Station` | none |
 | `wqi_Scanner` | ssid |
-| `wqi_AccessPoint` | ssid, пароль, маска MAC |
+| `wqi_AccessPoint` | ssid, password, MAC mask |
 
-### Постановка запроса
+### Queuing a request
 
-Запрос ставится в очередь, если такого ещё нет. Сравнение - по типу и по указателям полей
-нагрузки: два запроса точки доступа с одинаковым ssid, но разными паролем или маской MAC
-считаются разными.
+A request is queued only if it's not already there. Comparison is by type and by the
+payload fields' pointers: two access-point requests with the same ssid but a different
+password or MAC mask are considered different.
 
-Указатели, а не строки: ssid и пароль живут в самом элементе программы, пока элемент
-существует.
+Pointers, not strings: the ssid and password live in the program element itself, for as
+long as the element exists.
 
-### Хранение
+### Storage
 
-Очередь - массив фиксированного размера (`WiFi_RequestsLimit`, 5) со счётчиком. Потолок
-выбран по модели: не больше одного запроса на переменную плюс станция. При переполнении
-запрос отбрасывается с записью в лог - число запросов задаёт программа пользователя,
-падать из-за этого нельзя.
+The queue is a fixed-size array (`WiFi_RequestsLimit`, 5) with a counter. The limit is
+picked from the model: at most one request per variable plus the station. On overflow the
+request is dropped and logged - the number of requests is set by the user's program, so it
+must never crash because of this.
 
-Порядок обслуживания - FIFO.
+Service order is FIFO.
 
-### Вытеснение
+### Preemption
 
-Пока исполняется запрос одного типа, появление запроса другого типа прерывает текущий:
-исполнитель периодически проверяет свой break-бит и, увидев его, завершает работу, освобождая
-радиомодуль.
+While a request of one type is running, a request of another type interrupts it: the
+running task periodically checks its break bit and, once set, finishes and frees the radio.
 
-## Станция (`WiFiService_Station.cpp`)
+## Station (`WiFiService_Station.cpp`)
 
-Подключается к сохранённой в настройках сети. Число попыток и задержка между ними - в
-настройках; `-1` означает бесконечные попытки.
+Connects to the network saved in settings. Retry count and delay between retries come from
+settings; `-1` means unlimited retries.
 
-После подключения поднимается web-сервер, при отключении - гасится.
+The web server comes up once connected and goes down on disconnect.
 
-Уровень сигнала опрашивается с периодом из настроек и приводится к 0..255 по границам
-`min_rssi` / `max_rssi`.
+Signal level is polled at a period from settings and scaled to 0..255 using the
+`min_rssi` / `max_rssi` bounds.
 
-Минимальное время работы (`min_worktime_ms`) не даёт разорвать только что установленное
-соединение: запрос другого типа подождёт.
+The minimum uptime (`min_worktime_ms`) keeps a freshly established connection from being
+torn down right away: a request of another type will wait.
 
-## Сканер (`WiFiService_Scanner.cpp`)
+## Scanner (`WiFiService_Scanner.cpp`)
 
-Пассивное сканирование по всем 14 каналам, время на канал - из настроек. Найденные сети
-складываются в массив `ScannedSsid` (потолок `WiFi_SsidLimit`, 4 - по числу переменных).
+Passive scan across all 14 channels, time per channel comes from settings. Found networks
+go into the `ScannedSsid` array (capped at `WiFi_SsidLimit`, 4 - one per variable).
 
-## Точка доступа (`WiFiService_AccessPoint.cpp`)
+## Access point (`WiFiService_AccessPoint.cpp`)
 
-Поднимает AP с заданными SSID и паролем. Без пароля точка открытая и подключения не
-принимаются - режим используется как маячок.
+Brings up an AP with the given SSID and password. Without a password the AP is open and
+doesn't accept connections - this mode is used as a beacon.
 
-Клиенты фильтруются по маске MAC: подключение, не совпавшее с маской, отключается. Свои
-клиенты складываются в `ApClients` - до `WiFi_Hotspot_Max_Clients` (4) на каждый SSID.
+Clients are filtered by MAC mask: a connection that doesn't match the mask is disconnected.
+Accepted clients go into `ApClients` - up to `WiFi_Hotspot_Max_Clients` (4) per SSID.
 
-Время жизни точки доступа ограничено `generation_time_ms`; `ssid_hidden` скрывает SSID
-из эфира.
+The access point's lifetime is limited by `generation_time_ms`; `ssid_hidden` hides the SSID
+from the air.
 
-## Настройка WiFi
+## WiFi setup
 
-Учётные данные станции задаются через SmartConfig в сервисном режиме, см.
-[SERVICE_MODE.md](SERVICE_MODE.md), либо через элемент настроек в программе, см.
+Station credentials are set either via SmartConfig in service mode, see
+[SERVICE_MODE.md](SERVICE_MODE.md), or via the settings element in the program, see
 [LADDER_ELEMENTS.md](LADDER_ELEMENTS.md).

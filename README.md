@@ -9,14 +9,14 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 
 ## Documentation
 
-| Документ | О чём |
+| Document | About |
 |----------|-------|
-| [Docs/BUILD.md](Docs/BUILD.md) | Сборка, прошивка, тесты, тулинг |
-| [Docs/LADDER_ELEMENTS.md](Docs/LADDER_ELEMENTS.md) | Элементы Ladder Diagram и редактирование |
-| [Docs/WORK_MODES.md](Docs/WORK_MODES.md) | Режимы работы Stop / Run / Debug |
-| [Docs/SERVICE_MODE.md](Docs/SERVICE_MODE.md) | Сервисный режим: backup, restore, reset |
-| [Docs/WIFI.md](Docs/WIFI.md) | Станция, сканер, точка доступа |
-| [Docs/WEB_INTERFACE.md](Docs/WEB_INTERFACE.md) | Web-интерфейс и REST API |
+| [Docs/BUILD.md](Docs/BUILD.md) | Build, flashing, tests, tooling |
+| [Docs/LADDER_ELEMENTS.md](Docs/LADDER_ELEMENTS.md) | Ladder Diagram elements and editing |
+| [Docs/WORK_MODES.md](Docs/WORK_MODES.md) | Stop / Run / Debug work modes |
+| [Docs/SERVICE_MODE.md](Docs/SERVICE_MODE.md) | Service mode: backup, restore, reset |
+| [Docs/WIFI.md](Docs/WIFI.md) | Station, scanner, access point |
+| [Docs/WEB_INTERFACE.md](Docs/WEB_INTERFACE.md) | Web interface and REST API |
 
 ---
 

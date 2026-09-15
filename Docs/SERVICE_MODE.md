@@ -1,56 +1,55 @@
-# Сервисный режим
+# Service mode
 
-Отдельный режим работы устройства для обслуживания: выбор режима работы, настройка WiFi,
-резервное копирование и восстановление программ, сброс настроек.
+A separate device mode for maintenance: choosing the work mode, WiFi setup, backing up and
+restoring programs, resetting settings.
 
-## Вход в сервисный режим
+## Entering service mode
 
-Включение питания с зажатой кнопкой **UP**.
+Power on with **UP** held.
 
-Навигация по меню - кнопками Вверх/Вниз, выбор - Select. Меню прокручивается: на экране
-помещается 4 строки, справа рисуется полоса прокрутки. Таймаут режима - 120 секунд
-бездействия, после чего сервисный режим завершается и устройство продолжает обычный старт
-(без перезагрузки).
+Menu navigation - Up/Down, select - Select. The menu scrolls: the screen fits 4 lines, with
+a scrollbar on the right. The mode times out after 120 seconds of inactivity, after which
+service mode ends and the device continues its normal startup (no reboot).
 
-## Доступные функции
+## Available functions
 
-| Функция | Описание |
-|---------|----------|
-| **Work mode** | Выбор режима работы: Stop / Run / Debug |
-| **Smart config** | Настройка WiFi через приложение ESP-Touch |
-| **Backup logic** | Сохранение программы в один из 4 слотов (ladder_0 - ladder_3) |
-| **Restore logic** | Восстановление программы из слота |
-| **Reset to default** | Сброс: настройки, программа, бэкапы или всё сразу |
+| Function | Description |
+|----------|--------------|
+| **Work mode** | Choose the work mode: Stop / Run / Debug |
+| **Smart config** | Set up WiFi via the ESP-Touch app |
+| **Backup logic** | Save the program to one of 4 slots (ladder_0 - ladder_3) |
+| **Restore logic** | Restore the program from a slot |
+| **Reset to default** | Reset: settings, program, backups, or all at once |
 
 ## Work mode
 
-Переключает контроллер между Stop, Run и Debug. Текущий режим показан в заголовке экрана.
-Select на выбранном режиме открывает экран подтверждения: **UP** применяет режим, любая
-другая кнопка отменяет. Устройство перезагружается в обоих случаях - в выбранном режиме
-или в прежнем. Описание режимов - [WORK_MODES.md](WORK_MODES.md).
+Switches the controller between Stop, Run, and Debug. The current mode is shown in the
+screen title. Select on the chosen mode opens a confirmation screen: **UP** applies the
+mode, any other button cancels. The device reboots either way - into the chosen mode or
+back into the previous one. See [WORK_MODES.md](WORK_MODES.md) for mode details.
 
 ## Backup / Restore
 
-Доступно 4 независимых слота (`ladder_0`-`ladder_3`) в разделе `backups`. Backup сохраняет
-текущую рабочую программу в выбранный слот; Restore перезаписывает рабочую программу
-содержимым слота. Занятые слоты помечены в списке как `(stored)`; восстановление из пустого
-слота считается ошибкой.
+4 independent slots (`ladder_0`-`ladder_3`) are available in the `backups` partition. Backup
+saves the current working program into the chosen slot; Restore overwrites the working
+program with the slot's contents. Occupied slots are marked `(stored)` in the list;
+restoring from an empty slot is treated as an error.
 
-Отдельного подтверждения у этих действий нет - Select на выбранном слоте выполняет их сразу.
-Результат показывается на экране (`Backup completed!` / `Restore error!` и т.п.), выход -
-Select. Перезагрузки после Backup и Restore не происходит, в отличие от Work mode и Reset.
+These actions have no separate confirmation - Select on the chosen slot runs them right
+away. The result is shown on screen (`Backup completed!` / `Restore error!`, etc.), exit
+with Select. Unlike Work mode and Reset, there's no reboot after Backup or Restore.
 
 ## Reset
 
-Четыре независимых уровня сброса - от точечного (только настройки WiFi/SNTP/ADC) до полного
-(Factory reset - программа, бэкапы и настройки одновременно). Выбор уровня - тем же
-механизмом навигации Вверх/Вниз/Select, что и выбор функции сервисного режима.
+Four independent reset levels - from narrow (only WiFi/SNTP/ADC settings) to full (Factory
+reset - program, backups, and settings at once). The level is chosen with the same Up/Down/
+Select navigation as picking a service mode function.
 
-| Уровень | Что удаляется |
-|---------|---------------|
-| Settings | настройки устройства |
-| Ladder program | рабочая программа |
-| Backups | все 4 слота |
-| Factory reset | всё перечисленное сразу |
+| Level | What gets deleted |
+|-------|--------------------|
+| Settings | device settings |
+| Ladder program | the working program |
+| Backups | all 4 slots |
+| Factory reset | everything above |
 
-Подтверждение любого сброса - кнопка **UP**; любая другая кнопка отменяет действие.
+Confirming any reset - the **UP** button; any other button cancels.

@@ -1,38 +1,38 @@
-# Web-интерфейс
+# Web interface
 
-Браузер показывает копию экрана устройства и шлёт обратно нажатия кнопок. Отдельного UI под
-браузер нет: это тот же ladder-редактор, что и на OLED, только крупнее.
+The browser shows a copy of the device screen and sends button presses back. There's no
+separate browser UI: it's the same ladder editor as on the OLED, just bigger.
 
-Сервер поднимается, когда устройство подключилось к WiFi-станции, и гаснет при отключении.
-Адрес - тот, что выдал роутер.
+The server comes up once the device connects to a WiFi station, and goes down on
+disconnect. The address is whatever the router assigned.
 
-## Возможности
+## Features
 
-- экран устройства в реальном времени;
-- кнопки Вверх / Вниз / Select с клавиатуры;
-- выгрузка и загрузка программы файлом;
-- смена режима работы;
-- OTA-обновление прошивки.
+- live device screen;
+- Up / Down / Select buttons from the keyboard;
+- downloading and uploading the program as a file;
+- switching the work mode;
+- OTA firmware update.
 
 ## REST API
 
-| URI | Метод | Назначение |
-|-----|-------|------------|
-| `/` , `/main` | GET | страница SPA |
-| `/devconfig` | GET | геометрия экрана и лимит одновременных запросов |
-| `/bitmap` | GET | кадр экрана |
-| `/keypress` | POST | нажатие или отпускание кнопки |
-| `/program/download` | GET | выгрузка программы файлом |
-| `/program/upload` | POST | загрузка программы |
-| `/workmode` | GET | текущий режим работы |
-| `/workmode` | POST | смена режима работы |
-| `/update` | POST | OTA-обновление прошивки |
+| URI | Method | Purpose |
+|-----|--------|---------|
+| `/` , `/main` | GET | SPA page |
+| `/devconfig` | GET | screen geometry and the concurrent request limit |
+| `/bitmap` | GET | screen frame |
+| `/keypress` | POST | button press or release |
+| `/program/download` | GET | download the program as a file |
+| `/program/upload` | POST | upload a program |
+| `/workmode` | GET | current work mode |
+| `/workmode` | POST | change the work mode |
+| `/update` | POST | OTA firmware update |
 
-Ошибки возвращаются как `{"error":"..."}` с типом `application/json`.
+Errors come back as `{"error":"..."}` with type `application/json`.
 
-## Экран
+## Screen
 
-`GET /devconfig` отдаёт то, что нужно браузеру для отрисовки:
+`GET /devconfig` returns what the browser needs to draw the screen:
 
 ```json
 {"display":{"height":64,"width":128,"id":"ssd1306",
@@ -40,72 +40,75 @@
  "request_limit":2}
 ```
 
-`GET /bitmap` отдаёт сырой framebuffer, по биту на пиксель, `application/octet-stream`.
+`GET /bitmap` returns the raw framebuffer, one bit per pixel, `application/octet-stream`.
 
-Кадр не пересылается зря: ответ несёт `ETag` с временем последнего изменения картинки, и
-если браузер прислал совпадающий `If-None-Match`, сервер отвечает `304` без тела.
+The frame isn't sent needlessly: the response carries an `ETag` with the time of the last
+change, and if the browser sent a matching `If-None-Match`, the server replies `304` with
+no body.
 
-Заголовок `X-DataPaging` сообщает, какой участок программы сейчас на экране:
+The `X-DataPaging` header reports which part of the program is currently on screen:
 
 ```json
 {"offset":0,"count":7}
 ```
 
-Заголовок `X-ForceRefresh` есть в каждом ответе (в том числе в `304`) и несёт счётчик,
-который увеличивается при каждой смене режима работы. Браузер сравнивает его с предыдущим
-значением и, увидев расхождение, перечитывает `/workmode`.
+The `X-ForceRefresh` header is present in every response (including `304`) and carries a
+counter that increases on every work mode change. The browser compares it to the previous
+value and, on a mismatch, re-reads `/workmode`.
 
-## Кнопки
+## Buttons
 
 ```
 POST /keypress
 {"key":38,"down":1}
 ```
 
-`key` - код клавиши: 38 стрелка вверх, 40 стрелка вниз, 16 правый Shift.
-`down` - 1 нажатие, 0 отпускание. Событие попадает в ту же группу событий, что и физические
-кнопки, поэтому логика обработки одна.
+`key` - key code: 38 arrow up, 40 arrow down, 16 right Shift.
+`down` - 1 press, 0 release. The event goes into the same event group as the physical
+buttons, so handling logic is shared.
 
-## Программа
+## Program
 
-`GET /program/download` отдаёт программу файлом `program.dat`.
+`GET /program/download` returns the program as a file named `program.dat`.
 
-`POST /program/upload` принимает такой же файл, до `PROGRAM_MAXSIZE` (4 КБ). Загруженная
-программа сначала разбирается; если разбор не удался, возвращается `400`, а с устройства
-перечитывается прежняя программа.
+`POST /program/upload` accepts the same kind of file, up to `PROGRAM_MAXSIZE` (4 KB). The
+uploaded program is parsed first; if parsing fails, `400` is returned and the device
+re-reads the previous program.
 
-Загрузка разрешена только в режиме Stop: если контроллер работает (Run или Debug),
-возвращается `400` с пояснением, тело запроса даже не читается. В web-интерфейсе кнопка
-Upload в таком состоянии заблокирована. Так же запрещена загрузка, пока программа
-редактируется на устройстве, - как и смена режима работы.
+Upload is only allowed in Stop mode: if the controller is running (Run or Debug), `400` is
+returned with an explanation, and the request body isn't even read. In the web interface
+the Upload button is disabled in that state. Upload is also forbidden while the program is
+being edited on the device - same as changing the work mode.
 
-## Режим работы
+## Work mode
 
 ```
 GET  /workmode          -> {"mode":0}
 POST /workmode          <- {"mode":2}
 ```
 
-`0` Stop, `1` Run, `2` Debug. Описание режимов - [WORK_MODES.md](WORK_MODES.md).
+`0` Stop, `1` Run, `2` Debug. See [WORK_MODES.md](WORK_MODES.md) for mode details.
 
-Смена режима запрещена, пока программа редактируется на устройстве: в этом случае
-возвращается `400` с пояснением. Сама смена выполняется в задаче контроллера, а не в задаче
-HTTP: контроллер получает событие и переключает режим в своём цикле.
+Changing the mode is forbidden while the program is being edited on the device: in that
+case `400` is returned with an explanation. The switch itself happens in the controller
+task, not the HTTP task: the controller receives an event and switches the mode in its own
+cycle.
 
-## OTA-обновление
+## OTA update
 
-`POST /update` с файлом прошивки. Размер проверяется до начала записи: файл больше раздела
-(`FIRMWARE_MAXSIZE`, 1 МБ) отвергается с `400`. После успешной записи загрузочный раздел
-переключается на новый, устройство перезагружается.
+`POST /update` with the firmware file. The size is checked before writing starts: a file
+larger than the partition (`FIRMWARE_MAXSIZE`, 1 MB) is rejected with `400`. After a
+successful write the boot partition switches to the new one and the device reboots.
 
 ## Frontend
 
-Angular-приложение в `Web/AtsPLC/`. Собирается отдельно и встраивается в прошивку:
+The Angular app lives in `Web/AtsPLC/`. It's built separately and embedded into the
+firmware:
 
 ```bash
 make web
 make app
 ```
 
-Собранные `index.html`, `favicon.ico`, `main-*.js`, `styles-*.css` попадают в образ через
-`COMPONENT_EMBED_FILES` и отдаются из flash напрямую, без файловой системы.
+The built `index.html`, `favicon.ico`, `main-*.js`, `styles-*.css` end up in the image via
+`COMPONENT_EMBED_FILES` and are served straight from flash, with no filesystem.
