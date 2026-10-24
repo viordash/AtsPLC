@@ -38,7 +38,7 @@ static bool read_file(FILE *file, backups_storage *storage) {
 
     if (fread(&storage->version, 1, sizeof(storage->version), file) != sizeof(storage->version)) {
         ESP_LOGE(TAG_B, "check_file, read version error");
-        return storage;
+        return false;
     }
     uint32_t crc = calc_crc32(CRC32_INIT, &storage->version, sizeof(storage->version));
 

@@ -73,6 +73,23 @@ TEST(BackupsStorageTestsGroup, load) {
     delete[] load_storage.data;
 }
 
+TEST(BackupsStorageTestsGroup, load_if_version_truncated_return_false) {
+    uint8_t truncated_file[] = { 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00 };
+
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", backups_path, backups_storage_name);
+    FILE *file = fopen(filename, "wb");
+    CHECK(file != NULL);
+    CHECK_EQUAL(sizeof(truncated_file), fwrite(truncated_file, 1, sizeof(truncated_file), file));
+    fclose(file);
+
+    mock("backups").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("backups").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+
+    backups_storage storage;
+    CHECK_FALSE(backups_storage_load(backups_storage_name, &storage));
+}
+
 TEST(BackupsStorageTestsGroup, delete_storage) {
     uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
                        0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
