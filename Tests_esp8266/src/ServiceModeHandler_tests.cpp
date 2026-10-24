@@ -57,6 +57,9 @@ namespace {
         static ResetMode PublicMorozov_ChangeResetModeToNext(ResetMode mode) {
             return ChangeResetModeToNext(mode);
         }
+        static void PublicMorozov_GetBackupFilesStat(bool *files_stat, size_t files_count) {
+            GetBackupFilesStat(files_stat, files_count);
+        }
         static void PublicMorozov_DeleteBackupFiles(size_t files_count) {
             DeleteBackupFiles(files_count);
         }
@@ -241,6 +244,33 @@ TEST(ServiceModeHandlerTestsGroup, ChangeResetModeToNext) {
     CHECK_EQUAL(ServiceModeHandler::ResetMode::rd_Settings,
                 TestableServiceModeHandler::PublicMorozov_ChangeResetModeToNext(
                     ServiceModeHandler::ResetMode::rd_FactoryReset));
+}
+
+TEST(ServiceModeHandlerTestsGroup, GetBackupFilesStat) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
+
+    backups_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = BACKUPS_VERSION;
+    backups_storage_store("ladder_1", &storage);
+    backups_storage_store("ladder_4", &storage);
+
+    storage.size = 0;
+    backups_storage_store("ladder_2", &storage);
+
+    storage.size = sizeof(data);
+    storage.version = -1;
+    backups_storage_store("ladder_3", &storage);
+
+    bool files_stat[5];
+    TestableServiceModeHandler::PublicMorozov_GetBackupFilesStat(files_stat, 5);
+
+    CHECK_FALSE(files_stat[0]);
+    CHECK_TRUE(files_stat[1]);
+    CHECK_FALSE(files_stat[2]);
+    CHECK_FALSE(files_stat[3]);
+    CHECK_TRUE(files_stat[4]);
 }
 
 TEST(ServiceModeHandlerTestsGroup, DeleteBackupFiles) {

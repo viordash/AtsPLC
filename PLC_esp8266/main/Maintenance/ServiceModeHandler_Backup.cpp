@@ -108,8 +108,11 @@ void ServiceModeHandler::GetBackupFilesStat(bool *files_stat, size_t files_count
     char backup_name[32];
     for (uint32_t i = 0; i < files_count; i++) {
         CreateBackupName(i, backup_name);
-        files_stat[i] = backups_storage_load(backup_name, &storage) && storage.size > 0
-                     && storage.version == BACKUPS_VERSION;
+        files_stat[i] = false;
+        if (backups_storage_load(backup_name, &storage)) {
+            files_stat[i] = storage.size > 0 && storage.version == BACKUPS_VERSION;
+            delete[] storage.data;
+        }
     }
 }
 
