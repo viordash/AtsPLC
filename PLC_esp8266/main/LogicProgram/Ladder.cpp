@@ -72,6 +72,10 @@ void Ladder::Append(Network *network) {
 
 void Ladder::Duplicate(int network_id) {
     ESP_LOGD(TAG_Ladder, "duplicate network id: %d", network_id);
+    if (items.size() >= Ladder::MaxNetworksCount) {
+        ESP_LOGE(TAG_Ladder, "Duplicate, networks count limit reached");
+        return;
+    }
 
     size_t buf_size = items[network_id]->Serialize(NULL, 0);
     if (buf_size == 0) {

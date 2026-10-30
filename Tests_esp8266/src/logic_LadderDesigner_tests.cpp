@@ -923,3 +923,33 @@ TEST(LogicLadderDesignerTestsGroup,
     testable.HandleButtonSelect();
     CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Selected);
 }
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_does_not_append_network_over_max_count) {
+    TestableLadder testable;
+    for (size_t i = 0; i < Ladder::MaxNetworksCount; i++) {
+        auto network = new Network(NetworkState::nsStopFromActive);
+        network->Append(new InputNC(MapIO::DI));
+        testable.Append(network);
+    }
+    int last = Ladder::MaxNetworksCount - 1;
+    *testable.PublicMorozov_Get_view_top_index() = last - 1;
+    testable[last]->Select();
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(Ladder::MaxNetworksCount, testable.size());
+    CHECK_EQUAL(last - 1, *testable.PublicMorozov_Get_view_top_index());
+    CHECK_TRUE(testable[last]->GetEditable_state() == EditableElement::ElementState::des_Selected);
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network_is_ignored_at_max_count) {
+    TestableLadder testable;
+    for (size_t i = 0; i < Ladder::MaxNetworksCount; i++) {
+        auto network = new Network(NetworkState::nsStopFromActive);
+        network->Append(new InputNC(MapIO::DI));
+        testable.Append(network);
+    }
+
+    testable[0]->SwitchToCopying();
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(Ladder::MaxNetworksCount, testable.size());
+}

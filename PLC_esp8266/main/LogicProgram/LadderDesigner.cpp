@@ -190,11 +190,15 @@ void Ladder::HandleButtonDown() {
             }
             break;
 
-        case EditableElement::ElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected: {
             items[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
-                ScrollDown(&selected_network);
+                bool networks_limit_reached = selected_network + 1 == (int)items.size()
+                                           && items.size() >= Ladder::MaxNetworksCount;
+                if (!networks_limit_reached) {
+                    ScrollDown(&selected_network);
+                }
             }
 
             if (selected_network == (int)items.size()) {
@@ -206,6 +210,7 @@ void Ladder::HandleButtonDown() {
 
             items[selected_network]->Select();
             break;
+        }
 
         case EditableElement::ElementState::des_Editing:
             items[selected_network]->SelectNext();
