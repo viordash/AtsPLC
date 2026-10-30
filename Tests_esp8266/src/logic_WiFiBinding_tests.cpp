@@ -112,6 +112,21 @@ TEST(LogicWiFiBindingTestsGroup,
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }
 
+TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) {
+    mock()
+        .expectNCalls(1, "xTaskGenericNotify")
+        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
+        .ignoreOtherParameters();
+
+    auto testable = new TestableWiFiBinding();
+    testable->SetIoAdr(MapIO::V1);
+    CHECK_TRUE(testable->DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    delete testable;
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+}
+
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
     mock()
         .expectNCalls(2, "xTaskGenericNotify")

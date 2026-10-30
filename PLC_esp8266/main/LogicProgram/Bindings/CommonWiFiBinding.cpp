@@ -1,5 +1,6 @@
 #include "LogicProgram/Bindings/CommonWiFiBinding.h"
 #include "Display/bitmaps/common_wifi_binding.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -26,6 +27,9 @@ CommonWiFiBinding::CommonWiFiBinding(const MapIO io_adr) : CommonWiFiBinding() {
 }
 
 CommonWiFiBinding::~CommonWiFiBinding() {
+    if (state == LogicItemState::lisActive) {
+        Controller::UnbindVariable(GetIoAdr());
+    }
 }
 
 void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
