@@ -24,7 +24,6 @@ HttpServer *httpServer;
 
 void start_http_server() {
     if (http_server_started) {
-        stop_http_server();
         return;
     }
     mainController = new MainController();
