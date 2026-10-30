@@ -25,7 +25,6 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     }
 
     bool any_changes = false;
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     auto network_continuation = Controller::GetNetworkContinuation();
 
@@ -58,7 +57,6 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 IRAM_ATTR void
 ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     start_point->x += LeftPadding;
 

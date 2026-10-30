@@ -25,7 +25,6 @@ bool InputNO::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     ESP_LOGD(TAG_InputNO, "'%s' state:%u, val:%u", label, state, Input->PeekValue());

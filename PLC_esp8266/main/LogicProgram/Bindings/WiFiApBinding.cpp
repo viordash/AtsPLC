@@ -35,8 +35,6 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     if (prev_elem_state == state) {
         return false;
     }
@@ -64,8 +62,6 @@ bool WiFiApBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_st
 
 IRAM_ATTR void
 WiFiApBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
 
     CommonWiFiBinding::Render(fb, prev_elem_state, start_point);

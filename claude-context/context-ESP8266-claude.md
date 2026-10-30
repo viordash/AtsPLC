@@ -80,6 +80,11 @@ OLED 128x64 на ssd1306, шина I2C. Кадр собирается в `FrameB
 | `wifi_task` | обработка очереди запросов WiFi |
 | `datetime_task` | SNTP и сохранение времени в RTC |
 
+Дерево `Ladder -> Network -> LogicElement` трогают три задачи: `ctrl_actions_task` (кнопки,
+`DoAction`), `ctrl_render_task` (`Render`) и httpd (загрузка и выгрузка программы). Любой доступ
+к нему идёт только под `Ladder::GetLockMutex()`. Своих мьютексов у элементов нет: на ESP8266
+каждый `std::mutex` - отдельный FreeRTOS-семафор в heap.
+
 ## RTC-память
 
 `hotreload_service` держит в RTC RAM состояние, которое должно пережить программный

@@ -46,7 +46,6 @@ bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     switch (prev_elem_state) {

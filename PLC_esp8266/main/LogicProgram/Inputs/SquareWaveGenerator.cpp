@@ -37,7 +37,6 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
         Controller::RemoveRequestWakeupMs(this);
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     switch (prev_elem_state) {
@@ -83,8 +82,6 @@ bool SquareWaveGenerator::DoAction(bool prev_elem_changed, LogicItemState prev_e
 
 IRAM_ATTR void
 SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     auto bitmap = GetCurrentBitmap(state);
 
     bool prev_elem_active =

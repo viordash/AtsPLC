@@ -24,8 +24,6 @@ bool ResetOutput::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     if (prev_elem_state == state) {
         return false;
     }

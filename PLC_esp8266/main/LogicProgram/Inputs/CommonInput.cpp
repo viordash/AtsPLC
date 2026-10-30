@@ -29,8 +29,6 @@ void CommonInput::SetIoAdr(const MapIO io_adr) {
 
 IRAM_ATTR void
 CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonInput::EditingPropertyId)editing_property_id
                                       == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr

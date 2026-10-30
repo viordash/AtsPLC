@@ -30,7 +30,6 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
         Controller::RemoveRequestWakeupMs(this);
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     switch (prev_elem_state) {
@@ -68,8 +67,6 @@ bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
 
 IRAM_ATTR void
 CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     auto bitmap = GetCurrentBitmap(state);
 
     bool prev_elem_active =

@@ -34,7 +34,6 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
     if (prev_elem_state != state) {
@@ -86,8 +85,6 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
 IRAM_ATTR void
 DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     bool prev_elem_active =
         prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
     if (prev_elem_active) {

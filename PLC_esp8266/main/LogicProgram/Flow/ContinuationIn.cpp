@@ -26,8 +26,6 @@ bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     if (prev_elem_state == state) {
         return false;
     }
@@ -41,7 +39,6 @@ bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_s
 IRAM_ATTR void
 ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     start_point->x -= RightPadding;
 
