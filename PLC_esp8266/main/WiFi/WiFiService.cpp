@@ -17,8 +17,9 @@ static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService()
-    : scanned_ssids{}, scanned_ssids_count{ 0 }, station_rssi{ LogicElement::MinValue },
-      ap_clients{}, ap_clients_count{ 0 }, task_handle(NULL) {
+    : has_active_request{ false }, scanned_ssids{}, scanned_ssids_count{ 0 },
+      station_rssi{ LogicElement::MinValue }, ap_clients{}, ap_clients_count{ 0 },
+      task_handle(NULL) {
 }
 
 WiFiService::~WiFiService() {
@@ -39,8 +40,6 @@ void WiFiService::Start() {
 
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
-        xTaskNotifyWait(0, STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT, NULL, 0);
-
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
     } else {
@@ -51,7 +50,8 @@ uint8_t WiFiService::ConnectToStation() {
 
 void WiFiService::DisconnectFromStation() {
     ESP_LOGI(TAG_WiFiService, "DisconnectFromStation");
-    xTaskNotify(task_handle, STA_BREAK_BIT, eNotifyAction::eSetBits);
+    RequestItem request = { RequestItemType::wqi_Station, {} };
+    CancelRequest(&request, STA_BREAK_BIT);
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -62,7 +62,6 @@ uint8_t WiFiService::Scan(const char *ssid) {
     }
 
     if (requests.Scan(ssid)) {
-        xTaskNotifyWait(0, SCAN_BREAK_BIT, NULL, 0);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService,
                  "Scan new req, ssid:%s, found:%u, rssi:%u",
@@ -78,12 +77,12 @@ uint8_t WiFiService::Scan(const char *ssid) {
 void WiFiService::CancelScan(const char *ssid) {
     RemoveScannedSsid(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s", ssid);
-    xTaskNotify(task_handle, SCAN_BREAK_BIT, eNotifyAction::eSetBits);
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
+    CancelRequest(&request, SCAN_BREAK_BIT);
 }
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
-        xTaskNotifyWait(0, AP_BREAK_BIT, NULL, 0);
         xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
         ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
     } else {
@@ -92,10 +91,40 @@ size_t WiFiService::AccessPoint(const char *ssid, const char *password, const ch
     return GetApClientsCount(ssid);
 }
 
-void WiFiService::CancelAccessPoint(const char *ssid) {
+void WiFiService::CancelAccessPoint(const char *ssid, const char *password, const char *mac) {
     RemoveApClients(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s", ssid);
-    xTaskNotify(task_handle, AP_BREAK_BIT, eNotifyAction::eSetBits);
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
+    request.Payload.AccessPoint.password = password;
+    request.Payload.AccessPoint.mac = mac;
+    CancelRequest(&request, AP_BREAK_BIT);
+}
+
+bool WiFiService::PopRequest(RequestItem *request) {
+    std::lock_guard<std::mutex> lock(active_request_lock_mutex);
+    has_active_request = requests.Pop(request);
+    if (has_active_request) {
+        active_request = RequestItem(request->Type, request->Payload);
+    }
+    return has_active_request;
+}
+
+void WiFiService::CompleteRequest() {
+    {
+        std::lock_guard<std::mutex> lock(active_request_lock_mutex);
+        has_active_request = false;
+    }
+
+    const uint32_t break_bits = STA_BREAK_BIT | SCAN_BREAK_BIT | AP_BREAK_BIT;
+    xTaskNotifyWait(break_bits, break_bits, NULL, 0);
+}
+
+void WiFiService::CancelRequest(const RequestItem *request, uint32_t break_bit) {
+    std::lock_guard<std::mutex> lock(active_request_lock_mutex);
+    requests.Remove(request);
+    if (has_active_request && active_request.Equals(request)) {
+        xTaskNotify(task_handle, break_bit, eNotifyAction::eSetBits);
+    }
 }
 
 void WiFiService::Task(void *parm) {
@@ -108,7 +137,7 @@ void WiFiService::Task(void *parm) {
 
         ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
-        while (wifi_service->requests.Pop(&new_request)) {
+        while (wifi_service->PopRequest(&new_request)) {
             ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
 
             switch (new_request.Type) {
@@ -127,6 +156,7 @@ void WiFiService::Task(void *parm) {
                 default:
                     break;
             }
+            wifi_service->CompleteRequest();
             ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
         }
     }

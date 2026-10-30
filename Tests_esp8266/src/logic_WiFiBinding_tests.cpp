@@ -82,11 +82,6 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
-
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -97,11 +92,6 @@ TEST(LogicWiFiBindingTestsGroup,
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
-
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToInsecureWiFi(wifi_service, "test_ssid");
@@ -113,11 +103,6 @@ TEST(LogicWiFiBindingTestsGroup,
 }
 
 TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) {
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
-
     auto testable = new TestableWiFiBinding();
     testable->SetIoAdr(MapIO::V1);
     CHECK_TRUE(testable->DoAction(false, LogicItemState::lisActive));
@@ -128,11 +113,6 @@ TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) 
 }
 
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
-    mock()
-        .expectNCalls(2, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", WiFiService::SCAN_BREAK_BIT)
-        .ignoreOtherParameters();
-
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 

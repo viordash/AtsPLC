@@ -4,31 +4,31 @@
 
 static const char *TAG_WiFiRequests = "WiFiRequests";
 
-WiFiRequests::WiFiRequests() : items{}, count{ 0 } {
-}
-
-bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
-    if (a->Type != b->Type) {
+bool RequestItem::Equals(const RequestItem *other) const {
+    if (Type != other->Type) {
         return false;
     }
-    switch (a->Type) {
+    switch (Type) {
         case wqi_Station:
             return true;
 
         case wqi_Scanner:
-            return a->Payload.Scanner.ssid == b->Payload.Scanner.ssid;
+            return Payload.Scanner.ssid == other->Payload.Scanner.ssid;
 
         case wqi_AccessPoint:
-            return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid
-                && a->Payload.AccessPoint.password == b->Payload.AccessPoint.password
-                && a->Payload.AccessPoint.mac == b->Payload.AccessPoint.mac;
+            return Payload.AccessPoint.ssid == other->Payload.AccessPoint.ssid
+                && Payload.AccessPoint.password == other->Payload.AccessPoint.password
+                && Payload.AccessPoint.mac == other->Payload.AccessPoint.mac;
     }
     return true;
 }
 
+WiFiRequests::WiFiRequests() : items{}, count{ 0 } {
+}
+
 bool WiFiRequests::Find(const RequestItem *request) const {
     for (size_t i = 0; i < count; i++) {
-        if (Equals(&items[i], request)) {
+        if (items[i].Equals(request)) {
             return true;
         }
     }
@@ -58,11 +58,30 @@ bool WiFiRequests::Contains(const RequestItem *request) {
 bool WiFiRequests::HasAnother(const RequestItem *current) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (size_t i = 0; i < count; i++) {
-        if (!Equals(&items[i], current)) {
+        if (!items[i].Equals(current)) {
             return true;
         }
     }
     return false;
+}
+
+void WiFiRequests::Remove(const RequestItem *request) {
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    size_t kept = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (items[i].Equals(request)) {
+            continue;
+        }
+        if (kept != i) {
+            items[kept] = std::move(items[i]);
+        }
+        kept++;
+    }
+    ESP_LOGD(TAG_WiFiRequests,
+             "Remove, type:%u, removed:%u",
+             request->Type,
+             (unsigned int)(count - kept));
+    count = kept;
 }
 
 bool WiFiRequests::Scan(const char *ssid) {

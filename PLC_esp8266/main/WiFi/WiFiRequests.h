@@ -39,6 +39,8 @@ struct RequestItem {
         }
         return *this;
     }
+
+    bool Equals(const RequestItem *other) const;
 };
 
 class WiFiRequests {
@@ -46,7 +48,6 @@ class WiFiRequests {
     RequestItem items[WiFi_RequestsLimit];
     size_t count;
     mutable std::mutex lock_mutex;
-    bool Equals(const RequestItem *a, const RequestItem *b) const;
     bool Find(const RequestItem *request) const;
     bool Add(RequestItem *request);
 
@@ -55,6 +56,7 @@ class WiFiRequests {
 
     bool Contains(const RequestItem *request);
     bool HasAnother(const RequestItem *current);
+    void Remove(const RequestItem *request);
 
     bool Scan(const char *ssid);
     bool AccessPoint(const char *ssid, const char *password, const char *mac);

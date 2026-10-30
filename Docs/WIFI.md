@@ -39,6 +39,13 @@ Service order is FIFO.
 While a request of one type is running, a request of another type interrupts it: the
 running task periodically checks its break bit and, once set, finishes and frees the radio.
 
+### Cancellation
+
+`CancelScan`, `CancelAccessPoint` and `DisconnectFromStation` drop the matching requests
+from the queue. The break bit is sent only when the matching request is the one being
+executed right now. After each request the WiFi task clears its break bits, so a late
+cancellation never stops the next request.
+
 ## Station (`WiFiService_Station.cpp`)
 
 Connects to the network saved in settings. Retry count and delay between retries come from

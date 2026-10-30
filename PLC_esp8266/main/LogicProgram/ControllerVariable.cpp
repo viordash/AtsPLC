@@ -86,7 +86,7 @@ void ControllerVariable::CommitChanges() {
         if (out_value != LogicElement::MinValue) {
             wifi_service->AccessPoint(ssid, password, mac);
         } else {
-            wifi_service->CancelAccessPoint(ssid);
+            wifi_service->CancelAccessPoint(ssid, password, mac);
         }
         return;
     }
@@ -146,7 +146,7 @@ void ControllerVariable::CancelReadingProcess() {
         if (insecure_scan) {
             wifi_service->CancelScan(ssid);
         } else if (secure_ap) {
-            wifi_service->CancelAccessPoint(ssid);
+            wifi_service->CancelAccessPoint(ssid, password, mac);
         } else {
             wifi_service->DisconnectFromStation();
         }

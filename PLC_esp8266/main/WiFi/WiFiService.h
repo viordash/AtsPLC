@@ -36,6 +36,10 @@ class WiFiService {
   protected:
     WiFiRequests requests;
 
+    std::mutex active_request_lock_mutex;
+    RequestItem active_request;
+    bool has_active_request;
+
     std::mutex scanned_ssid_lock_mutex;
     ScannedSsid scanned_ssids[WiFi_SsidLimit];
     size_t scanned_ssids_count;
@@ -49,6 +53,10 @@ class WiFiService {
     TaskHandle_t task_handle;
 
     std::mutex station_connect_status_lock_mutex;
+
+    bool PopRequest(RequestItem *request);
+    void CompleteRequest();
+    void CancelRequest(const RequestItem *request, uint32_t break_bit);
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
@@ -108,5 +116,5 @@ class WiFiService {
     void CancelScan(const char *ssid);
 
     size_t AccessPoint(const char *ssid, const char *password, const char *mac);
-    void CancelAccessPoint(const char *ssid);
+    void CancelAccessPoint(const char *ssid, const char *password, const char *mac);
 };
