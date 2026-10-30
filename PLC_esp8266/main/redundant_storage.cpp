@@ -125,14 +125,18 @@ redundant_storage redundant_storage_load(const char *partition_0,
 
     if (storage_0_ready) {
         if (!storage_1_ready) {
+            open_storage(partition_1, path_1);
             write_file(filename_1, &storage_0);
+            close_storage(partition_1);
         } else {
             delete[] storage_1.data;
         }
     }
 
     if (!storage_0_ready && storage_1_ready) {
+        open_storage(partition_0, path_0);
         write_file(filename_0, &storage_1);
+        close_storage(partition_0);
         storage_0 = storage_1;
     }
 

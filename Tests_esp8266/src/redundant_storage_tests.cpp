@@ -122,9 +122,9 @@ TEST(RedundantStorageTestsGroup, second_storage_restored_when_load) {
     CHECK_EQUAL(false, storage_1_exists(settings_storage_name));
 
     mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
-    mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
-    mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
     storage = redundant_storage_load(storage_0_partition,
                                      storage_0_path,
@@ -162,9 +162,9 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
     CHECK_EQUAL(false, storage_0_exists(settings_storage_name));
     CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
 
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
     storage = redundant_storage_load(storage_0_partition,
@@ -206,9 +206,9 @@ TEST(RedundantStorageTestsGroup, first_storage_with_truncated_version_restored_w
     CHECK_EQUAL(sizeof(truncated_file), fwrite(truncated_file, 1, sizeof(truncated_file), file));
     fclose(file);
 
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
     storage = redundant_storage_load(storage_0_partition,
