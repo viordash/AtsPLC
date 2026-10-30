@@ -902,3 +902,24 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__disable_network) {
     testable.HandleButtonSelect();
     CHECK_EQUAL(LogicItemState::lisPassive, testable[0]->GetState());
 }
+
+TEST(LogicLadderDesignerTestsGroup,
+     AdvancedEditing__delete_last_visible_network_keeps_view_top_in_range) {
+    TestableLadder testable;
+    auto network0 = new Network(NetworkState::nsStopFromActive);
+    auto network1 = new Network(NetworkState::nsStopFromActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    *testable.PublicMorozov_Get_view_top_index() = 1;
+    Controller::UpdateUISelected(1);
+
+    testable[1]->SwitchToDeleting();
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(1, testable.size());
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Selected);
+}

@@ -107,7 +107,20 @@ void Ladder::Delete(int network_id) {
     auto network = *it;
     items.erase(it);
     delete network;
+    FitViewTopIndex();
     frame_buffer_req_render = true;
+}
+
+void Ladder::FitViewTopIndex() {
+    int32_t max_view_top_index = (int32_t)items.size() - (int32_t)Ladder::MaxViewPortCount;
+    if (max_view_top_index < 0) {
+        max_view_top_index = 0;
+    }
+    if (view_top_index <= max_view_top_index) {
+        return;
+    }
+    view_top_index = max_view_top_index;
+    Controller::UpdateUIViewTop(view_top_index);
 }
 
 void Ladder::SetViewTopIndex(int32_t index) {

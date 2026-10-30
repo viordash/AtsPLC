@@ -317,6 +317,7 @@ void Ladder::HandleButtonSelect() {
             if (!items[selected_network]->Editing()) {
                 if (RemoveNetworkIfEmpty(selected_network)) {
                     selected_network = -1;
+                    FitViewTopIndex();
                 }
                 Store();
                 Controller::UpdateUISelected(selected_network);

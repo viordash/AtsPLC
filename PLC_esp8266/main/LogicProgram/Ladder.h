@@ -25,6 +25,7 @@ class Ladder {
     EditableElement::ElementState GetDesignState(int selected_network);
     int GetSelectedNetwork();
     bool RemoveNetworkIfEmpty(int network_id);
+    void FitViewTopIndex();
 
   public:
     static constexpr size_t MinNetworksCount = 1;
