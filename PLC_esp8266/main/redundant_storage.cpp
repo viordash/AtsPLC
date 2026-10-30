@@ -58,8 +58,8 @@ static bool read_file(FILE *file, redundant_storage *storage) {
     return true;
 }
 
-static void write_file(const char *path, redundant_storage *storage) {
-    FILE *file = fopen(path, "wb");
+void redundant_storage_write_copy(const char *filename, redundant_storage *storage) {
+    FILE *file = fopen(filename, "wb");
 
     if (file == NULL) {
         ESP_LOGE(TAG_R, "write_file, file open error");
@@ -81,6 +81,15 @@ static void write_file(const char *path, redundant_storage *storage) {
     fclose(file);
 }
 
+bool redundant_storage_read_copy(const char *filename, redundant_storage *storage) {
+    FILE *file = fopen(filename, "rb");
+    bool ready = read_file(file, storage);
+    if (file != NULL) {
+        fclose(file);
+    }
+    return ready;
+}
+
 redundant_storage redundant_storage_load(const char *partition_0,
                                          const char *path_0,
                                          const char *partition_1,
@@ -97,36 +106,26 @@ redundant_storage redundant_storage_load(const char *partition_0,
 
     open_storage(partition_0, path_0);
     snprintf(filename_0, sizeof(filename_0), "%s/%s", path_0, name);
-    FILE *file_0 = fopen(filename_0, "rb");
     redundant_storage storage_0;
-    bool storage_0_ready = read_file(file_0, &storage_0);
+    bool storage_0_ready = redundant_storage_read_copy(filename_0, &storage_0);
     if (!storage_0_ready) {
         memset(&storage_0, 0, sizeof(storage_0));
-    }
-
-    if (file_0 != NULL) {
-        fclose(file_0);
     }
     close_storage(partition_0);
 
     open_storage(partition_1, path_1);
     snprintf(filename_1, sizeof(filename_1), "%s/%s", path_1, name);
-    FILE *file_1 = fopen(filename_1, "rb");
     redundant_storage storage_1;
-    bool storage_1_ready = read_file(file_1, &storage_1);
+    bool storage_1_ready = redundant_storage_read_copy(filename_1, &storage_1);
     if (!storage_1_ready) {
         memset(&storage_1, 0, sizeof(storage_1));
-    }
-
-    if (file_1 != NULL) {
-        fclose(file_1);
     }
     close_storage(partition_1);
 
     if (storage_0_ready) {
         if (!storage_1_ready) {
             open_storage(partition_1, path_1);
-            write_file(filename_1, &storage_0);
+            redundant_storage_write_copy(filename_1, &storage_0);
             close_storage(partition_1);
         } else {
             delete[] storage_1.data;
@@ -135,7 +134,7 @@ redundant_storage redundant_storage_load(const char *partition_0,
 
     if (!storage_0_ready && storage_1_ready) {
         open_storage(partition_0, path_0);
-        write_file(filename_0, &storage_1);
+        redundant_storage_write_copy(filename_0, &storage_1);
         close_storage(partition_0);
         storage_0 = storage_1;
     }
@@ -154,12 +153,12 @@ void redundant_storage_store(const char *partition_0,
     snprintf(filename, sizeof(filename), "%s/%s", path_0, name);
 
     open_storage(partition_0, path_0);
-    write_file(filename, storage);
+    redundant_storage_write_copy(filename, storage);
     close_storage(partition_0);
 
     snprintf(filename, sizeof(filename), "%s/%s", path_1, name);
     open_storage(partition_1, path_1);
-    write_file(filename, storage);
+    redundant_storage_write_copy(filename, storage);
     close_storage(partition_1);
 }
 
