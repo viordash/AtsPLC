@@ -92,6 +92,26 @@ TEST(DisplayTestsGroup, draw_bitmap_from_position_0_1) {
     CHECK_EQUAL(0b00000001, frame_buffer.buffer[15 + DISPLAY_WIDTH * 2]);
 }
 
+TEST(DisplayTestsGroup, draw_bitmap_on_last_page_does_not_write_outside_buffer) {
+    static Bitmap bitmap = {        //
+                             { 8,   // width
+                               8 }, // height
+                             { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }
+    };
+    frame_buffer.has_changes = false;
+    frame_buffer.view_offset = 0;
+    frame_buffer.view_count = 0;
+
+    draw_bitmap(&frame_buffer, 0, DISPLAY_HEIGHT - 7, &bitmap);
+
+    const int last_page = DISPLAY_WIDTH * (DISPLAY_HEIGHT_IN_BYTES - 1);
+    CHECK_EQUAL(0b11111110, frame_buffer.buffer[last_page + 0]);
+    CHECK_EQUAL(0b11111110, frame_buffer.buffer[last_page + 7]);
+    CHECK_FALSE(frame_buffer.has_changes);
+    CHECK_EQUAL(0, frame_buffer.view_offset);
+    CHECK_EQUAL(0, frame_buffer.view_count);
+}
+
 TEST(DisplayTestsGroup, draw_active_network__with_0_width) {
     CHECK_TRUE(draw_active_network(&frame_buffer, 0, 0, 0));
 }

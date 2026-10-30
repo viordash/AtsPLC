@@ -331,7 +331,7 @@ IRAM_ATTR void draw_bitmap(FrameBuffer *fb, uint8_t x, uint8_t y, const struct B
 
             uint8_t b = bitmap->data[src_id];
             fb->buffer[dst_id] |= b << (y % 8);
-            if ((y % 8) > 0 && row + 1 < DISPLAY_HEIGHT) {
+            if ((y % 8) > 0 && row + 8 < DISPLAY_HEIGHT) {
                 fb->buffer[dst_id + DISPLAY_WIDTH] |= b >> (8 - (y % 8));
             }
         }
