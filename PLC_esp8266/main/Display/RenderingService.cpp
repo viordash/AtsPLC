@@ -54,7 +54,10 @@ void RenderingService::Task(void *parm) {
                 std::lock_guard<std::mutex> lock(arg->service->render_mutex);
                 auto fb = begin_render();
                 statusBar.Render(fb);
-                arg->ladder->Render(fb);
+                {
+                    std::lock_guard<std::mutex> ladder_lock(arg->ladder->GetLockMutex());
+                    arg->ladder->Render(fb);
+                }
                 end_render(fb);
                 if (fb->has_changes) {
                     arg->service->last_change_time_ms = time_before_render / 1000;

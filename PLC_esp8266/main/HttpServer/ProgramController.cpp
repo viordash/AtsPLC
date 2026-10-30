@@ -50,34 +50,48 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
 
     char *buffer = new char[req->content_len];
 
-    int received = httpd_req_recv(req, buffer, req->content_len);
-    if (received != (int)req->content_len) {
-        ESP_LOGE(TAG_ProgramController, "Upload, error: '%d'", received);
-        switch (received) {
-            case HTTPD_SOCK_ERR_TIMEOUT:
-                SendError(req, "408 Request Timeout", "Server closed this connection");
-                break;
+    size_t received = 0;
+    while (received < req->content_len) {
+        int res = httpd_req_recv(req, &buffer[received], req->content_len - received);
+        if (res <= 0) {
+            ESP_LOGE(TAG_ProgramController, "Upload, error: '%d'", res);
+            switch (res) {
+                case HTTPD_SOCK_ERR_TIMEOUT:
+                    SendError(req, "408 Request Timeout", "Server closed this connection");
+                    break;
 
-            case HTTPD_SOCK_ERR_INVALID:
-                SendError(req, "400 Bad Request", "invalid request");
-                break;
+                case HTTPD_SOCK_ERR_INVALID:
+                    SendError(req, "400 Bad Request", "invalid request");
+                    break;
 
-            default:
-                SendError(req, "500 Server Error", "receiving error");
-                break;
+                default:
+                    SendError(req, "500 Server Error", "receiving error");
+                    break;
+            }
+            delete[] buffer;
+            return ESP_FAIL;
         }
-        delete[] buffer;
-        return ESP_FAIL;
+        received += res;
     }
-    ESP_LOGI(TAG_ProgramController, "Upload completed, total: %d bytes", received);
+    ESP_LOGI(TAG_ProgramController, "Upload completed, total: %u bytes", (unsigned int)received);
 
-    Controller::GetLadder().RemoveAll();
-    if (Controller::GetLadder().Deserialize((uint8_t *)buffer, received) == 0) {
-        ESP_LOGE(TAG_ProgramController, "Uploaded program has errors");
-        SendError(req, "400 Bad Request", "uploaded program has errors");
-        Controller::GetLadder().Load();
-        delete[] buffer;
-        return ESP_OK;
+    {
+        Ladder &ladder = Controller::GetLadder();
+        std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+        if (ladder.GetWorkMode() != WorkMode::Stop || Controller::InDesign()) {
+            SendError(req, "400 Bad Request", "device state changed, upload is locked");
+            delete[] buffer;
+            return ESP_OK;
+        }
+
+        ladder.RemoveAll();
+        if (ladder.Deserialize((uint8_t *)buffer, received) == 0) {
+            ESP_LOGE(TAG_ProgramController, "Uploaded program has errors");
+            SendError(req, "400 Bad Request", "uploaded program has errors");
+            ladder.Load();
+            delete[] buffer;
+            return ESP_OK;
+        }
     }
 
     delete[] buffer;
@@ -94,20 +108,26 @@ esp_err_t ProgramController::Upload(httpd_req_t *req) {
 esp_err_t ProgramController::Download(httpd_req_t *req) {
     ESP_LOGI(TAG_ProgramController, "Download");
 
-    size_t program_size = Controller::GetLadder().Serialize(NULL, 0);
-    if (program_size == 0) {
-        ESP_LOGE(TAG_ProgramController, "Download, get ladder data error");
-        SendError(req, "500 Server Error", "get ladder data error");
-        return ESP_OK;
-    }
+    Ladder &ladder = Controller::GetLadder();
+    size_t program_size;
+    uint8_t *program_data;
+    {
+        std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+        program_size = ladder.Serialize(NULL, 0);
+        if (program_size == 0) {
+            ESP_LOGE(TAG_ProgramController, "Download, get ladder data error");
+            SendError(req, "500 Server Error", "get ladder data error");
+            return ESP_OK;
+        }
 
-    uint8_t *program_data = new uint8_t[program_size];
+        program_data = new uint8_t[program_size];
 
-    if (Controller::GetLadder().Serialize(program_data, program_size) != program_size) {
-        ESP_LOGE(TAG_ProgramController, "Download, serialize ladder error");
-        SendError(req, "500 Server Error", "serialize ladder error");
-        delete[] program_data;
-        return ESP_OK;
+        if (ladder.Serialize(program_data, program_size) != program_size) {
+            ESP_LOGE(TAG_ProgramController, "Download, serialize ladder error");
+            SendError(req, "500 Server Error", "serialize ladder error");
+            delete[] program_data;
+            return ESP_OK;
+        }
     }
 
     httpd_resp_set_type(req, "application/octet-stream");

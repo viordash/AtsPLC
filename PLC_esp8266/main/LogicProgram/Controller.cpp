@@ -107,12 +107,15 @@ void Controller::ProcessTask(void *parm) {
     network_continuation = LogicItemState::lisPassive;
 
     Ladder &ladder = Controller::ladder;
-    ladder.Load();
-    if (hotreload->is_hotstart) {
-        ladder.SetViewTopIndex(hotreload->view_top_index);
-        ladder.SetSelectedNetworkIndex(hotreload->selected_network);
+    {
+        std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+        ladder.Load();
+        if (hotreload->is_hotstart) {
+            ladder.SetViewTopIndex(hotreload->view_top_index);
+            ladder.SetSelectedNetworkIndex(hotreload->selected_network);
+        }
+        ladder.AtLeastOneNetwork();
     }
-    ladder.AtLeastOneNetwork();
 
     rendering_service->Start(&ladder);
     xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK);
@@ -133,60 +136,63 @@ void Controller::ProcessTask(void *parm) {
 
         ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
 
-        if (uxBits & WORK_MODES_EVENTS_BITS) {
-            Controller::ChangeWorkMode(uxBits);
-        }
-
         bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
         bool do_render = inputs_changed;
-
-        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
-        switch (pressed_button) {
-            case ButtonsPressType::UP_PRESSED:
-                ladder.HandleButtonUp();
-                do_render = true;
-                break;
-            case ButtonsPressType::UP_LONG_PRESSED:
-                ladder.HandleButtonPageUp();
-                do_render = true;
-                break;
-            case ButtonsPressType::DOWN_PRESSED:
-                ladder.HandleButtonDown();
-                do_render = true;
-                break;
-            case ButtonsPressType::DOWN_LONG_PRESSED:
-                ladder.HandleButtonPageDown();
-                do_render = true;
-                break;
-            case ButtonsPressType::SELECT_PRESSED:
-                ladder.HandleButtonSelect();
-                do_render = true;
-                break;
-            case ButtonsPressType::SELECT_LONG_PRESSED:
-                ladder.HandleButtonOption();
-                do_render = true;
-                break;
-            case ButtonsPressType::NOTHING_PRESSED:
-                break;
-        }
-
         bool looped_actions = false;
-        auto cycle_start_time = (uint64_t)esp_timer_get_time();
-        const uint64_t max_cycle_ms = portTICK_PERIOD_MS * 2;
-        auto next_time = cycle_start_time + (max_cycle_ms * 1000);
-        bool expired;
-        do {
-            FetchIOValues();
-            bool any_changes_in_actions = ladder.DoAction();
-            CommitChanges();
-            if (!any_changes_in_actions) {
-                break;
+        {
+            std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+
+            if (uxBits & WORK_MODES_EVENTS_BITS) {
+                Controller::ChangeWorkMode(uxBits);
             }
-            int64_t timespan = next_time - (uint64_t)esp_timer_get_time();
-            expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
-            do_render = true;
-            looped_actions = expired;
-        } while (!expired);
+
+            ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
+            switch (pressed_button) {
+                case ButtonsPressType::UP_PRESSED:
+                    ladder.HandleButtonUp();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::UP_LONG_PRESSED:
+                    ladder.HandleButtonPageUp();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::DOWN_PRESSED:
+                    ladder.HandleButtonDown();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::DOWN_LONG_PRESSED:
+                    ladder.HandleButtonPageDown();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::SELECT_PRESSED:
+                    ladder.HandleButtonSelect();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::SELECT_LONG_PRESSED:
+                    ladder.HandleButtonOption();
+                    do_render = true;
+                    break;
+                case ButtonsPressType::NOTHING_PRESSED:
+                    break;
+            }
+
+            auto cycle_start_time = (uint64_t)esp_timer_get_time();
+            const uint64_t max_cycle_ms = portTICK_PERIOD_MS * 2;
+            auto next_time = cycle_start_time + (max_cycle_ms * 1000);
+            bool expired;
+            do {
+                FetchIOValues();
+                bool any_changes_in_actions = ladder.DoAction();
+                CommitChanges();
+                if (!any_changes_in_actions) {
+                    break;
+                }
+                int64_t timespan = next_time - (uint64_t)esp_timer_get_time();
+                expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
+                do_render = true;
+                looped_actions = expired;
+            } while (!expired);
+        }
 
         if (looped_actions) {
             ESP_LOGD(TAG_Controller, "looped actions");

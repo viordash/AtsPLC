@@ -2,6 +2,7 @@
 #include "Display/EditableElement.h"
 #include "LogicProgram/Network.h"
 #include "LogicProgram/WorkMode.h"
+#include <mutex>
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
@@ -16,6 +17,7 @@
 class Ladder {
   protected:
     std::vector<Network *> items;
+    std::mutex lock_mutex;
     int32_t view_top_index;
     bool frame_buffer_req_render;
     WorkMode work_mode;
@@ -60,4 +62,6 @@ class Ladder {
 
     WorkMode GetWorkMode();
     void ChangeWorkMode(WorkMode new_mode, bool enable_debug);
+
+    std::mutex &GetLockMutex();
 };

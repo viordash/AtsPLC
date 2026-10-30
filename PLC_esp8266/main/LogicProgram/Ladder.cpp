@@ -232,3 +232,7 @@ void Ladder::ChangeWorkMode(WorkMode new_mode, bool enable_debug) {
              (unsigned int)work_mode,
              (unsigned int)enable_debug);
 }
+
+std::mutex &Ladder::GetLockMutex() {
+    return lock_mutex;
+}
