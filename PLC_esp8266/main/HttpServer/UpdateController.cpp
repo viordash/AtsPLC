@@ -59,7 +59,7 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
     int file_size = (int)req->content_len;
     while (file_size > 0) {
         int received = httpd_req_recv(req, buffer, MIN(SCRATCH_BUFSIZE, file_size));
-        if (received < 0) {
+        if (received <= 0) {
             ESP_LOGE(TAG_UpdateController, "ReceiveFile, error: '%d'", received);
             switch (received) {
                 case HTTPD_SOCK_ERR_TIMEOUT:
@@ -74,6 +74,7 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
                     SendHttpError_500(req);
                     break;
             }
+            esp_ota_end(update_handle);
             return false;
         }
         file_size -= received;
@@ -88,6 +89,7 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
                      "Error: esp_ota_write failed! err=0x%x",
                      (unsigned int)err);
             SendHttpError_500(req);
+            esp_ota_end(update_handle);
             return false;
         }
     }
