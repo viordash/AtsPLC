@@ -1021,6 +1021,7 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__invalid_date_fo
 }
 
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_datetime__time_part) {
+    TestableDatetimeService::time_value = { 1626381779, 0 };
     TestableSettingsElement testable;
     *testable.PublicMorozov_Get_discriminator() = SettingsElement::Discriminator::t_current_time;
     strcpy(testable.PublicMorozov_Get_value(), "01:01:01");
