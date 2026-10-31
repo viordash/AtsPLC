@@ -156,18 +156,24 @@ size_t WiFiApBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_password, sizeof(_password), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (strlen(_password) == 0 || strlen(_password) >= sizeof(_password)) {
+    size_t password_len = strnlen(_password, sizeof(_password));
+    if (password_len == 0 || password_len >= sizeof(_password)) {
         return 0;
     }
-    SetPassword(_password);
 
     char _mac[sizeof(mac)];
     if (!Record::Read(&_mac, sizeof(_mac), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (strlen(_mac) == 0 || strlen(_mac) != sizeof(_mac) - 1) {
+    if (strnlen(_mac, sizeof(_mac)) != sizeof(_mac) - 1) {
         return 0;
     }
+    for (size_t i = 0; i < sizeof(_mac) - 1; i++) {
+        if (_mac[i] != mac_wild_char && !isxdigit((unsigned char)_mac[i])) {
+            return 0;
+        }
+    }
+    SetPassword(_password);
     SetMac(_mac);
     return readed;
 }
@@ -392,12 +398,6 @@ void WiFiApBinding::Option() {
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Password_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char;
-                if (IsLastPasswordChar()) {
-                    password[editing_property_id
-                             - WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char] =
-                        place_new_char;
-                }
-
             } else if (editing_property_id
                        <= WiFiApBinding::EditingPropertyId::wbepi_Mac_Last_Char) {
                 editing_property_id = WiFiApBinding::EditingPropertyId::wbepi_None;
@@ -439,7 +439,7 @@ const char *WiFiApBinding::GetMac() {
 void WiFiApBinding::SetMac(const char *mac) {
     size_t s_len = strlen(mac);
     for (size_t i = 0; i < sizeof(this->mac) - 1; i++) {
-        char ch = i < s_len ? toupper(mac[i]) : mac_wild_char;
+        char ch = i < s_len ? toupper((unsigned char)mac[i]) : mac_wild_char;
         this->mac[i] = ch;
     }
     this->mac[sizeof(this->mac) - 1] = 0;

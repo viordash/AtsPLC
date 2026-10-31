@@ -517,6 +517,18 @@ TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
     CHECK_EQUAL(26, readed);
 }
 
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_unterminated_ssid_return_zero) {
+    uint8_t buffer[27] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    memset(&buffer[2], 's', 25);
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+}
+
 TEST(LogicWiFiBindingTestsGroup, GetElementType) {
     TestableWiFiBinding testable;
     CHECK_EQUAL(TvElementType::et_WiFiBinding, testable.GetElementType());
