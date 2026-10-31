@@ -99,6 +99,11 @@
         "expected": "cpp",
         "format": "cpp",
         "stacktrace": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "strstream": "cpp",
+        "netfwd": "cpp",
+        "spanstream": "cpp",
+        "stdfloat": "cpp",
+        "syncstream": "cpp"
     }
 }
