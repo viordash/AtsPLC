@@ -11,14 +11,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INFINITY_CONNECT_RETRY -1
-
 static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
 WiFiService::WiFiService()
     : scanned_ssids{}, scanned_ssids_count{ 0 }, station_rssi{ LogicElement::MinValue },
-      ap_clients{}, ap_clients_count{ 0 }, events(NULL) {
+      station_connect_failures{ 0 }, ap_clients{}, ap_clients_count{ 0 }, events(NULL) {
 }
 
 WiFiService::~WiFiService() {

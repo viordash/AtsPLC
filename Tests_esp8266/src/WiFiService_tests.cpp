@@ -24,7 +24,6 @@ settings.wifi_scanner.per_channel_scan_time_ms = 500;
 settings.wifi_scanner.max_rssi = -26;
 settings.wifi_scanner.min_rssi = -120;
 
-settings.wifi_station.connect_max_retry_count = -1;
 settings.wifi_station.reconnect_delay_ms = 3000;
 settings.wifi_station.scan_station_rssi_period_ms = 5000;
 
@@ -52,6 +51,12 @@ namespace {
         }
         bool PublicMorozov_WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait) {
             return WaitEvent(notified_flags, ticks_to_wait);
+        }
+        uint8_t *PublicMorozov_Get_station_rssi() {
+            return &station_rssi;
+        }
+        uint8_t *PublicMorozov_Get_station_connect_failures() {
+            return &station_connect_failures;
         }
         void PublicMorozov_StationTask(RequestItem *request) {
             StationTask(request);
@@ -526,42 +531,132 @@ TEST(WiFiServiceTestsGroup,
     CHECK_TRUE(testable.PublicMorozov_Get_requests()->Contains(&request_1));
 }
 
-TEST(WiFiServiceTestsGroup, StationTask_if_FAILED_then_reconnect) {
-    mock().expectNCalls(2, "esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
+static void ExpectFailedStationRun(int runs) {
+    mock().expectNCalls(runs, "esp_wifi_set_mode").withIntParameter("mode", WIFI_MODE_STA);
     mock()
-        .expectNCalls(2, "esp_wifi_set_config")
+        .expectNCalls(runs, "esp_wifi_set_config")
         .withIntParameter("interface", ESP_IF_WIFI_STA)
         .ignoreOtherParameters();
-    mock().expectNCalls(2, "esp_wifi_start");
+    mock().expectNCalls(runs, "esp_wifi_start");
 
-    uint32_t notifVal = WiFiService::STA_FAILED_BIT;
+    static uint32_t failed_flags = WiFiService::STA_FAILED_BIT;
     mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
+        .expectNCalls(runs, "xEventGroupWaitBits")
         .withUnsignedIntParameter("xTicksToWait", 5000 / portTICK_PERIOD_MS)
         .ignoreOtherParameters()
-        .andReturnValue(notifVal);
+        .andReturnValue(failed_flags);
 
+    mock().expectNCalls(runs, "esp_wifi_disconnect");
+    mock().expectNCalls(runs, "esp_wifi_stop");
+    mock().expectNCalls(runs * 2, "esp_event_handler_register").ignoreOtherParameters();
+    mock().expectNCalls(runs * 2, "esp_event_handler_unregister").ignoreOtherParameters();
+
+    mock()
+        .expectNCalls(runs, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 500 / portTICK_PERIOD_MS)
+        .ignoreOtherParameters();
+}
+
+TEST(WiFiServiceTestsGroup, StationTask_on_FAILED_stops_station_without_reconnect) {
+    ExpectFailedStationRun(1);
+
+    static uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
     mock()
         .expectNCalls(1, "xEventGroupWaitBits")
         .withUnsignedIntParameter("xTicksToWait", 3000 / portTICK_PERIOD_MS)
         .ignoreOtherParameters();
 
-    uint32_t notifStop = WiFiService::STA_BREAK_BIT;
-    mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
-        .withUnsignedIntParameter("xTicksToWait", 5000 / portTICK_PERIOD_MS)
-        .ignoreOtherParameters()
-        .andReturnValue(notifStop);
+    TestableWiFiService testable;
 
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    RequestItem request = { RequestItemType::wqi_Station, {} };
+    testable.PublicMorozov_StationTask(&request);
+    CHECK_EQUAL(1, *testable.PublicMorozov_Get_station_connect_failures());
+    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
+}
+
+TEST(WiFiServiceTestsGroup, StationTask_on_FAILED_skips_reconnect_delay_if_has_another_request) {
+    ExpectFailedStationRun(1);
+
+    static uint64_t os_us = 0;
     mock()
-        .expectNCalls(1, "xEventGroupWaitBits")
-        .withUnsignedIntParameter("xTicksToWait", 500 / portTICK_PERIOD_MS)
+        .expectNCalls(1, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
+
+    TestableWiFiService testable;
+
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    testable.PublicMorozov_Get_requests()->Scan("test_0");
+
+    RequestItem request = { RequestItemType::wqi_Station, {} };
+    testable.PublicMorozov_StationTask(&request);
+}
+
+TEST(WiFiServiceTestsGroup, StationTask_wakes_ladder_once_when_station_becomes_unavailable) {
+    const int retries_num_before_no_station = 3;
+    const int runs = retries_num_before_no_station + 2;
+    ExpectFailedStationRun(runs);
+
+    static uint64_t os_us = 0;
+    mock()
+        .expectNCalls(runs * 2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", &os_us, sizeof(os_us));
+    mock()
+        .expectNCalls(runs, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 3000 / portTICK_PERIOD_MS)
         .ignoreOtherParameters();
 
-    mock().expectNCalls(2, "esp_wifi_disconnect");
-    mock().expectNCalls(2, "esp_wifi_stop");
-    mock().expectNCalls(2, "esp_event_handler_register").ignoreOtherParameters();
-    mock().expectNCalls(2, "esp_event_handler_unregister").ignoreOtherParameters();
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    TestableWiFiService testable;
+    *testable.PublicMorozov_Get_station_rssi() = 200;
+
+    strcpy(settings.wifi_station.ssid, "test_ssid");
+    strcpy(settings.wifi_station.password, "test_pwd");
+
+    RequestItem request = { RequestItemType::wqi_Station, {} };
+
+    for (int i = 0; i < retries_num_before_no_station; i++) {
+        testable.PublicMorozov_StationTask(&request);
+        CHECK_EQUAL(200, *testable.PublicMorozov_Get_station_rssi());
+        CHECK_EQUAL(i + 1, *testable.PublicMorozov_Get_station_connect_failures());
+    }
+
+    testable.PublicMorozov_StationTask(&request);
+    CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_station_rssi());
+
+    testable.PublicMorozov_StationTask(&request);
+    CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_station_rssi());
+}
+
+TEST(WiFiServiceTestsGroup, StationTask_reconnect_delay_excludes_disconnection_wait) {
+    ExpectFailedStationRun(1);
+
+    static uint64_t disconnection_start_time_us = 0;
+    mock()
+        .expectOneCall("esp_timer_get_time")
+        .withOutputParameterReturning("os_us",
+                                      &disconnection_start_time_us,
+                                      sizeof(disconnection_start_time_us));
+    static uint64_t disconnection_end_time_us = 500 * 1000;
+    mock()
+        .expectOneCall("esp_timer_get_time")
+        .withOutputParameterReturning("os_us",
+                                      &disconnection_end_time_us,
+                                      sizeof(disconnection_end_time_us));
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", (3000 - 500) / portTICK_PERIOD_MS)
+        .ignoreOtherParameters();
 
     TestableWiFiService testable;
 

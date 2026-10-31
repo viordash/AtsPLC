@@ -41,6 +41,7 @@ class WiFiService {
     size_t scanned_ssids_count;
 
     uint8_t station_rssi;
+    uint8_t station_connect_failures;
 
     std::mutex ap_clients_lock_mutex;
     ApClients ap_clients[WiFi_SsidLimit];

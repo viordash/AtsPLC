@@ -113,8 +113,6 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_password;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
-    discriminator = SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
-    CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator = SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
     CHECK_TRUE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
     discriminator =
@@ -241,7 +239,6 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
     strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
     strcpy(settings.wifi_station.password,
            "string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345");
-    settings.wifi_station.connect_max_retry_count = -1;
     settings.wifi_station.reconnect_delay_ms = 1234;
     settings.wifi_station.scan_station_rssi_period_ms = 5678;
     settings.wifi_station.max_rssi = 100;
@@ -268,11 +265,6 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_frendly_format) {
         SettingsElement::Discriminator::t_wifi_station_settings_password;
     testable.PublicMorozov_ReadValue(display_value, true);
     STRCMP_EQUAL("********", display_value);
-
-    *testable.PublicMorozov_Get_discriminator() =
-        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
-    testable.PublicMorozov_ReadValue(display_value, true);
-    STRCMP_EQUAL("infinity", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
@@ -356,7 +348,6 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
     strcpy(settings.wifi_station.ssid, "string_32_0123456789abcdef012345");
     strcpy(settings.wifi_station.password,
            "string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345");
-    settings.wifi_station.connect_max_retry_count = -1;
     settings.wifi_station.reconnect_delay_ms = 1234;
     settings.wifi_station.scan_station_rssi_period_ms = 5678;
     settings.wifi_station.max_rssi = 100;
@@ -383,11 +374,6 @@ TEST(LogicSettingsElementTestsGroup, ReadValue_with_raw_format) {
         SettingsElement::Discriminator::t_wifi_station_settings_password;
     testable.PublicMorozov_ReadValue(display_value, false);
     STRCMP_EQUAL("string_64_0123456789abcdef0123456789abcdef0123456789abcdef012345", display_value);
-
-    *testable.PublicMorozov_Get_discriminator() =
-        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
-    testable.PublicMorozov_ReadValue(display_value, false);
-    STRCMP_EQUAL("-1", display_value);
 
     *testable.PublicMorozov_Get_discriminator() =
         SettingsElement::Discriminator::t_wifi_station_settings_reconnect_delay_ms;
@@ -573,18 +559,6 @@ TEST(LogicSettingsElementTestsGroup, EndEditing_stores_empty_password) {
     STRNCMP_EQUAL("", settings.wifi_station.password, sizeof(settings.wifi_station.password));
 }
 
-TEST(LogicSettingsElementTestsGroup,
-     EndEditing_stores_wifi_station_settings_connect_max_retry_count) {
-    TestableSettingsElement testable;
-    *testable.PublicMorozov_Get_discriminator() =
-        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
-    strcpy(testable.PublicMorozov_Get_value(), "4219");
-
-    testable.EndEditing();
-    load_settings();
-    CHECK_EQUAL(4219, settings.wifi_station.connect_max_retry_count);
-}
-
 TEST(LogicSettingsElementTestsGroup, EndEditing_stores_wifi_station_settings_reconnect_delay_ms) {
     TestableSettingsElement testable;
     *testable.PublicMorozov_Get_discriminator() =
@@ -724,9 +698,9 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_changing_signed_number_symbols)
     TestableSettingsElement testable;
 
     *testable.PublicMorozov_Get_discriminator() =
-        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
+        SettingsElement::Discriminator::t_wifi_station_settings_max_rssi;
 
-    settings.wifi_station.connect_max_retry_count = -1;
+    settings.wifi_station.max_rssi = -1;
     testable.Change();
     testable.Change();
 
@@ -845,10 +819,6 @@ TEST(LogicSettingsElementTestsGroup, SelectPrior_change_discriminator) {
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectPrior();
-    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
-                *testable.PublicMorozov_Get_discriminator());
-
-    testable.SelectPrior();
     CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_password,
                 *testable.PublicMorozov_Get_discriminator());
 
@@ -883,9 +853,9 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_changing_signed_number_symbols) 
     TestableSettingsElement testable;
 
     *testable.PublicMorozov_Get_discriminator() =
-        SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count;
+        SettingsElement::Discriminator::t_wifi_station_settings_max_rssi;
 
-    settings.wifi_station.connect_max_retry_count = -1;
+    settings.wifi_station.max_rssi = -1;
     testable.Change();
     testable.Change();
 
@@ -942,10 +912,6 @@ TEST(LogicSettingsElementTestsGroup, SelectNext_change_discriminator) {
 
     testable.SelectNext();
     CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_password,
-                *testable.PublicMorozov_Get_discriminator());
-
-    testable.SelectNext();
-    CHECK_EQUAL(SettingsElement::Discriminator::t_wifi_station_settings_connect_max_retry_count,
                 *testable.PublicMorozov_Get_discriminator());
 
     testable.SelectNext();

@@ -12,7 +12,7 @@
 
 #define TAG_Ladder "Ladder"
 
-#define LADDER_VERSION ((uint32_t)0x20260822)
+#define LADDER_VERSION ((uint32_t)0x20261031)
 
 class Ladder {
   protected:

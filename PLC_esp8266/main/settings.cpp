@@ -150,12 +150,6 @@ bool validate_settings(CurrentSettings::device_settings *settings) {
         }
         pos++;
     }
-    if (invalid_int(settings->wifi_station.connect_max_retry_count, -1, 7777)) {
-        ESP_LOGI(TAG_settings,
-                 "Invalid wifi_station.connect_max_retry_count, '%d'",
-                 (int)settings->wifi_station.connect_max_retry_count);
-        return false;
-    }
     if (invalid_uint(settings->wifi_station.reconnect_delay_ms, 100, 10 * 60 * 1000)) {
         ESP_LOGI(TAG_settings,
                  "Invalid wifi_station.reconnect_delay_ms, '%u'",

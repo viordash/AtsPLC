@@ -54,8 +54,14 @@ cancellation does not stop it.
 
 ## Station (`WiFiService_Station.cpp`)
 
-Connects to the network saved in settings. Retry count and delay between retries come from
-settings; `-1` means unlimited retries.
+Connects to the network saved in settings. On a connection failure the task ends and frees
+the radio; the next attempt comes with the next station request (`WiFiStaBinding`, or
+`DatetimeService` while SNTP is not running). Before ending, the task waits
+`reconnect_delay_ms` - only when no other request is queued, and minus the time already
+spent waiting for the disconnection.
+
+After four failures in a row the signal level drops to 0 and the program is woken up once;
+a successful connection resets the counter.
 
 The web server comes up once connected and goes down on disconnect.
 

@@ -96,9 +96,6 @@ void SettingsElement::RenderName(FrameBuffer *fb, uint8_t x, uint8_t y) {
             name = "STA: password";
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            name = "STA: retry count max";
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             name = "STA: reconn pause,mS";
             break;
@@ -246,7 +243,6 @@ bool SettingsElement::ValidateDiscriminator(Discriminator discriminator) {
     switch (discriminator) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
-        case t_wifi_station_settings_connect_max_retry_count:
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_max_rssi:
@@ -313,16 +309,6 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
             }
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            if (friendly_format
-                && curr_settings.wifi_station.connect_max_retry_count == INFINITY_CONNECT_RETRY) {
-                strcpy(string_buffer, "infinity");
-            } else {
-                sprintf(string_buffer,
-                        "%d",
-                        (int)curr_settings.wifi_station.connect_max_retry_count);
-            }
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             sprintf(string_buffer,
                     "%u",
@@ -467,9 +453,6 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_password:
             SelectPriorStringSymbol(symbol);
             break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectPriorNumberSymbol(symbol, first ? '-' : 0);
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_min_worktime_ms:
@@ -517,9 +500,6 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
             SelectNextStringSymbol(symbol);
-            break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectNextNumberSymbol(symbol, first ? '-' : 0);
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
@@ -704,9 +684,6 @@ void SettingsElement::EndEditing() {
         case t_wifi_station_settings_password:
             WriteString(curr_settings.wifi_station.password,
                         sizeof(curr_settings.wifi_station.password));
-            break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            curr_settings.wifi_station.connect_max_retry_count = atoi(value);
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
             curr_settings.wifi_station.reconnect_delay_ms = atol(value);
