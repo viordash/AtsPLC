@@ -116,7 +116,7 @@ DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
     if (!blink_label_on_editing) {
         ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
-    top_left.x += 22;
+    top_left.x += 20;
     if (!blink_body_on_editing) {
         draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap);
     }
