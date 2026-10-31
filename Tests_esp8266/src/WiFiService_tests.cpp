@@ -53,12 +53,6 @@ namespace {
         bool PublicMorozov_WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait) {
             return WaitEvent(notified_flags, ticks_to_wait);
         }
-        bool PublicMorozov_PopRequest(RequestItem *request) {
-            return PopRequest(request);
-        }
-        void PublicMorozov_CompleteRequest() {
-            CompleteRequest();
-        }
         void PublicMorozov_StationTask(RequestItem *request) {
             StationTask(request);
         }
@@ -114,6 +108,10 @@ namespace {
 
 TEST(WiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
     TestableWiFiService testable;
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
@@ -129,6 +127,10 @@ TEST(WiFiServiceTestsGroup, ConnectToStation_requests_are_unique) {
 
 TEST(WiFiServiceTestsGroup, Scan_requests_are_unique) {
     TestableWiFiService testable;
+    mock()
+        .expectNCalls(3, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(3, "xEventGroupSetBits").ignoreOtherParameters();
@@ -153,6 +155,10 @@ TEST(WiFiServiceTestsGroup, Scan_requests_are_unique) {
 
 TEST(WiFiServiceTestsGroup, Scan_return_status) {
     TestableWiFiService testable;
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
@@ -168,21 +174,12 @@ TEST(WiFiServiceTestsGroup, Scan_return_status) {
     CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
 }
 
-TEST(WiFiServiceTestsGroup, CancelScan_removes_queued_request_without_break) {
+TEST(WiFiServiceTestsGroup, CancelScan_raises_SCAN_BREAK_BIT) {
     TestableWiFiService testable;
-    char wakeup_bit[32];
-    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
-    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
-    CHECK_EQUAL(LogicElement::MinValue, testable.Scan("ssid_0"));
-    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
-
-    testable.CancelScan("ssid_0");
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
-}
-
-TEST(WiFiServiceTestsGroup, CancelScan_breaks_active_scan) {
-    TestableWiFiService testable;
+    mock()
+        .expectNCalls(1, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
@@ -190,85 +187,140 @@ TEST(WiFiServiceTestsGroup, CancelScan_breaks_active_scan) {
     sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
     mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
-    const char *ssid = "ssid_0";
-    testable.Scan(ssid);
-    RequestItem request;
-    CHECK_TRUE(testable.PublicMorozov_PopRequest(&request));
+    testable.Scan("ssid_0");
 
-    testable.CancelScan(ssid);
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
+    testable.CancelScan("ssid_0");
 }
 
-TEST(WiFiServiceTestsGroup, CancelScan_does_not_break_active_scan_of_another_ssid) {
+TEST(WiFiServiceTestsGroup, DisconnectFromStation_removes_queued_station_request) {
     TestableWiFiService testable;
+    mock()
+        .expectNCalls(2, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
-
-    const char *ssid_0 = "ssid_0";
-    const char *ssid_1 = "ssid_1";
-    testable.Scan(ssid_0);
-    testable.Scan(ssid_1);
-    RequestItem request;
-    CHECK_TRUE(testable.PublicMorozov_PopRequest(&request));
-
-    testable.CancelScan(ssid_1);
-    CHECK_EQUAL(0, testable.PublicMorozov_Get_requests()->Size());
-}
-
-TEST(WiFiServiceTestsGroup, CancelAccessPoint_breaks_active_access_point) {
-    TestableWiFiService testable;
-    char wakeup_bit[32];
-    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
-    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-    char break_bit[32];
-    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
-    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-
-    const char *ssid = "ssid_0";
-    const char *password = "pass";
-    const char *mac = "************";
-    testable.AccessPoint(ssid, password, mac);
-    RequestItem request;
-    CHECK_TRUE(testable.PublicMorozov_PopRequest(&request));
-
-    testable.CancelAccessPoint(ssid, password, mac);
-}
-
-TEST(WiFiServiceTestsGroup, DisconnectFromStation_breaks_active_station) {
-    TestableWiFiService testable;
-    char wakeup_bit[32];
-    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
-    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
     char break_bit[32];
     sprintf(break_bit, "0x%08X", WiFiService::STA_BREAK_BIT);
     mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     testable.ConnectToStation();
-    RequestItem request;
-    CHECK_TRUE(testable.PublicMorozov_PopRequest(&request));
+    testable.Scan("ssid_0");
 
     testable.DisconnectFromStation();
+
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, testable.PublicMorozov_Get_requests()->First()->Type);
 }
 
-TEST(WiFiServiceTestsGroup, CompleteRequest_clears_break_bits_and_stops_breaking) {
+TEST(WiFiServiceTestsGroup, CancelScan_removes_queued_scan_request) {
     TestableWiFiService testable;
-    const uint32_t break_bits =
-        WiFiService::STA_BREAK_BIT | WiFiService::SCAN_BREAK_BIT | WiFiService::AP_BREAK_BIT;
+    mock()
+        .expectNCalls(2, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
-    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
-    char cleared_bits[32];
-    sprintf(cleared_bits, "0x%08X", break_bits);
-    mock(cleared_bits).expectNCalls(1, "xEventGroupClearBits").ignoreOtherParameters();
+    mock(wakeup_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
-    const char *ssid = "ssid_0";
-    testable.Scan(ssid);
-    RequestItem request;
-    CHECK_TRUE(testable.PublicMorozov_PopRequest(&request));
-    testable.PublicMorozov_CompleteRequest();
+    const char *ssid_0 = "ssid_0";
+    const char *ssid_1 = "ssid_1";
+    testable.Scan(ssid_0);
+    testable.Scan(ssid_1);
 
-    testable.CancelScan(ssid);
+    testable.CancelScan(ssid_0);
+
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
+    CHECK_EQUAL(ssid_1, testable.PublicMorozov_Get_requests()->First()->Payload.Scanner.ssid);
+}
+
+TEST(WiFiServiceTestsGroup, CancelAccessPoint_removes_queued_access_point_request) {
+    TestableWiFiService testable;
+    mock()
+        .expectNCalls(2, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    const char *ssid_0 = "ssid_0";
+    const char *ssid_1 = "ssid_1";
+    const char *password = "password";
+    const char *mac = "*";
+    testable.AccessPoint(ssid_0, password, mac);
+    testable.AccessPoint(ssid_1, password, mac);
+
+    testable.CancelAccessPoint(ssid_0, password, mac);
+
+    CHECK_EQUAL(1, testable.PublicMorozov_Get_requests()->Size());
+    CHECK_EQUAL(ssid_1, testable.PublicMorozov_Get_requests()->First()->Payload.AccessPoint.ssid);
+}
+
+TEST(WiFiServiceTestsGroup, ConnectToStation_clears_STA_BREAK_BIT_and_keeps_other_break_bits) {
+    TestableWiFiService testable;
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters()
+        .andReturnValue((uint32_t)(WiFiService::STA_BREAK_BIT | WiFiService::SCAN_BREAK_BIT
+                                   | WiFiService::AP_BREAK_BIT));
+    char kept_bits[32];
+    sprintf(kept_bits, "0x%08X", WiFiService::SCAN_BREAK_BIT | WiFiService::AP_BREAK_BIT);
+    mock(kept_bits).expectOneCall("xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.ConnectToStation();
+}
+
+TEST(WiFiServiceTestsGroup, Scan_clears_SCAN_BREAK_BIT_and_keeps_other_break_bits) {
+    TestableWiFiService testable;
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters()
+        .andReturnValue((uint32_t)(WiFiService::STA_BREAK_BIT | WiFiService::SCAN_BREAK_BIT
+                                   | WiFiService::AP_BREAK_BIT));
+    char kept_bits[32];
+    sprintf(kept_bits, "0x%08X", WiFiService::STA_BREAK_BIT | WiFiService::AP_BREAK_BIT);
+    mock(kept_bits).expectOneCall("xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.Scan("ssid_0");
+}
+
+TEST(WiFiServiceTestsGroup, AccessPoint_clears_AP_BREAK_BIT_and_keeps_other_break_bits) {
+    TestableWiFiService testable;
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters()
+        .andReturnValue((uint32_t)(WiFiService::STA_BREAK_BIT | WiFiService::SCAN_BREAK_BIT
+                                   | WiFiService::AP_BREAK_BIT));
+    char kept_bits[32];
+    sprintf(kept_bits, "0x%08X", WiFiService::STA_BREAK_BIT | WiFiService::SCAN_BREAK_BIT);
+    mock(kept_bits).expectOneCall("xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.AccessPoint("ssid_0", NULL, NULL);
+}
+
+TEST(WiFiServiceTestsGroup, Scan_wakes_up_task_when_no_other_break_bits_to_keep) {
+    TestableWiFiService testable;
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters()
+        .andReturnValue((uint32_t)(WiFiService::SCAN_BREAK_BIT | WiFiService::STA_CONNECTED_BIT));
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectOneCall("xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.Scan("ssid_0");
 }
 
 TEST(WiFiServiceTestsGroup, WaitEvent_reads_and_clears_all_bits) {
@@ -298,6 +350,10 @@ TEST(WiFiServiceTestsGroup, WaitEvent_returns_false_on_timeout) {
 
 TEST(WiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
     TestableWiFiService testable;
+    mock()
+        .expectNCalls(3, "xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", 0)
+        .ignoreOtherParameters();
     char wakeup_bit[32];
     sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
     mock(wakeup_bit).expectNCalls(3, "xEventGroupSetBits").ignoreOtherParameters();

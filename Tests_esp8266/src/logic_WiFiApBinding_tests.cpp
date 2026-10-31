@@ -92,6 +92,10 @@ TEST(LogicWiFiApBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -102,6 +106,10 @@ TEST(LogicWiFiApBindingTestsGroup,
 
 TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToSecureWiFi(wifi_service, "test_ssid", "pasw", "*");
@@ -113,6 +121,10 @@ TEST(LogicWiFiApBindingTestsGroup,
 }
 
 TEST(LogicWiFiApBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
