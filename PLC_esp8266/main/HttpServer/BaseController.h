@@ -12,9 +12,6 @@ class BaseController {
     virtual size_t GetUriHandlers(httpd_uri_t *handlers, size_t capacity) = 0;
 
   protected:
-    esp_err_t
-    GetUrlQueryParamValue(httpd_req_t *req, const char *key, char *value, size_t valueSize);
-
     static esp_err_t SendError(httpd_req_t *req, const char *status, const char *message);
 
     esp_err_t SendHttpError_400(httpd_req_t *req);

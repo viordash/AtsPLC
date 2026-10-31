@@ -6,6 +6,13 @@ separate browser UI: it's the same ladder editor as on the OLED, just bigger.
 The server comes up once the device connects to a WiFi station, and goes down on
 disconnect. The address is whatever the router assigned.
 
+## Access
+
+There is no authentication, by design: the device is meant for a trusted local network,
+and anyone who can reach it there gets full access - screen, buttons, program upload and
+download, work mode and OTA update. Keep the device in a network you control and don't
+forward its port 80 to the internet.
+
 ## Features
 
 - live device screen;
@@ -79,6 +86,28 @@ Upload is only allowed in Stop mode: if the controller is running (Run or Debug)
 returned with an explanation, and the request body isn't even read. In the web interface
 the Upload button is disabled in that state. Upload is also forbidden while the program is
 being edited on the device - same as changing the work mode.
+
+### When an uploaded program is saved
+
+A successful upload replaces the program in RAM only, the copy in flash stays as it was.
+The uploaded program gets into flash the next time the device saves the program by itself:
+
+- the work mode changes (Stop / Run / Debug, from the web interface or `POST /workmode`).
+  Switching to Run after an upload is the usual way to keep it;
+- an edit on the device is confirmed: Select picks a network, Select enters it, Select
+  confirms. This saves the program even when nothing was changed. Finishing a move, copy,
+  delete or disable of a network saves it too.
+
+Until then a restart brings back the previous program from flash. This is what makes an
+upload safe to try: parsing checks the file structure and value ranges, but not whether
+the elements fit on the screen. A hand-edited or foreign `program.dat` (for example, a
+network of five wide elements) passes parsing and then trips an assertion while being
+drawn, and the device restarts - with the previous program.
+
+So look through an uploaded program in Stop mode, scrolling over all its networks, before
+saving it. If a saved program keeps restarting the device, recover in service mode:
+**Restore logic** from a backup slot or **Reset to default** -> Ladder program, see
+[SERVICE_MODE.md](SERVICE_MODE.md).
 
 ## Work mode
 

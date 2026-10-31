@@ -34,8 +34,8 @@ esp_err_t DisplayController::GetDeviceConfig(httpd_req_t *req) {
     char response[256];
     int size = snprintf(response,
                         sizeof(response),
-                        "{\"display\":{\"height\":%u,\"width\":%u,\"id\":\"%s\",\"area_top\":%u,"
-                        "\"area_width\":%u,\"rails_height\":%u},\"request_limit\":%u}",
+                        "{\"display\":{\"height\":%d,\"width\":%d,\"id\":\"%s\",\"area_top\":%d,"
+                        "\"area_width\":%d,\"rails_height\":%d},\"request_limit\":%d}",
                         DISPLAY_HEIGHT,
                         DISPLAY_WIDTH,
                         DISPLAY_ID,

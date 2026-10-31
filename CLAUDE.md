@@ -65,7 +65,7 @@ cd Tests_esp8266 && make -j $(nproc)
 - Use conventional commits format: `type: short description`
 - Types: `build`, `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `tooling`
 - Do NOT add `Co-Authored-By` line
-- Language: English
+- Language: simple English that non-native speakers read easily - common words, no idioms
 
 Example:
 ```
@@ -74,7 +74,10 @@ refactor: use function pointer for TAP device event handling
 
 ## Pull Request Format
 
-- Language: English
+- Language: simple English that non-native speakers read easily:
+  - common words, no idioms or slang, avoid phrasal verbs when a plain verb exists
+  - short sentences, one idea per sentence, active voice
+- Keep it short: a reader should get the point in a minute
 - Format: Markdown
 
 ### Structure
@@ -112,3 +115,5 @@ refactor: use function pointer for TAP device event handling
 - Use bullet points for lists of changes
 - Number main sections (1, 2, 3...)
 - Explain WHY, not just WHAT (e.g., "eliminates atomic check in hot path" instead of just "replaced virtual method")
+- Intro: 2-4 sentences. Sections: 2-5 bullets, one line each where possible
+- Leave out details the diff already shows (helper names, mock setup, commit hashes), unless they explain a behavior change

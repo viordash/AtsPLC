@@ -10,6 +10,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,19 +44,17 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
 
     auto bitmap = GetCurrentBitmap(state);
 
+    uint8_t line_w = std::max<uint8_t>(LeftPadding + label_width, GetElementCursorWidth());
+
     bool prev_elem_active =
         prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
     if (prev_elem_active) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, label_width + LeftPadding));
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, line_w));
     } else {
-        ASSERT(draw_passive_network(fb,
-                                    start_point->x,
-                                    start_point->y,
-                                    label_width + LeftPadding,
-                                    false));
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, line_w, false));
     }
 
-    start_point->x += LeftPadding + label_width;
+    start_point->x += line_w;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonInput::EditingPropertyId)editing_property_id

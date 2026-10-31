@@ -73,11 +73,8 @@ int8_t WiFiService::Scanning(RequestItem *request,
         }
 
         bool notify_wait_timeout =
-            xTaskNotifyWait(0,
-                            SCAN_BREAK_BIT,
-                            &ulNotifiedValue,
-                            scanner_settings->per_channel_scan_time_ms / portTICK_PERIOD_MS)
-            == pdFALSE;
+            !WaitEvent(&ulNotifiedValue,
+                       scanner_settings->per_channel_scan_time_ms / portTICK_PERIOD_MS);
 
         int64_t timespan = timeout_time - (uint64_t)esp_timer_get_time();
         ESP_LOGD(TAG_WiFiService_Scanner,
@@ -161,7 +158,10 @@ void WiFiService::AddScannedSsid(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     ScannedSsid *scanned = FindScanned(ssid);
     if (scanned == NULL) {
-        ASSERT(scanned_ssids_count < WiFi_SsidLimit);
+        if (scanned_ssids_count >= WiFi_SsidLimit) {
+            ESP_LOGE(TAG_WiFiService_Scanner, "AddScannedSsid, no free slot");
+            return;
+        }
         scanned = &scanned_ssids[scanned_ssids_count];
         scanned->ssid = ssid;
         scanned_ssids_count++;

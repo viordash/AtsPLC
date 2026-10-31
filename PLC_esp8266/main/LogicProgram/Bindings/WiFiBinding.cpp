@@ -58,7 +58,7 @@ WiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
 
     CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
 
-    top_left.x += LeftPadding + 22;
+    top_left.x += GetElementCursorWidth() + 22;
     top_left.x += bitmap.size.width + 1;
 
     bool show_edit_ssid = editable_state == EditableElement::ElementState::des_Editing
@@ -135,7 +135,8 @@ size_t WiFiBinding::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_ssid, sizeof(_ssid), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (strlen(_ssid) == 0 || strlen(_ssid) >= sizeof(_ssid)) {
+    size_t ssid_len = strnlen(_ssid, sizeof(_ssid));
+    if (ssid_len == 0 || ssid_len >= sizeof(_ssid)) {
         return 0;
     }
     SetSsid(_ssid);

@@ -75,11 +75,8 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     uint32_t ulNotifiedValue = 0;
     while (true) {
         bool notify_wait_timeout =
-            xTaskNotifyWait(0,
-                            AP_BREAK_BIT,
-                            &ulNotifiedValue,
-                            access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
-            == pdFALSE;
+            !WaitEvent(&ulNotifiedValue,
+                       access_point_settings.generation_time_ms / portTICK_PERIOD_MS);
 
         ESP_LOGD(TAG_WiFiService_AccessPoint,
                  "process, uxBits:0x%08X",
@@ -173,7 +170,10 @@ void WiFiService::AddApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     ApClients *ap = FindApClients(ssid);
     if (ap == NULL) {
-        ASSERT(ap_clients_count < WiFi_SsidLimit);
+        if (ap_clients_count >= WiFi_SsidLimit) {
+            ESP_LOGE(TAG_WiFiService_AccessPoint, "AddApClient, no free ssid slot");
+            return;
+        }
         ap = &ap_clients[ap_clients_count];
         ap->ssid = ssid;
         ap->count = 0;

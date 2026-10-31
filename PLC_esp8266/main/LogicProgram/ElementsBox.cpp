@@ -23,16 +23,22 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, Option
     CalcEntirePlaceWidth(source_element);
     place_width = source_element_width + fill_wire;
     Fill(source_element, options);
+
+    bool source_element_not_offered =
+        std::find(items.begin(), items.end(), source_element) == items.end();
+    if (source_element_not_offered) {
+        delete source_element;
+    }
 }
 
 ElementsBox::~ElementsBox() {
-    auto selected_it = std::find(begin(), end(), GetSelectedElement());
-    erase(selected_it);
+    auto selected_it = std::find(items.begin(), items.end(), GetSelectedElement());
+    items.erase(selected_it);
 
-    while (!empty()) {
-        auto it = begin();
+    while (!items.empty()) {
+        auto it = items.begin();
         auto element = *it;
-        erase(it);
+        items.erase(it);
         ESP_LOGD(TAG_ElementsBox, "delete elem: %p", element);
         delete element;
     }
@@ -271,8 +277,8 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         TvElementType element_type,
                                         FrameBuffer *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
-        selected_index = size();
-        push_back(source_element);
+        selected_index = items.size();
+        items.push_back(source_element);
         return;
     }
 
@@ -303,7 +309,7 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
         return;
     }
     new_element->BeginEditing();
-    push_back(new_element);
+    items.push_back(new_element);
 }
 
 void ElementsBox::Fill(LogicElement *source_element, Options options) {
@@ -347,7 +353,11 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
-    return (*this)[selected_index];
+    return items[selected_index];
+}
+
+size_t ElementsBox::GetCount() {
+    return items.size();
 }
 
 bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
@@ -389,9 +399,9 @@ void ElementsBox::SelectPrior() {
         return;
     }
 
-    DetachElement((*this)[selected_index]);
+    DetachElement(items[selected_index]);
     selected_index++;
-    if (selected_index >= (int)size()) {
+    if (selected_index >= (int)items.size()) {
         selected_index = 0;
     }
     force_do_action_result = true;
@@ -411,10 +421,10 @@ void ElementsBox::SelectNext() {
         return;
     }
 
-    DetachElement((*this)[selected_index]);
+    DetachElement(items[selected_index]);
     selected_index--;
     if (selected_index < 0) {
-        selected_index = size() - 1;
+        selected_index = items.size() - 1;
     }
     force_do_action_result = true;
 }

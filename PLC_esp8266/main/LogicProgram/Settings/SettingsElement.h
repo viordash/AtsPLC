@@ -12,7 +12,6 @@ class SettingsElement : public LogicElement {
     typedef enum { //
         t_wifi_station_settings_ssid = 0,
         t_wifi_station_settings_password,
-        t_wifi_station_settings_connect_max_retry_count,
         t_wifi_station_settings_reconnect_delay_ms,
         t_wifi_station_settings_scan_station_rssi_period_ms,
         t_wifi_station_settings_max_rssi,
@@ -77,10 +76,7 @@ class SettingsElement : public LogicElement {
         cwbepi_Value_Last_Char = cwbepi_Value_First_Char + value_size - 1
     } EditingPropertyId;
 
-    static const uint8_t LeftPadding = 12;
-    static const uint8_t RightPadding = 12;
-    static const uint8_t Width =
-        OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
+    static const uint8_t Width = 97;
     static const uint8_t Height = 22;
     static const uint8_t Top = -(Height / 2);
 

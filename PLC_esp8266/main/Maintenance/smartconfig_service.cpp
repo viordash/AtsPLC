@@ -167,8 +167,8 @@ static void start_process() {
         char pwd[sizeof(wifi_config.sta.password) + 1] = {};
 
         ESP_ERROR_CHECK(esp_wifi_get_config((wifi_interface_t)ESP_IF_WIFI_STA, &wifi_config));
-        memcpy(ssid, wifi_config.sta.ssid, sizeof(ssid));
-        memcpy(pwd, wifi_config.sta.password, sizeof(pwd));
+        memcpy(ssid, wifi_config.sta.ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(pwd, wifi_config.sta.password, sizeof(wifi_config.sta.password));
 
         SAFETY_SETTINGS( //
             memcpy(settings.wifi_station.ssid,
@@ -176,10 +176,10 @@ static void start_process() {
                    sizeof(settings.wifi_station.ssid));
             memcpy(settings.wifi_station.password,
                    wifi_config.sta.password,
-                   sizeof(settings.wifi_station.ssid));
+                   sizeof(settings.wifi_station.password));
             store_settings(); //
         );
-        ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", wifi_config.sta.ssid, pwd);
+        ESP_LOGI(TAG, "store wifi settings, ssid:%s, pwd:%s", ssid, pwd);
     } else {
         xEventGroupSetBits(service.event, STATUS_ERROR_BIT);
     }

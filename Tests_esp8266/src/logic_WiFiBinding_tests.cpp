@@ -82,6 +82,10 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -92,6 +96,10 @@ TEST(LogicWiFiBindingTestsGroup,
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToInsecureWiFi(wifi_service, "test_ssid");
@@ -103,6 +111,10 @@ TEST(LogicWiFiBindingTestsGroup,
 }
 
 TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     auto testable = new TestableWiFiBinding();
     testable->SetIoAdr(MapIO::V1);
     CHECK_TRUE(testable->DoAction(false, LogicItemState::lisActive));
@@ -113,6 +125,10 @@ TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) 
 }
 
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -515,6 +531,18 @@ TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
     strcpy((char *)&buffer[2], "ssid");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(26, readed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_unterminated_ssid_return_zero) {
+    uint8_t buffer[27] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    memset(&buffer[2], 's', 25);
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
 }
 
 TEST(LogicWiFiBindingTestsGroup, GetElementType) {

@@ -92,6 +92,10 @@ TEST(LogicWiFiApBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -102,6 +106,10 @@ TEST(LogicWiFiApBindingTestsGroup,
 
 TEST(LogicWiFiApBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToSecureWiFi(wifi_service, "test_ssid", "pasw", "*");
@@ -113,6 +121,10 @@ TEST(LogicWiFiApBindingTestsGroup,
 }
 
 TEST(LogicWiFiApBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::AP_BREAK_BIT);
+    mock(break_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiApBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -233,6 +245,23 @@ TEST(LogicWiFiApBindingTestsGroup, Change__switching__editing_property_id) {
 
     CHECK_EQUAL(12, strlen(testable.GetMac()));
     STRCMP_EQUAL("000000000000", testable.GetMac());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Option_from_password_to_mac_keeps_password_terminated) {
+    TestableWiFiApBinding testable;
+    testable.SetIoAdr(MapIO::V1);
+    testable.SetSsid("ssid");
+    testable.SetPassword("0123456789abcdef");
+    testable.SetMac("0123456789AB");
+
+    testable.BeginEditing();
+    *testable.PublicMorozov_Get_editing_property_id() =
+        WiFiApBinding::EditingPropertyId::wbepi_Password_First_Char + 3;
+    testable.Option();
+
+    CHECK_EQUAL(WiFiApBinding::EditingPropertyId::wbepi_Mac_First_Char,
+                *testable.PublicMorozov_Get_editing_property_id());
+    STRCMP_EQUAL("0123456789abcdef", testable.GetPassword());
 }
 
 TEST(LogicWiFiApBindingTestsGroup, Ssid_with_partial_length) {
@@ -729,6 +758,50 @@ TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_wrong_mac_return_zero) {
     strcpy((char *)&buffer[44], "0123456789AB");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(56, readed);
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_unterminated_password_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    strcpy((char *)&buffer[2], "ssid");
+    memset(&buffer[27], 'p', 17);
+    strcpy((char *)&buffer[44], "0123456789AB");
+
+    TestableWiFiApBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+}
+
+TEST(LogicWiFiApBindingTestsGroup, Deserialize_with_not_hex_mac_symbols_return_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiApBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    strcpy((char *)&buffer[2], "ssid");
+    strcpy((char *)&buffer[27], "test_secret");
+
+    TestableWiFiApBinding testable;
+
+    strcpy((char *)&buffer[44], "0123456789AG");
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[44], "0123456789A\xF0");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
+
+    strcpy((char *)&buffer[44], "0123456789a*");
+    readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(56, readed);
+    STRCMP_EQUAL("0123456789A*", testable.GetMac());
+}
+
+TEST(LogicWiFiApBindingTestsGroup, ClientMacMatches_with_not_hex_mask_symbols) {
+    const uint8_t mac[6] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB };
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("0123456789A\xF0", mac));
+    CHECK_FALSE(WiFiApBinding::ClientMacMatches("0123456789Az", mac));
+    CHECK_TRUE(WiFiApBinding::ClientMacMatches("0123456789AB", mac));
 }
 
 TEST(LogicWiFiApBindingTestsGroup, GetElementType) {

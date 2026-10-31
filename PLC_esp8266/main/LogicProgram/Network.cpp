@@ -434,8 +434,8 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
     ElementsBox elementBox(fill_wire, new_element, options);
     new_element->EndEditing();
     bool not_enough =
-        elementBox.size() == 0
-        || (elementBox.size() == 1
+        elementBox.GetCount() == 0
+        || (elementBox.GetCount() == 1
             && elementBox.GetSelectedElement()->GetElementType() == TvElementType::et_Wire);
     return !not_enough;
 }

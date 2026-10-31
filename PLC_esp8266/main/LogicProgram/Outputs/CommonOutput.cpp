@@ -9,6 +9,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,15 +33,16 @@ CommonOutput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *sta
 
     auto bitmap = GetCurrentBitmap(state);
 
-    start_point->x -= label_max_width;
+    uint8_t line_w = std::max<uint8_t>(label_max_width, GetElementCursorWidth());
+    start_point->x -= line_w;
 
     EditableElement::Render(fb, start_point);
 
     bool active = state == LogicItemState::lisActive || state == LogicItemState::lisStop;
     if (active) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, label_max_width));
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, line_w));
     } else {
-        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, label_max_width, true));
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, line_w, true));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
@@ -83,6 +85,10 @@ size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     if (!ValidateMapIO(_io_adr)) {
+        return 0;
+    }
+    auto allowed_outputs = GetAllowedOutputs();
+    if (FindAllowedIO(&allowed_outputs, _io_adr) < 0) {
         return 0;
     }
     SetIoAdr(_io_adr);

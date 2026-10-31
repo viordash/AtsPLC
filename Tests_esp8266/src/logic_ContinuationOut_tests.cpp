@@ -38,7 +38,7 @@ TEST(LogicContinuationOutTestsGroup, Render) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(24, start_point.x);
+    CHECK_EQUAL(18, start_point.x);
 }
 
 TEST(LogicContinuationOutTestsGroup, Serialize) {

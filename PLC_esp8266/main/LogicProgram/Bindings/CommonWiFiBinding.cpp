@@ -42,12 +42,16 @@ CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point
     bool prev_elem_active =
         prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
     if (prev_elem_active) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
 

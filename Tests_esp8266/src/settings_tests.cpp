@@ -210,6 +210,53 @@ TEST(SettingsTestsGroup, load_if_stored_size_matches_previous_version_then_migra
     CHECK_EQUAL(1000, settings.adc.scan_period_ms);
 }
 
+TEST(SettingsTestsGroup, load_v20250619_then_migrate_wifi_station_without_retry_count) {
+    MigrateSettings::v20250619::Snapshot::device_settings prev_settings = {};
+    prev_settings.smartconfig.counter = 42;
+    strcpy(prev_settings.wifi_station.ssid, "test_ssid");
+    strcpy(prev_settings.wifi_station.password, "test_pwd");
+    prev_settings.wifi_station.connect_max_retry_count = 7;
+    prev_settings.wifi_station.reconnect_delay_ms = 5000;
+    prev_settings.wifi_station.scan_station_rssi_period_ms = 6000;
+    prev_settings.wifi_station.max_rssi = -20;
+    prev_settings.wifi_station.min_rssi = -100;
+    prev_settings.wifi_station.min_worktime_ms = 12000;
+    prev_settings.wifi_scanner.per_channel_scan_time_ms = 300;
+    prev_settings.wifi_scanner.max_rssi = -30;
+    prev_settings.wifi_scanner.min_rssi = -110;
+    prev_settings.wifi_access_point.generation_time_ms = 90123;
+    prev_settings.wifi_access_point.ssid_hidden = true;
+    strcpy(prev_settings.datetime.sntp_server_primary, "ru.pool.ntp.org");
+    strcpy(prev_settings.datetime.sntp_server_secondary, "pool.ntp.org");
+    strcpy(prev_settings.datetime.timezone, "GMT-3");
+    prev_settings.adc.scan_period_ms = 2500;
+
+    store_raw_settings(MigrateSettings::v20250619::DataMigrate.Version,
+                       &prev_settings,
+                       sizeof(prev_settings));
+
+    memset(&settings, 0, sizeof(settings));
+    load_settings();
+
+    CHECK_EQUAL(42, settings.smartconfig.counter);
+    STRCMP_EQUAL("test_ssid", settings.wifi_station.ssid);
+    STRCMP_EQUAL("test_pwd", settings.wifi_station.password);
+    CHECK_EQUAL(5000, settings.wifi_station.reconnect_delay_ms);
+    CHECK_EQUAL(6000, settings.wifi_station.scan_station_rssi_period_ms);
+    CHECK_EQUAL(-20, settings.wifi_station.max_rssi);
+    CHECK_EQUAL(-100, settings.wifi_station.min_rssi);
+    CHECK_EQUAL(12000, settings.wifi_station.min_worktime_ms);
+    CHECK_EQUAL(300, settings.wifi_scanner.per_channel_scan_time_ms);
+    CHECK_EQUAL(-30, settings.wifi_scanner.max_rssi);
+    CHECK_EQUAL(-110, settings.wifi_scanner.min_rssi);
+    CHECK_EQUAL(90123, settings.wifi_access_point.generation_time_ms);
+    CHECK_TRUE(settings.wifi_access_point.ssid_hidden);
+    STRCMP_EQUAL("ru.pool.ntp.org", settings.datetime.sntp_server_primary);
+    STRCMP_EQUAL("pool.ntp.org", settings.datetime.sntp_server_secondary);
+    STRCMP_EQUAL("GMT-3", settings.datetime.timezone);
+    CHECK_EQUAL(2500, settings.adc.scan_period_ms);
+}
+
 TEST(SettingsTestsGroup, validate_settings) {
     load_settings();
 
@@ -235,15 +282,6 @@ TEST(SettingsTestsGroup, validate_settings) {
     settings.wifi_station.password[0] = '~' + 1;
     CHECK_FALSE(validate_settings(&settings));
     settings.wifi_station.password[0] = '~';
-    CHECK_TRUE(validate_settings(&settings));
-
-    settings.wifi_station.connect_max_retry_count = -1 - 1;
-    CHECK_FALSE(validate_settings(&settings));
-    settings.wifi_station.connect_max_retry_count = 7777 + 1;
-    CHECK_FALSE(validate_settings(&settings));
-    settings.wifi_station.connect_max_retry_count = -1;
-    CHECK_TRUE(validate_settings(&settings));
-    settings.wifi_station.connect_max_retry_count = 7777;
     CHECK_TRUE(validate_settings(&settings));
 
     settings.wifi_station.reconnect_delay_ms = 100 - 1;

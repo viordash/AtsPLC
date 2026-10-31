@@ -68,7 +68,7 @@ void app_main() {
     esp_chip_info(&chip_info);
     printf("This is ESP8266 chip with %u CPU cores, WiFi, , crc32:%u",
            (unsigned int)chip_info.cores,
-           (unsigned int)calc_crc32(CRC32_INIT, &chip_info, sizeof(&chip_info)));
+           (unsigned int)calc_crc32(CRC32_INIT, &chip_info, sizeof(chip_info)));
 
     printf("silicon revision %d, ", chip_info.revision);
 

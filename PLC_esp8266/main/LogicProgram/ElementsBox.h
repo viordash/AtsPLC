@@ -15,7 +15,7 @@ class Indicator;
 class WiFiBinding;
 class WiFiApBinding;
 
-class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
+class ElementsBox : public LogicElement {
   public:
     enum Options {
         show_output_elements = 0x01,
@@ -24,6 +24,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     };
 
   protected:
+    std::vector<LogicElement *> items;
     uint8_t place_width;
     uint8_t source_element_width;
     int selected_index;
@@ -50,6 +51,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();
+    size_t GetCount();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override final;
