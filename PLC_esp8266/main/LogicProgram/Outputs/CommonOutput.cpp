@@ -85,6 +85,10 @@ size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!ValidateMapIO(_io_adr)) {
         return 0;
     }
+    auto allowed_outputs = GetAllowedOutputs();
+    if (FindAllowedIO(&allowed_outputs, _io_adr) < 0) {
+        return 0;
+    }
     SetIoAdr(_io_adr);
     return readed;
 }

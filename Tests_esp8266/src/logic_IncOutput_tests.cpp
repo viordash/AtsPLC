@@ -141,15 +141,29 @@ TEST(LogicIncOutputTestsGroup, Serialize) {
 TEST(LogicIncOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_IncOutput;
-    *((MapIO *)&buffer[1]) = MapIO::O2;
+    *((MapIO *)&buffer[1]) = MapIO::V2;
 
     TestableIncOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
-    CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
-    CHECK(&Controller::O2 == testable.Output);
-    CHECK(&Controller::O2 == testable.Input);
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    CHECK(&Controller::V2 == testable.Output);
+    CHECK(&Controller::V2 == testable.Input);
+}
+
+TEST(LogicIncOutputTestsGroup, Deserialize_with_not_allowed_output_returns_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_IncOutput;
+
+    TestableIncOutput testable;
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::AI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::O1;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
 }
 
 TEST(LogicIncOutputTestsGroup, GetElementType) {

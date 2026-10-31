@@ -148,6 +148,18 @@ TEST(LogicDirectOutputTestsGroup, Deserialize) {
     CHECK(&Controller::O2 == testable.Input);
 }
 
+TEST(LogicDirectOutputTestsGroup, Deserialize_with_input_only_address_returns_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DirectOutput;
+
+    TestableDirectOutput testable;
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::AI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+}
+
 TEST(LogicDirectOutputTestsGroup, GetElementType) {
     TestableDirectOutput testable;
     CHECK_EQUAL(TvElementType::et_DirectOutput, testable.GetElementType());
