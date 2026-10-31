@@ -9,6 +9,7 @@
 #include <string.h>
 
 void Ladder::Load() {
+    // DeleteStorage();
     RemoveAll();
     redundant_storage storage = redundant_storage_load(storage_0_partition,
                                                        storage_0_path,
@@ -25,6 +26,7 @@ void Ladder::Load() {
         || Deserialize(storage.data, storage.size) == 0) {
         ESP_LOGI(TAG_Ladder, "Nothing to load");
         RemoveAll();
+        InitialLoad();
         ChangeWorkMode(work_mode, hotreload->enable_debug);
     }
     delete[] storage.data;

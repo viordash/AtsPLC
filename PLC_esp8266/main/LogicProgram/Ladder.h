@@ -26,6 +26,7 @@ class Ladder {
     int GetSelectedNetwork();
     bool RemoveNetworkIfEmpty(int network_id);
     void FitViewTopIndex();
+    void InitialLoad();
 
   public:
     static constexpr size_t MinNetworksCount = 1;
