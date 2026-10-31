@@ -173,7 +173,10 @@ void WiFiService::AddApClient(const char *ssid, t_mac mac) {
     std::lock_guard<std::mutex> lock(ap_clients_lock_mutex);
     ApClients *ap = FindApClients(ssid);
     if (ap == NULL) {
-        ASSERT(ap_clients_count < WiFi_SsidLimit);
+        if (ap_clients_count >= WiFi_SsidLimit) {
+            ESP_LOGE(TAG_WiFiService_AccessPoint, "AddApClient, no free ssid slot");
+            return;
+        }
         ap = &ap_clients[ap_clients_count];
         ap->ssid = ssid;
         ap->count = 0;

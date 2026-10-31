@@ -161,7 +161,10 @@ void WiFiService::AddScannedSsid(const char *ssid, uint8_t rssi) {
     std::lock_guard<std::mutex> lock(scanned_ssid_lock_mutex);
     ScannedSsid *scanned = FindScanned(ssid);
     if (scanned == NULL) {
-        ASSERT(scanned_ssids_count < WiFi_SsidLimit);
+        if (scanned_ssids_count >= WiFi_SsidLimit) {
+            ESP_LOGE(TAG_WiFiService_Scanner, "AddScannedSsid, no free slot");
+            return;
+        }
         scanned = &scanned_ssids[scanned_ssids_count];
         scanned->ssid = ssid;
         scanned_ssids_count++;
