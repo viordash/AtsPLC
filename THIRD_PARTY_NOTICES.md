@@ -13,6 +13,14 @@ components below are distributed under their own licenses, which are not changed
 | BitOCRA font, (c) Aaron Christianson | `PLC_esp8266/main/Display/fonts/data/font_bitocra_*` | SIL Open Font License 1.1 |
 | GLCD 5x7 font, (c) 2012 Majenko Technologies | `PLC_esp8266/main/Display/fonts/data/font_glcd_5x7.h` | BSD-style, see file header |
 | Roboto font, (c) Google | `PLC_esp8266/main/Display/fonts/data/font_roboto_*` | Apache License 2.0 |
+| CRC-32 table and routine, (c) 1986 Gary S. Brown | `PLC_esp8266/main/crc32.cpp` | free use without restriction, see file header |
+
+## Bundled in the unit tests
+
+| Component | Location | License |
+|-----------|----------|---------|
+| ESP8266_RTOS_SDK header stubs, (c) Espressif Systems | `Tests_esp8266/src/esp8266/`, `Tests_esp8266/src/driver/` | Apache License 2.0, ESPRESSIF MIT License, see file headers |
+| lwIP SNTP header, (c) Frédéric Bernon, Simon Goldschmidt | `Tests_esp8266/src/esp8266/lwip/apps/sntp.h` | BSD 3-Clause, see file header |
 
 ## Git submodules
 
