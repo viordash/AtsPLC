@@ -38,6 +38,8 @@ void WiFiService::StationTask(RequestItem *request) {
     if (!has_wifi_sta_settings) {
         ESP_LOGW(TAG_WiFiService_Station, "no creds saved");
         station_rssi = LogicElement::MinValue;
+        uint32_t new_request_flags = 0;
+        WaitEvent(&new_request_flags, portMAX_DELAY);
         return;
     }
 

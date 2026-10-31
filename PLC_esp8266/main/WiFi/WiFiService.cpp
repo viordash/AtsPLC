@@ -4,7 +4,6 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <cassert>
@@ -120,37 +119,40 @@ void WiFiService::CancelAccessPoint(const char *ssid, const char *password, cons
     xEventGroupSetBits(events, AP_BREAK_BIT);
 }
 
+void WiFiService::RaiseSettingsChanged() {
+    ESP_LOGI(TAG_WiFiService, "RaiseSettingsChanged");
+    xEventGroupSetBits(events, SETTINGS_CHANGED_BIT);
+}
+
 void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    uint32_t ulNotifiedValue = 0;
     while (true) {
-        ASSERT(wifi_service->WaitEvent(&ulNotifiedValue, portMAX_DELAY));
-
-        ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
-        while (wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
-
-            switch (new_request.Type) {
-                case wqi_Station:
-                    wifi_service->StationTask(&new_request);
-                    break;
-
-                case wqi_Scanner:
-                    wifi_service->ScannerTask(&new_request);
-                    break;
-
-                case wqi_AccessPoint:
-                    wifi_service->AccessPointTask(&new_request);
-                    break;
-
-                default:
-                    break;
-            }
-            ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
+        if (!wifi_service->requests.Pop(&new_request)) {
+            new_request = { RequestItemType::wqi_Station, {} };
+            ESP_LOGD(TAG_WiFiService, "no requests, default to station");
         }
+        ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
+
+        switch (new_request.Type) {
+            case wqi_Station:
+                wifi_service->StationTask(&new_request);
+                break;
+
+            case wqi_Scanner:
+                wifi_service->ScannerTask(&new_request);
+                break;
+
+            case wqi_AccessPoint:
+                wifi_service->AccessPointTask(&new_request);
+                break;
+
+            default:
+                break;
+        }
+        ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
     }
 
     ESP_LOGW(TAG_WiFiService, "Finish task");

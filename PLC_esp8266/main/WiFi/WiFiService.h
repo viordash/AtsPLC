@@ -99,6 +99,7 @@ class WiFiService {
     static const int STA_BREAK_BIT = BIT3;
     static const int SCAN_BREAK_BIT = BIT4;
     static const int AP_BREAK_BIT = BIT5;
+    static const int SETTINGS_CHANGED_BIT = BIT6;
     static const int WAKEUP_BIT = BIT23;
 
     WiFiService();
@@ -114,4 +115,6 @@ class WiFiService {
 
     size_t AccessPoint(const char *ssid, const char *password, const char *mac);
     void CancelAccessPoint(const char *ssid, const char *password, const char *mac);
+
+    void RaiseSettingsChanged();
 };

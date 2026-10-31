@@ -269,6 +269,15 @@ TEST(WiFiServiceTestsGroup, CancelAccessPoint_removes_queued_access_point_reques
     CHECK_EQUAL(ssid_1, testable.PublicMorozov_Get_requests()->First()->Payload.AccessPoint.ssid);
 }
 
+TEST(WiFiServiceTestsGroup, RaiseSettingsChanged_raises_SETTINGS_CHANGED_BIT) {
+    TestableWiFiService testable;
+    char settings_changed_bit[32];
+    sprintf(settings_changed_bit, "0x%08X", WiFiService::SETTINGS_CHANGED_BIT);
+    mock(settings_changed_bit).expectOneCall("xEventGroupSetBits").ignoreOtherParameters();
+
+    testable.RaiseSettingsChanged();
+}
+
 TEST(WiFiServiceTestsGroup, ConnectToStation_clears_STA_BREAK_BIT_and_keeps_other_break_bits) {
     TestableWiFiService testable;
     mock()
@@ -381,16 +390,22 @@ TEST(WiFiServiceTestsGroup, AccessPoint_requests_are_unique) {
     CHECK_EQUAL(3, testable.PublicMorozov_Get_requests()->Size());
 }
 
-TEST(WiFiServiceTestsGroup, StationTask_returns_immediatelly_if_no_stored_wifi_creds) {
+TEST(WiFiServiceTestsGroup, StationTask_waits_for_new_request_if_no_stored_wifi_creds) {
     TestableWiFiService testable;
+    *testable.PublicMorozov_Get_station_rssi() = 200;
 
     settings.wifi_station.ssid[0] = 0;
     settings.wifi_station.password[0] = 0;
 
     mock().expectNoCall("esp_wifi_start");
-    mock().expectNoCall("xEventGroupWaitBits");
+    mock()
+        .expectOneCall("xEventGroupWaitBits")
+        .withUnsignedIntParameter("xTicksToWait", portMAX_DELAY)
+        .ignoreOtherParameters()
+        .andReturnValue((uint32_t)WiFiService::SETTINGS_CHANGED_BIT);
     RequestItem request = { RequestItemType::wqi_Station, {} };
     testable.PublicMorozov_StationTask(&request);
+    CHECK_EQUAL(LogicElement::MinValue, *testable.PublicMorozov_Get_station_rssi());
 }
 
 TEST(WiFiServiceTestsGroup, StationTask_calls_connect) {

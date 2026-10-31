@@ -756,6 +756,20 @@ void SettingsElement::EndEditing() {
                 case t_datetime_timezone:
                     Controller::RestartSntp();
                     break;
+                case t_wifi_station_settings_ssid:
+                case t_wifi_station_settings_password:
+                case t_wifi_station_settings_reconnect_delay_ms:
+                case t_wifi_station_settings_scan_station_rssi_period_ms:
+                case t_wifi_station_settings_max_rssi:
+                case t_wifi_station_settings_min_rssi:
+                case t_wifi_station_settings_min_worktime_ms:
+                case t_wifi_scanner_settings_per_channel_scan_time_ms:
+                case t_wifi_scanner_settings_max_rssi:
+                case t_wifi_scanner_settings_min_rssi:
+                case t_wifi_access_point_settings_generation_time_ms:
+                case t_wifi_access_point_settings_ssid_hidden:
+                    Controller::RaiseWiFiSettingsChanged();
+                    break;
                 default:
                     break;
             }

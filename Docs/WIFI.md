@@ -54,11 +54,18 @@ cancellation does not stop it.
 
 ## Station (`WiFiService_Station.cpp`)
 
-Connects to the network saved in settings. On a connection failure the task ends and frees
-the radio; the next attempt comes with the next station request (`WiFiStaBinding`, or
-`DatetimeService` while SNTP is not running). Before ending, the task waits
-`reconnect_delay_ms` - only when no other request is queued, and minus the time already
-spent waiting for the disconnection.
+The station is the default mode: when the queue is empty, the WiFi task runs the station
+without a request. Scanner and access point requests take the radio for a while and give
+it back. `DisconnectFromStation` frees the radio rather than turning the station off: with
+an empty queue the station comes up again right away. Only an empty ssid in settings keeps
+the station off.
+
+Connects to the network saved in settings. Without a saved ssid the task leaves the radio
+alone and waits for a new request or for a WiFi settings change made by the settings
+element. On a connection failure the task ends and frees the radio; the next attempt comes
+with a `WiFiStaBinding` request or when the queue is empty again. Before ending, the task
+waits `reconnect_delay_ms` - only when no other request is queued, and minus the time
+already spent waiting for the disconnection.
 
 After four failures in a row the signal level drops to 0 and the program is woken up once;
 a successful connection resets the counter.
