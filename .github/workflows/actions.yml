@@ -8,6 +8,7 @@ on:
 
 jobs:
   Analysis-and-Style:
+    needs: Tests-esp-idf
     runs-on: ubuntu-22.04
 
     steps:
@@ -53,6 +54,7 @@ jobs:
 
       
   Build-ota-bin:
+    needs: Tests-esp-idf
     runs-on: ubuntu-22.04
 
     steps:
