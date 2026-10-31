@@ -6,6 +6,13 @@ separate browser UI: it's the same ladder editor as on the OLED, just bigger.
 The server comes up once the device connects to a WiFi station, and goes down on
 disconnect. The address is whatever the router assigned.
 
+## Access
+
+There is no authentication, by design: the device is meant for a trusted local network,
+and anyone who can reach it there gets full access - screen, buttons, program upload and
+download, work mode and OTA update. Keep the device in a network you control and don't
+forward its port 80 to the internet.
+
 ## Features
 
 - live device screen;
