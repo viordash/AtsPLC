@@ -56,11 +56,7 @@ void WiFiService::StationTask(RequestItem *request) {
 
     while (true) {
         if (ulNotifiedValue == 0) {
-            if (xTaskNotifyWait(0,
-                                STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT,
-                                &ulNotifiedValue,
-                                scan_station_rssi_period_ms / portTICK_PERIOD_MS)
-                != pdPASS) {
+            if (!WaitEvent(&ulNotifiedValue, scan_station_rssi_period_ms / portTICK_PERIOD_MS)) {
                 if (has_connect && !ObtainStationRssi()) {
                     ulNotifiedValue = STA_FAILED_BIT;
                 }
@@ -113,12 +109,7 @@ void WiFiService::StationTask(RequestItem *request) {
             Controller::StopSntp();
             Disconnect();
 
-            bool delay_before_reconnect =
-                xTaskNotifyWait(0,
-                                STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT,
-                                &ulNotifiedValue,
-                                reconnect_delay)
-                == pdFALSE;
+            bool delay_before_reconnect = !WaitEvent(&ulNotifiedValue, reconnect_delay);
             if (delay_before_reconnect) {
                 Connect(&wifi_config);
                 ulNotifiedValue = 0;
@@ -147,11 +138,7 @@ void WiFiService::StationTask(RequestItem *request) {
                 ESP_LOGI(TAG_WiFiService_Station,
                          "Wait %u ticks before disconnect",
                          (unsigned int)delay_before_disconnect);
-                bool timeout = xTaskNotifyWait(0,
-                                               STA_BREAK_BIT | STA_FAILED_BIT,
-                                               &ulNotifiedValue,
-                                               delay_before_disconnect)
-                            == pdFALSE;
+                bool timeout = !WaitEvent(&ulNotifiedValue, delay_before_disconnect);
                 if (timeout) {
                     break;
                 }
@@ -169,8 +156,7 @@ void WiFiService::StationTask(RequestItem *request) {
         esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler));
 
     const TickType_t wait_disconnection = 500 / portTICK_PERIOD_MS;
-    if (xTaskNotifyWait(0, STA_CONNECTED_BIT | STA_FAILED_BIT, &ulNotifiedValue, wait_disconnection)
-        != pdTRUE) {
+    if (!WaitEvent(&ulNotifiedValue, wait_disconnection)) {
         ESP_LOGI(TAG_WiFiService_Station, "not fully disconnected");
     }
 
@@ -206,7 +192,7 @@ void WiFiService::wifi_event_handler(void *arg,
 
         case WIFI_EVENT_STA_DISCONNECTED:
             ESP_LOGD(TAG_WiFiService_Station, "connect to the AP fail");
-            xTaskNotify(wifi_service->task_handle, STA_FAILED_BIT, eNotifyAction::eSetBits);
+            xEventGroupSetBits(wifi_service->events, STA_FAILED_BIT);
             return;
 
         case WIFI_EVENT_STA_STOP:
@@ -239,5 +225,5 @@ void WiFiService::ip_event_handler(void *arg,
     ESP_LOGD(TAG_WiFiService_Station,
              "got ip:%s",
              ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
-    xTaskNotify(wifi_service->task_handle, STA_CONNECTED_BIT, eNotifyAction::eSetBits);
+    xEventGroupSetBits(wifi_service->events, STA_CONNECTED_BIT);
 }

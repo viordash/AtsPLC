@@ -189,11 +189,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_wifi_sta_client_calls_Co
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     testable.BindToStaWiFi(&wifi_service);
@@ -221,11 +219,9 @@ TEST(LogicControllerVariableTestsGroup,
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     wifi_service.ConnectToStation();
@@ -241,11 +237,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_InsecureWiFi_calls_Scann
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     testable.BindToInsecureWiFi(&wifi_service, "any_ssid");
@@ -260,11 +254,9 @@ TEST(LogicControllerVariableTestsGroup, CommitChanges_for_InsecureWiFi_calls_Acc
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     testable.BindToInsecureWiFi(&wifi_service, "any_ssid");
@@ -280,11 +272,9 @@ TEST(LogicControllerVariableTestsGroup, CancelReadingProcess_from_InsecureWiFi_c
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     const char *ssid = "any_ssid";
@@ -301,11 +291,9 @@ TEST(LogicControllerVariableTestsGroup, FetchValue_from_SecureWiFi_calls_AccessP
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     testable.BindToSecureWiFi(&wifi_service, "any_ssid", "pass", "************");
@@ -333,11 +321,9 @@ TEST(LogicControllerVariableTestsGroup,
     TestableControllerVariable testable;
     testable.Init();
 
-    mock()
-        .expectNCalls(1, "xTaskGenericNotify")
-        .withUnsignedIntParameter("ulValue", 0)
-        .withIntParameter("eAction", eNotifyAction::eNoAction)
-        .ignoreOtherParameters();
+    char wakeup_bit[32];
+    sprintf(wakeup_bit, "0x%08X", WiFiService::WAKEUP_BIT);
+    mock(wakeup_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiService wifi_service;
     const char *ssid = "any_ssid";

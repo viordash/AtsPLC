@@ -50,9 +50,11 @@ class WiFiService {
     ApClients ap_clients[WiFi_SsidLimit];
     size_t ap_clients_count;
 
-    TaskHandle_t task_handle;
+    EventGroupHandle_t events;
 
     std::mutex station_connect_status_lock_mutex;
+
+    bool WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait);
 
     bool PopRequest(RequestItem *request);
     void CompleteRequest();
@@ -103,6 +105,7 @@ class WiFiService {
     static const int STA_BREAK_BIT = BIT3;
     static const int SCAN_BREAK_BIT = BIT4;
     static const int AP_BREAK_BIT = BIT5;
+    static const int WAKEUP_BIT = BIT23;
 
     WiFiService();
     ~WiFiService();
