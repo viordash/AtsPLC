@@ -5,7 +5,6 @@
 #include "LogicProgram/LogicItemState.h"
 #include "LogicProgram/MapIO.h"
 #include "LogicProgram/Serializer/TypeValueElement.h"
-#include <mutex>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -14,11 +13,12 @@ class ElementsBox;
 
 class LogicElement : public EditableElement {
   protected:
-    std::mutex lock_mutex;
     LogicItemState state;
 
     friend Network;
     friend ElementsBox;
+
+    bool DoActionGuard(bool prev_elem_changed, LogicItemState prev_elem_state);
 
   public:
     static const uint8_t MinValue = 0;

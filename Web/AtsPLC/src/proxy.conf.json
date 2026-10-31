@@ -1,0 +1,22 @@
+{
+	"/devconfig": {
+		"target": "http://127.0.0.1:8080",
+		"secure": false
+	},
+	"/bitmap": {
+		"target": "http://127.0.0.1:8080",
+		"secure": false
+	},
+	"/workmode": {
+		"target": "http://127.0.0.1:8080",
+		"secure": false
+	},
+	"/keypress": {
+		"target": "http://127.0.0.1:8080",
+		"secure": false
+	},
+	"/program": {
+		"target": "http://127.0.0.1:8080",
+		"secure": false
+	}
+}

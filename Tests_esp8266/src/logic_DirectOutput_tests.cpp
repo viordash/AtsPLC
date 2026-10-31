@@ -15,13 +15,17 @@
 #include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicDirectOutputTestsGroup){ //
                                          TEST_SETUP(){ mock().disable();
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
 }
 }
@@ -142,6 +146,18 @@ TEST(LogicDirectOutputTestsGroup, Deserialize) {
     CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
     CHECK(&Controller::O2 == testable.Output);
     CHECK(&Controller::O2 == testable.Input);
+}
+
+TEST(LogicDirectOutputTestsGroup, Deserialize_with_input_only_address_returns_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_DirectOutput;
+
+    TestableDirectOutput testable;
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::AI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
 }
 
 TEST(LogicDirectOutputTestsGroup, GetElementType) {

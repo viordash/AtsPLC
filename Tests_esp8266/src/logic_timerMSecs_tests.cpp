@@ -27,22 +27,22 @@ namespace {
     };
 } // namespace
 
-TEST(LogicTimerMSecsTestsGroup, Time_in_limit_50_to_99999) {
+TEST(LogicTimerMSecsTestsGroup, Time_in_limit_50_to_99950) {
     TimerMSecs testable_0;
     testable_0.SetTime(0);
     CHECK_EQUAL(50 * 1000LL, testable_0.GetTimeUs());
 
-    TimerMSecs testable_99998;
-    testable_99998.SetTime(99998);
-    CHECK_EQUAL(99998 * 1000LL, testable_99998.GetTimeUs());
+    TimerMSecs testable_99900;
+    testable_99900.SetTime(99900);
+    CHECK_EQUAL(99900 * 1000LL, testable_99900.GetTimeUs());
 
-    TimerMSecs testable_99999;
-    testable_99999.SetTime(99999);
-    CHECK_EQUAL(99999 * 1000LL, testable_99999.GetTimeUs());
+    TimerMSecs testable_99950;
+    testable_99950.SetTime(99950);
+    CHECK_EQUAL(99950 * 1000LL, testable_99950.GetTimeUs());
 
-    TimerMSecs testable_100000;
-    testable_100000.SetTime(100000);
-    CHECK_EQUAL(99999 * 1000LL, testable_100000.GetTimeUs());
+    TimerMSecs testable_99951;
+    testable_99951.SetTime(99951);
+    CHECK_EQUAL(99950 * 1000LL, testable_99951.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, Serialize) {
@@ -115,7 +115,7 @@ TEST(LogicTimerMSecsTestsGroup, Deserialize_with_less_value_return_zero) {
 TEST(LogicTimerMSecsTestsGroup, Deserialize_with_greater_value_return_zero) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_TimerMSecs;
-    *((uint64_t *)&buffer[1]) = 99999 * 1000LL + 1;
+    *((uint64_t *)&buffer[1]) = 99950 * 1000LL + 1;
 
     TimerMSecs testable;
 
@@ -148,9 +148,9 @@ TEST(LogicTimerMSecsTestsGroup, SelectPrior_changing_delay_time) {
     testable.SelectPrior();
     CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
     testable.SelectPrior();
-    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
     testable.SelectPrior();
-    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
@@ -163,13 +163,13 @@ TEST(LogicTimerMSecsTestsGroup, SelectNext_changing_IoAdr) {
     testable.SelectNext();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
 
-    testable.SetTime(99999);
+    testable.SetTime(99950);
     testable.SelectNext();
-    CHECK_EQUAL(99949 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99900 * 1000L, testable.GetTimeUs());
     testable.SelectNext();
-    CHECK_EQUAL(99899 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99850 * 1000L, testable.GetTimeUs());
     testable.SelectNext();
-    CHECK_EQUAL(99849 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99800 * 1000L, testable.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, PageUp_changing_delay_time) {
@@ -184,9 +184,9 @@ TEST(LogicTimerMSecsTestsGroup, PageUp_changing_delay_time) {
     testable.PageUp();
     CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
     testable.PageUp();
-    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
     testable.PageUp();
-    CHECK_EQUAL(99999 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99950 * 1000L, testable.GetTimeUs());
 }
 
 TEST(LogicTimerMSecsTestsGroup, PageDown_changing_IoAdr) {
@@ -199,11 +199,11 @@ TEST(LogicTimerMSecsTestsGroup, PageDown_changing_IoAdr) {
     testable.PageDown();
     CHECK_EQUAL(50 * 1000L, testable.GetTimeUs());
 
-    testable.SetTime(99999);
+    testable.SetTime(99950);
     testable.PageDown();
-    CHECK_EQUAL(99749 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99700 * 1000L, testable.GetTimeUs());
     testable.PageDown();
-    CHECK_EQUAL(99499 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99450 * 1000L, testable.GetTimeUs());
     testable.PageDown();
-    CHECK_EQUAL(99249 * 1000L, testable.GetTimeUs());
+    CHECK_EQUAL(99200 * 1000L, testable.GetTimeUs());
 }

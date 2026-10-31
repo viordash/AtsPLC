@@ -4,20 +4,18 @@
 #include "esp_smartconfig.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "lassert.h"
 #include "settings.h"
 #include "sys_gpio.h"
 #include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INFINITY_CONNECT_RETRY -1
-
 static const char *TAG_WiFiService = "WiFiService";
 extern CurrentSettings::device_settings settings;
 
-WiFiService::WiFiService() : task_handle(NULL) {
-    station_rssi = LogicElement::MinValue;
+WiFiService::WiFiService()
+    : scanned_ssids{}, scanned_ssids_count{ 0 }, station_rssi{ LogicElement::MinValue },
+      station_connect_failures{ 0 }, ap_clients{}, ap_clients_count{ 0 }, events(NULL) {
 }
 
 WiFiService::~WiFiService() {
@@ -27,6 +25,9 @@ void WiFiService::Start() {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+    events = xEventGroupCreate();
+
+    TaskHandle_t task_handle;
     ESP_ERROR_CHECK(
         xTaskCreate(WiFiService::Task, "wifi_task", 2048, this, tskIDLE_PRIORITY, &task_handle)
                 != pdPASS
@@ -36,12 +37,27 @@ void WiFiService::Start() {
     ESP_LOGW(TAG_WiFiService, "Start, task_handle:%p", task_handle);
 }
 
+bool WiFiService::WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait) {
+    *notified_flags = xEventGroupWaitBits(events, ~0xff000000U, true, false, ticks_to_wait);
+    return *notified_flags != 0;
+}
+
+bool WiFiService::ClearBreakFlags(uint32_t ignore_flags) {
+    uint32_t flags = 0;
+    WaitEvent(&flags, 0);
+    uint32_t break_flags = flags & ignore_flags;
+    if (break_flags == 0) {
+        return false;
+    }
+    xEventGroupSetBits(events, break_flags);
+    return true;
+}
+
 uint8_t WiFiService::ConnectToStation() {
     if (requests.Station()) {
-        ASSERT(xTaskNotifyWait(0, STA_BREAK_BIT | STA_CONNECTED_BIT | STA_FAILED_BIT, NULL, 0)
-               == pdTRUE);
-
-        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        if (!ClearBreakFlags(SCAN_BREAK_BIT | AP_BREAK_BIT)) {
+            xEventGroupSetBits(events, WAKEUP_BIT);
+        }
         ESP_LOGD(TAG_WiFiService, "ConnectToStation new req");
     } else {
         ESP_LOGD(TAG_WiFiService, "ConnectToStation req, rssi:%u", station_rssi);
@@ -50,8 +66,9 @@ uint8_t WiFiService::ConnectToStation() {
 }
 
 void WiFiService::DisconnectFromStation() {
+    requests.RemoveStation();
     ESP_LOGI(TAG_WiFiService, "DisconnectFromStation");
-    xTaskNotify(task_handle, STA_BREAK_BIT, eNotifyAction::eSetBits);
+    xEventGroupSetBits(events, STA_BREAK_BIT);
 }
 
 uint8_t WiFiService::Scan(const char *ssid) {
@@ -62,8 +79,9 @@ uint8_t WiFiService::Scan(const char *ssid) {
     }
 
     if (requests.Scan(ssid)) {
-        ASSERT(xTaskNotifyWait(0, SCAN_BREAK_BIT, NULL, 0) == pdTRUE);
-        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        if (!ClearBreakFlags(STA_BREAK_BIT | AP_BREAK_BIT)) {
+            xEventGroupSetBits(events, WAKEUP_BIT);
+        }
         ESP_LOGD(TAG_WiFiService,
                  "Scan new req, ssid:%s, found:%u, rssi:%u",
                  ssid,
@@ -76,15 +94,17 @@ uint8_t WiFiService::Scan(const char *ssid) {
 }
 
 void WiFiService::CancelScan(const char *ssid) {
+    requests.RemoveScan(ssid);
     RemoveScannedSsid(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelScan, ssid:%s", ssid);
-    xTaskNotify(task_handle, SCAN_BREAK_BIT, eNotifyAction::eSetBits);
+    xEventGroupSetBits(events, SCAN_BREAK_BIT);
 }
 
 size_t WiFiService::AccessPoint(const char *ssid, const char *password, const char *mac) {
     if (requests.AccessPoint(ssid, password, mac)) {
-        ASSERT(xTaskNotifyWait(0, AP_BREAK_BIT, NULL, 0) == pdTRUE);
-        xTaskNotify(task_handle, 0, eNotifyAction::eNoAction);
+        if (!ClearBreakFlags(STA_BREAK_BIT | SCAN_BREAK_BIT)) {
+            xEventGroupSetBits(events, WAKEUP_BIT);
+        }
         ESP_LOGD(TAG_WiFiService, "AccessPoint new req, ssid:%s", ssid);
     } else {
         ESP_LOGD(TAG_WiFiService, "AccessPoint req, ssid:%s", ssid);
@@ -92,43 +112,47 @@ size_t WiFiService::AccessPoint(const char *ssid, const char *password, const ch
     return GetApClientsCount(ssid);
 }
 
-void WiFiService::CancelAccessPoint(const char *ssid) {
+void WiFiService::CancelAccessPoint(const char *ssid, const char *password, const char *mac) {
+    requests.RemoveAccessPoint(ssid, password, mac);
     RemoveApClients(ssid);
     ESP_LOGI(TAG_WiFiService, "CancelAccessPoint, ssid:%s", ssid);
-    xTaskNotify(task_handle, AP_BREAK_BIT, eNotifyAction::eSetBits);
+    xEventGroupSetBits(events, AP_BREAK_BIT);
+}
+
+void WiFiService::RaiseSettingsChanged() {
+    ESP_LOGI(TAG_WiFiService, "RaiseSettingsChanged");
+    xEventGroupSetBits(events, SETTINGS_CHANGED_BIT);
 }
 
 void WiFiService::Task(void *parm) {
     ESP_LOGI(TAG_WiFiService, "Start task");
     auto wifi_service = static_cast<WiFiService *>(parm);
 
-    uint32_t ulNotifiedValue = 0;
     while (true) {
-        ASSERT(xTaskNotifyWait(0, 0, &ulNotifiedValue, portMAX_DELAY) == pdTRUE);
-
-        ESP_LOGD(TAG_WiFiService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
         RequestItem new_request;
-        while (wifi_service->requests.Pop(&new_request)) {
-            ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
-
-            switch (new_request.Type) {
-                case wqi_Station:
-                    wifi_service->StationTask(&new_request);
-                    break;
-
-                case wqi_Scanner:
-                    wifi_service->ScannerTask(&new_request);
-                    break;
-
-                case wqi_AccessPoint:
-                    wifi_service->AccessPointTask(&new_request);
-                    break;
-
-                default:
-                    break;
-            }
-            ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
+        if (!wifi_service->requests.Pop(&new_request)) {
+            new_request = { RequestItemType::wqi_Station, {} };
+            ESP_LOGD(TAG_WiFiService, "no requests, default to station");
         }
+        ESP_LOGI(TAG_WiFiService, "exec request, type:%u", (unsigned int)new_request.Type);
+
+        switch (new_request.Type) {
+            case wqi_Station:
+                wifi_service->StationTask(&new_request);
+                break;
+
+            case wqi_Scanner:
+                wifi_service->ScannerTask(&new_request);
+                break;
+
+            case wqi_AccessPoint:
+                wifi_service->AccessPointTask(&new_request);
+                break;
+
+            default:
+                break;
+        }
+        ESP_LOGD(TAG_WiFiService, "end request, type:%u", (unsigned int)new_request.Type);
     }
 
     ESP_LOGW(TAG_WiFiService, "Finish task");

@@ -8,14 +8,9 @@
 class StatusBar {
   protected:
     uint8_t y;
-    MapIOIndicator *indicator_AI;
-    MapIOIndicator *indicator_DI;
-    MapIOIndicator *indicator_O1;
-    MapIOIndicator *indicator_O2;
-    MapIOIndicator *indicator_V1;
-    MapIOIndicator *indicator_V2;
-    MapIOIndicator *indicator_V3;
-    MapIOIndicator *indicator_V4;
+    MapIOIndicator indicators[MapIO::V4 + 1];
+
+    void RenderIndicator(FrameBuffer *fb, Point *point, const MapIO io_adr, uint8_t value);
 
   public:
     explicit StatusBar(uint8_t y);

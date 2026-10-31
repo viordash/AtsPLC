@@ -9,58 +9,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-StatusBar::StatusBar(uint8_t y) {
-    this->y = y;
-
-    indicator_AI = new MapIOIndicator(MapIO::AI);
-    indicator_DI = new MapIOIndicator(MapIO::DI);
-    indicator_O1 = new MapIOIndicator(MapIO::O1);
-    indicator_O2 = new MapIOIndicator(MapIO::O2);
-    indicator_V1 = new MapIOIndicator(MapIO::V1);
-    indicator_V2 = new MapIOIndicator(MapIO::V2);
-    indicator_V3 = new MapIOIndicator(MapIO::V3);
-    indicator_V4 = new MapIOIndicator(MapIO::V4);
+StatusBar::StatusBar(uint8_t y)
+    : y{ y },
+      indicators{ MapIOIndicator(MapIO::DI), MapIOIndicator(MapIO::AI), MapIOIndicator(MapIO::O1),
+                  MapIOIndicator(MapIO::O2), MapIOIndicator(MapIO::V1), MapIOIndicator(MapIO::V2),
+                  MapIOIndicator(MapIO::V3), MapIOIndicator(MapIO::V4) } {
 }
 
 StatusBar::~StatusBar() {
-    delete indicator_AI;
-    delete indicator_DI;
-    delete indicator_O1;
-    delete indicator_O2;
-    delete indicator_V1;
-    delete indicator_V2;
-    delete indicator_V3;
-    delete indicator_V4;
+}
+
+IRAM_ATTR void
+StatusBar::RenderIndicator(FrameBuffer *fb, Point *point, const MapIO io_adr, uint8_t value) {
+    const uint8_t separator_width = 1;
+    indicators[io_adr].Render(fb, point, value);
+    point->x += separator_width;
 }
 
 IRAM_ATTR void StatusBar::Render(FrameBuffer *fb) {
-    uint8_t separator_width = 1;
     Point point = { 2, y };
 
-    indicator_AI->Render(fb, &point, Controller::AI.PeekValue());
-    point.x += separator_width;
-
-    indicator_DI->Render(fb, &point, Controller::DI.PeekValue());
-    point.x += separator_width;
-
-    indicator_O1->Render(fb, &point, Controller::O1.PeekValue());
-    point.x += separator_width;
-
-    indicator_O2->Render(fb, &point, Controller::O2.PeekValue());
-    point.x += separator_width;
-
-    indicator_V1->Render(fb, &point, Controller::V1.PeekValue());
-    point.x += separator_width;
-
-    indicator_V2->Render(fb, &point, Controller::V2.PeekValue());
-    point.x += separator_width;
-
-    indicator_V3->Render(fb, &point, Controller::V3.PeekValue());
-    point.x += separator_width;
-
-    separator_width = 0;
-    indicator_V4->Render(fb, &point, Controller::V4.PeekValue());
-    point.x += separator_width;
+    RenderIndicator(fb, &point, MapIO::AI, Controller::AI.PeekValue());
+    RenderIndicator(fb, &point, MapIO::DI, Controller::DI.PeekValue());
+    RenderIndicator(fb, &point, MapIO::O1, Controller::O1.PeekValue());
+    RenderIndicator(fb, &point, MapIO::O2, Controller::O2.PeekValue());
+    RenderIndicator(fb, &point, MapIO::V1, Controller::V1.PeekValue());
+    RenderIndicator(fb, &point, MapIO::V2, Controller::V2.PeekValue());
+    RenderIndicator(fb, &point, MapIO::V3, Controller::V3.PeekValue());
+    RenderIndicator(fb, &point, MapIO::V4, Controller::V4.PeekValue());
 
     ASSERT(draw_horz_line(fb, 0, y + MapIOIndicator::GetHeight(), DISPLAY_WIDTH));
 }

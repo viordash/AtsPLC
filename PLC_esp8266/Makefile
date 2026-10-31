@@ -5,25 +5,25 @@
 
 PROJECT_NAME := AtsPLC-esp8266
 
-export IDF_PATH := $(PWD)/../SDK/ESP8266_RTOS_SDK
+export IDF_PATH := $(CURDIR)/../SDK/ESP8266_RTOS_SDK
 
-CURR_DIR := $(PWD)
+CURR_DIR := $(CURDIR)
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 # Prepend the SDK's own Python venv (see README "Prerequisites") so the build
 # works from a plain terminal, without relying on VSCode task env overrides.
 # Missing dirs on PATH are silently skipped, so this is a no-op if the venv
 # was never created (e.g. system python already satisfies requirements.txt).
-PATH  := $(PWD)/../SDK/.venv/bin:$(PATH):$(PWD)/../SDK/xtensa-lx106-elf/bin
+PATH  := $(CURDIR)/../SDK/.venv/bin:$(PATH):$(CURDIR)/../SDK/xtensa-lx106-elf/bin
 SHELL := env PATH=$(PATH) /bin/bash
 
 project_prepare: .project_prepare .apply-patches 
 
 .project_prepare:
 	@echo "----------------------- Preparing"
-	@tar -xzf $(PWD)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(PWD)/../SDK/
-	@mkdir -p $(PWD)/main/MigrateAnyData
-	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.cpp $(PWD)/main/MigrateAnyData/MigrateAnyData.cpp
-	@ln -sf $(PWD)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.h $(PWD)/main/MigrateAnyData/MigrateAnyData.h
+	@tar -xzf $(CURDIR)/../SDK/xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz -C $(CURDIR)/../SDK/
+	@mkdir -p $(CURDIR)/main/MigrateAnyData
+	@ln -sf $(CURDIR)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.cpp $(CURDIR)/main/MigrateAnyData/MigrateAnyData.cpp
+	@ln -sf $(CURDIR)/../SDK/MigrateAnyCppData/MigrateAnyData/MigrateAnyData.h $(CURDIR)/main/MigrateAnyData/MigrateAnyData.h
 
 ifeq ($(filter project_prepare,$(MAKECMDGOALS)),)
 include $(IDF_PATH)/make/project.mk

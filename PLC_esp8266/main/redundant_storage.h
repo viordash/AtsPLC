@@ -9,6 +9,9 @@ typedef struct {
     uint32_t version;
 } redundant_storage;
 
+bool redundant_storage_read_copy(const char *filename, redundant_storage *storage);
+void redundant_storage_write_copy(const char *filename, redundant_storage *storage);
+
 redundant_storage redundant_storage_load(const char *partition_0,
                                          const char *path_0,
                                          const char *partition_1,

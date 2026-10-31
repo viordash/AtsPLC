@@ -16,14 +16,18 @@
 
 static FrameBuffer frame_buffer = {};
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicNetworkTestsGroup){ //
                                     TEST_SETUP(){ mock().disable();
 memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
 }
 }
@@ -40,7 +44,7 @@ namespace {
 
     class TestableNetwork : public Network {
       public:
-        TestableNetwork(LogicItemState state) : Network(state) {
+        TestableNetwork(NetworkState state) : Network(state) {
         }
         uint8_t *PublicMorozov_Get_fill_wire() {
             return &fill_wire;
@@ -186,7 +190,7 @@ namespace {
 } // namespace
 
 TEST(LogicNetworkTestsGroup, append_elements) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -197,7 +201,7 @@ TEST(LogicNetworkTestsGroup, append_elements) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -213,7 +217,7 @@ TEST(LogicNetworkTestsGroup, DoAction_handle_all_logic_elements_in_chain) {
 }
 
 TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -234,7 +238,7 @@ TEST(LogicNetworkTestsGroup, DoAction_return_changes_from_any_handler_in_chain) 
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_chain) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -259,7 +263,7 @@ TEST(LogicNetworkTestsGroup, Render_when_active__also_render_all_elements_in_cha
 }
 
 TEST(LogicNetworkTestsGroup, Render_with_Indicator_element) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableIndicator);
     testable.Render(&frame_buffer, 0);
@@ -276,7 +280,7 @@ TEST(LogicNetworkTestsGroup, Render_with_Indicator_element) {
 }
 
 TEST(LogicNetworkTestsGroup, Render_with_Wire_element) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableWire);
     testable.Render(&frame_buffer, 0);
@@ -293,7 +297,7 @@ TEST(LogicNetworkTestsGroup, Render_with_Wire_element) {
 }
 
 TEST(LogicNetworkTestsGroup, Render_with_WiFiBinding_element) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableWiFiBinding);
     testable.Render(&frame_buffer, 0);
@@ -310,7 +314,7 @@ TEST(LogicNetworkTestsGroup, Render_with_WiFiBinding_element) {
 }
 
 TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_chain) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -336,7 +340,7 @@ TEST(LogicNetworkTestsGroup, Render_when_passive__also_render_all_elements_in_ch
 
 TEST(LogicNetworkTestsGroup,
      Render_inputs_starts_from_start_point_and_render_outputs_starts_from_end) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
@@ -362,7 +366,7 @@ TEST(LogicNetworkTestsGroup,
 
 TEST(LogicNetworkTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
     auto input = new TestableInputNC;
     input->SetIoAdr(MapIO::DI);
     testable.Append(input);
@@ -399,7 +403,7 @@ TEST(LogicNetworkTestsGroup, Serialize) {
 
 TEST(LogicNetworkTestsGroup, Serialize_Indicator) {
     uint8_t buffer[256] = {};
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
     auto indicator = new Indicator(MapIO::AI);
     testable.Append(indicator);
 
@@ -417,7 +421,7 @@ TEST(LogicNetworkTestsGroup, Serialize_Indicator) {
 }
 
 TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -432,7 +436,7 @@ TEST(LogicNetworkTestsGroup, Serialize_just_for_obtain_size) {
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
 
     for (size_t i = 0; i < 6; i++) {
         testable.Append(new TestableInputNC);
@@ -444,7 +448,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_exceed_max__return_zer
 
 TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_zero) {
     uint8_t buffer[256] = {};
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
 
     size_t writed = testable.Serialize(buffer, sizeof(buffer));
     CHECK_EQUAL(0, writed);
@@ -452,7 +456,7 @@ TEST(LogicNetworkTestsGroup, Serialize_when_elemens_count_less_than_min__return_
 
 TEST(LogicNetworkTestsGroup, Serialize_to_small_buffer_return_zero) {
     uint8_t buffer[256] = {};
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());
     testable.Append(new TestableTimerMSecs());
@@ -485,7 +489,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
     *((TvElementType *)&buffer[17]) = TvElementType::et_DirectOutput;
     *((MapIO *)&buffer[18]) = MapIO::O1;
 
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     size_t readed = testable.Deserialize(&buffer[0], sizeof(buffer) - 1);
     CHECK_EQUAL(19, readed);
@@ -497,7 +501,7 @@ TEST(LogicNetworkTestsGroup, Deserialize) {
 }
 
 TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_ElementBox) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
@@ -518,7 +522,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_and_replacing_selected_element_with_E
 }
 
 TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBox) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
@@ -535,7 +539,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBo
     CHECK_EQUAL(TvElementType::et_InputNC, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
-    CHECK_EQUAL(13, elementBox->size());
+    CHECK_EQUAL(13, elementBox->GetCount());
 
     testable.SelectNext();
     testable.SelectNext();
@@ -546,7 +550,7 @@ TEST(LogicNetworkTestsGroup, Begin_Editing_can_hide_output_elements_in_ElementBo
 
 TEST(LogicNetworkTestsGroup,
      Begin_Editing_not_hide_output_elements_in_ElementBox_if_selected_element_is_output) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
@@ -564,7 +568,7 @@ TEST(LogicNetworkTestsGroup,
     CHECK_EQUAL(TvElementType::et_DirectOutput, expectedElementBox->GetElementType());
     CHECK_TRUE(expectedElementBox->Editing());
     auto elementBox = static_cast<ElementsBox *>(expectedElementBox);
-    CHECK_EQUAL(18, elementBox->size());
+    CHECK_EQUAL(18, elementBox->GetCount());
 
     testable.SelectPrior();
     CHECK_EQUAL(TvElementType::et_SetOutput, expectedElementBox->GetElementType());
@@ -573,7 +577,7 @@ TEST(LogicNetworkTestsGroup,
 }
 
 TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_self) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
@@ -599,31 +603,31 @@ TEST(LogicNetworkTestsGroup, EndEditing_ElementBox_switch_selection_to_network_s
 }
 
 TEST(LogicNetworkTestsGroup, SwitchState) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.SwitchState();
-    CHECK_EQUAL(LogicItemState::lisPassive, testable.GetState());
+    CHECK_EQUAL(NetworkState::nsPassive, testable.GetState());
 
     testable.SwitchState();
-    CHECK_EQUAL(LogicItemState::lisActive, testable.GetState());
+    CHECK_EQUAL(NetworkState::nsActive, testable.GetState());
 }
 
 TEST(LogicNetworkTestsGroup, ChangeState_updates_state_in_child_elements) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
-    testable.ChangeState(LogicItemState::lisPassive);
+    testable.ChangeState(NetworkState::nsPassive);
     CHECK_TRUE(testable.PublicMorozov_Get_state_changed());
     testable.DoAction();
     CHECK_FALSE(testable.PublicMorozov_Get_state_changed());
 
-    testable.ChangeState(LogicItemState::lisActive);
+    testable.ChangeState(NetworkState::nsActive);
     CHECK_TRUE(testable.PublicMorozov_Get_state_changed());
     testable.DoAction();
     CHECK_FALSE(testable.PublicMorozov_Get_state_changed());
 }
 
 TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
@@ -637,7 +641,7 @@ TEST(LogicNetworkTestsGroup, when_no_free_place_then_cannot_add_new_element) {
 }
 
 TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
@@ -650,7 +654,7 @@ TEST(LogicNetworkTestsGroup, ability_to_add_new_element) {
 }
 
 TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new DirectOutput(MapIO::O1));
@@ -667,7 +671,7 @@ TEST(LogicNetworkTestsGroup, wire_element__take__all__empty_space) {
 }
 
 TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
@@ -702,7 +706,7 @@ TEST(LogicNetworkTestsGroup, Wire_elements_must_be_deleted_after_editing) {
 }
 
 TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
 
     testable.Append(new InputNC(MapIO::DI));
     testable.Append(new ComparatorEq(1, MapIO::AI));
@@ -732,7 +736,7 @@ TEST(LogicNetworkTestsGroup, EndEditing_delete_ElementBox) {
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Input) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new InputNC(MapIO::DI));
 
@@ -744,7 +748,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Input) {
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Timer) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new TimerSecs(100));
 
@@ -756,7 +760,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Timer) {
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Comparator) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new ComparatorEq(10, MapIO::AI));
 
@@ -768,7 +772,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Comparator) {
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Indicator) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new Indicator(MapIO::AI));
 
@@ -780,7 +784,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Indicator) {
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_WiFiBinding) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new WiFiBinding(MapIO::AI, "ssid"));
 
@@ -792,7 +796,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_WiFiBinding) 
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_DateTimeBinding) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new DateTimeBinding(MapIO::AI));
 
@@ -804,7 +808,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_DateTimeBindi
 }
 
 TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
-    TestableNetwork testable(LogicItemState::lisActive);
+    TestableNetwork testable(NetworkState::nsActive);
     *testable.PublicMorozov_Get_fill_wire() = 100;
     testable.Append(new SettingsElement());
 
@@ -817,7 +821,7 @@ TEST(LogicNetworkTestsGroup, Space_For_New_Element_Is_Placed_After_Settings) {
 
 TEST(LogicNetworkTestsGroup,
      Changing_states_in_any_of_child_element_requires_rendering_frame_buffer) {
-    Network testable(LogicItemState::lisActive);
+    Network testable(NetworkState::nsActive);
 
     testable.Append(new TestableInputNC);
     testable.Append(new TestableComparatorEq());

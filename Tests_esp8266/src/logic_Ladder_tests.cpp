@@ -58,7 +58,7 @@ namespace {
 
     class TestableNetwork : public Network, public MonitorLogicElement {
       public:
-        TestableNetwork(LogicItemState state) : Network(state) {
+        TestableNetwork(NetworkState state) : Network(state) {
         }
 
         bool DoAction() override {
@@ -154,8 +154,9 @@ namespace {
 
 TEST(LogicLadderTestsGroup, Store_Load) {
     TestableLadder ladder_store;
+    ladder_store.ChangeWorkMode(WorkMode::Run, false);
 
-    auto network_store = new Network(LogicItemState::lisActive);
+    auto network_store = new Network(NetworkState::nsActive);
     ladder_store.Append(network_store);
 
     network_store->Append(new TestableInputNC(MapIO::DI));
@@ -190,17 +191,18 @@ TEST(LogicLadderTestsGroup, Store_Load) {
 
 TEST(LogicLadderTestsGroup, Remove_elements_before_Load) {
     TestableLadder ladder_store;
+    ladder_store.ChangeWorkMode(WorkMode::Run, false);
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new TestableInputNC(MapIO::DI));
     network0->Append(new TestableDirectOutput(MapIO::O1));
 
-    auto network1 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(NetworkState::nsActive);
     network1->Append(new TestableInputNC(MapIO::V1));
     network1->Append(new TestableInputNC(MapIO::V2));
     network1->Append(new TestableDirectOutput(MapIO::O2));
 
-    auto network2 = new Network(LogicItemState::lisActive);
+    auto network2 = new Network(NetworkState::nsActive);
     network2->Append(new TestableInputNC(MapIO::V1));
     network2->Append(new TestableInputNC(MapIO::V2));
     network2->Append(new TestableInputNC(MapIO::V3));
@@ -251,9 +253,9 @@ TEST(LogicLadderTestsGroup, Deserialize_with_clear_storage__load_initial) {
 TEST(LogicLadderTestsGroup, append_network) {
     TestableLadder testable;
 
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     CHECK_EQUAL(3, testable.size());
 }
@@ -261,9 +263,9 @@ TEST(LogicLadderTestsGroup, append_network) {
 TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
     TestableLadder testable;
 
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
 
     CHECK_FALSE(testable.DoAction());
 
@@ -279,13 +281,13 @@ TEST(LogicLadderTestsGroup, DoAction_return_changes_from_any_network) {
 TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
     TestableLadder testable;
 
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.SetViewTopIndex(4);
 
     testable.Render(&frame_buffer);
     CHECK_FALSE(static_cast<TestableNetwork *>(testable[0])->Render_called);
@@ -379,13 +381,13 @@ TEST(LogicLadderTestsGroup, Render__also_render_all_networks_in_viewport) {
 TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     TestableLadder testable;
 
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
+    testable.SetViewTopIndex(0);
 
     testable.Render(&frame_buffer);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
 
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
 
     static_cast<TestableNetwork *>(testable[0])->Render_called = false;
     static_cast<TestableNetwork *>(testable[1])->Render_called = false;
@@ -394,7 +396,7 @@ TEST(LogicLadderTestsGroup, Render__when_networks_less_than_viewport) {
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[0])->Render_called);
     CHECK_TRUE(static_cast<TestableNetwork *>(testable[1])->Render_called);
 
-    testable.Append(new TestableNetwork(LogicItemState::lisActive));
+    testable.Append(new TestableNetwork(NetworkState::nsActive));
 
     static_cast<TestableNetwork *>(testable[0])->Render_called = false;
     static_cast<TestableNetwork *>(testable[1])->Render_called = false;
@@ -418,7 +420,7 @@ TEST(LogicLadderTestsGroup, AtLeastOneNetwork__if_no_networks_then_create_ones_a
 TEST(LogicLadderTestsGroup, Delete_storage) {
     TestableLadder ladder_store;
 
-    auto network_store = new Network(LogicItemState::lisActive);
+    auto network_store = new Network(NetworkState::nsActive);
     ladder_store.Append(network_store);
 
     network_store->Append(new TestableInputNC(MapIO::DI));
@@ -437,9 +439,9 @@ TEST(LogicLadderTestsGroup, Delete_storage) {
 
 TEST(LogicLadderTestsGroup, Delete_network) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -462,8 +464,8 @@ TEST(LogicLadderTestsGroup, Delete_network) {
 
 TEST(LogicLadderTestsGroup, Duplicate_network) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     testable.Append(network0);

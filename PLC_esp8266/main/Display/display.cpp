@@ -62,6 +62,10 @@ IRAM_ATTR FrameBuffer *begin_render() {
     display.frame_buffer.has_changes = false;
     return &display.frame_buffer;
 }
+FrameBuffer *peek_framebuffer() {
+    return &display.frame_buffer;
+}
+
 IRAM_ATTR void end_render(FrameBuffer *fb) {
     if (fb->has_changes) {
         ssd1306_load_frame_buffer(&display.dev, fb->buffer);
@@ -229,6 +233,37 @@ IRAM_ATTR bool draw_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
     return err == 0;
 }
 
+IRAM_ATTR bool draw_passive_outcome_rail(FrameBuffer *fb, uint8_t x, uint8_t y) {
+    int err;
+    y -= OUTCOME_RAIL_NETWORK_TOP;
+
+    const uint8_t dash_height = 2;
+
+    for (size_t i = 0; i < OUTCOME_RAIL_HEIGHT / dash_height; i += 2) {
+
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, dash_height, OLED_COLOR_WHITE);
+        if (err != 0) {
+            return false;
+        }
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, dash_height, OLED_COLOR_BLACK);
+        if (err != 0) {
+            return false;
+        }
+
+        y += dash_height;
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x, y, dash_height, OLED_COLOR_BLACK);
+        if (err != 0) {
+            return false;
+        }
+        err = ssd1306_draw_vline(&display.dev, fb->buffer, x + 1, y, dash_height, OLED_COLOR_WHITE);
+        if (err != 0) {
+            return false;
+        }
+        y += dash_height;
+    }
+    return err == 0;
+}
+
 IRAM_ATTR bool draw_vert_progress_bar(FrameBuffer *fb, uint8_t x, uint8_t y, uint8_t percent04) {
     int err = 0;
     int height = (VERT_PROGRESS_BAR_HEIGHT * percent04) / 250;
@@ -296,7 +331,7 @@ IRAM_ATTR void draw_bitmap(FrameBuffer *fb, uint8_t x, uint8_t y, const struct B
 
             uint8_t b = bitmap->data[src_id];
             fb->buffer[dst_id] |= b << (y % 8);
-            if ((y % 8) > 0 && row + 1 < DISPLAY_HEIGHT) {
+            if ((y % 8) > 0 && row + 8 < DISPLAY_HEIGHT) {
                 fb->buffer[dst_id + DISPLAY_WIDTH] |= b >> (8 - (y % 8));
             }
         }

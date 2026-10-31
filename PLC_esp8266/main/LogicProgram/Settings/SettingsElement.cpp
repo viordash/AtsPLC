@@ -23,7 +23,7 @@ SettingsElement::~SettingsElement() {
 }
 
 bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
@@ -33,27 +33,28 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
 IRAM_ATTR void
 SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    if (prev_elem_state == LogicItemState::lisActive) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (SettingsElement::EditingPropertyId)editing_property_id
                                      == SettingsElement::EditingPropertyId::cwbepi_None
                               && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
-        ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
-        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
-        ASSERT(draw_vert_line(fb, top_right.x, top_right.y, Height));
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
         draw_bitmap(fb, top_left.x + 1, top_left.y + 6, &bitmap);
     }
 
@@ -99,9 +100,6 @@ void SettingsElement::RenderName(FrameBuffer *fb, uint8_t x, uint8_t y) {
             name = "STA: password";
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            name = "STA: retry count max";
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             name = "STA: reconn pause,mS";
             break;
@@ -237,7 +235,7 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_discriminator, sizeof(_discriminator), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (!ValidateDiscriminator(&_discriminator)) {
+    if (!ValidateDiscriminator(_discriminator)) {
         return 0;
     }
 
@@ -245,11 +243,10 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
-bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
-    switch (*discriminator) {
+bool SettingsElement::ValidateDiscriminator(Discriminator discriminator) {
+    switch (discriminator) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
-        case t_wifi_station_settings_connect_max_retry_count:
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_max_rssi:
@@ -316,16 +313,6 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
             }
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            if (friendly_format
-                && curr_settings.wifi_station.connect_max_retry_count == INFINITY_CONNECT_RETRY) {
-                strcpy(string_buffer, "infinity");
-            } else {
-                sprintf(string_buffer,
-                        "%d",
-                        (int)curr_settings.wifi_station.connect_max_retry_count);
-            }
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             sprintf(string_buffer,
                     "%u",
@@ -470,9 +457,6 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_password:
             SelectPriorStringSymbol(symbol);
             break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectPriorNumberSymbol(symbol, first ? '-' : 0);
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_min_worktime_ms:
@@ -520,9 +504,6 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
             SelectNextStringSymbol(symbol);
-            break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectNextNumberSymbol(symbol, first ? '-' : 0);
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
@@ -573,7 +554,7 @@ void SettingsElement::SelectPrior() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_adc_scan_period_ms;
             }
             discriminator = _discriminator;
@@ -597,7 +578,7 @@ void SettingsElement::SelectNext() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator + 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_wifi_station_settings_ssid;
             }
             discriminator = _discriminator;
@@ -708,9 +689,6 @@ void SettingsElement::EndEditing() {
             WriteString(curr_settings.wifi_station.password,
                         sizeof(curr_settings.wifi_station.password));
             break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            curr_settings.wifi_station.connect_max_retry_count = atoi(value);
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             curr_settings.wifi_station.reconnect_delay_ms = atol(value);
             break;
@@ -781,6 +759,20 @@ void SettingsElement::EndEditing() {
                 case t_datetime_sntp_server_secondary:
                 case t_datetime_timezone:
                     Controller::RestartSntp();
+                    break;
+                case t_wifi_station_settings_ssid:
+                case t_wifi_station_settings_password:
+                case t_wifi_station_settings_reconnect_delay_ms:
+                case t_wifi_station_settings_scan_station_rssi_period_ms:
+                case t_wifi_station_settings_max_rssi:
+                case t_wifi_station_settings_min_rssi:
+                case t_wifi_station_settings_min_worktime_ms:
+                case t_wifi_scanner_settings_per_channel_scan_time_ms:
+                case t_wifi_scanner_settings_max_rssi:
+                case t_wifi_scanner_settings_min_rssi:
+                case t_wifi_access_point_settings_generation_time_ms:
+                case t_wifi_access_point_settings_ssid_hidden:
+                    Controller::RaiseWiFiSettingsChanged();
                     break;
                 default:
                     break;

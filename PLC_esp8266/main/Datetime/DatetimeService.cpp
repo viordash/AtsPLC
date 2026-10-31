@@ -15,7 +15,7 @@
 static const char *TAG_DatetimeService = "DatetimeService";
 extern CurrentSettings::device_settings settings;
 
-DatetimeService::DatetimeService() : task_handle(NULL) {
+DatetimeService::DatetimeService() : task_handle(NULL), sntp_settings{} {
 }
 
 DatetimeService::~DatetimeService() {
@@ -39,20 +39,30 @@ void DatetimeService::Task(void *parm) {
     ESP_LOGI(TAG_DatetimeService, "Start task");
     auto datetime_service = static_cast<DatetimeService *>(parm);
 
-    const TickType_t update_current_time = 60000 / portTICK_PERIOD_MS;
-    TickType_t ticks_to_wait = update_current_time;
+    const uint32_t default_update_time_ms = 60000;
+    const uint32_t no_wifi_station_update_time_ms = 10000;
     Datetime datetime;
     uint32_t ulNotifiedValue = 0;
     while (true) {
-        bool timeout =
-            xTaskNotifyWait(0, STORE_BIT | RESTART_SNTP_BIT, &ulNotifiedValue, ticks_to_wait)
-            == pdFAIL;
+        uint32_t update_time_ms = default_update_time_ms;
+        bool use_ntp = datetime_service->EnableSntp();
+        if (use_ntp) {
+            bool restart_ntp = (ulNotifiedValue & RESTART_SNTP_BIT) != 0;
+            if (restart_ntp || !datetime_service->SntpInProcess()) {
+                if (Controller::ConnectToWiFiStation() > LogicElement::MinValue) {
+                    datetime_service->StopSntp();
+                    datetime_service->StartSntp();
+                } else {
+                    ESP_LOGW(TAG_DatetimeService, "no wifi station");
+                    update_time_ms = no_wifi_station_update_time_ms;
+                }
+            }
+        }
 
-        ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
-
-        if (timeout || (ulNotifiedValue & STORE_BIT) != 0) {
-            datetime_service->Get(&datetime);
-            if (ValidateDatetime(&datetime)) {
+        datetime_service->Get(&datetime);
+        bool datetime_are_valid = ValidateDatetime(&datetime);
+        if ((ulNotifiedValue & RESTART_SNTP_BIT) == 0 || (ulNotifiedValue & STORE_BIT) != 0) {
+            if (datetime_are_valid) {
                 SAFETY_HOTRELOAD({
                     hotreload->current_datetime.year = datetime.year;
                     hotreload->current_datetime.month = datetime.month;
@@ -70,7 +80,6 @@ void DatetimeService::Task(void *parm) {
                          (int)datetime.hour,
                          (int)datetime.minute,
                          (int)datetime.second);
-                ticks_to_wait = update_current_time;
             } else {
                 ESP_LOGW(TAG_DatetimeService,
                          "Invalid datetime: %04d-%02d-%02d %02d:%02d:%02d",
@@ -80,27 +89,27 @@ void DatetimeService::Task(void *parm) {
                          (int)datetime.hour,
                          (int)datetime.minute,
                          (int)datetime.second);
-                ticks_to_wait = portMAX_DELAY;
             }
         }
 
-        bool use_ntp = datetime_service->EnableSntp();
-        if (use_ntp) {
-            Controller::ConnectToWiFiStation();
-            bool restart_ntp = (ulNotifiedValue & RESTART_SNTP_BIT) != 0;
-            if (restart_ntp || !datetime_service->SntpInProcess()) {
-                datetime_service->StopSntp();
-                datetime_service->StartSntp();
-            }
+        TickType_t ticks_to_wait =
+            datetime_are_valid || use_ntp ? update_time_ms / portTICK_PERIOD_MS : portMAX_DELAY;
+        if (xTaskNotifyWait(0, STORE_BIT | RESTART_SNTP_BIT, &ulNotifiedValue, ticks_to_wait)
+            != pdPASS) {
+            ulNotifiedValue = 0;
         }
+        ESP_LOGD(TAG_DatetimeService, "new request, uxBits:0x%08X", (unsigned int)ulNotifiedValue);
     }
 
     ESP_LOGW(TAG_DatetimeService, "Finish task");
     vTaskDelete(NULL);
 }
 bool DatetimeService::EnableSntp() {
-    bool enable = settings.datetime.sntp_server_primary[0] != 0
-               || settings.datetime.sntp_server_secondary[0] != 0;
+    bool enable;
+    SAFETY_SETTINGS( //
+        enable = settings.datetime.sntp_server_primary[0] != 0
+              || settings.datetime.sntp_server_secondary[0] != 0; //
+    );
     return enable;
 }
 
@@ -118,27 +127,28 @@ static void time_sync_notification_cb(struct timeval *tv) {
 }
 
 void DatetimeService::StartSntp() {
+    SAFETY_SETTINGS(                       //
+        sntp_settings = settings.datetime; //
+    );
+
     ESP_LOGI(TAG_DatetimeService,
              "Start SNTP, serv_0:%s, serv_1:%s, tz:%s",
-             settings.datetime.sntp_server_primary,
-             settings.datetime.sntp_server_secondary,
-             settings.datetime.timezone);
+             sntp_settings.sntp_server_primary,
+             sntp_settings.sntp_server_secondary,
+             sntp_settings.timezone);
 
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    if (strnlen(settings.datetime.sntp_server_primary,
-                sizeof(settings.datetime.sntp_server_primary))
-        > 0) {
-        sntp_setservername(0, settings.datetime.sntp_server_primary);
+    if (strnlen(sntp_settings.sntp_server_primary, sizeof(sntp_settings.sntp_server_primary)) > 0) {
+        sntp_setservername(0, sntp_settings.sntp_server_primary);
     }
-    if (strnlen(settings.datetime.sntp_server_secondary,
-                sizeof(settings.datetime.sntp_server_secondary))
+    if (strnlen(sntp_settings.sntp_server_secondary, sizeof(sntp_settings.sntp_server_secondary))
         > 0) {
-        sntp_setservername(1, settings.datetime.sntp_server_secondary);
+        sntp_setservername(1, sntp_settings.sntp_server_secondary);
     }
     sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     sntp_init();
 
-    setenv("TZ", settings.datetime.timezone, 1);
+    setenv("TZ", sntp_settings.timezone, 1);
     tzset();
 }
 

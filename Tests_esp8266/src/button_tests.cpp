@@ -114,7 +114,7 @@ TEST(ButtonTestsGroup, handle_longpress_when_os_us_overflowed) {
     CHECK_EQUAL(button::state::btLongPressed, state);
 }
 
-TEST(ButtonTestsGroup, handle_short_press) {
+TEST(ButtonTestsGroup, any_press_duration_is_accepted) {
     volatile uint64_t os_us = 0;
     mock()
         .expectNCalls(2, "esp_timer_get_time")
@@ -131,5 +131,106 @@ TEST(ButtonTestsGroup, handle_short_press) {
 
     os_us = 2 * 1000;
     state = testable.handle(BUTTON_UP_IO_OPEN);
-    CHECK_EQUAL(button::state::btShortPressed, state);
+    CHECK_EQUAL(button::state::btPressed, state);
+}
+
+TEST(ButtonTestsGroup, handle_press_without_measurable_duration) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE);
+    CHECK_EQUAL(button::state::btDown, state);
+
+    state = testable.handle(BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btPressed, state);
+}
+
+TEST(ButtonTestsGroup, handle_long_press) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE);
+    CHECK_EQUAL(button::state::btDown, state);
+
+    os_us = 500 * 1000;
+    state = testable.handle(BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btLongPressed, state);
+}
+TEST(ButtonTestsGroup, handle_close_and_open_bits_coalesced_in_one_call) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btPressed, state);
+}
+
+TEST(ButtonTestsGroup, coalesced_bits_do_not_leave_button_pressed_down) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(4, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btPressed, state);
+
+    state = testable.handle(BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btNone, state);
+
+    os_us = 100 * 1000;
+    state = testable.handle(BUTTON_UP_IO_CLOSE);
+    CHECK_EQUAL(button::state::btDown, state);
+
+    os_us = 130 * 1000;
+    state = testable.handle(BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btPressed, state);
+}
+
+TEST(ButtonTestsGroup, coalesced_bits_while_already_down_report_press) {
+    volatile uint64_t os_us = 0;
+    mock()
+        .expectNCalls(2, "esp_timer_get_time")
+        .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
+
+    button testable("test",
+                    BUTTON_UP_IO_CLOSE,
+                    BUTTON_UP_IO_OPEN,
+                    ButtonsPressType::NOTHING_PRESSED,
+                    ButtonsPressType::NOTHING_PRESSED);
+
+    auto state = testable.handle(BUTTON_UP_IO_CLOSE);
+    CHECK_EQUAL(button::state::btDown, state);
+
+    os_us = 600 * 1000;
+    state = testable.handle(BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN);
+    CHECK_EQUAL(button::state::btLongPressed, state);
 }

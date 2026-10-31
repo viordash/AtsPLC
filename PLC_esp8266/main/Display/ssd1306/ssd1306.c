@@ -89,7 +89,10 @@
         y = temp##x##y;                                                                            \
     } while (0)
 
-static IRAM_ATTR int inline i2c_send(const ssd1306_t *dev, uint8_t reg, uint8_t *data, uint8_t len) {
+static IRAM_ATTR int inline i2c_send(const ssd1306_t *dev,
+                                     uint8_t reg,
+                                     uint8_t *data,
+                                     uint8_t len) {
     int ret;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -382,11 +385,8 @@ int ssd1306_load_xbm(const ssd1306_t *dev, uint8_t *xbm, uint8_t *fb) {
     return ssd1306_load_frame_buffer(dev, fb);
 }
 
-IRAM_ATTR int ssd1306_draw_pixel(const ssd1306_t *dev,
-                       uint8_t *fb,
-                       int8_t x,
-                       int8_t y,
-                       ssd1306_color_t color) {
+IRAM_ATTR int
+ssd1306_draw_pixel(const ssd1306_t *dev, uint8_t *fb, int8_t x, int8_t y, ssd1306_color_t color) {
     uint16_t index;
 
     if ((x >= dev->width) || (x < 0) || (y >= dev->height) || (y < 0))
@@ -409,11 +409,11 @@ IRAM_ATTR int ssd1306_draw_pixel(const ssd1306_t *dev,
 }
 
 IRAM_ATTR int ssd1306_draw_hline(const ssd1306_t *dev,
-                       uint8_t *fb,
-                       int8_t x,
-                       int8_t y,
-                       uint8_t w,
-                       ssd1306_color_t color) {
+                                 uint8_t *fb,
+                                 int8_t x,
+                                 int8_t y,
+                                 uint8_t w,
+                                 ssd1306_color_t color) {
     uint16_t index;
     uint8_t mask, t;
 
@@ -455,11 +455,11 @@ IRAM_ATTR int ssd1306_draw_hline(const ssd1306_t *dev,
 }
 
 IRAM_ATTR int ssd1306_draw_vline(const ssd1306_t *dev,
-                       uint8_t *fb,
-                       int8_t x,
-                       int8_t y,
-                       uint8_t h,
-                       ssd1306_color_t color) {
+                                 uint8_t *fb,
+                                 int8_t x,
+                                 int8_t y,
+                                 uint8_t h,
+                                 ssd1306_color_t color) {
     uint16_t index;
     uint8_t mask, mod, t;
 
@@ -642,11 +642,11 @@ int ssd1306_draw_circle(const ssd1306_t *dev,
 }
 
 IRAM_ATTR int ssd1306_fill_circle(const ssd1306_t *dev,
-                        uint8_t *fb,
-                        int8_t x0,
-                        int8_t y0,
-                        uint8_t r,
-                        ssd1306_color_t color) {
+                                  uint8_t *fb,
+                                  int8_t x0,
+                                  int8_t y0,
+                                  uint8_t r,
+                                  ssd1306_color_t color) {
     int8_t x = 1;
     int8_t y = r;
     int16_t radius_err = 1 - y;
@@ -872,13 +872,13 @@ int ssd1306_fill_triangle(const ssd1306_t *dev,
 }
 
 IRAM_ATTR int ssd1306_draw_char(const ssd1306_t *dev,
-                      uint8_t *fb,
-                      const font_info_t *font,
-                      uint8_t x,
-                      uint8_t y,
-                      char c,
-                      ssd1306_color_t foreground,
-                      ssd1306_color_t background) {
+                                uint8_t *fb,
+                                const font_info_t *font,
+                                uint8_t x,
+                                uint8_t y,
+                                char c,
+                                ssd1306_color_t foreground,
+                                ssd1306_color_t background) {
     uint8_t i, j;
     const uint8_t *bitmap;
     uint8_t line = 0;
@@ -922,13 +922,13 @@ IRAM_ATTR int ssd1306_draw_char(const ssd1306_t *dev,
 }
 
 IRAM_ATTR int ssd1306_draw_string(const ssd1306_t *dev,
-                        uint8_t *fb,
-                        const font_info_t *font,
-                        uint8_t x,
-                        uint8_t y,
-                        const char *str,
-                        ssd1306_color_t foreground,
-                        ssd1306_color_t background) {
+                                  uint8_t *fb,
+                                  const font_info_t *font,
+                                  uint8_t x,
+                                  uint8_t y,
+                                  const char *str,
+                                  ssd1306_color_t foreground,
+                                  ssd1306_color_t background) {
     uint8_t t = x;
     int err;
 

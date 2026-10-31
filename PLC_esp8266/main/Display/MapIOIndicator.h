@@ -12,7 +12,7 @@ class MapIOIndicator {
     uint8_t progress;
 
     static const uint8_t text_width = 6;
-    static const uint8_t text_height = 10;
+    static const uint8_t bottom_padding = 2;
     static const uint8_t name_size = 2;
     static const uint8_t margin = 1;
 

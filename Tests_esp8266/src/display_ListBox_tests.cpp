@@ -20,8 +20,9 @@ static FrameBuffer frame_buffer = {};
 extern ssd1306_color_t foreground_color;
 extern ssd1306_color_t background_color;
 
-TEST_GROUP(ListBoxTestsGroup){ //
-                               TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(ListBoxTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {
@@ -32,7 +33,7 @@ TEST_TEARDOWN() {
 class TestableListBox : public ListBox {
   public:
     const static int line_size = 21;
-    const static int lines_count = 4;
+    const static int lines_count = 8;
 
     explicit TestableListBox(const char *title) : ListBox(title) {
         static_assert(line_size == ListBox::line_size);
@@ -120,7 +121,7 @@ TEST(ListBoxTestsGroup, Render) {
     testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
@@ -162,8 +163,8 @@ TEST(ListBoxTestsGroup, Insert_changed_frame_buffer) {
 TEST(ListBoxTestsGroup, Select_changed_frame_buffer) {
     TestableListBox testable("");
 
+    testable.Insert(0, "text");
     testable.Select(0);
     testable.Render(&frame_buffer);
     CHECK_TRUE(frame_buffer.has_changes);
 }
-

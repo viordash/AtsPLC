@@ -15,13 +15,17 @@
 #include "main/LogicProgram/Outputs/ResetOutput.h"
 #include "main/LogicProgram/Outputs/SetOutput.h"
 
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicIncOutputTestsGroup){ //
                                       TEST_SETUP(){ mock().disable();
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
 }
 }
@@ -92,7 +96,7 @@ TEST(LogicIncOutputTestsGroup,
 
     Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(false, LogicItemState::lisActive));
-    Controller::CommitChanges();    
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisActive, *testable.PublicMorozov_Get_state());
 
     Controller::FetchIOValues();
@@ -100,7 +104,7 @@ TEST(LogicIncOutputTestsGroup,
 
     Controller::FetchIOValues();
     CHECK_FALSE(testable.DoAction(false, LogicItemState::lisActive));
-    Controller::CommitChanges();    
+    Controller::CommitChanges();
     CHECK_EQUAL(43, Controller::V1.PeekValue());
 }
 
@@ -113,7 +117,7 @@ TEST(LogicIncOutputTestsGroup, DoAction_change_state_to_passive) {
 
     Controller::FetchIOValues();
     CHECK_TRUE(testable.DoAction(true, LogicItemState::lisPassive));
-    Controller::CommitChanges(); 
+    Controller::CommitChanges();
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
 }
 
@@ -137,15 +141,29 @@ TEST(LogicIncOutputTestsGroup, Serialize) {
 TEST(LogicIncOutputTestsGroup, Deserialize) {
     uint8_t buffer[256] = {};
     *((TvElementType *)&buffer[0]) = TvElementType::et_IncOutput;
-    *((MapIO *)&buffer[1]) = MapIO::O2;
+    *((MapIO *)&buffer[1]) = MapIO::V2;
 
     TestableIncOutput testable;
 
     size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(1, readed);
-    CHECK_EQUAL(MapIO::O2, testable.GetIoAdr());
-    CHECK(&Controller::O2 == testable.Output);
-    CHECK(&Controller::O2 == testable.Input);
+    CHECK_EQUAL(MapIO::V2, testable.GetIoAdr());
+    CHECK(&Controller::V2 == testable.Output);
+    CHECK(&Controller::V2 == testable.Input);
+}
+
+TEST(LogicIncOutputTestsGroup, Deserialize_with_not_allowed_output_returns_zero) {
+    uint8_t buffer[256] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_IncOutput;
+
+    TestableIncOutput testable;
+
+    *((MapIO *)&buffer[1]) = MapIO::DI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::AI;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
+    *((MapIO *)&buffer[1]) = MapIO::O1;
+    CHECK_EQUAL(0, testable.Deserialize(&buffer[1], sizeof(buffer) - 1));
 }
 
 TEST(LogicIncOutputTestsGroup, GetElementType) {

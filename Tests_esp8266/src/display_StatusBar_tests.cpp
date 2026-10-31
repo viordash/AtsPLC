@@ -14,8 +14,9 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(StatusBarTestsGroup){ //
-                                 TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+TEST_GROUP(StatusBarTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 

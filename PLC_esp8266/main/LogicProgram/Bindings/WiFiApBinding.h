@@ -38,7 +38,10 @@ class WiFiApBinding : public WiFiBinding {
     } EditingPropertyId;
 
     explicit WiFiApBinding();
-    explicit WiFiApBinding(const MapIO io_adr, const char *ssid, const char *password);
+    explicit WiFiApBinding(const MapIO io_adr,
+                           const char *ssid,
+                           const char *password,
+                           const char *mac);
     virtual ~WiFiApBinding();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

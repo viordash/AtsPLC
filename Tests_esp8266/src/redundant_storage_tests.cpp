@@ -122,9 +122,9 @@ TEST(RedundantStorageTestsGroup, second_storage_restored_when_load) {
     CHECK_EQUAL(false, storage_1_exists(settings_storage_name));
 
     mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
-    mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
-    mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
     storage = redundant_storage_load(storage_0_partition,
                                      storage_0_path,
@@ -162,9 +162,9 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
     CHECK_EQUAL(false, storage_0_exists(settings_storage_name));
     CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
 
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
-    mock("storage_0").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
     storage = redundant_storage_load(storage_0_partition,
@@ -179,6 +179,51 @@ TEST(RedundantStorageTestsGroup, first_storage_restored_when_load) {
 
     CHECK_EQUAL(true, storage_0_exists(settings_storage_name));
     CHECK_EQUAL(true, storage_1_exists(settings_storage_name));
+}
+
+TEST(RedundantStorageTestsGroup, first_storage_with_truncated_version_restored_when_load) {
+    uint8_t data[] = { 0xdd, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a };
+
+    redundant_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = 42;
+
+    mock().disable();
+    redundant_storage_store(storage_0_partition,
+                            storage_0_path,
+                            storage_1_partition,
+                            storage_1_path,
+                            settings_storage_name,
+                            &storage);
+    mock().enable();
+
+    uint8_t truncated_file[] = { 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00 };
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/%s", storage_0_path, settings_storage_name);
+    FILE *file = fopen(filename, "wb");
+    CHECK(file != NULL);
+    CHECK_EQUAL(sizeof(truncated_file), fwrite(truncated_file, 1, sizeof(truncated_file), file));
+    fclose(file);
+
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_1").expectOneCall("esp_vfs_spiffs_register").ignoreOtherParameters();
+    mock("storage_0").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
+    mock("storage_1").expectOneCall("esp_vfs_spiffs_unregister").ignoreOtherParameters();
+
+    storage = redundant_storage_load(storage_0_partition,
+                                     storage_0_path,
+                                     storage_1_partition,
+                                     storage_1_path,
+                                     settings_storage_name);
+    MEMCMP_EQUAL(data, storage.data, sizeof(data));
+    CHECK_EQUAL(sizeof(data), storage.size);
+    CHECK_EQUAL(42, storage.version);
+    delete[] storage.data;
+
+    struct stat restored_stat;
+    CHECK_EQUAL(0, stat(filename, &restored_stat));
+    CHECK_EQUAL(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(data), (size_t)restored_stat.st_size);
 }
 
 TEST(RedundantStorageTestsGroup, delete_storage) {

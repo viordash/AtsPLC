@@ -42,26 +42,34 @@ uint8_t CommonComparator::GetReference() {
 }
 
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    state = LogicItemState::lisPassive;
-    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
-        Input->CancelReadingProcess();
-    } else if (prev_elem_state == LogicItemState::lisActive //
-               && this->CompareFunction()) {
-        state = LogicItemState::lisActive;
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            if (this->CompareFunction()) {
+                state = LogicItemState::lisActive;
+            } else {
+                state = LogicItemState::lisPassive;
+            }
+            break;
+
+        case LogicItemState::lisPassive:
+            if (prev_elem_changed) {
+                Input->CancelReadingProcess();
+            }
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-    }
-    return any_changes;
+    return state != prev_state;
 }
 
 IRAM_ATTR void
@@ -140,11 +148,11 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
 CommonComparator *CommonComparator::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_ComparatorEq:
+        case TvElementType::et_ComparatorNe:
         case TvElementType::et_ComparatorGE:
         case TvElementType::et_ComparatorGr:
         case TvElementType::et_ComparatorLE:
         case TvElementType::et_ComparatorLs:
-        case TvElementType::et_ComparatorNe:
             return static_cast<CommonComparator *>(logic_element);
 
         default:

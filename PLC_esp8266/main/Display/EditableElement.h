@@ -48,6 +48,7 @@ class EditableElement {
     bool Blinking_50(FrameBuffer *fb);
     const Bitmap *GetCursorBitmap(FrameBuffer *fb);
     uint16_t GetCursorWidth(FrameBuffer *fb);
+    static uint8_t GetElementCursorWidth();
 
   public:
     explicit EditableElement();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include "config.h"
 #include <mutex>
 #include <stdlib.h>
 
@@ -43,21 +43,31 @@ struct RequestItem {
 
 class WiFiRequests {
   protected:
-    std::list<RequestItem> items;
+    RequestItem items[WiFi_RequestsLimit];
+    size_t count;
     mutable std::mutex lock_mutex;
     bool Equals(const RequestItem *a, const RequestItem *b) const;
-    std::list<RequestItem>::iterator Find(RequestItem *request);
+    bool Find(const RequestItem *request) const;
+    bool Add(RequestItem *request);
+    void RemoveAt(size_t index);
+    bool Remove(const RequestItem *request);
 
   public:
-    bool Contains(RequestItem *request);
-    bool HasAnother(RequestItem *current);
+    WiFiRequests();
+
+    bool Contains(const RequestItem *request);
+    bool HasAnother(const RequestItem *current);
 
     bool Scan(const char *ssid);
     bool AccessPoint(const char *ssid, const char *password, const char *mac);
     bool Station();
+
+    bool RemoveStation();
+    bool RemoveScan(const char *ssid);
+    bool RemoveAccessPoint(const char *ssid, const char *password, const char *mac);
+
     bool Pop(RequestItem *request);
 
     size_t Size() const;
-    std::list<RequestItem>::const_iterator Begin() const;
-    std::list<RequestItem>::const_iterator End() const;
+    const RequestItem *First() const;
 };

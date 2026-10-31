@@ -1,0 +1,32 @@
+{
+	"files.exclude": {
+		"dist": true,
+		"node_modules": true
+	},
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"tabMagnet.rules": [
+		{
+			"left": "$(name).service.ts",
+			"right": "$(name).service.spec.ts"
+		},
+		{
+			"left": "$(name).component.ts",
+			"right": "$(name).component.html"
+		},
+		{
+			"left": "$(name).component.ts",
+			"right": "$(name).component.scss"
+		},
+		{
+			"left": "$(name).component.html",
+			"right": "$(name).component.scss"
+		},
+		{
+			"left": "$(name).component.ts",
+			"right": "$(name).component.spec.ts"
+		},
+	],
+}

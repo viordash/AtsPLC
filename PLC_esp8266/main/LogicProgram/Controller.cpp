@@ -26,7 +26,8 @@ static const char *TAG_Controller = "controller";
 
 #define GPIO_EVENTS_ALL_BITS                                                                       \
     (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
-     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN)
+     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN | INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN         \
+     | WORK_MODES_EVENTS_BITS)
 
 static_assert((Controller::WAKEUP_PROCESS_TASK & GPIO_EVENTS_ALL_BITS) == 0,
               "WAKEUP_PROCESS_TASK must not overlap with any of the sys_gpio event bits");
@@ -38,11 +39,14 @@ bool Controller::in_design = false;
 EventGroupHandle_t Controller::gpio_events = NULL;
 TaskHandle_t Controller::process_task_handle = NULL;
 
-ProcessWakeupService *Controller::processWakeupService = NULL;
+ProcessWakeupService *Controller::process_wakeup_service = NULL;
 WiFiService *Controller::wifi_service = NULL;
 RenderingService *Controller::rendering_service = NULL;
 DatetimeService *Controller::datetime_service = NULL;
 LogicItemState Controller::network_continuation = LogicItemState::lisPassive;
+Ladder Controller::ladder;
+uint32_t Controller::force_refresh_seq = 0;
+std::mutex Controller::force_refresh_mutex;
 
 ControllerDI Controller::DI;
 ControllerAI Controller::AI;
@@ -56,11 +60,13 @@ ControllerVariable Controller::V4;
 void Controller::Start(EventGroupHandle_t gpio_events,
                        WiFiService *wifi_service,
                        RenderingService *rendering_service,
-                       DatetimeService *datetime_service) {
+                       DatetimeService *datetime_service,
+                       ProcessWakeupService *process_wakeup_service) {
     Controller::gpio_events = gpio_events;
     Controller::wifi_service = wifi_service;
     Controller::rendering_service = rendering_service;
     Controller::datetime_service = datetime_service;
+    Controller::process_wakeup_service = process_wakeup_service;
 
     Controller::DI.Init();
     Controller::AI.Init();
@@ -73,14 +79,12 @@ void Controller::Start(EventGroupHandle_t gpio_events,
 
     ESP_LOGI(TAG_Controller, "start");
 
-    processWakeupService = new ProcessWakeupService();
-
     Controller::runned = true;
     ESP_ERROR_CHECK(xTaskCreate(ProcessTask,
                                 "ctrl_actions_task",
                                 4096,
                                 NULL,
-                                3,
+                                tskIDLE_PRIORITY + 3,
                                 &Controller::process_task_handle)
                             != pdPASS
                         ? ESP_FAIL
@@ -93,7 +97,6 @@ void Controller::Stop() {
     ESP_LOGI(TAG_Controller, "stop");
     const int tasks_stopping_timeout = 500;
     vTaskDelay(tasks_stopping_timeout / portTICK_PERIOD_MS);
-    delete processWakeupService;
 }
 
 void Controller::ProcessTask(void *parm) {
@@ -103,13 +106,16 @@ void Controller::ProcessTask(void *parm) {
 
     network_continuation = LogicItemState::lisPassive;
 
-    Ladder ladder;
-    ladder.Load();
-    if (hotreload->is_hotstart) {
-        ladder.SetViewTopIndex(hotreload->view_top_index);
-        ladder.SetSelectedNetworkIndex(hotreload->selected_network);
+    Ladder &ladder = Controller::ladder;
+    {
+        std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+        ladder.Load();
+        if (hotreload->is_hotstart) {
+            ladder.SetViewTopIndex(hotreload->view_top_index);
+            ladder.SetSelectedNetworkIndex(hotreload->selected_network);
+        }
+        ladder.AtLeastOneNetwork();
     }
-    ladder.AtLeastOneNetwork();
 
     rendering_service->Start(&ladder);
     xEventGroupClearBits(Controller::gpio_events, GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK);
@@ -123,18 +129,24 @@ void Controller::ProcessTask(void *parm) {
                                                  GPIO_EVENTS_ALL_BITS | WAKEUP_PROCESS_TASK,
                                                  true,
                                                  false,
-                                                 Controller::GetWakeupTicks());
+                                                 Controller::GetWakeupTicks())
+                           & ~WAKEUP_PROCESS_TASK;
 
         Controller::RemoveExpiredWakeupRequests();
 
         ESP_LOGD(TAG_Controller, "bits:0x%08X", (unsigned int)uxBits);
-        bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
-        bool buttons_changed = !inputs_changed && uxBits != 0;
-        bool do_render = inputs_changed;
 
-        if (buttons_changed) {
-            ButtonsPressType pressed_button = handle_buttons(uxBits);
-            ESP_LOGD(TAG_Controller, "buttons_changed, pressed_button:%u", pressed_button);
+        bool inputs_changed = (uxBits & (INPUT_1_IO_CLOSE | INPUT_1_IO_OPEN));
+        bool do_render = inputs_changed;
+        bool looped_actions = false;
+        {
+            std::lock_guard<std::mutex> lock(ladder.GetLockMutex());
+
+            if (uxBits & WORK_MODES_EVENTS_BITS) {
+                Controller::ChangeWorkMode(uxBits);
+            }
+
+            ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
             switch (pressed_button) {
                 case ButtonsPressType::UP_PRESSED:
                     ladder.HandleButtonUp();
@@ -160,28 +172,27 @@ void Controller::ProcessTask(void *parm) {
                     ladder.HandleButtonOption();
                     do_render = true;
                     break;
-                default:
+                case ButtonsPressType::NOTHING_PRESSED:
                     break;
             }
-        }
 
-        bool looped_actions = false;
-        auto cycle_start_time = (uint64_t)esp_timer_get_time();
-        const uint64_t max_cycle_ms = portTICK_PERIOD_MS * 2;
-        auto next_time = cycle_start_time + (max_cycle_ms * 1000);
-        bool expired;
-        do {
-            FetchIOValues();
-            bool any_changes_in_actions = ladder.DoAction();
-            CommitChanges();
-            if (!any_changes_in_actions) {
-                break;
-            }
-            int64_t timespan = next_time - (uint64_t)esp_timer_get_time();
-            expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
-            do_render = true;
-            looped_actions = expired;
-        } while (!expired);
+            auto cycle_start_time = (uint64_t)esp_timer_get_time();
+            const uint64_t max_cycle_ms = portTICK_PERIOD_MS * 2;
+            auto next_time = cycle_start_time + (max_cycle_ms * 1000);
+            bool expired;
+            do {
+                FetchIOValues();
+                bool any_changes_in_actions = ladder.DoAction();
+                CommitChanges();
+                if (!any_changes_in_actions) {
+                    break;
+                }
+                int64_t timespan = next_time - (uint64_t)esp_timer_get_time();
+                expired = timespan <= (portTICK_PERIOD_MS / 2) * 1000;
+                do_render = true;
+                looped_actions = expired;
+            } while (!expired);
+        }
 
         if (looped_actions) {
             ESP_LOGD(TAG_Controller, "looped actions");
@@ -225,19 +236,19 @@ void Controller::CommitChanges() {
 bool Controller::RequestWakeupMs(const void *id,
                                  uint32_t delay_ms,
                                  ProcessWakeupRequestPriority priority) {
-    return processWakeupService->Request(id, delay_ms, priority);
+    return process_wakeup_service->Request(id, delay_ms, priority);
 }
 
 void Controller::RemoveRequestWakeupMs(const void *id) {
-    processWakeupService->RemoveRequest(id);
+    process_wakeup_service->RemoveRequest(id);
 }
 
 void Controller::RemoveExpiredWakeupRequests() {
-    processWakeupService->RemoveExpired();
+    process_wakeup_service->RemoveExpired();
 }
 
 uint32_t Controller::GetWakeupTicks() {
-    return processWakeupService->Get();
+    return process_wakeup_service->Get();
 }
 
 void Controller::BindVariableToSecureWiFi(const MapIO io_adr,
@@ -371,6 +382,12 @@ void Controller::DisconnectFromWiFiStation() {
     }
 }
 
+void Controller::RaiseWiFiSettingsChanged() {
+    if (Controller::wifi_service != NULL) {
+        Controller::wifi_service->RaiseSettingsChanged();
+    }
+}
+
 bool Controller::ManualSetSystemDatetime(Datetime *dt) {
     if (Controller::datetime_service == NULL) {
         return false;
@@ -390,6 +407,13 @@ void Controller::RestartSntp() {
         return;
     }
     Controller::datetime_service->SntpStateChanged();
+}
+
+void Controller::StopSntp() {
+    if (Controller::datetime_service == NULL) {
+        return;
+    }
+    Controller::datetime_service->StopSntp();
 }
 
 void Controller::StoreSystemDatetime() {
@@ -428,8 +452,19 @@ int32_t Controller::GetLastUpdatedUISelected() {
     return hotreload->selected_network;
 }
 
-void Controller::DesignStart() {
-    Controller::in_design = true;
+Ladder &Controller::GetLadder() {
+    return ladder;
+}
+
+RenderingService *Controller::GetRenderingService() {
+    return rendering_service;
+}
+
+void Controller::DesignStart(WorkMode work_mode) {
+    bool enable_debug;
+    SAFETY_HOTRELOAD({ enable_debug = hotreload->enable_debug; });
+
+    Controller::in_design = work_mode == WorkMode::Stop || enable_debug;
     Controller::WakeupProcessTask();
     ESP_LOGI(TAG_Controller, "DesignStart");
 }
@@ -441,4 +476,29 @@ void Controller::DesignEnd() {
 
 bool Controller::InDesign() {
     return Controller::in_design;
+}
+
+void Controller::RequestForceRefreshUI() {
+    std::lock_guard<std::mutex> lock(force_refresh_mutex);
+    force_refresh_seq++;
+}
+
+uint32_t Controller::GetForceRefreshUISeq() {
+    std::lock_guard<std::mutex> lock(force_refresh_mutex);
+    return force_refresh_seq;
+}
+
+void Controller::ChangeWorkMode(EventBits_t flags) {
+    if ((flags & WORK_MODES_EVENTS_BITS) == WORK_MODES_EVENTS_BITS) {
+        GetLadder().ChangeWorkMode(WorkMode::Run, true);
+        return;
+    }
+    if ((flags & WORK_MODES_0) == WORK_MODES_0) {
+        GetLadder().ChangeWorkMode(WorkMode::Stop, false);
+        return;
+    }
+    if ((flags & WORK_MODES_1) == WORK_MODES_1) {
+        GetLadder().ChangeWorkMode(WorkMode::Run, false);
+        return;
+    }
 }

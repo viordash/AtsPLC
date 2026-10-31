@@ -9,17 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool Ladder::CanScrollAuto() {
-    return (size_t)view_top_index == items.size() - Ladder::MaxViewPortCount;
-}
-
-void Ladder::AutoScroll() {
-    if (items.size() > Ladder::MaxViewPortCount) {
-        view_top_index = items.size() - Ladder::MaxViewPortCount;
-        Controller::UpdateUIViewTop(view_top_index);
-    }
-}
-
 int Ladder::GetSelectedNetwork() {
     for (int i = 0; i < (int)items.size(); i++) {
         auto network = items[i];
@@ -201,20 +190,27 @@ void Ladder::HandleButtonDown() {
             }
             break;
 
-        case EditableElement::ElementState::des_Selected:
+        case EditableElement::ElementState::des_Selected: {
             items[selected_network]->CancelSelection();
 
             if (!RemoveNetworkIfEmpty(selected_network)) {
-                ScrollDown(&selected_network);
+                bool networks_limit_reached = selected_network + 1 == (int)items.size()
+                                           && items.size() >= Ladder::MaxNetworksCount;
+                if (!networks_limit_reached) {
+                    ScrollDown(&selected_network);
+                }
             }
 
             if (selected_network == (int)items.size()) {
-                auto new_network = new Network(LogicItemState::lisActive);
+                auto new_network = work_mode == WorkMode::Stop
+                                     ? new Network(NetworkState::nsStopFromActive)
+                                     : new Network(NetworkState::nsActive);
                 Append(new_network);
             }
 
             items[selected_network]->Select();
             break;
+        }
 
         case EditableElement::ElementState::des_Editing:
             items[selected_network]->SelectNext();
@@ -289,8 +285,16 @@ void Ladder::HandleButtonSelect() {
     switch (design_state) {
         case EditableElement::ElementState::des_Regular: {
             if (items.size() == 0) {
-                auto new_network = new Network(LogicItemState::lisActive);
+                auto new_network = work_mode == WorkMode::Stop
+                                     ? new Network(NetworkState::nsStopFromActive)
+                                     : new Network(NetworkState::nsActive);
                 Append(new_network);
+            }
+
+            Controller::DesignStart(work_mode);
+            if (!Controller::InDesign()) {
+                ESP_LOGE(TAG_Ladder, "Designing in Run mode is prohibited");
+                break;
             }
 
             int32_t last_selected_network = Controller::GetLastUpdatedUISelected();
@@ -305,7 +309,6 @@ void Ladder::HandleButtonSelect() {
                 items[view_top_index]->Select();
                 Controller::UpdateUISelected(view_top_index);
             }
-            Controller::DesignStart();
             break;
         }
 
@@ -319,6 +322,7 @@ void Ladder::HandleButtonSelect() {
             if (!items[selected_network]->Editing()) {
                 if (RemoveNetworkIfEmpty(selected_network)) {
                     selected_network = -1;
+                    FitViewTopIndex();
                 }
                 Store();
                 Controller::UpdateUISelected(selected_network);

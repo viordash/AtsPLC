@@ -14,14 +14,19 @@
 
 static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogicIndicatorTestsGroup){ //
-                                      TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
+static ProcessWakeupService *process_wakeup_service;
+
+TEST_GROUP(LogicIndicatorTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
 }
 }
@@ -74,14 +79,14 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, Render_when_passive) {
@@ -92,14 +97,14 @@ TEST(LogicIndicatorTestsGroup, Render_when_passive) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, TryToCast) {

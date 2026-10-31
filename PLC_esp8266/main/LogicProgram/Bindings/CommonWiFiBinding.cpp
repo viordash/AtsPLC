@@ -1,5 +1,6 @@
 #include "LogicProgram/Bindings/CommonWiFiBinding.h"
 #include "Display/bitmaps/common_wifi_binding.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -26,6 +27,9 @@ CommonWiFiBinding::CommonWiFiBinding(const MapIO io_adr) : CommonWiFiBinding() {
 }
 
 CommonWiFiBinding::~CommonWiFiBinding() {
+    if (state == LogicItemState::lisActive) {
+        Controller::UnbindVariable(GetIoAdr());
+    }
 }
 
 void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
@@ -35,27 +39,28 @@ void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
 
 IRAM_ATTR void
 CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    if (prev_elem_state == LogicItemState::lisActive) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (CommonWiFiBinding::EditingPropertyId)editing_property_id
                                      == CommonWiFiBinding::EditingPropertyId::cwbepi_None
                               && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        ASSERT(draw_horz_line(fb, top_left.x, top_left.y, Width));
-        ASSERT(draw_horz_line(fb, bottom_left.x, bottom_left.y, Width));
-        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
-        ASSERT(draw_vert_line(fb, top_right.x, top_right.y, Height));
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing

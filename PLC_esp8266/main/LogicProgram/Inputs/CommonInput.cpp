@@ -10,6 +10,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +30,6 @@ void CommonInput::SetIoAdr(const MapIO io_adr) {
 
 IRAM_ATTR void
 CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonInput::EditingPropertyId)editing_property_id
                                       == CommonInput::EditingPropertyId::ciepi_ConfigureInputAdr
@@ -45,17 +44,17 @@ CommonInput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *star
 
     auto bitmap = GetCurrentBitmap(state);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, label_width + LeftPadding));
+    uint8_t line_w = std::max<uint8_t>(LeftPadding + label_width, GetElementCursorWidth());
+
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, line_w));
     } else {
-        ASSERT(draw_passive_network(fb,
-                                    start_point->x,
-                                    start_point->y,
-                                    label_width + LeftPadding,
-                                    false));
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, line_w, false));
     }
 
-    start_point->x += LeftPadding + label_width;
+    start_point->x += line_w;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonInput::EditingPropertyId)editing_property_id
@@ -75,11 +74,11 @@ CommonInput *CommonInput::TryToCast(LogicElement *logic_element) {
         case TvElementType::et_InputNC:
         case TvElementType::et_InputNO:
         case TvElementType::et_ComparatorEq:
+        case TvElementType::et_ComparatorNe:
         case TvElementType::et_ComparatorGE:
         case TvElementType::et_ComparatorGr:
         case TvElementType::et_ComparatorLE:
         case TvElementType::et_ComparatorLs:
-        case TvElementType::et_ComparatorNe:
             return static_cast<CommonInput *>(logic_element);
 
         default:

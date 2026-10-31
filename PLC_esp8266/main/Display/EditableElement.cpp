@@ -17,6 +17,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -93,6 +94,12 @@ const Bitmap *EditableElement::GetCursorBitmap(FrameBuffer *fb) {
     }
 }
 
+uint8_t EditableElement::GetElementCursorWidth() {
+    ASSERT(bitmap_selecting_blink_0.size.width == bitmap_selecting_blink_1.size.width);
+    ASSERT(bitmap_selecting_blink_0.size.width == bitmap_selecting_blink_2.size.width);
+    return bitmap_selecting_blink_0.size.width;
+}
+
 uint16_t EditableElement::GetCursorWidth(FrameBuffer *fb) {
     const Bitmap *bitmap = GetCursorBitmap(fb);
     if (bitmap != NULL) {
@@ -116,8 +123,8 @@ bool EditableElement::InEditingProperty() {
 bool EditableElement::Blinking_50(FrameBuffer *fb) {
     const int blink_timer_ms = 400;
 
-    const int offset_Blinking_50 = 50;
-    auto blinking = Controller::RequestWakeupMs((void *)(this + offset_Blinking_50),
+    const void *blinking_id = &blink;
+    auto blinking = Controller::RequestWakeupMs(blinking_id,
                                                 blink_timer_ms,
                                                 ProcessWakeupRequestPriority::pwrp_Idle);
     if (blinking) {

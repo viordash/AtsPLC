@@ -57,15 +57,19 @@
 #include "main/WiFi/WiFiService_AccessPoint.cpp"
 #include "main/WiFi/WiFiService_Scanner.cpp"
 #include "main/WiFi/WiFiService_Station.cpp"
-#include "main/buttons.cpp"
 
 #include "main/MigrateAnyData/MigrateAnyData.cpp"
 #include "main/settings.cpp"
 
 #include "HttpServer/BaseController.cpp"
+#include "HttpServer/DisplayController.cpp"
 #include "HttpServer/HttpServer.cpp"
+#include "HttpServer/InputController.cpp"
 #include "HttpServer/MainController.cpp"
+#include "HttpServer/ProgramController.cpp"
 #include "HttpServer/UpdateController.cpp"
+#include "HttpServer/UriHelper.cpp"
+#include "HttpServer/WorkModeController.cpp"
 #include "HttpServer/http_server.cpp"
 
 #include "main/Display/ListBox.cpp"

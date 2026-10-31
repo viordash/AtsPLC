@@ -13,10 +13,10 @@ ControllerDO::ControllerDO(gpio_output gpio) : ControllerBaseInputOutput() {
 }
 
 void ControllerDO::FetchValue() {
-    if (!required_reading) {
+    if (!required_reading.load(std::memory_order_acquire)) {
         return;
     }
-    required_reading = false;
+    required_reading.store(false, std::memory_order_release);
 
     bool val_1bit = get_digital_value(gpio);
     uint8_t percent04 = val_1bit ? LogicElement::MaxValue : LogicElement::MinValue;
@@ -26,10 +26,10 @@ void ControllerDO::FetchValue() {
 }
 
 void ControllerDO::CommitChanges() {
-    if (!required_writing) {
+    if (!required_writing.load(std::memory_order_acquire)) {
         return;
     }
-    required_writing = false;
+    required_writing.store(false, std::memory_order_release);
     set_digital_value(gpio, out_value != LogicElement::MinValue);
     UpdateValue(out_value);
 }

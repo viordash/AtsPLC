@@ -31,14 +31,14 @@ TEST(LogicContinuationOutTestsGroup, Render) {
     testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++){
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
         if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(24, start_point.x);
+    CHECK_EQUAL(18, start_point.x);
 }
 
 TEST(LogicContinuationOutTestsGroup, Serialize) {

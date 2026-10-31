@@ -15,15 +15,19 @@
 
 static const char *TAG_Network = "Network";
 
-Network::Network(LogicItemState state) : EditableElement() {
+Network::Network(NetworkState state) : EditableElement() {
     fill_wire = 0;
     ChangeState(state);
-    frame_buffer_req_render = false;
+    frame_buffer_req_render.store(false, std::memory_order_relaxed);
 }
-Network::Network() : Network(LogicItemState::lisPassive) {
+Network::Network() : Network(NetworkState::nsPassive) {
 }
 
 Network::~Network() {
+    RemoveAll();
+}
+
+void Network::RemoveAll() {
     while (!items.empty()) {
         auto it = items.begin();
         auto element = *it;
@@ -53,12 +57,12 @@ LogicElement *const &Network::operator[](size_t index) const {
     return items[index];
 }
 
-void Network::ChangeState(LogicItemState state) {
+void Network::ChangeState(NetworkState state) {
     this->state = state;
     state_changed = true;
 }
 
-LogicItemState Network::GetState() {
+NetworkState Network::GetState() {
     return state;
 }
 
@@ -66,7 +70,7 @@ bool Network::DoAction() {
     bool any_changes = false;
     bool prev_elem_changed = state_changed;
     state_changed = false;
-    LogicItemState prev_elem_state = state;
+    LogicItemState prev_elem_state = Convert2LogicItemState(state);
 
     for (auto it = items.begin(); it != items.end(); ++it) {
         auto element = *it;
@@ -75,7 +79,9 @@ bool Network::DoAction() {
         any_changes |= prev_elem_changed;
     }
 
-    frame_buffer_req_render |= any_changes;
+    frame_buffer_req_render.store(frame_buffer_req_render.load(std::memory_order_relaxed)
+                                      | any_changes,
+                                  std::memory_order_relaxed);
     return any_changes;
 }
 
@@ -86,18 +92,20 @@ IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
     ESP_LOGD(TAG_Network, "Render: %u, x:%u, y:%u", network_number, start_point.x, start_point.y);
 
     switch (state) {
-        case LogicItemState::lisActive:
+        case NetworkState::nsActive:
+        case NetworkState::nsStopFromActive:
             ASSERT(draw_active_income_rail(fb, start_point.x, start_point.y));
             break;
 
-        default:
+        case NetworkState::nsPassive:
+        case NetworkState::nsStopFromPassive:
             ASSERT(draw_passive_income_rail(fb, start_point.x, start_point.y));
             break;
     }
 
     Point editable_sign_start_point = start_point;
     bool any_child_is_edited = false;
-    LogicItemState prev_elem_state = state;
+    LogicItemState prev_elem_state = Convert2LogicItemState(state);
     start_point.x += INCOME_RAIL_WIDTH;
 
     auto it = items.begin();
@@ -144,16 +152,30 @@ IRAM_ATTR void Network::Render(FrameBuffer *fb, uint8_t network_number) {
 
     fill_wire = end_point.x - start_point.x;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        ASSERT(draw_active_network(fb, start_point.x, start_point.y, fill_wire));
-    } else {
-        ASSERT(draw_passive_network(fb, start_point.x, start_point.y, fill_wire, false));
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
+            ASSERT(draw_active_network(fb, start_point.x, start_point.y, fill_wire));
+            break;
+        case LogicItemState::lisPassive:
+            ASSERT(draw_passive_network(fb, start_point.x, start_point.y, fill_wire, false));
+            break;
     }
 
-    ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
+    switch (state) {
+        case NetworkState::nsActive:
+        case NetworkState::nsPassive:
+            ASSERT(draw_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
+            break;
 
-    fb->has_changes |= frame_buffer_req_render;
-    frame_buffer_req_render = false;
+        case NetworkState::nsStopFromActive:
+        case NetworkState::nsStopFromPassive:
+            ASSERT(draw_passive_outcome_rail(fb, OUTCOME_RAIL_RIGHT, start_point.y));
+            break;
+    }
+
+    fb->has_changes |= frame_buffer_req_render.load(std::memory_order_relaxed);
+    frame_buffer_req_render.store(false, std::memory_order_relaxed);
 }
 
 void Network::Append(LogicElement *element) {
@@ -204,11 +226,11 @@ size_t Network::Serialize(uint8_t *buffer, size_t buffer_size) {
 size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     size_t readed = 0;
 
-    LogicItemState _state;
+    NetworkState _state;
     if (!Record::Read(&_state, sizeof(_state), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (!ValidateLogicItemState(_state)) {
+    if (!ValidateNetworkState(_state)) {
         return 0;
     }
 
@@ -228,17 +250,20 @@ size_t Network::Deserialize(uint8_t *buffer, size_t buffer_size) {
     for (size_t i = 0; i < elements_count; i++) {
         TvElement tvElement;
         if (!Record::Read(&tvElement, sizeof(tvElement), buffer, buffer_size, &readed)) {
+            RemoveAll();
             return 0;
         }
 
         auto element = LogicElementFactory::Create(tvElement.type);
         if (element == NULL) {
+            RemoveAll();
             return 0;
         }
 
         size_t element_readed = element->Deserialize(&buffer[readed], buffer_size - readed);
         if (element_readed == 0) {
             delete element;
+            RemoveAll();
             return 0;
         }
         readed += element_readed;
@@ -409,8 +434,8 @@ bool Network::EnoughSpaceForNewElement(LogicElement *new_element) {
     ElementsBox elementBox(fill_wire, new_element, options);
     new_element->EndEditing();
     bool not_enough =
-        elementBox.size() == 0
-        || (elementBox.size() == 1
+        elementBox.GetCount() == 0
+        || (elementBox.GetCount() == 1
             && elementBox.GetSelectedElement()->GetElementType() == TvElementType::et_Wire);
     return !not_enough;
 }
@@ -424,7 +449,7 @@ void Network::AddSpaceForNewElement() {
     wire->SetWidth(wire_width);
     if (EnoughSpaceForNewElement(wire)) {
         ESP_LOGI(TAG_Network, "insert wire element");
-        LogicItemState wire_state = state;
+        LogicItemState wire_state = Convert2LogicItemState(state);
         auto it = items.begin();
         while (it != items.end()) {
             auto element = *it;
@@ -525,11 +550,20 @@ int Network::GetSelectedElement() {
 
 void Network::SwitchState() {
     switch (state) {
-        case LogicItemState::lisPassive:
-            ChangeState(LogicItemState::lisActive);
+        case NetworkState::nsPassive:
+            ChangeState(NetworkState::nsActive);
             break;
-        default:
-            ChangeState(LogicItemState::lisPassive);
+
+        case NetworkState::nsActive:
+            ChangeState(NetworkState::nsPassive);
+            break;
+
+        case NetworkState::nsStopFromPassive:
+            ChangeState(NetworkState::nsStopFromActive);
+            break;
+
+        case NetworkState::nsStopFromActive:
+            ChangeState(NetworkState::nsStopFromPassive);
             break;
     }
 }

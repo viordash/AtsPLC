@@ -2,6 +2,7 @@
 #include "Display/Common.h"
 #include "Display/ListBox.h"
 #include "Display/display.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "buttons.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -13,21 +14,35 @@
 
 static const char *TAG_ServiceModeHandler = "ServiceMode";
 
-#define EXPECTED_BUTTONS                                                                           \
-    (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN | BUTTON_DOWN_IO_CLOSE | BUTTON_DOWN_IO_OPEN           \
-     | BUTTON_SELECT_IO_CLOSE | BUTTON_SELECT_IO_OPEN)
-
-void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
+ListBox ServiceModeHandler::CreateModesList() {
     char buffer[64];
-    Mode mode = Mode::sm_SmartConfig;
 
-    sprintf(buffer, "v%08X.%u", DEVICE_SETTINGS_VERSION, (unsigned)BUILD_NUMBER);
+    snprintf(buffer,
+             sizeof(buffer),
+             "v%08X.%u",
+             (unsigned int)DEVICE_SETTINGS_VERSION,
+             (unsigned int)BUILD_NUMBER);
     ListBox listBox(buffer);
-    listBox.Insert(0, "Smart config");
-    listBox.Insert(1, "Backup logic");
-    listBox.Insert(2, "Restore logic");
-    listBox.Insert(3, "Reset to default");
+
+    listBox.Insert(0, "Work mode");
+    listBox.Insert(1, "Smart config");
+    listBox.Insert(2, "Backup logic");
+    listBox.Insert(3, "Restore logic");
+    listBox.Insert(4, "Reset to default");
+    return listBox;
+}
+
+void ServiceModeHandler::Start(EventGroupHandle_t gpio_events,
+                               ProcessWakeupService *process_wakeup_service) {
+    Mode mode = Mode::sm_WorkMode;
+
+    ListBox listBox = CreateModesList();
     listBox.Select(mode);
+
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
 
     while (true) {
         auto fb = begin_render();
@@ -38,17 +53,19 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
+
+        process_wakeup_service->RemoveExpired();
 
         ESP_LOGD(TAG_ServiceModeHandler, "bits:0x%08X", (unsigned int)uxBits);
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         ESP_LOGD(TAG_ServiceModeHandler, "buttons_changed, pressed_button:%u", pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
@@ -63,18 +80,26 @@ void ServiceModeHandler::Start(EventGroupHandle_t gpio_events) {
                 break;
             case ButtonsPressType::SELECT_PRESSED:
             case ButtonsPressType::SELECT_LONG_PRESSED:
-                Execute(gpio_events, mode);
+                Execute(gpio_events, mode, process_wakeup_service);
                 return;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
 }
 
 ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler::Mode mode) {
     switch (mode) {
-        case Mode::sm_SmartConfig:
+        case Mode::sm_WorkMode:
             mode = Mode::sm_ResetToDefault;
+            break;
+        case Mode::sm_SmartConfig:
+            mode = Mode::sm_WorkMode;
             break;
         case Mode::sm_BackupLogic:
             mode = Mode::sm_SmartConfig;
@@ -91,6 +116,9 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToPrev(ServiceModeHandler
 
 ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler::Mode mode) {
     switch (mode) {
+        case Mode::sm_WorkMode:
+            mode = Mode::sm_SmartConfig;
+            break;
         case Mode::sm_SmartConfig:
             mode = Mode::sm_BackupLogic;
             break;
@@ -101,25 +129,30 @@ ServiceModeHandler::Mode ServiceModeHandler::ChangeModeToNext(ServiceModeHandler
             mode = Mode::sm_ResetToDefault;
             break;
         case Mode::sm_ResetToDefault:
-            mode = Mode::sm_SmartConfig;
+            mode = Mode::sm_WorkMode;
             break;
     }
     return mode;
 }
 
-void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events, Mode mode) {
+void ServiceModeHandler::Execute(EventGroupHandle_t gpio_events,
+                                 Mode mode,
+                                 ProcessWakeupService *process_wakeup_service) {
     switch (mode) {
+        case Mode::sm_WorkMode:
+            ChangeWorkMode(gpio_events, process_wakeup_service);
+            break;
         case Mode::sm_SmartConfig:
             SmartConfig(gpio_events);
             break;
         case Mode::sm_BackupLogic:
-            Backup(gpio_events);
+            Backup(gpio_events, process_wakeup_service);
             break;
         case Mode::sm_RestoreLogic:
-            Restore(gpio_events);
+            Restore(gpio_events, process_wakeup_service);
             break;
         case Mode::sm_ResetToDefault:
-            ResetData(gpio_events);
+            ResetData(gpio_events, process_wakeup_service);
             break;
     }
 }

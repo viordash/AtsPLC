@@ -20,12 +20,11 @@ ContinuationOut::~ContinuationOut() {
 }
 
 bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
     bool any_changes = false;
-    std::lock_guard<std::mutex> lock(lock_mutex);
 
     auto network_continuation = Controller::GetNetworkContinuation();
 
@@ -33,10 +32,18 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = network_continuation;
-    } else {
-        state = LogicItemState::lisPassive;
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            state = network_continuation;
+            break;
+
+        case LogicItemState::lisPassive:
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
     if (state != prev_state) {
@@ -50,9 +57,6 @@ bool ContinuationOut::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
 IRAM_ATTR void
 ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    std::lock_guard<std::mutex> lock(lock_mutex);
-
-    start_point->x += LeftPadding;
 
     auto bitmap = GetCurrentBitmap();
     uint16_t bitmap_top = start_point->y - (bitmap->size.height / 2) + 1;
@@ -73,6 +77,7 @@ ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *
 const Bitmap *ContinuationOut::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ContinuationOut::bitmap_active;
         default:
             return &ContinuationOut::bitmap_passive;
