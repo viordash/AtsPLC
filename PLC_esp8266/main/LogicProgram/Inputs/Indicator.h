@@ -38,7 +38,6 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     char str_value[max_symbols_count + 1];
     char str_format[max_symbols_count + 1];
     const AllowedIO GetAllowedInputs();
-    void UpdateScale();
     void PrintOutValue(uint8_t eng_value);
     void PrintLowScale();
     void AcceptLowScale();
@@ -62,6 +61,7 @@ class Indicator : public LogicElement, public InputElement, public LabeledLogicI
     explicit Indicator(const MapIO io_adr);
     virtual ~Indicator();
 
+    void UpdateScale();
     void SetIoAdr(const MapIO io_adr) override final;
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
     void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
