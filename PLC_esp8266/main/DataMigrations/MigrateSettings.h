@@ -5,6 +5,7 @@
 #include "Settings_20250209.h"
 #include "Settings_20250413.h"
 #include "Settings_20250619.h"
+#include "Settings_20261031.h"
 
 const TDataMigrate Migrate_Settings[] = {
     { INITIAL_VERSION, 0, 0, 0 },
@@ -13,6 +14,7 @@ const TDataMigrate Migrate_Settings[] = {
     MigrateSettings::v20250209::DataMigrate, //
     MigrateSettings::v20250413::DataMigrate, //
     MigrateSettings::v20250619::DataMigrate, //
+    MigrateSettings::v20261031::DataMigrate, //
 };
 
 const TDataMigrateItems SettingsMigrations = {
@@ -20,4 +22,4 @@ const TDataMigrateItems SettingsMigrations = {
     sizeof(Migrate_Settings) / sizeof(Migrate_Settings[0]) //
 };
 
-namespace CurrentSettings = MigrateSettings::v20250619::Snapshot;
+namespace CurrentSettings = MigrateSettings::v20261031::Snapshot;

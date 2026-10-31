@@ -4,31 +4,31 @@
 
 static const char *TAG_WiFiRequests = "WiFiRequests";
 
-bool RequestItem::Equals(const RequestItem *other) const {
-    if (Type != other->Type) {
+WiFiRequests::WiFiRequests() : items{}, count{ 0 } {
+}
+
+bool WiFiRequests::Equals(const RequestItem *a, const RequestItem *b) const {
+    if (a->Type != b->Type) {
         return false;
     }
-    switch (Type) {
+    switch (a->Type) {
         case wqi_Station:
             return true;
 
         case wqi_Scanner:
-            return Payload.Scanner.ssid == other->Payload.Scanner.ssid;
+            return a->Payload.Scanner.ssid == b->Payload.Scanner.ssid;
 
         case wqi_AccessPoint:
-            return Payload.AccessPoint.ssid == other->Payload.AccessPoint.ssid
-                && Payload.AccessPoint.password == other->Payload.AccessPoint.password
-                && Payload.AccessPoint.mac == other->Payload.AccessPoint.mac;
+            return a->Payload.AccessPoint.ssid == b->Payload.AccessPoint.ssid
+                && a->Payload.AccessPoint.password == b->Payload.AccessPoint.password
+                && a->Payload.AccessPoint.mac == b->Payload.AccessPoint.mac;
     }
     return true;
 }
 
-WiFiRequests::WiFiRequests() : items{}, count{ 0 } {
-}
-
 bool WiFiRequests::Find(const RequestItem *request) const {
     for (size_t i = 0; i < count; i++) {
-        if (items[i].Equals(request)) {
+        if (Equals(&items[i], request)) {
             return true;
         }
     }
@@ -58,30 +58,11 @@ bool WiFiRequests::Contains(const RequestItem *request) {
 bool WiFiRequests::HasAnother(const RequestItem *current) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     for (size_t i = 0; i < count; i++) {
-        if (!items[i].Equals(current)) {
+        if (!Equals(&items[i], current)) {
             return true;
         }
     }
     return false;
-}
-
-void WiFiRequests::Remove(const RequestItem *request) {
-    std::lock_guard<std::mutex> lock(lock_mutex);
-    size_t kept = 0;
-    for (size_t i = 0; i < count; i++) {
-        if (items[i].Equals(request)) {
-            continue;
-        }
-        if (kept != i) {
-            items[kept] = std::move(items[i]);
-        }
-        kept++;
-    }
-    ESP_LOGD(TAG_WiFiRequests,
-             "Remove, type:%u, removed:%u",
-             request->Type,
-             (unsigned int)(count - kept));
-    count = kept;
 }
 
 bool WiFiRequests::Scan(const char *ssid) {
@@ -110,16 +91,56 @@ bool WiFiRequests::Station() {
     return new_req;
 }
 
+void WiFiRequests::RemoveAt(size_t index) {
+    count--;
+    for (size_t i = index; i < count; i++) {
+        items[i] = std::move(items[i + 1]);
+    }
+}
+
+bool WiFiRequests::Remove(const RequestItem *request) {
+    for (size_t i = 0; i < count; i++) {
+        if (Equals(&items[i], request)) {
+            RemoveAt(i);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WiFiRequests::RemoveStation() {
+    RequestItem request = { RequestItemType::wqi_Station, {} };
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    bool removed = Remove(&request);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveStation, removed:%u", removed);
+    return removed;
+}
+
+bool WiFiRequests::RemoveScan(const char *ssid) {
+    RequestItem request = { RequestItemType::wqi_Scanner, { ssid } };
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    bool removed = Remove(&request);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveScan, ssid:%s, removed:%u", ssid, removed);
+    return removed;
+}
+
+bool WiFiRequests::RemoveAccessPoint(const char *ssid, const char *password, const char *mac) {
+    RequestItem request = { RequestItemType::wqi_AccessPoint, { ssid } };
+    request.Payload.AccessPoint.password = password;
+    request.Payload.AccessPoint.mac = mac;
+    std::lock_guard<std::mutex> lock(lock_mutex);
+    bool removed = Remove(&request);
+    ESP_LOGD(TAG_WiFiRequests, "RemoveAccessPoint, ssid:%s, removed:%u", ssid, removed);
+    return removed;
+}
+
 bool WiFiRequests::Pop(RequestItem *request) {
     std::lock_guard<std::mutex> lock(lock_mutex);
     if (count == 0) {
         return false;
     }
     *request = std::move(items[0]);
-    count--;
-    for (size_t i = 0; i < count; i++) {
-        items[i] = std::move(items[i + 1]);
-    }
+    RemoveAt(0);
     return true;
 }
 

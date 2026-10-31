@@ -93,7 +93,7 @@ TEST(LogicDateTimeBindingTestsGroup, Render) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {

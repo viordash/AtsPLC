@@ -105,5 +105,12 @@
         "spanstream": "cpp",
         "stdfloat": "cpp",
         "syncstream": "cpp"
-    }
+    },
+    "cpputestTestAdapter.testExecutable": "${workspaceFolder}/Tests_esp8266/output/main;${workspaceFolder}/Tests_esp8266/output/main.exe",
+    "cpputestTestAdapter.testExecutablePath": "${workspaceFolder}/Tests_esp8266",
+    "cpputestTestAdapter.logpanel": true,
+    "cpputestTestAdapter.ignoreStderr": true,
+    "cpputestTestAdapter.maxBuffer": 26214400,
+    "cpputestTestAdapter.testLocationFetchMode": "debug dump",
+    "cpputestTestAdapter.debugLaunchConfigurationName": "(gdb) Tests"
 }

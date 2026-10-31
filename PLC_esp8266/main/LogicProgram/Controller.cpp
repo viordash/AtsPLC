@@ -382,6 +382,12 @@ void Controller::DisconnectFromWiFiStation() {
     }
 }
 
+void Controller::RaiseWiFiSettingsChanged() {
+    if (Controller::wifi_service != NULL) {
+        Controller::wifi_service->RaiseSettingsChanged();
+    }
+}
+
 bool Controller::ManualSetSystemDatetime(Datetime *dt) {
     if (Controller::datetime_service == NULL) {
         return false;

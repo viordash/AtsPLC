@@ -75,11 +75,8 @@ void WiFiService::AccessPointTask(RequestItem *request) {
     uint32_t ulNotifiedValue = 0;
     while (true) {
         bool notify_wait_timeout =
-            xTaskNotifyWait(0,
-                            AP_BREAK_BIT,
-                            &ulNotifiedValue,
-                            access_point_settings.generation_time_ms / portTICK_PERIOD_MS)
-            == pdFALSE;
+            !WaitEvent(&ulNotifiedValue,
+                       access_point_settings.generation_time_ms / portTICK_PERIOD_MS);
 
         ESP_LOGD(TAG_WiFiService_AccessPoint,
                  "process, uxBits:0x%08X",

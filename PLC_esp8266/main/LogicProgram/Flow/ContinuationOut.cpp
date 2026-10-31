@@ -58,8 +58,6 @@ IRAM_ATTR void
 ContinuationOut::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
 
-    start_point->x += LeftPadding;
-
     auto bitmap = GetCurrentBitmap();
     uint16_t bitmap_top = start_point->y - (bitmap->size.height / 2) + 1;
 

@@ -37,19 +37,38 @@ Service order is FIFO.
 ### Preemption
 
 While a request of one type is running, a request of another type interrupts it: the
-running task periodically checks its break bit and, once set, finishes and frees the radio.
+running task periodically checks `HasAnother` and, once another request is queued, finishes
+and frees the radio.
 
 ### Cancellation
 
-`CancelScan`, `CancelAccessPoint` and `DisconnectFromStation` drop the matching requests
-from the queue. The break bit is sent only when the matching request is the one being
-executed right now. After each request the WiFi task clears its break bits, so a late
-cancellation never stops the next request.
+`CancelScan`, `CancelAccessPoint` and `DisconnectFromStation` drop the matching request
+from the queue and raise the break bit of their type (`SCAN_BREAK_BIT`, `AP_BREAK_BIT`,
+`STA_BREAK_BIT`). The bit interrupts the running task of that type at once, whatever ssid
+it serves.
+
+The bits live in the `WiFiService` event group. Every wait of the WiFi task reads and
+clears all bits, so a bit raised while another mode runs is consumed by that mode. A new
+request also drops a pending break bit of its own type (`ClearBreakFlags`), so a late
+cancellation does not stop it.
 
 ## Station (`WiFiService_Station.cpp`)
 
-Connects to the network saved in settings. Retry count and delay between retries come from
-settings; `-1` means unlimited retries.
+The station is the default mode: when the queue is empty, the WiFi task runs the station
+without a request. Scanner and access point requests take the radio for a while and give
+it back. `DisconnectFromStation` frees the radio rather than turning the station off: with
+an empty queue the station comes up again right away. Only an empty ssid in settings keeps
+the station off.
+
+Connects to the network saved in settings. Without a saved ssid the task leaves the radio
+alone and waits for a new request or for a WiFi settings change made by the settings
+element. On a connection failure the task ends and frees the radio; the next attempt comes
+with a `WiFiStaBinding` request or when the queue is empty again. Before ending, the task
+waits `reconnect_delay_ms` - only when no other request is queued, and minus the time
+already spent waiting for the disconnection.
+
+After four failures in a row the signal level drops to 0 and the program is woken up once;
+a successful connection resets the counter.
 
 The web server comes up once connected and goes down on disconnect.
 

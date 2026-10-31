@@ -77,7 +77,7 @@ month, or year. The element asks the controller to wake it up with the needed pe
 Shows and edits one device settings field right in the chain: WiFi station, scanner, access
 point, SNTP, ADC settings, current date and time. The value is read from settings on every
 render and shown regardless of the chain's state; the station password is masked with
-asterisks, and `connect_max_retry_count` set to `-1` is shown as `infinity`.
+asterisks.
 
 ## Editing modes
 

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "main/LogicProgram/Bindings/WiFiStaBinding.h"
+#include "main/LogicProgram/Flow/ContinuationOut.h"
 #include "main/LogicProgram/Inputs/ComparatorEq.h"
 #include "main/LogicProgram/Inputs/ComparatorGE.h"
 #include "main/LogicProgram/Inputs/ComparatorGr.h"
@@ -75,6 +76,10 @@ TEST(LogicWiFiStaBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiStaBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::STA_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -85,6 +90,10 @@ TEST(LogicWiFiStaBindingTestsGroup,
 
 TEST(LogicWiFiStaBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::STA_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
     Controller::V1.BindToStaWiFi(wifi_service);
@@ -96,6 +105,10 @@ TEST(LogicWiFiStaBindingTestsGroup,
 }
 
 TEST(LogicWiFiStaBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::STA_BREAK_BIT);
+    mock(break_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiStaBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -130,6 +143,18 @@ TEST(LogicWiFiStaBindingTestsGroup, DoAction_change_state_only_by_reason) {
     CHECK_FALSE(testable.DoAction(true, LogicItemState::lisPassive));
     CHECK_EQUAL(LogicItemState::lisPassive, *testable.PublicMorozov_Get_state());
     CHECK_FALSE(Controller::V1.BindedToWiFi());
+}
+
+TEST(LogicWiFiStaBindingTestsGroup, Render_after_ContinuationOut_fits_before_outcome_rail) {
+    ContinuationOut continuation;
+    WiFiStaBinding testable(MapIO::V1);
+
+    Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
+    continuation.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
+
+    CHECK_EQUAL(123, start_point.x);
+    CHECK_TRUE(start_point.x < OUTCOME_RAIL_RIGHT);
 }
 
 TEST(LogicWiFiStaBindingTestsGroup, SelectNext_changing_IoAdr) {

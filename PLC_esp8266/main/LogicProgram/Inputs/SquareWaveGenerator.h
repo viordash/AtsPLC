@@ -23,7 +23,6 @@ class SquareWaveGenerator : public LogicElement {
     static constexpr uint32_t faststep_ms = 250;
     static constexpr uint32_t min_period_ms = 10;
     static constexpr uint32_t max_period_ms = 99990;
-    static constexpr uint8_t LeftPadding = 8;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state);
 

@@ -97,6 +97,7 @@ class Controller {
 
     static uint8_t ConnectToWiFiStation();
     static void DisconnectFromWiFiStation();
+    static void RaiseWiFiSettingsChanged();
 
     static bool ManualSetSystemDatetime(Datetime *dt);
     static void GetSystemDatetime(Datetime *dt);

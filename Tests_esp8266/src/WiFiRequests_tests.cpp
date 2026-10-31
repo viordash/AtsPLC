@@ -16,33 +16,44 @@ TEST_GROUP(WiFiRequestsTestsGroup){ //
                                     TEST_TEARDOWN(){}
 };
 
+namespace {
+    class TestableWiFiRequests : public WiFiRequests {
+      public:
+        bool PublicMorozov_Equals(const RequestItem *a, const RequestItem *b) const {
+            return Equals(a, b);
+        }
+    };
+} // namespace
+
 TEST(WiFiRequestsTestsGroup, Equals_by_Type) {
+    TestableWiFiRequests testable;
 
     RequestItem a = {};
     RequestItem b = {};
 
     a.Type = RequestItemType::wqi_Station;
     b.Type = RequestItemType::wqi_Station;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Type = RequestItemType::wqi_Station;
     b.Type = RequestItemType::wqi_Scanner;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Type = RequestItemType::wqi_Scanner;
     b.Type = RequestItemType::wqi_Scanner;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Type = RequestItemType::wqi_Scanner;
     b.Type = RequestItemType::wqi_AccessPoint;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Type = RequestItemType::wqi_AccessPoint;
     b.Type = RequestItemType::wqi_AccessPoint;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 }
 
 TEST(WiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
+    TestableWiFiRequests testable;
 
     char ssid[16];
     char ssid_with_same_value_but_diff_address[16];
@@ -56,20 +67,21 @@ TEST(WiFiRequestsTestsGroup, Equals_by_Scanner_payload) {
     b.Type = RequestItemType::wqi_Scanner;
     a.Payload.Scanner.ssid = ssid;
     b.Payload.Scanner.ssid = ssid;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     b.Payload.Scanner.ssid = ssid_with_same_value_but_diff_address;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Payload.Scanner.ssid = ssid_with_same_value_but_diff_address;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
-    CHECK_TRUE_TEXT(a.Equals(&b), "status should not affect comparison");
+    CHECK_TRUE_TEXT(testable.PublicMorozov_Equals(&a, &b), "status should not affect comparison");
 
-    CHECK_TRUE_TEXT(a.Equals(&b), "status should not affect comparison");
+    CHECK_TRUE_TEXT(testable.PublicMorozov_Equals(&a, &b), "status should not affect comparison");
 }
 
 TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
+    TestableWiFiRequests testable;
 
     char ssid[16];
     char ssid_with_same_value_but_diff_address[16];
@@ -93,32 +105,32 @@ TEST(WiFiRequestsTestsGroup, Equals_by_AccessPoint_payload) {
     b.Type = RequestItemType::wqi_AccessPoint;
     a.Payload.AccessPoint.ssid = ssid;
     b.Payload.AccessPoint.ssid = ssid;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     b.Payload.AccessPoint.ssid = ssid_with_same_value_but_diff_address;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Payload.AccessPoint.ssid = ssid_with_same_value_but_diff_address;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     a.Payload.AccessPoint.password = password;
     b.Payload.AccessPoint.password = password;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     b.Payload.AccessPoint.password = password_with_same_value_but_diff_address;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 
     b.Payload.AccessPoint.password = password;
     a.Payload.AccessPoint.mac = mac;
     b.Payload.AccessPoint.mac = mac;
-    CHECK_TRUE(a.Equals(&b));
+    CHECK_TRUE(testable.PublicMorozov_Equals(&a, &b));
 
     b.Payload.AccessPoint.mac = mac_with_same_value_but_diff_address;
-    CHECK_FALSE(a.Equals(&b));
+    CHECK_FALSE(testable.PublicMorozov_Equals(&a, &b));
 }
 
 TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
-    WiFiRequests testable;
+    TestableWiFiRequests testable;
 
     CHECK_EQUAL(0, testable.Size());
 
@@ -134,7 +146,7 @@ TEST(WiFiRequestsTestsGroup, Scan_is_unique) {
 }
 
 TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
-    WiFiRequests testable;
+    TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
     const char *ssid_1 = "test_1";
@@ -172,8 +184,76 @@ TEST(WiFiRequestsTestsGroup, Pop_is_queue_compliant) {
     CHECK_EQUAL(0, testable.Size());
 }
 
+TEST(WiFiRequestsTestsGroup, RemoveStation_removes_only_station_request) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+
+    testable.Scan(ssid_0);
+    testable.Station();
+    CHECK_EQUAL(2, testable.Size());
+
+    CHECK_TRUE(testable.RemoveStation());
+    CHECK_EQUAL(1, testable.Size());
+    CHECK_FALSE(testable.RemoveStation());
+
+    RequestItem request;
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
+}
+
+TEST(WiFiRequestsTestsGroup, RemoveScan_removes_only_scanner_request_with_same_ssid) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    const char *ssid_1 = "test_1";
+
+    testable.Scan(ssid_0);
+    testable.AccessPoint(ssid_0, NULL, NULL);
+    testable.Scan(ssid_1);
+    CHECK_EQUAL(3, testable.Size());
+
+    CHECK_TRUE(testable.RemoveScan(ssid_0));
+    CHECK_EQUAL(2, testable.Size());
+    CHECK_FALSE(testable.RemoveScan(ssid_0));
+
+    RequestItem request;
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
+    CHECK_EQUAL(ssid_0, request.Payload.AccessPoint.ssid);
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
+    CHECK_EQUAL(ssid_1, request.Payload.Scanner.ssid);
+}
+
+TEST(WiFiRequestsTestsGroup, RemoveAccessPoint_removes_only_equal_access_point_request) {
+    TestableWiFiRequests testable;
+
+    const char *ssid_0 = "test_0";
+    const char *password_0 = "password_0";
+    const char *password_1 = "password_1";
+    const char *mac = "*";
+
+    testable.AccessPoint(ssid_0, password_0, mac);
+    testable.Scan(ssid_0);
+    testable.AccessPoint(ssid_0, password_1, mac);
+    CHECK_EQUAL(3, testable.Size());
+
+    CHECK_TRUE(testable.RemoveAccessPoint(ssid_0, password_0, mac));
+    CHECK_EQUAL(2, testable.Size());
+    CHECK_FALSE(testable.RemoveAccessPoint(ssid_0, password_0, mac));
+
+    RequestItem request;
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
+    CHECK_EQUAL(ssid_0, request.Payload.Scanner.ssid);
+    CHECK_TRUE(testable.Pop(&request));
+    CHECK_EQUAL(RequestItemType::wqi_AccessPoint, request.Type);
+    CHECK_EQUAL(password_1, request.Payload.AccessPoint.password);
+}
+
 TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Station) {
-    WiFiRequests testable;
+    TestableWiFiRequests testable;
 
     RequestItem current_req = { RequestItemType::wqi_Station, {} };
     CHECK_FALSE(testable.HasAnother(&current_req));
@@ -187,7 +267,7 @@ TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Station) {
 }
 
 TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Scanner) {
-    WiFiRequests testable;
+    TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
     RequestItem current_req = { RequestItemType::wqi_Scanner, { ssid_0 } };
@@ -202,7 +282,7 @@ TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_Scanner) {
 }
 
 TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_AccessPoint) {
-    WiFiRequests testable;
+    TestableWiFiRequests testable;
 
     const char *ssid_0 = "test_0";
     RequestItem current_req = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
@@ -214,34 +294,4 @@ TEST(WiFiRequestsTestsGroup, HasAnother_when_current_is_AccessPoint) {
     const char *ssid_1 = "test_1";
     testable.AccessPoint(ssid_1, NULL, NULL);
     CHECK_TRUE(testable.HasAnother(&current_req));
-}
-
-TEST(WiFiRequestsTestsGroup, Remove_deletes_only_matching_requests) {
-    WiFiRequests testable;
-    const char *ssid_0 = "ssid_0";
-    const char *ssid_1 = "ssid_1";
-
-    testable.Scan(ssid_0);
-    testable.Station();
-    testable.Scan(ssid_1);
-    const char *password = "pass";
-    const char *mac = "************";
-    testable.AccessPoint(ssid_0, password, mac);
-
-    RequestItem scan_0 = { RequestItemType::wqi_Scanner, { ssid_0 } };
-    testable.Remove(&scan_0);
-    CHECK_EQUAL(3, testable.Size());
-
-    RequestItem request;
-    CHECK_TRUE(testable.Pop(&request));
-    CHECK_EQUAL(RequestItemType::wqi_Station, request.Type);
-
-    RequestItem access_point_0 = { RequestItemType::wqi_AccessPoint, { ssid_0 } };
-    access_point_0.Payload.AccessPoint.password = password;
-    access_point_0.Payload.AccessPoint.mac = mac;
-    testable.Remove(&access_point_0);
-    CHECK_EQUAL(1, testable.Size());
-    CHECK_TRUE(testable.Pop(&request));
-    CHECK_EQUAL(RequestItemType::wqi_Scanner, request.Type);
-    CHECK_EQUAL(ssid_1, request.Payload.Scanner.ssid);
 }

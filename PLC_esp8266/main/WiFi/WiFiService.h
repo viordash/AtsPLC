@@ -36,27 +36,23 @@ class WiFiService {
   protected:
     WiFiRequests requests;
 
-    std::mutex active_request_lock_mutex;
-    RequestItem active_request;
-    bool has_active_request;
-
     std::mutex scanned_ssid_lock_mutex;
     ScannedSsid scanned_ssids[WiFi_SsidLimit];
     size_t scanned_ssids_count;
 
     uint8_t station_rssi;
+    uint8_t station_connect_failures;
 
     std::mutex ap_clients_lock_mutex;
     ApClients ap_clients[WiFi_SsidLimit];
     size_t ap_clients_count;
 
-    TaskHandle_t task_handle;
+    EventGroupHandle_t events;
 
     std::mutex station_connect_status_lock_mutex;
 
-    bool PopRequest(RequestItem *request);
-    void CompleteRequest();
-    void CancelRequest(const RequestItem *request, uint32_t break_bit);
+    bool WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait);
+    bool ClearBreakFlags(uint32_t ignore_flags);
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
@@ -103,6 +99,8 @@ class WiFiService {
     static const int STA_BREAK_BIT = BIT3;
     static const int SCAN_BREAK_BIT = BIT4;
     static const int AP_BREAK_BIT = BIT5;
+    static const int SETTINGS_CHANGED_BIT = BIT6;
+    static const int WAKEUP_BIT = BIT23;
 
     WiFiService();
     ~WiFiService();
@@ -117,4 +115,6 @@ class WiFiService {
 
     size_t AccessPoint(const char *ssid, const char *password, const char *mac);
     void CancelAccessPoint(const char *ssid, const char *password, const char *mac);
+
+    void RaiseSettingsChanged();
 };
