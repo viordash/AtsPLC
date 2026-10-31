@@ -7,7 +7,6 @@
 
 class ContinuationOut : public CommonContinuation {
   protected:
-    const uint8_t LeftPadding = 6;
     const static Bitmap bitmap_active;
     const static Bitmap bitmap_passive;
 

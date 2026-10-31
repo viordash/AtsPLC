@@ -87,12 +87,16 @@ SquareWaveGenerator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Poi
     bool prev_elem_active =
         prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
     if (prev_elem_active) {
-        ASSERT(draw_active_network(fb, start_point->x, start_point->y, LeftPadding));
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false));
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     uint16_t bitmap_top = start_point->y - (bitmap->size.height / 2) + 1;
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing

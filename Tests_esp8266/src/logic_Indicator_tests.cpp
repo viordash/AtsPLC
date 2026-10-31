@@ -86,7 +86,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_active) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, Render_when_passive) {
@@ -104,7 +104,7 @@ TEST(LogicIndicatorTestsGroup, Render_when_passive) {
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicIndicatorTestsGroup, TryToCast) {

@@ -19,8 +19,6 @@ class CommonTimer : public LogicElement {
 
     virtual const Bitmap *GetCurrentBitmap(LogicItemState state) = 0;
 
-    static constexpr uint8_t LeftPadding = 8;
-
   public:
     explicit CommonTimer();
     ~CommonTimer();

@@ -24,10 +24,7 @@ class DateTimeBinding : public LogicElement, public InputElement, public Labeled
 
     DatetimePart datetime_part;
 
-    static const uint8_t LeftPadding = 12;
-    static const uint8_t RightPadding = 12;
-    static const uint8_t Width =
-        OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
+    static const uint8_t Width = 97;
     static const uint8_t Height = 22;
     static const uint8_t Top = -(Height / 2);
 

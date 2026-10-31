@@ -62,7 +62,7 @@ WiFiStaBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *s
 
     CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
 
-    top_left.x += LeftPadding + 22;
+    top_left.x += GetElementCursorWidth() + 22;
     top_left.x += bitmap.size.width + 1;
 
     ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, "STA CLNT") > 0);

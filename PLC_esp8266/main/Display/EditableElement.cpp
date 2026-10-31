@@ -17,6 +17,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,12 @@ const Bitmap *EditableElement::GetCursorBitmap(FrameBuffer *fb) {
         default:
             return NULL;
     }
+}
+
+uint8_t EditableElement::GetElementCursorWidth() {
+    ASSERT(bitmap_selecting_blink_0.size.width == bitmap_selecting_blink_1.size.width);
+    ASSERT(bitmap_selecting_blink_0.size.width == bitmap_selecting_blink_2.size.width);
+    return bitmap_selecting_blink_0.size.width;
 }
 
 uint16_t EditableElement::GetCursorWidth(FrameBuffer *fb) {

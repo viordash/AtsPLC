@@ -18,10 +18,7 @@ class CommonWiFiBinding : public LogicElement, public InputElement, public Label
         cwbepi_ConfigureIOAdr
     } EditingPropertyId;
 
-    static const uint8_t LeftPadding = 12;
-    static const uint8_t RightPadding = 12;
-    static const uint8_t Width =
-        OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
+    static const uint8_t Width = 97;
     static const uint8_t Height = 22;
     static const uint8_t Top = -(Height / 2);
 
