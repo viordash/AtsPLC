@@ -23,6 +23,11 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, Option
     CalcEntirePlaceWidth(source_element);
     place_width = source_element_width + fill_wire;
     Fill(source_element, options);
+
+    bool source_element_not_offered = std::find(begin(), end(), source_element) == end();
+    if (source_element_not_offered) {
+        delete source_element;
+    }
 }
 
 ElementsBox::~ElementsBox() {

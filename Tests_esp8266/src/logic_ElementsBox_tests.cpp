@@ -518,6 +518,13 @@ TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_selection_changes) {
     delete testable.GetSelectedElement();
 }
 
+TEST(LogicElementsBoxTestsGroup, No_memleak_if_stored_element_is_not_offered) {
+    auto stored_element = new DirectOutput(MapIO::O1);
+    ElementsBox testable(100, stored_element, {});
+    CHECK_EQUAL(TvElementType::et_InputNC, testable.GetElementType());
+    delete testable.GetSelectedElement();
+}
+
 TEST(LogicElementsBoxTestsGroup, In_editing_no_memleak_if_no_selection_changes) {
     ComparatorEq stored_element(42, MapIO::AI);
     ElementsBox testable(100, &stored_element, ElementsBox::Options::show_output_elements);
