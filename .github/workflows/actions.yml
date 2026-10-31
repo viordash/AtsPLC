@@ -8,7 +8,6 @@ on:
 
 jobs:
   Analysis-and-Style:
-    needs: Tests-esp-idf
     runs-on: ubuntu-22.04
 
     steps:
@@ -47,6 +46,7 @@ jobs:
       run: make code_check
 
   Tests-esp-idf:
+    needs: Analysis-and-Style
     runs-on: ubuntu-22.04
 
     steps:
