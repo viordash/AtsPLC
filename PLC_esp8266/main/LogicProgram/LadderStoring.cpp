@@ -26,7 +26,7 @@ void Ladder::Load() {
         || Deserialize(storage.data, storage.size) == 0) {
         ESP_LOGI(TAG_Ladder, "Nothing to load");
         RemoveAll();
-        InitialLoad();
+        // InitialLoad();
         ChangeWorkMode(work_mode, hotreload->enable_debug);
     }
     delete[] storage.data;
