@@ -79,6 +79,13 @@ The PR title is `<Stage Name>: <Short Description>` - the same text as the top-l
 ### Rules
 
 - Language: **English** throughout (headings, body, everything).
+- Use simple English that non-native speakers read easily:
+  - common words, no idioms or slang, avoid phrasal verbs when a plain verb exists ("remove", not "get rid of");
+  - short sentences, one idea per sentence, active voice.
+- Keep it short: a reader should get the point in a minute.
+  - Intro: 2-4 sentences.
+  - Each section: 2-5 bullets, one line each where possible.
+  - Leave out details the diff already shows (helper names, mock setup, commit hashes), unless they explain a behavior change.
 - Lead with context: what existed before, what this PR adds, what the key achievement is.
 - Number the main sections (1, 2, 3 ...).
 - Mention specific files and classes affected under each section.
