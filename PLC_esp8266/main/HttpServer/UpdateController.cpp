@@ -1,4 +1,6 @@
 #include "UpdateController.h"
+#include "LogicProgram/Controller.h"
+#include "esp_system.h"
 #include <esp_log.h>
 #include <sys/param.h>
 #include <sys/stat.h>
@@ -35,6 +37,10 @@ esp_err_t UpdateController::Handler(httpd_req_t *req) {
     }
 
     httpd_resp_send(req, "Upload new firmware successfull", HTTPD_RESP_USE_STRLEN);
+
+    ESP_LOGI(TAG_UpdateController, "Restarting to the new firmware");
+    Controller::Stop();
+    esp_restart();
     return ESP_OK;
 }
 
@@ -60,7 +66,11 @@ bool UpdateController::ReceiveFile(httpd_req_t *req, char *buffer) {
     while (file_size > 0) {
         int received = httpd_req_recv(req, buffer, MIN(SCRATCH_BUFSIZE, file_size));
         if (received <= 0) {
-            ESP_LOGE(TAG_UpdateController, "ReceiveFile, error: '%d'", received);
+            ESP_LOGE(TAG_UpdateController,
+                     "ReceiveFile, error: '%d', received %u of %u",
+                     received,
+                     (unsigned int)(req->content_len - file_size),
+                     (unsigned int)req->content_len);
             switch (received) {
                 case HTTPD_SOCK_ERR_TIMEOUT:
                     SendHttpError_408(req);
