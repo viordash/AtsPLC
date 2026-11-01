@@ -154,6 +154,16 @@ TEST(LogicSettingsElementTestsGroup, ValidateDiscriminator) {
     CHECK_FALSE(testable.PublicMorozov_ValidateDiscriminator(discriminator));
 }
 
+TEST(LogicSettingsElementTestsGroup, Constructor_with_discriminator) {
+    SettingsElement element(SettingsElement::Discriminator::t_current_time);
+
+    uint8_t buffer[256] = {};
+    size_t writed = element.Serialize(buffer, sizeof(buffer));
+    CHECK_EQUAL(5, writed);
+    CHECK_EQUAL(SettingsElement::Discriminator::t_current_time,
+                *((SettingsElement::Discriminator *)&buffer[1]));
+}
+
 TEST(LogicSettingsElementTestsGroup, Serialize) {
     uint8_t buffer[256] = {};
     TestableSettingsElement testable;

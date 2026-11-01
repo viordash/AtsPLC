@@ -19,6 +19,10 @@ SettingsElement::SettingsElement() : LogicElement() {
     discriminator = Discriminator::t_wifi_station_settings_ssid;
 }
 
+SettingsElement::SettingsElement(Discriminator discriminator) : SettingsElement() {
+    this->discriminator = discriminator;
+}
+
 SettingsElement::~SettingsElement() {
 }
 
