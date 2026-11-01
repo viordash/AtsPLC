@@ -36,9 +36,10 @@ Service order is FIFO.
 
 ### Preemption
 
-While a request of one type is running, a request of another type interrupts it: the
-running task periodically checks `HasAnother` and, once another request is queued, finishes
-and frees the radio.
+The station and the access point give the radio to other requests: they periodically check
+`HasAnother` and, once another request is queued, finish and free the radio. The scanner
+doesn't check the queue: one scan pass ends when the ssid is found, after
+14 x `per_channel_scan_time_ms`, or on `SCAN_BREAK_BIT`.
 
 ### Cancellation
 
@@ -91,8 +92,9 @@ doesn't accept connections - this mode is used as a beacon.
 Clients are filtered by MAC mask: a connection that doesn't match the mask is disconnected.
 Accepted clients go into `ApClients` - up to `WiFi_Hotspot_Max_Clients` (4) per SSID.
 
-The access point's lifetime is limited by `generation_time_ms`; `ssid_hidden` hides the SSID
-from the air.
+The access point runs until it is cancelled. Every `generation_time_ms` it checks the queue
+and frees the radio only when another request is waiting; with an empty queue it keeps
+running. `ssid_hidden` hides the SSID from the air.
 
 ## WiFi setup
 

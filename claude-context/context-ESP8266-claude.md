@@ -4,20 +4,23 @@
 
 ## Сборка
 
+Один раз перед первой сборкой:
+
 ```bash
-make web          # один раз после правок фронтенда: npm install && ng build
+cd PLC_esp8266 && make project_prepare   # тулчейн, ссылки MigrateAnyData, патчи SDK
+```
+
+Дальше из корня:
+
+```bash
+make web          # после правок фронтенда: npm install && ng build
 make app          # прошивка
 make tests        # юнит-тесты
 ```
 
-Всё это обёртки над `make -C PLC_esp8266` и `make -C Tests_esp8266`.
-
-Переменные окружения для прямого вызова:
-
-```bash
-export IDF_PATH=<repo>/SDK/ESP8266_RTOS_SDK
-export PATH=<repo>/SDK/xtensa-lx106-elf/bin:$PATH
-```
+Всё это обёртки над `make -C PLC_esp8266` и `make -C Tests_esp8266`. Переменные окружения
+выставлять не нужно: `PLC_esp8266/Makefile` сам задаёт `IDF_PATH` и добавляет в `PATH`
+тулчейн и `SDK/.venv/bin`.
 
 Зависимости от заголовков отслеживаются: `component.mk` дополняет `CPPFLAGS` через `+=`,
 сохраняя `-MMD -MP` от SDK, и `.d`-файлы подхватываются автоматически.

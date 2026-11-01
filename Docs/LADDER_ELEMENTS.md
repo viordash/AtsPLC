@@ -40,8 +40,8 @@ An output element ends the chain and is drawn at the outgoing rail.
 
 | Element | Description |
 |---------|-------------|
-| **ContinuationOut** | ends a network, passing its state to the next one |
-| **ContinuationIn** | starts a network with the state passed from the previous one |
+| **ContinuationIn** | ends a network, passing its state to the next one |
+| **ContinuationOut** | starts a network with the state passed from the previous one |
 
 The pair lets you build a chain longer than five elements by splitting it across several
 networks.

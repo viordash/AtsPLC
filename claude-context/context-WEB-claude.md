@@ -24,9 +24,10 @@ PLC_esp8266/main/component.mk  COMPONENT_EMBED_FILES := $(WEB_DIST_SOURCES)
 `MainController` разворачивает их макросом `EMBEDDED_FILE_SYMBOL` в
 `_binary_<symbol>_start` / `_binary_<symbol>_end`.
 
-Тестовая сборка компилирует `MainController.cpp`, но символов встроенных файлов у неё нет -
-в `Tests_esp8266/src/mocks.c` лежат заглушки, объявленные теми же макросами, поэтому они
-не ломаются при смене хеша.
+Тестовая сборка компилирует `MainController.cpp` и линкует настоящие файлы SPA:
+`Tests_esp8266/Makefile` превращает каждый файл из `Web/output/browser/` в объектник правилом
+`build/web/%.o` (`ld -r -b binary`), символы `_binary_<file>_start/_end` те же, что в
+прошивке. Поэтому тестам тоже нужен собранный SPA (`make web`).
 
 ## Контроллеры
 

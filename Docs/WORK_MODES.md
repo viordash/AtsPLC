@@ -72,6 +72,3 @@ Two ways:
 - **From the browser.** `POST /workmode` with `{"mode":<0|1|2>}`. Changing the mode is
   forbidden while the program is being edited on the device. See
   [WEB_INTERFACE.md](WEB_INTERFACE.md).
-
-The program file format changed when work modes were added: `LADDER_VERSION` was bumped, so
-programs saved by earlier firmware don't load.

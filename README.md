@@ -242,9 +242,10 @@ Test coverage:
 
 The project includes VSCode configuration for development:
 
-**Tasks:**
-- `PLC_esp8266/` - Build, rebuild, flash, OTA (Ctrl+Shift+P → Tasks: Run Task)
-- `Tests_esp8266/` - Build, rebuild, run tests
+**Tasks** (all in the root `.vscode/tasks.json`, Ctrl+Shift+P → Tasks: Run Task):
+- Firmware - build, rebuild, build & install, build & ota
+- Web - build the SPA
+- Tests - build, rebuild, run
 
 **Debug:**
 - Press F5 to run and debug tests

@@ -43,7 +43,7 @@ Errors come back as `{"error":"..."}` with type `application/json`.
 
 ```json
 {"display":{"height":64,"width":128,"id":"ssd1306",
-            "area_top":17,"area_width":126,"rails_height":25},
+            "area_top":16,"area_width":127,"rails_height":24},
  "request_limit":2}
 ```
 

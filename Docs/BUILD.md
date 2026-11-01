@@ -18,11 +18,13 @@ A new `.mk` file goes there too and is included as
 ## One-time setup
 
 ```bash
-cd SDK
-tar -xzf xtensa-lx106-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz
+cd PLC_esp8266
+make project_prepare
 ```
 
-SDK patches are applied automatically on the first firmware build.
+`project_prepare` unpacks the toolchain into `SDK/`, links the `MigrateAnyData` sources into
+`main/MigrateAnyData/` and applies the SDK patches from `PLC_esp8266/patches/`. The build
+doesn't do this by itself, so run it once before the first build.
 
 ## Root Makefile
 
@@ -73,8 +75,10 @@ a hint to run `make web` first.
 | What | Value |
 |------|-------|
 | Firmware partition | 1 MB (`ota_0` / `ota_1`) |
-| Firmware with embedded SPA | about 855 KiB (`build/AtsPLC-esp8266.bin`) |
+| Firmware with embedded SPA | about 860 KiB (`build/AtsPLC-esp8266.bin`) |
 
 ## VSCode
 
-Build and debug tasks live in `.vscode/`. Firmware debugging goes through `esp_gdbstub`.
+Build tasks for the firmware, the SPA and the tests live in the root `.vscode/tasks.json`.
+`.vscode/launch.json` has one debug configuration, **Debug Tests**: it runs the unit tests
+under gdb. There is no firmware debug configuration.
