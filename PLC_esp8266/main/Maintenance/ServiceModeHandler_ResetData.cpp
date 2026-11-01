@@ -2,12 +2,14 @@
 #include "Display/LogsList.h"
 #include "Display/display.h"
 #include "LogicProgram/Ladder.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "Maintenance/backups_storage.h"
 #include "buttons.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "lassert.h"
 #include "partitions.h"
 #include "redundant_storage.h"
 #include "settings.h"
@@ -22,7 +24,8 @@ const char *ServiceModeHandler::reset_data_names[4] = { "Settings",
                                                         "Backups",
                                                         "Factory reset" };
 
-void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events,
+                                   ProcessWakeupService *process_wakeup_service) {
     ESP_LOGI(TAG_ServiceModeHandler_Reset, "execute");
 
     ResetMode mode = ResetMode::rd_Settings;
@@ -34,10 +37,15 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
 
     listBox.Select(mode);
 
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
+
     bool success = false;
     bool error = false;
     while (!success && !error) {
-        uint8_t *fb = begin_render();
+        auto fb = begin_render();
         listBox.Render(fb);
         end_render(fb);
 
@@ -45,35 +53,46 @@ void ServiceModeHandler::ResetData(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        process_wakeup_service->RemoveExpired();
+
+        ESP_LOGD(TAG_ServiceModeHandler_Reset, "bits:0x%08X", (unsigned int)uxBits);
+
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler_Reset, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         ESP_LOGD(TAG_ServiceModeHandler_Reset,
-                 "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 (unsigned int)pressed_button,
-                 (unsigned int)uxBits);
+                 "buttons_changed, pressed_button:%u",
+                 pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
+            case ButtonsPressType::UP_LONG_PRESSED:
                 mode = ChangeResetModeToPrev(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
+            case ButtonsPressType::DOWN_LONG_PRESSED:
                 mode = ChangeResetModeToNext(mode);
                 listBox.Select(mode);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
+            case ButtonsPressType::SELECT_LONG_PRESSED:
                 success = DoResetData(gpio_events, mode);
                 error = !success;
                 break;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
     ShowStatus(gpio_events, success, "Completed!", "Canceled!");
     esp_restart();
@@ -125,10 +144,11 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
     uint8_t y = 1;
     uint8_t height = get_text_f6X12_height();
 
-    uint8_t *fb = begin_render();
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 1, "Reset:") <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) <= 0);
-    ESP_ERROR_CHECK(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") <= 0);
+    auto fb = begin_render();
+    ASSERT(draw_text_f6X12(fb, x, y + height * 1, "Reset:") > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 2, reset_data_names[mode]) > 0);
+    ASSERT(draw_text_f6X12(fb, x, y + height * 3, "Press UP to continue") > 0);
+    fb->has_changes = true;
     end_render(fb);
     EventBits_t uxBits =
         xEventGroupWaitBits(gpio_events,
@@ -139,7 +159,7 @@ bool ServiceModeHandler::DoResetData(EventGroupHandle_t gpio_events,
 
     ESP_LOGI(TAG_ServiceModeHandler_Reset, "bits:0x%08X", (unsigned int)uxBits);
 
-    bool button_up_released = (uxBits & BUTTON_UP_IO_OPEN) != 0;
+    bool button_up_released = (uxBits & (BUTTON_UP_IO_CLOSE | BUTTON_UP_IO_OPEN)) != 0;
     if (!button_up_released) {
         ESP_LOGI(TAG_ServiceModeHandler_Reset, "Canceled");
         return false;

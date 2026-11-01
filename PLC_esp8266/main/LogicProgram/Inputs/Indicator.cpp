@@ -10,6 +10,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,97 +79,81 @@ void Indicator::SetIoAdr(const MapIO io_adr) {
 }
 
 bool Indicator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
+    bool any_changes = state != prev_elem_state;
+    state = prev_elem_state;
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        if (Controller::RequestWakeupMs(this,
-                                        update_period_ms,
-                                        ProcessWakeupRequestPriority::pwrp_Idle)
-            || prev_elem_changed) {
-            any_changes = true;
-            switch (editing_property_id) {
-                case Indicator::EditingPropertyId::ciepi_None:
-                    PrintOutValue(Input->ReadValue());
-                    break;
-                default:
-                    break;
+    switch (state) {
+        case LogicItemState::lisActive:
+            if (Controller::RequestWakeupMs(this,
+                                            update_period_ms,
+                                            ProcessWakeupRequestPriority::pwrp_Idle)
+                || prev_elem_changed) {
+                any_changes = true;
+                switch (editing_property_id) {
+                    case Indicator::EditingPropertyId::ciepi_None:
+                        PrintOutValue(Input->ReadValue());
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
-    } else {
-        state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisPassive:
+            break;
+
+        case LogicItemState::lisStop:
+            break;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
+    if (any_changes) {
         ESP_LOGD(TAG_Indicator, ".");
     }
+
     return any_changes;
 }
 
-IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+IRAM_ATTR void
+Indicator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (Indicator::EditingPropertyId)editing_property_id
                                      == Indicator::EditingPropertyId::ciepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (Indicator::EditingPropertyId)editing_property_id
                                       == Indicator::EditingPropertyId::ciepi_ConfigureIOAdr
-                               && Blinking_50();
-    res =
-        blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
-    if (!res) {
-        return res;
+                               && Blinking_50(fb);
+    if (!blink_label_on_editing) {
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
+
     top_left.x += 23;
     if (!blink_body_on_editing) {
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_vert_line(fb, top_left.x, top_left.y, Height));
     }
 
     bool show_scales = editable_state == EditableElement::ElementState::des_Editing
@@ -179,22 +164,18 @@ IRAM_ATTR bool Indicator::Render(uint8_t *fb, LogicItemState prev_elem_state, Po
 
     if (show_scales) {
         top_left.x += 4;
-        res = RenderScales(fb, top_left.x + 4, top_left.y);
+        RenderScales(fb, top_left.x + 4, top_left.y);
     } else {
         top_left.x += 4;
-        res = draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value) > 0;
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, str_value) > 0);
     }
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
-bool Indicator::RenderScales(uint8_t *fb, uint8_t x, uint8_t y) {
+void Indicator::RenderScales(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_str_value[sizeof(str_value) + 6];
 
     switch (editing_property_id) {
@@ -223,7 +204,7 @@ bool Indicator::RenderScales(uint8_t *fb, uint8_t x, uint8_t y) {
             break;
     }
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         switch (editing_property_id) {
             case Indicator::EditingPropertyId::ciepi_ConfigureLowScale_0:
             case Indicator::EditingPropertyId::ciepi_ConfigureHighScale_0:
@@ -260,7 +241,7 @@ bool Indicator::RenderScales(uint8_t *fb, uint8_t x, uint8_t y) {
         }
     }
 
-    return draw_text_f6X12(fb, x, y, blink_str_value) > 0;
+    ASSERT(draw_text_f6X12(fb, x, y, blink_str_value) > 0);
 }
 
 size_t Indicator::Serialize(uint8_t *buffer, size_t buffer_size) {

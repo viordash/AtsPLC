@@ -16,12 +16,13 @@
 #include "main/Display/ListBox.h"
 #include "main/Display/display.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 extern ssd1306_color_t foreground_color;
 extern ssd1306_color_t background_color;
 
-TEST_GROUP(ListBoxTestsGroup){ //
-                               TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+TEST_GROUP(ListBoxTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 }
 
 TEST_TEARDOWN() {
@@ -32,7 +33,7 @@ TEST_TEARDOWN() {
 class TestableListBox : public ListBox {
   public:
     const static int line_size = 21;
-    const static int lines_count = 4;
+    const static int lines_count = 8;
 
     explicit TestableListBox(const char *title) : ListBox(title) {
         static_assert(line_size == ListBox::line_size);
@@ -108,20 +109,20 @@ TEST(ListBoxTestsGroup, Render) {
     TestableListBox testable("list_box");
 
     testable.Insert(0, "line 0");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(1, "line 1");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(2, "line 2");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Insert(3, "line 3");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
@@ -140,13 +141,30 @@ TEST(ListBoxTestsGroup, Render_selected_item) {
 
     testable.Insert(0, "line 0");
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
     CHECK_EQUAL(OLED_COLOR_WHITE, foreground_color);
     CHECK_EQUAL(OLED_COLOR_BLACK, background_color);
 
     testable.Select(0);
 
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
     CHECK_EQUAL(OLED_COLOR_BLACK, foreground_color);
     CHECK_EQUAL(OLED_COLOR_WHITE, background_color);
+}
+
+TEST(ListBoxTestsGroup, Insert_changed_frame_buffer) {
+    TestableListBox testable("");
+
+    testable.Insert(0, "text");
+    testable.Render(&frame_buffer);
+    CHECK_TRUE(frame_buffer.has_changes);
+}
+
+TEST(ListBoxTestsGroup, Select_changed_frame_buffer) {
+    TestableListBox testable("");
+
+    testable.Insert(0, "text");
+    testable.Select(0);
+    testable.Render(&frame_buffer);
+    CHECK_TRUE(frame_buffer.has_changes);
 }

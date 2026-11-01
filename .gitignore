@@ -37,7 +37,13 @@
 
 **/output/*
 
+# objdump of the test binary written by the CppUTest Test Adapter (debug dump mode)
+Tests_esp8266/main.dump
+
 **/main/MigrateAnyData/MigrateAnyData.cpp
 **/main/MigrateAnyData/MigrateAnyData.h
 
 .apply-patches
+
+# local Python venv for ESP8266_RTOS_SDK build tools
+**/SDK/.venv/

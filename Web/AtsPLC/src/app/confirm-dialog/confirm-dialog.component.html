@@ -1,0 +1,9 @@
+<div class="overlay" (click)="onCancel()">
+	<div class="dialog" (click)="$event.stopPropagation()">
+		<div class="dialog-message">{{ message }}</div>
+		<div class="dialog-buttons">
+			<button class="btn btn-ok" (click)="onOk()">OK</button>
+			<button class="btn btn-cancel" (click)="onCancel()">Cancel</button>
+		</div>
+	</div>
+</div>

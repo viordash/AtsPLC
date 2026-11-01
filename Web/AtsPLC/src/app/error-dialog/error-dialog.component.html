@@ -1,0 +1,11 @@
+@if (errorDialogService.message(); as message) {
+	<div class="overlay" (click)="onOk()">
+		<div class="dialog" (click)="$event.stopPropagation()">
+			<div class="dialog-title">Error</div>
+			<div class="dialog-message">{{ message }}</div>
+			<div class="dialog-buttons">
+				<button class="btn btn-ok" (click)="onOk()">OK</button>
+			</div>
+		</div>
+	</div>
+}

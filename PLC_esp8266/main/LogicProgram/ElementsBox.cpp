@@ -5,6 +5,7 @@
 #include "LogicProgram/Serializer/LogicElementFactory.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,16 +23,22 @@ ElementsBox::ElementsBox(uint8_t fill_wire, LogicElement *source_element, Option
     CalcEntirePlaceWidth(source_element);
     place_width = source_element_width + fill_wire;
     Fill(source_element, options);
+
+    bool source_element_not_offered =
+        std::find(items.begin(), items.end(), source_element) == items.end();
+    if (source_element_not_offered) {
+        delete source_element;
+    }
 }
 
 ElementsBox::~ElementsBox() {
-    auto selected_it = std::find(begin(), end(), GetSelectedElement());
-    erase(selected_it);
+    auto selected_it = std::find(items.begin(), items.end(), GetSelectedElement());
+    items.erase(selected_it);
 
-    while (!empty()) {
-        auto it = begin();
+    while (!items.empty()) {
+        auto it = items.begin();
         auto element = *it;
-        erase(it);
+        items.erase(it);
         ESP_LOGD(TAG_ElementsBox, "delete elem: %p", element);
         delete element;
     }
@@ -79,19 +86,18 @@ void ElementsBox::DetachElement(LogicElement *element) {
 }
 
 void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
+    auto frame_buffer = new FrameBuffer();
     uint8_t start_point_x = IsOutputElement(source_element->GetElementType()) //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
-    if (source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        if (IsOutputElement(source_element->GetElementType())) {
-            source_element_width = start_point_x - start_point.x;
-        } else {
-            source_element_width = start_point.x - start_point_x;
-        }
+    source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point);
+    if (IsOutputElement(source_element->GetElementType())) {
+        source_element_width = start_point_x - start_point.x;
+    } else {
+        source_element_width = start_point.x - start_point_x;
     }
-    delete[] frame_buffer;
+    delete frame_buffer;
 }
 
 void ElementsBox::CopyParamsToInputElement(LogicElement *source_element, InputElement *input) {
@@ -269,10 +275,10 @@ void ElementsBox::TakeParamsFromStoredElement(LogicElement *source_element,
 
 void ElementsBox::AppendStandartElement(LogicElement *source_element,
                                         TvElementType element_type,
-                                        uint8_t *frame_buffer) {
+                                        FrameBuffer *frame_buffer) {
     if (source_element->GetElementType() == element_type) {
-        selected_index = size();
-        push_back(source_element);
+        selected_index = items.size();
+        items.push_back(source_element);
         return;
     }
 
@@ -282,19 +288,14 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
     }
     TakeParamsFromStoredElement(source_element, new_element);
 
-    bool element_right_to_left = IsOutputElement(element_type);
-    if (!element_right_to_left) {
-        element_right_to_left = IsContinuationInElement(element_type);
-    }
+    bool element_right_to_left =
+        IsOutputElement(element_type) || IsContinuationInElement(element_type);
 
     uint8_t start_point_x = element_right_to_left //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
-    if (!new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point)) {
-        delete new_element;
-        return;
-    }
+    new_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point);
     uint8_t new_element_width = 0;
     if (element_right_to_left) {
         new_element_width = start_point_x - start_point.x;
@@ -308,11 +309,11 @@ void ElementsBox::AppendStandartElement(LogicElement *source_element,
         return;
     }
     new_element->BeginEditing();
-    push_back(new_element);
+    items.push_back(new_element);
 }
 
 void ElementsBox::Fill(LogicElement *source_element, Options options) {
-    uint8_t *frame_buffer = new uint8_t[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH];
+    auto frame_buffer = new FrameBuffer();
 
     AppendStandartElement(source_element, TvElementType::et_InputNC, frame_buffer);
     AppendStandartElement(source_element, TvElementType::et_InputNO, frame_buffer);
@@ -348,11 +349,15 @@ void ElementsBox::Fill(LogicElement *source_element, Options options) {
 
     AppendStandartElement(source_element, TvElementType::et_Wire, frame_buffer);
 
-    delete[] frame_buffer;
+    delete frame_buffer;
 }
 
 LogicElement *ElementsBox::GetSelectedElement() {
-    return (*this)[selected_index];
+    return items[selected_index];
+}
+
+size_t ElementsBox::GetCount() {
+    return items.size();
 }
 
 bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
@@ -364,9 +369,8 @@ bool ElementsBox::DoAction(bool prev_elem_changed, LogicItemState prev_elem_stat
     return res;
 }
 
-bool ElementsBox::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = GetSelectedElement()->Render(fb, prev_elem_state, start_point);
-    return res;
+void ElementsBox::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    GetSelectedElement()->Render(fb, prev_elem_state, start_point);
 }
 
 size_t ElementsBox::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -395,9 +399,9 @@ void ElementsBox::SelectPrior() {
         return;
     }
 
-    DetachElement((*this)[selected_index]);
+    DetachElement(items[selected_index]);
     selected_index++;
-    if (selected_index >= (int)size()) {
+    if (selected_index >= (int)items.size()) {
         selected_index = 0;
     }
     force_do_action_result = true;
@@ -417,10 +421,10 @@ void ElementsBox::SelectNext() {
         return;
     }
 
-    DetachElement((*this)[selected_index]);
+    DetachElement(items[selected_index]);
     selected_index--;
     if (selected_index < 0) {
-        selected_index = size() - 1;
+        selected_index = items.size() - 1;
     }
     force_do_action_result = true;
 }

@@ -17,18 +17,23 @@
 #include "main/LogicProgram/Inputs/InputNO.cpp"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogicInputNOTestsGroup){ //
-                                    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+static ProcessWakeupService *process_wakeup_service;
+
+TEST_GROUP(LogicInputNOTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
 }
 }
 ;

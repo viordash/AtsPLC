@@ -2,6 +2,7 @@
 #include "Display/LogsList.h"
 #include "Display/display.h"
 #include "LogicProgram/Ladder.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "Maintenance/backups_storage.h"
 #include "buttons.h"
@@ -15,7 +16,8 @@
 
 static const char *TAG_ServiceModeHandler_Restore = "ServiceMode.Restore";
 
-void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
+void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events,
+                                 ProcessWakeupService *process_wakeup_service) {
     ESP_LOGI(TAG_ServiceModeHandler_Restore, "execute");
 
     int backup_fileno = 0;
@@ -35,10 +37,15 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
 
     listBox.Select(backup_fileno);
 
+    process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+    process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                    service_mode_timeout_ms,
+                                    ProcessWakeupRequestPriority::pwrp_Critical);
+
     bool success = false;
     bool error = false;
     while (!success && !error) {
-        uint8_t *fb = begin_render();
+        auto fb = begin_render();
         listBox.Render(fb);
         end_render(fb);
 
@@ -46,21 +53,25 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                                                  EXPECTED_BUTTONS,
                                                  true,
                                                  false,
-                                                 service_mode_timeout_ms / portTICK_PERIOD_MS);
+                                                 process_wakeup_service->Get());
 
-        bool timeout = (uxBits & EXPECTED_BUTTONS) == 0;
+        process_wakeup_service->RemoveExpired();
+
+        ESP_LOGD(TAG_ServiceModeHandler_Restore, "bits:0x%08X", (unsigned int)uxBits);
+
+        bool timeout = !process_wakeup_service->Contains((void *)ServiceModeHandler::Start);
         if (timeout) {
             ESP_LOGI(TAG_ServiceModeHandler_Restore, "timeout, returns to main");
             return;
         }
 
-        ButtonsPressType pressed_button = handle_buttons(uxBits);
+        ButtonsPressType pressed_button = handle_buttons(uxBits, process_wakeup_service);
         ESP_LOGD(TAG_ServiceModeHandler_Restore,
-                 "buttons_changed, pressed_button:%u, bits:0x%08X",
-                 (unsigned int)pressed_button,
-                 (unsigned int)uxBits);
+                 "buttons_changed, pressed_button:%u",
+                 pressed_button);
         switch (pressed_button) {
             case ButtonsPressType::UP_PRESSED:
+            case ButtonsPressType::UP_LONG_PRESSED:
                 backup_fileno--;
                 if (backup_fileno < 0) {
                     backup_fileno = max_backup_files - 1;
@@ -68,6 +79,7 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                 listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::DOWN_PRESSED:
+            case ButtonsPressType::DOWN_LONG_PRESSED:
                 backup_fileno++;
                 if ((size_t)backup_fileno >= max_backup_files) {
                     backup_fileno = 0;
@@ -75,6 +87,7 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                 listBox.Select(backup_fileno);
                 break;
             case ButtonsPressType::SELECT_PRESSED:
+            case ButtonsPressType::SELECT_LONG_PRESSED:
                 if (files_stat[backup_fileno]) {
                     success = DoRestore(backup_fileno);
                     error = !success;
@@ -82,9 +95,14 @@ void ServiceModeHandler::Restore(EventGroupHandle_t gpio_events) {
                     error = true;
                 }
                 break;
-            default:
+            case ButtonsPressType::NOTHING_PRESSED:
                 break;
         }
+
+        process_wakeup_service->RemoveRequest((void *)ServiceModeHandler::Start);
+        process_wakeup_service->Request((void *)ServiceModeHandler::Start,
+                                        service_mode_timeout_ms,
+                                        ProcessWakeupRequestPriority::pwrp_Critical);
     }
     ShowStatus(gpio_events, success, "Restore completed!", "Restore error!");
 }

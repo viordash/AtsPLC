@@ -3,6 +3,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,62 +21,72 @@ CommonTimer::~CommonTimer() {
 }
 
 bool CommonTimer::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         Controller::RemoveRequestWakeupMs(this);
         return false;
     }
-    if (prev_elem_changed && prev_elem_state == LogicItemState::lisActive) {
+
+    if (prev_elem_changed) {
         Controller::RemoveRequestWakeupMs(this);
-        Controller::RequestWakeupMs(this,
-                                    delay_time_us / 1000LL,
-                                    ProcessWakeupRequestPriority::pwrp_Critical);
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state != LogicItemState::lisActive) {
-        state = LogicItemState::lisPassive;
-    } else if (state != LogicItemState::lisActive) {
-        bool timer_completed =
-            Controller::RequestWakeupMs(this,
-                                        delay_time_us / 1000LL,
-                                        ProcessWakeupRequestPriority::pwrp_Critical);
-        if (timer_completed) {
-            state = LogicItemState::lisActive;
-        }
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            if (prev_elem_changed) {
+                Controller::RequestWakeupMs(this,
+                                            delay_time_us / 1000LL,
+                                            ProcessWakeupRequestPriority::pwrp_Critical);
+            } else if (state != LogicItemState::lisActive) {
+                bool timer_completed =
+                    Controller::RequestWakeupMs(this,
+                                                delay_time_us / 1000LL,
+                                                ProcessWakeupRequestPriority::pwrp_Critical);
+                if (timer_completed) {
+                    state = LogicItemState::lisActive;
+                }
+            }
+            break;
+
+        case LogicItemState::lisPassive:
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
     if (state != prev_state) {
-        any_changes = true;
         ESP_LOGD(TAG_CommonTimer, ".");
     }
-    return any_changes;
+
+    return state != prev_state;
 }
 
-IRAM_ATTR bool
-CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
+IRAM_ATTR void
+CommonTimer::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     auto bitmap = GetCurrentBitmap(state);
 
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (CommonTimer::EditingPropertyId)editing_property_id
                                        == CommonTimer::EditingPropertyId::ctepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
@@ -83,45 +94,46 @@ CommonTimer::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_po
     bool blink_value_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonTimer::EditingPropertyId)editing_property_id
                                       == CommonTimer::EditingPropertyId::ctepi_ConfigureDelayTime
-                               && Blinking_50();
+                               && Blinking_50(fb);
 
     switch (str_size) {
         case 1:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 10, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 2:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 6, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 3:
-            res = blink_value_on_editing
-               || (draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f5X7(fb, start_point->x + 3, start_point->y + 2, str_time) > 0);
+            }
             break;
         case 4:
-            res = blink_value_on_editing
-               || (draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f4X7(fb, start_point->x + 4, start_point->y + 3, str_time) > 0);
+            }
             break;
         default:
-            res = blink_value_on_editing
-               || (draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time) > 0);
+            if (!blink_value_on_editing) {
+                ASSERT(draw_text_f4X7(fb, start_point->x + 2, start_point->y + 3, str_time) > 0);
+            }
             break;
     }
 
     start_point->x += bitmap->size.width;
 
-    if (res) {
-        res = EditableElement::Render(fb, start_point);
-    }
+    EditableElement::Render(fb, start_point);
 
     ESP_LOGD(TAG_CommonTimer,
-             "Render, str_time:%s, str_size:%d, x:%u, y:%u, res:%u",
+             "Render, str_time:%s, str_size:%d, x:%u, y:%u",
              str_time,
              str_size,
              start_point->x,
-             start_point->y,
-             res);
-    return res;
+             start_point->y);
 }
 
 CommonTimer *CommonTimer::TryToCast(LogicElement *logic_element) {

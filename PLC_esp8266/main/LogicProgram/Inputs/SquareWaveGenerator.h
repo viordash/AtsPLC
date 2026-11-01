@@ -19,11 +19,10 @@ class SquareWaveGenerator : public LogicElement {
 
     const static uint64_t force_render_period_us = 1000000;
 
-    const uint32_t step_ms = 10;
-    const uint32_t faststep_ms = 250;
-    const uint32_t min_period_ms = 10;
-    const uint32_t max_period_ms = 99990;
-    const uint8_t LeftPadding = 8;
+    static constexpr uint32_t step_ms = 10;
+    static constexpr uint32_t faststep_ms = 250;
+    static constexpr uint32_t min_period_ms = 10;
+    static constexpr uint32_t max_period_ms = 99990;
 
     const Bitmap *GetCurrentBitmap(LogicItemState state);
 
@@ -44,7 +43,7 @@ class SquareWaveGenerator : public LogicElement {
     ~SquareWaveGenerator();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     void SetPeriod0(uint32_t period_ms);
     void SetPeriod1(uint32_t period_ms);

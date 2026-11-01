@@ -14,6 +14,7 @@
 #include "main/Maintenance/ServiceModeHandler_ResetData.cpp"
 #include "main/Maintenance/ServiceModeHandler_Restore.cpp"
 #include "main/Maintenance/ServiceModeHandler_SmartConfig.cpp"
+#include "main/Maintenance/ServiceModeHandler_WorkMode.cpp"
 
 #include "main/redundant_storage.h"
 
@@ -56,6 +57,9 @@ namespace {
         static ResetMode PublicMorozov_ChangeResetModeToNext(ResetMode mode) {
             return ChangeResetModeToNext(mode);
         }
+        static void PublicMorozov_GetBackupFilesStat(bool *files_stat, size_t files_count) {
+            GetBackupFilesStat(files_stat, files_count);
+        }
         static void PublicMorozov_DeleteBackupFiles(size_t files_count) {
             DeleteBackupFiles(files_count);
         }
@@ -68,6 +72,10 @@ namespace {
 
 TEST(ServiceModeHandlerTestsGroup, ChangeModeToPrev) {
     CHECK_EQUAL(ServiceModeHandler::Mode::sm_ResetToDefault,
+                TestableServiceModeHandler::PublicMorozov_ChangeModeToPrev(
+                    ServiceModeHandler::Mode::sm_WorkMode));
+
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_WorkMode,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToPrev(
                     ServiceModeHandler::Mode::sm_SmartConfig));
 
@@ -85,6 +93,10 @@ TEST(ServiceModeHandlerTestsGroup, ChangeModeToPrev) {
 }
 
 TEST(ServiceModeHandlerTestsGroup, ChangeModeToNext) {
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_SmartConfig,
+                TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
+                    ServiceModeHandler::Mode::sm_WorkMode));
+
     CHECK_EQUAL(ServiceModeHandler::Mode::sm_BackupLogic,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_SmartConfig));
@@ -97,7 +109,7 @@ TEST(ServiceModeHandlerTestsGroup, ChangeModeToNext) {
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_RestoreLogic));
 
-    CHECK_EQUAL(ServiceModeHandler::Mode::sm_SmartConfig,
+    CHECK_EQUAL(ServiceModeHandler::Mode::sm_WorkMode,
                 TestableServiceModeHandler::PublicMorozov_ChangeModeToNext(
                     ServiceModeHandler::Mode::sm_ResetToDefault));
 }
@@ -234,6 +246,33 @@ TEST(ServiceModeHandlerTestsGroup, ChangeResetModeToNext) {
                     ServiceModeHandler::ResetMode::rd_FactoryReset));
 }
 
+TEST(ServiceModeHandlerTestsGroup, GetBackupFilesStat) {
+    uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
+
+    backups_storage storage;
+    storage.data = data;
+    storage.size = sizeof(data);
+    storage.version = BACKUPS_VERSION;
+    backups_storage_store("ladder_1", &storage);
+    backups_storage_store("ladder_4", &storage);
+
+    storage.size = 0;
+    backups_storage_store("ladder_2", &storage);
+
+    storage.size = sizeof(data);
+    storage.version = -1;
+    backups_storage_store("ladder_3", &storage);
+
+    bool files_stat[5];
+    TestableServiceModeHandler::PublicMorozov_GetBackupFilesStat(files_stat, 5);
+
+    CHECK_FALSE(files_stat[0]);
+    CHECK_TRUE(files_stat[1]);
+    CHECK_FALSE(files_stat[2]);
+    CHECK_FALSE(files_stat[3]);
+    CHECK_TRUE(files_stat[4]);
+}
+
 TEST(ServiceModeHandlerTestsGroup, DeleteBackupFiles) {
     uint8_t data[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
                        0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
@@ -303,7 +342,7 @@ TEST(ServiceModeHandlerTestsGroup, DoResetData__FactoryReset) {
     mock("storage_1").expectNCalls(2, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
     mock("backups").expectNCalls(4, "esp_vfs_spiffs_unregister").ignoreOtherParameters();
 
-    EventGroupHandle_t gpio_events;
+    EventGroupHandle_t gpio_events = 0;
     CHECK_TRUE(TestableServiceModeHandler::PublicMorozov_DoResetData(
         gpio_events,
         ServiceModeHandler::ResetMode::rd_FactoryReset));
@@ -356,7 +395,7 @@ TEST(ServiceModeHandlerTestsGroup, DoResetData__return_false_if_button_up_not_pr
         .ignoreOtherParameters()
         .andReturnValue(BUTTON_SELECT_IO_OPEN);
 
-    EventGroupHandle_t gpio_events;
+    EventGroupHandle_t gpio_events = 0;
     CHECK_FALSE(TestableServiceModeHandler::PublicMorozov_DoResetData(
         gpio_events,
         ServiceModeHandler::ResetMode::rd_FactoryReset));

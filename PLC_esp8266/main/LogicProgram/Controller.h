@@ -22,38 +22,52 @@ extern "C" {
 #include "LogicProgram/ProcessWakeupService.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "LogicProgram/Ladder.h"
+
 class RenderingService;
 class WiFiService;
-class Ladder;
 class DatetimeService;
 class Controller {
   protected:
     static bool runned;
     static bool in_design;
-    static EventGroupHandle_t gpio_events;
     static TaskHandle_t process_task_handle;
-    static ProcessWakeupService *processWakeupService;
+    static ProcessWakeupService *process_wakeup_service;
     static WiFiService *wifi_service;
     static RenderingService *rendering_service;
     static DatetimeService *datetime_service;
     static LogicItemState network_continuation;
+    static Ladder ladder;
+    static uint32_t force_refresh_seq;
+    static std::mutex force_refresh_mutex;
 
   public:
+    static EventGroupHandle_t gpio_events;
     static const int WAKEUP_PROCESS_TASK = BIT15;
 
     static void Start(EventGroupHandle_t gpio_events,
                       WiFiService *wifi_service,
                       RenderingService *rendering_service,
-                      DatetimeService *datetime_service);
+                      DatetimeService *datetime_service,
+                      ProcessWakeupService *process_wakeup_service);
     static void Stop();
     static void FetchIOValues();
     static void CommitChanges();
 
     static void ProcessTask(void *parm);
+
+    static Ladder &GetLadder();
+    static RenderingService *GetRenderingService();
+
+    static void ChangeWorkMode(EventBits_t flags);
+
+    static void RequestForceRefreshUI();
+    static uint32_t GetForceRefreshUISeq();
 
     static ControllerDI DI;
     static ControllerAI AI;
@@ -64,8 +78,9 @@ class Controller {
     static ControllerVariable V3;
     static ControllerVariable V4;
 
-    static bool RequestWakeupMs(void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
-    static void RemoveRequestWakeupMs(void *id);
+    static bool
+    RequestWakeupMs(const void *id, uint32_t delay_ms, ProcessWakeupRequestPriority priority);
+    static void RemoveRequestWakeupMs(const void *id);
     static void RemoveExpiredWakeupRequests();
     static uint32_t GetWakeupTicks();
 
@@ -82,17 +97,19 @@ class Controller {
 
     static uint8_t ConnectToWiFiStation();
     static void DisconnectFromWiFiStation();
+    static void RaiseWiFiSettingsChanged();
 
     static bool ManualSetSystemDatetime(Datetime *dt);
     static void GetSystemDatetime(Datetime *dt);
     static void RestartSntp();
+    static void StopSntp();
     static void StoreSystemDatetime();
     static void SetNetworkContinuation(LogicItemState state);
     static LogicItemState GetNetworkContinuation();
 
     static void UpdateUIViewTop(int32_t view_top_index);
     static void UpdateUISelected(int32_t selected_network);
-    static void DesignStart();
+    static void DesignStart(WorkMode work_mode);
     static void DesignEnd();
     static bool InDesign();
     static int32_t GetLastUpdatedUISelected();

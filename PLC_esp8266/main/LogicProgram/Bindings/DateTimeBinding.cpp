@@ -4,6 +4,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,28 +28,32 @@ void DateTimeBinding::SetIoAdr(const MapIO io_adr) {
 }
 
 bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
-        Controller::RemoveRequestWakeupMs(this);
+    Controller::RemoveRequestWakeupMs(this);
+
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
+    if (prev_elem_state != state) {
+        state = prev_elem_state;
+        switch (state) {
+            case LogicItemState::lisActive:
+                Controller::BindVariableToToDateTime(GetIoAdr(), datetime_part);
+                break;
 
-    } else if (prev_elem_state != LogicItemState::lisActive
-               && state != LogicItemState::lisPassive) {
-        state = LogicItemState::lisPassive;
-        Controller::UnbindVariable(GetIoAdr());
+            case LogicItemState::lisPassive:
+                Controller::UnbindVariable(GetIoAdr());
+                break;
+
+            case LogicItemState::lisStop:
+                Controller::UnbindVariable(GetIoAdr());
+                break;
+        }
     }
 
     if (state == LogicItemState::lisActive) {
-        Controller::RemoveRequestWakeupMs(this);
-
         uint32_t event_period_ms;
         switch (datetime_part) {
             case DatetimePart::t_second:
@@ -69,100 +74,74 @@ bool DateTimeBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
         Controller::RequestWakeupMs(this,
                                     event_period_ms,
                                     ProcessWakeupRequestPriority::pwrp_Critical);
-    } else {
-        Controller::RemoveRequestWakeupMs(this);
-        ESP_LOGD(TAG_DateTimeBinding, "%p ", this);
     }
 
     if (state != prev_state) {
-        any_changes = true;
         ESP_LOGD(TAG_DateTimeBinding, ".");
     }
-    return any_changes;
+
+    return prev_state != state;
 }
 
-IRAM_ATTR bool
-DateTimeBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
-
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+IRAM_ATTR void
+DateTimeBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (DateTimeBinding::EditingPropertyId)editing_property_id
                                      == DateTimeBinding::EditingPropertyId::cwbepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (DateTimeBinding::EditingPropertyId)editing_property_id
                                       == DateTimeBinding::EditingPropertyId::cwbepi_ConfigureIOAdr
-                               && Blinking_50();
-    res =
-        blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
-    if (!res) {
-        return res;
+                               && Blinking_50(fb);
+    if (!blink_label_on_editing) {
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
-    top_left.x += 22;
+    top_left.x += 20;
     if (!blink_body_on_editing) {
         draw_bitmap(fb, top_left.x, top_left.y + 5, &bitmap);
     }
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);
-    if (!res) {
-        return res;
-    }
+    EditableElement::Render(fb, start_point);
 
     top_left.x += bitmap.size.width + 4;
 
     switch (editing_property_id) {
         case DateTimeBinding::EditingPropertyId::cwbepi_None:
         case DateTimeBinding::EditingPropertyId::cwbepi_ConfigureIOAdr:
-            res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
+            ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0);
             break;
 
         case DateTimeBinding::EditingPropertyId::cwbepi_SelectDatetimePart:
-            res = Blinking_50()
-               || draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0;
+            if (!Blinking_50(fb)) {
+                ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, GetDatetimePartName()) > 0);
+            }
             break;
 
         default:
             break;
     }
-    return res;
 }
 
 const char *DateTimeBinding::GetDatetimePartName() {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Display/Common.h"
+#include "Display/display.h"
 #include <stdint.h>
 #include <unistd.h>
 
@@ -28,6 +29,7 @@ class EditableElement {
   protected:
     EditableElement::ElementState editable_state;
     int editing_property_id;
+    bool blink;
 
     const static Bitmap bitmap_selecting_blink_0;
     const static Bitmap bitmap_selecting_blink_1;
@@ -41,11 +43,12 @@ class EditableElement {
     const static Bitmap bitmap_disable_cursor_0;
     const static Bitmap bitmap_disable_cursor_1;
 
-    bool Render(uint8_t *fb, Point *start_point);
+    void Render(FrameBuffer *fb, Point *start_point);
 
-    bool Blinking_50();
-    const Bitmap *GetCursorBitmap();
-    uint16_t GetCursorWidth();
+    bool Blinking_50(FrameBuffer *fb);
+    const Bitmap *GetCursorBitmap(FrameBuffer *fb);
+    uint16_t GetCursorWidth(FrameBuffer *fb);
+    static uint8_t GetElementCursorWidth();
 
   public:
     explicit EditableElement();

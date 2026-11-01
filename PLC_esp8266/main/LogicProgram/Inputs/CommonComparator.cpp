@@ -8,6 +8,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,64 +42,68 @@ uint8_t CommonComparator::GetReference() {
 }
 
 bool CommonComparator::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
     LogicItemState prev_state = state;
 
-    state = LogicItemState::lisPassive;
-    if (prev_elem_changed && prev_elem_state == LogicItemState::lisPassive) {
-        Input->CancelReadingProcess();
-    } else if (prev_elem_state == LogicItemState::lisActive //
-               && this->CompareFunction()) {
-        state = LogicItemState::lisActive;
+    switch (prev_elem_state) {
+        case LogicItemState::lisActive:
+            if (this->CompareFunction()) {
+                state = LogicItemState::lisActive;
+            } else {
+                state = LogicItemState::lisPassive;
+            }
+            break;
+
+        case LogicItemState::lisPassive:
+            if (prev_elem_changed) {
+                Input->CancelReadingProcess();
+            }
+            state = LogicItemState::lisPassive;
+            break;
+
+        case LogicItemState::lisStop:
+            state = LogicItemState::lisStop;
+            break;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-    }
-    return any_changes;
+    return state != prev_state;
 }
 
-IRAM_ATTR bool
-CommonComparator::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
-    bool res;
-
+IRAM_ATTR void
+CommonComparator::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     uint8_t x_pos = start_point->x + LeftPadding + 2;
 
-    res = CommonInput::Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
+    CommonInput::Render(fb, prev_elem_state, start_point);
 
     bool blink_label_on_editing =
         editable_state == EditableElement::ElementState::des_Editing
         && (CommonComparator::EditingPropertyId)editing_property_id
                == CommonComparator::EditingPropertyId::ccepi_ConfigureReference
-        && Blinking_50() && label_width > 0;
+        && Blinking_50(fb) && label_width > 0;
     switch (str_size) {
         case 1:
-            res = blink_label_on_editing
-               || (draw_text_f5X7(fb, x_pos + 3 + label_width, start_point->y + 2, str_reference)
-                   > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(
+                    draw_text_f5X7(fb, x_pos + 3 + label_width, start_point->y + 2, str_reference)
+                    > 0);
+            }
             break;
         case 2:
-            res = blink_label_on_editing
-               || (draw_text_f5X7(fb, x_pos + 0 + label_width, start_point->y + 2, str_reference)
-                   > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(
+                    draw_text_f5X7(fb, x_pos + 0 + label_width, start_point->y + 2, str_reference));
+            }
             break;
         default:
-            res = blink_label_on_editing
-               || (draw_text_f4X7(fb, x_pos + label_width, start_point->y + 3, str_reference) > 0);
+            if (!blink_label_on_editing) {
+                ASSERT(draw_text_f4X7(fb, x_pos + label_width, start_point->y + 3, str_reference)
+                       > 0);
+            }
             break;
     }
-
-    return res;
 }
 
 size_t CommonComparator::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -143,11 +148,11 @@ size_t CommonComparator::Deserialize(uint8_t *buffer, size_t buffer_size) {
 CommonComparator *CommonComparator::TryToCast(LogicElement *logic_element) {
     switch (logic_element->GetElementType()) {
         case TvElementType::et_ComparatorEq:
+        case TvElementType::et_ComparatorNe:
         case TvElementType::et_ComparatorGE:
         case TvElementType::et_ComparatorGr:
         case TvElementType::et_ComparatorLE:
         case TvElementType::et_ComparatorLs:
-        case TvElementType::et_ComparatorNe:
             return static_cast<CommonComparator *>(logic_element);
 
         default:

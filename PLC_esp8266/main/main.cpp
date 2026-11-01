@@ -13,6 +13,7 @@ extern "C" {
 #include "Display/RenderingService.h"
 #include "Display/display.h"
 #include "LogicProgram/Controller.h"
+#include "LogicProgram/ProcessWakeupService.h"
 #include "Maintenance/ServiceModeHandler.h"
 #include "WiFi/WiFiService.h"
 #include "buttons.h"
@@ -67,7 +68,7 @@ void app_main() {
     esp_chip_info(&chip_info);
     printf("This is ESP8266 chip with %u CPU cores, WiFi, , crc32:%u",
            (unsigned int)chip_info.cores,
-           (unsigned int)calc_crc32(CRC32_INIT, &chip_info, sizeof(&chip_info)));
+           (unsigned int)calc_crc32(CRC32_INIT, &chip_info, sizeof(chip_info)));
 
     printf("silicon revision %d, ", chip_info.revision);
 
@@ -75,14 +76,20 @@ void app_main() {
            spi_flash_get_chip_size() / (1024 * 1024),
            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
+    ProcessWakeupService process_wakeup_service;
+
     if (!hotreload->is_hotstart && up_button_pressed()) {
-        ServiceModeHandler::Start(gpio_events);
+        ServiceModeHandler::Start(gpio_events, &process_wakeup_service);
     }
 
     WiFiService wifi_service;
     wifi_service.Start();
     RenderingService rendering_service;
-    Controller::Start(gpio_events, &wifi_service, &rendering_service, &datetime_service);
+    Controller::Start(gpio_events,
+                      &wifi_service,
+                      &rendering_service,
+                      &datetime_service,
+                      &process_wakeup_service);
 
     uint32_t free_mem = esp_get_free_heap_size();
     printf("mem: %u\n", (unsigned int)free_mem);

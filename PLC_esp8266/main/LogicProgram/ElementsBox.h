@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Display/display.h"
 #include "LogicProgram/LogicElement.h"
 #include <stdint.h>
 #include <unistd.h>
@@ -14,7 +15,7 @@ class Indicator;
 class WiFiBinding;
 class WiFiApBinding;
 
-class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
+class ElementsBox : public LogicElement {
   public:
     enum Options {
         show_output_elements = 0x01,
@@ -23,6 +24,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     };
 
   protected:
+    std::vector<LogicElement *> items;
     uint8_t place_width;
     uint8_t source_element_width;
     int selected_index;
@@ -33,7 +35,7 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     void Fill(LogicElement *source_element, Options options);
     void AppendStandartElement(LogicElement *source_element,
                                TvElementType element_type,
-                               uint8_t *frame_buffer);
+                               FrameBuffer *frame_buffer);
     void CopyParamsToInputElement(LogicElement *source_element, InputElement *input);
     bool CopyParamsToCommonOutputElement(LogicElement *source_element, CommonOutput *common_output);
     bool CopyParamsToCommonComparator(LogicElement *source_element,
@@ -49,9 +51,10 @@ class ElementsBox : public LogicElement, public std::vector<LogicElement *> {
     virtual ~ElementsBox();
 
     LogicElement *GetSelectedElement();
+    size_t GetCount();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override final;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override final;
+    void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override final;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override final;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override final;

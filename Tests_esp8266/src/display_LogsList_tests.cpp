@@ -11,10 +11,11 @@
 #include "main/Display/LogsList.h"
 #include "main/Display/display.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
-TEST_GROUP(LogsListTestsGroup){ //
-                                TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+TEST_GROUP(LogsListTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 mock().disable();
 }
 
@@ -26,7 +27,7 @@ TEST_TEARDOWN() {
 
 class TestableLogsList : public LogsList {
   public:
-    const static int lines_count = 4;
+    const static int lines_count = 8;
 
     explicit TestableLogsList(const char *title) : LogsList(title) {
         static_assert(lines_count == LogsList::lines_count);
@@ -123,26 +124,26 @@ TEST(LogsListTestsGroup, Render) {
     TestableLogsList testable("list_box");
 
     testable.Append("line 0");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 1");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 2");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 3");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 4");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     testable.Append("line 5");
-    CHECK_TRUE(testable.Render(frame_buffer));
+    testable.Render(&frame_buffer);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }

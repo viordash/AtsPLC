@@ -19,19 +19,22 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 static WiFiService *wifi_service;
 static DatetimeService *datetime_service;
+static ProcessWakeupService *process_wakeup_service;
+
 TEST_GROUP(LogicDateTimeBindingTestsGroup){
     //
-    TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new WiFiService();
 datetime_service = new DatetimeService();
-Controller::Start(NULL, wifi_service, NULL, datetime_service);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, wifi_service, NULL, datetime_service, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
@@ -40,6 +43,7 @@ TEST_TEARDOWN() {
     Controller::V3.Unbind();
     Controller::V4.Unbind();
     Controller::Stop();
+    delete process_wakeup_service;
     delete wifi_service;
     delete datetime_service;
 }
@@ -79,17 +83,17 @@ TEST(LogicDateTimeBindingTestsGroup, Render) {
     *testable.PublicMorozov_datetime_part() = DatetimePart::t_minute;
 
     Point start_point = { INCOME_RAIL_WIDTH, INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP };
-    CHECK_TRUE(testable.Render(frame_buffer, LogicItemState::lisActive, &start_point));
+    testable.Render(&frame_buffer, LogicItemState::lisActive, &start_point);
 
     bool any_pixel_coloring = false;
-    for (size_t i = 0; i < sizeof(frame_buffer); i++) {
-        if (frame_buffer[i] != 0) {
+    for (size_t i = 0; i < sizeof(frame_buffer.buffer); i++) {
+        if (frame_buffer.buffer[i] != 0) {
             any_pixel_coloring = true;
             break;
         }
     }
     CHECK_TRUE(any_pixel_coloring);
-    CHECK_EQUAL(113, start_point.x);
+    CHECK_EQUAL(107, start_point.x);
 }
 
 TEST(LogicDateTimeBindingTestsGroup, DoAction_skip_when_incoming_passive) {

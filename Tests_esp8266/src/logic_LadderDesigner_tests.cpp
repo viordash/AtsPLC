@@ -16,21 +16,25 @@
 
 #include "tests_utils.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
+
+static ProcessWakeupService *process_wakeup_service;
 
 TEST_GROUP(LogicLadderDesignerTestsGroup){ //
                                            TEST_SETUP(){ mock().disable();
-memset(frame_buffer, 0, sizeof(frame_buffer));
+memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 create_storage_0();
 create_storage_1();
 load_hotreload();
-Controller::Start(NULL, NULL, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, NULL, NULL, NULL, process_wakeup_service);
 Controller::UpdateUIViewTop(0);
 Controller::UpdateUISelected(0);
 }
 
 TEST_TEARDOWN() {
     Controller::Stop();
+    delete process_wakeup_service;
     mock().enable();
     remove_storage_0();
     remove_storage_1();
@@ -64,65 +68,39 @@ namespace {
         bool PublicMorozov_RemoveNetworkIfEmpty(int network_id) {
             return RemoveNetworkIfEmpty(network_id);
         }
+        size_t size() const {
+            return items.size();
+        }
+        Network *&operator[](size_t index) {
+            return items[index];
+        }
+        Network *const &operator[](size_t index) const {
+            return items[index];
+        }
     };
 
     class TestableNetwork : public Network {
       public:
-        TestableNetwork(LogicItemState state) : Network(state) {
+        TestableNetwork(NetworkState state) : Network(state) {
         }
-        LogicItemState PublicMorozov_state() {
+        NetworkState PublicMorozov_state() {
             return state;
         }
     };
 
 } // namespace
 
-TEST(LogicLadderDesignerTestsGroup, CanScrollAuto_after_appending_second_network) {
-    TestableLadder testable;
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_FALSE(testable.CanScrollAuto());
-    testable.Append(new Network());
-
-    CHECK_TRUE(testable.CanScrollAuto());
-}
-
-TEST(LogicLadderDesignerTestsGroup, AutoScroll_when_append_new_networks) {
-    TestableLadder testable;
-
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
-
-    testable.Append(new Network());
-    testable.AutoScroll();
-    CHECK_EQUAL(2, *testable.PublicMorozov_Get_view_top_index());
-}
-
 TEST(LogicLadderDesignerTestsGroup,
      HandleButtonDown_HandleButtonUp_can_scroll_from_first_to_last_network) {
     TestableLadder testable;
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.AutoScroll();
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.SetViewTopIndex(5);
 
     CHECK_EQUAL(5, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
@@ -155,34 +133,34 @@ TEST(LogicLadderDesignerTestsGroup,
     TestableLadder testable;
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonUp();
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
-    testable.AutoScroll();
+    testable.SetViewTopIndex(1);
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
     testable.HandleButtonDown();
     CHECK_EQUAL(1, *testable.PublicMorozov_Get_view_top_index());
@@ -237,7 +215,7 @@ TEST(LogicLadderDesignerTestsGroup, GetDesignState) {
 TEST(LogicLadderDesignerTestsGroup, AdvancedSelectDisable_changed_network_state) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     network->SwitchToDisabling();
@@ -252,20 +230,20 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedSelectDisable_changed_network_state)
 TEST(LogicLadderDesignerTestsGroup, RemoveNetworkIfEmpty) {
     TestableLadder testable;
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network0->Append(new DirectOutput(MapIO::O1));
     testable.Append(network0);
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
-    auto network1 = new Network(LogicItemState::lisActive);
+    auto network1 = new Network(NetworkState::nsActive);
     network1->Append(new InputNC(MapIO::V1));
     network1->Append(new InputNC(MapIO::V2));
     network1->Append(new DirectOutput(MapIO::O2));
     testable.Append(network1);
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     CHECK_FALSE(testable.PublicMorozov_RemoveNetworkIfEmpty(0));
     CHECK_FALSE(testable.PublicMorozov_RemoveNetworkIfEmpty(2));
@@ -281,11 +259,11 @@ TEST(LogicLadderDesignerTestsGroup, RemoveNetworkIfEmpty) {
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_removes_empty_network_after_its_editing) {
     TestableLadder testable;
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network0->Append(new DirectOutput(MapIO::O1));
     testable.Append(network0);
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
@@ -305,8 +283,8 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_removes_empty_network_aft
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_removes_empty_network_after_its_editing) {
     TestableLadder testable;
 
-    testable.Append(new Network(LogicItemState::lisActive));
-    auto network0 = new Network(LogicItemState::lisActive);
+    testable.Append(new Network(NetworkState::nsActive));
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network0->Append(new DirectOutput(MapIO::O1));
     testable.Append(network0);
@@ -322,7 +300,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_removes_empty_network_after
 TEST(LogicLadderDesignerTestsGroup, HandleButtonUp_removes_empty_network_after_its_editing) {
     TestableLadder testable;
 
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
@@ -344,7 +322,7 @@ TEST(LogicLadderDesignerTestsGroup,
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network_editing) {
     TestableLadder testable;
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsStopFromActive);
     network0->Append(new InputNC(MapIO::DI));
     network0->Append(new DirectOutput(MapIO::O1));
     testable.Append(network0);
@@ -359,24 +337,46 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls_store_after_network
 
     testable.HandleButtonSelect();
 
-    Ladder ladder_load;
+    TestableLadder ladder_load;
     ladder_load.Load();
 
     CHECK_EQUAL(1, ladder_load.size());
     auto network_load = ladder_load[0];
-    CHECK_EQUAL(2, network_load->size());
+    CHECK_EQUAL(2, network_load->Size());
     CHECK_EQUAL(TvElementType::et_InputNC, (*network_load)[0]->GetElementType());
     CHECK_EQUAL(MapIO::DI, ((InputNC *)(*network_load)[0])->GetIoAdr());
     CHECK_EQUAL(TvElementType::et_DirectOutput, (*network_load)[1]->GetElementType());
     CHECK_EQUAL(MapIO::O1, ((DirectOutput *)(*network_load)[1])->GetIoAdr());
 }
 
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_is_prohibited_in_run_mode) {
+    TestableLadder testable;
+    testable.ChangeWorkMode(WorkMode::Run, false);
+    testable.Append(new Network(NetworkState::nsActive));
+
+    testable.HandleButtonSelect();
+
+    CHECK_EQUAL(-1, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_FALSE(Controller::InDesign());
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_is_allowed_in_stop_mode) {
+    TestableLadder testable;
+    testable.ChangeWorkMode(WorkMode::Stop, false);
+    testable.Append(new Network(NetworkState::nsStopFromActive));
+
+    testable.HandleButtonSelect();
+
+    CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
+    CHECK_TRUE(Controller::InDesign());
+}
+
 TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex_do_nothing_when_incorrect_index) {
     TestableLadder testable;
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.SetViewTopIndex(-1);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
@@ -390,10 +390,10 @@ TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex_do_nothing_when_incorrect_in
 
 TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex) {
     TestableLadder testable;
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.SetViewTopIndex(0);
     CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
@@ -407,12 +407,12 @@ TEST(LogicLadderDesignerTestsGroup, SetViewTopIndex) {
 
 TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_do_nothing_when_incorrect_index) {
     TestableLadder testable;
-    testable.Append(new Network(LogicItemState::lisActive));
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
+    testable.Append(new Network(NetworkState::nsActive));
     auto selected_network = new Network();
     testable.Append(selected_network);
     selected_network->Select();
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.SetSelectedNetworkIndex(-1);
     CHECK_EQUAL(2, testable.PublicMorozov_GetSelectedNetwork());
@@ -423,10 +423,10 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_do_nothing_when_inco
 
 TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_when_no_preselected) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     testable.Append(network0);
     testable.Append(network1);
     testable.Append(network2);
@@ -446,10 +446,10 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_when_no_preselected)
 
 TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_limit_with_ViewTopIndex_range) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     testable.Append(network0);
     testable.Append(network1);
     testable.Append(network2);
@@ -469,10 +469,10 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_limit_with_ViewTopIn
 
 TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_if_network_is_editing_then_do_nothing) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     testable.Append(network0);
     testable.Append(network1);
     testable.Append(network2);
@@ -492,10 +492,10 @@ TEST(LogicLadderDesignerTestsGroup, SetSelectedNetworkIndex_if_network_is_editin
 TEST(LogicLadderDesignerTestsGroup,
      HandleButtonUp_calls__Controller_UpdateUIViewTop_UpdateUISelected__when_scrolling) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -528,10 +528,10 @@ TEST(LogicLadderDesignerTestsGroup,
 TEST(LogicLadderDesignerTestsGroup,
      HandleButtonDown_calls__Controller_UpdateUIViewTop_UpdateUISelected__when_scrolling) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -563,10 +563,10 @@ TEST(LogicLadderDesignerTestsGroup,
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_UpdateUISelected_changed) {
     TestableLadder testable;
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     testable.Append(network0);
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(0, testable.PublicMorozov_GetSelectedNetwork());
@@ -594,10 +594,10 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_DesignS
     Controller::DesignEnd();
     TestableLadder testable;
 
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     testable.Append(network0);
-    testable.Append(new Network(LogicItemState::lisActive));
+    testable.Append(new Network(NetworkState::nsActive));
 
     CHECK_FALSE(Controller::InDesign());
 
@@ -618,7 +618,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_calls__Controller_DesignS
 TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_enter_to_advanced_editing) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
     testable.HandleButtonSelect();
 
@@ -630,7 +630,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_enter_to_advanced_editing
 TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_leave_from_advanced_editing) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     testable[0]->SwitchToAdvancedSelectMove();
@@ -665,7 +665,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonOption_leave_from_advanced_editi
 TEST(LogicLadderDesignerTestsGroup, Switch_to_next_advanced_editing_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
     testable.HandleButtonSelect();
 
@@ -693,7 +693,7 @@ TEST(LogicLadderDesignerTestsGroup, Switch_to_next_advanced_editing_mode) {
 TEST(LogicLadderDesignerTestsGroup, Switch_to_prev_advanced_editing_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
     testable.HandleButtonSelect();
 
@@ -721,7 +721,7 @@ TEST(LogicLadderDesignerTestsGroup, Switch_to_prev_advanced_editing_mode) {
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_move_network_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     testable[0]->SwitchToAdvancedSelectMove();
@@ -733,7 +733,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_move_network_mo
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_copy_network_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     testable[0]->SwitchToAdvancedSelectCopy();
@@ -745,7 +745,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_copy_network_mo
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_delete_network_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     testable[0]->SwitchToAdvancedSelectDelete();
@@ -757,7 +757,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_delete_network_
 TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_disable_network_mode) {
     TestableLadder testable;
 
-    auto network = new TestableNetwork(LogicItemState::lisActive);
+    auto network = new TestableNetwork(NetworkState::nsActive);
     testable.Append(network);
 
     testable[0]->SwitchToAdvancedSelectDisable();
@@ -768,10 +768,10 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonSelect_switch_to_disable_network
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_up) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -809,10 +809,10 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_up) {
 
 TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
-    auto network3 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
+    auto network3 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -855,7 +855,7 @@ TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_move_network_to_down) {
 
 TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     testable.Append(network0);
 
@@ -865,15 +865,15 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network) {
     testable.HandleButtonSelect();
     CHECK_EQUAL(2, testable.size());
     CHECK_EQUAL(testable[1], network0);
-    CHECK_EQUAL(1, testable[0]->size());
-    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->at(0)->GetElementType());
+    CHECK_EQUAL(1, testable[0]->Size());
+    CHECK_EQUAL(TvElementType::et_InputNC, testable[0]->At(0)->GetElementType());
 }
 
 TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__delete_network) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
-    auto network1 = new Network(LogicItemState::lisActive);
-    auto network2 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
+    auto network1 = new Network(NetworkState::nsActive);
+    auto network2 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     network1->Append(new InputNC(MapIO::DI));
     network2->Append(new InputNC(MapIO::DI));
@@ -891,7 +891,7 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__delete_network) {
 
 TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__disable_network) {
     TestableLadder testable;
-    auto network0 = new Network(LogicItemState::lisActive);
+    auto network0 = new Network(NetworkState::nsActive);
     network0->Append(new InputNC(MapIO::DI));
     testable.Append(network0);
 
@@ -901,4 +901,55 @@ TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__disable_network) {
 
     testable.HandleButtonSelect();
     CHECK_EQUAL(LogicItemState::lisPassive, testable[0]->GetState());
+}
+
+TEST(LogicLadderDesignerTestsGroup,
+     AdvancedEditing__delete_last_visible_network_keeps_view_top_in_range) {
+    TestableLadder testable;
+    auto network0 = new Network(NetworkState::nsStopFromActive);
+    auto network1 = new Network(NetworkState::nsStopFromActive);
+    network0->Append(new InputNC(MapIO::DI));
+    network1->Append(new InputNC(MapIO::DI));
+    testable.Append(network0);
+    testable.Append(network1);
+    *testable.PublicMorozov_Get_view_top_index() = 1;
+    Controller::UpdateUISelected(1);
+
+    testable[1]->SwitchToDeleting();
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(1, testable.size());
+    CHECK_EQUAL(0, *testable.PublicMorozov_Get_view_top_index());
+
+    testable.HandleButtonSelect();
+    CHECK_TRUE(testable[0]->GetEditable_state() == EditableElement::ElementState::des_Selected);
+}
+
+TEST(LogicLadderDesignerTestsGroup, HandleButtonDown_does_not_append_network_over_max_count) {
+    TestableLadder testable;
+    for (size_t i = 0; i < Ladder::MaxNetworksCount; i++) {
+        auto network = new Network(NetworkState::nsStopFromActive);
+        network->Append(new InputNC(MapIO::DI));
+        testable.Append(network);
+    }
+    int last = Ladder::MaxNetworksCount - 1;
+    *testable.PublicMorozov_Get_view_top_index() = last - 1;
+    testable[last]->Select();
+
+    testable.HandleButtonDown();
+    CHECK_EQUAL(Ladder::MaxNetworksCount, testable.size());
+    CHECK_EQUAL(last - 1, *testable.PublicMorozov_Get_view_top_index());
+    CHECK_TRUE(testable[last]->GetEditable_state() == EditableElement::ElementState::des_Selected);
+}
+
+TEST(LogicLadderDesignerTestsGroup, AdvancedEditing__duplicate_network_is_ignored_at_max_count) {
+    TestableLadder testable;
+    for (size_t i = 0; i < Ladder::MaxNetworksCount; i++) {
+        auto network = new Network(NetworkState::nsStopFromActive);
+        network->Append(new InputNC(MapIO::DI));
+        testable.Append(network);
+    }
+
+    testable[0]->SwitchToCopying();
+    testable.HandleButtonSelect();
+    CHECK_EQUAL(Ladder::MaxNetworksCount, testable.size());
 }

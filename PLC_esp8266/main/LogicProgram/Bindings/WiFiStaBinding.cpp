@@ -10,6 +10,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,46 +27,45 @@ WiFiStaBinding::~WiFiStaBinding() {
 }
 
 bool WiFiStaBinding::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
-
-    if (prev_elem_state == LogicItemState::lisActive && state != LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-        Controller::BindVariableToStaWiFi(GetIoAdr());
-    } else if (prev_elem_state != LogicItemState::lisActive
-               && state != LogicItemState::lisPassive) {
-        state = LogicItemState::lisPassive;
-        Controller::UnbindVariable(GetIoAdr());
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-        ESP_LOGD(TAG_WiFiStaBinding, ".");
+    state = prev_elem_state;
+
+    switch (state) {
+        case LogicItemState::lisActive:
+            Controller::BindVariableToStaWiFi(GetIoAdr());
+            break;
+
+        case LogicItemState::lisPassive:
+            Controller::UnbindVariable(GetIoAdr());
+            break;
+
+        case LogicItemState::lisStop:
+            Controller::UnbindVariable(GetIoAdr());
+            break;
     }
-    return any_changes;
+
+    ESP_LOGD(TAG_WiFiStaBinding, ".");
+
+    return true;
 }
 
-IRAM_ATTR bool
-WiFiStaBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-
+IRAM_ATTR void
+WiFiStaBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
 
-    bool res = CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
-    if (!res) {
-        return res;
-    }
+    CommonWiFiBinding::Render(fb, prev_elem_state, start_point);
 
-    top_left.x += LeftPadding + 22;
+    top_left.x += GetElementCursorWidth() + 22;
     top_left.x += bitmap.size.width + 1;
 
-    res = draw_text_f6X12(fb, top_left.x, top_left.y + 6, "STA CLNT") > 0;
-    return res;
+    ASSERT(draw_text_f6X12(fb, top_left.x, top_left.y + 6, "STA CLNT") > 0);
 }
 
 TvElementType WiFiStaBinding::GetElementType() {

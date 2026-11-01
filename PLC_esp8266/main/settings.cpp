@@ -20,6 +20,24 @@ CurrentSettings::device_settings settings = {};
 
 static SemaphoreHandle_t mutex = NULL;
 
+static bool stored_size_matched(uint32_t version, size_t size) {
+    PTDataMigrate migration = MigrateData::Find(version, &SettingsMigrations);
+    if (migration == NULL || migration->GetSizeOfCurrentData == NULL) {
+        ESP_LOGE(TAG_settings, "unknown stored settings version:%08X", (unsigned int)version);
+        return false;
+    }
+
+    size_t expected_size = (size_t)migration->GetSizeOfCurrentData();
+    if (size != expected_size) {
+        ESP_LOGE(TAG_settings,
+                 "stored settings size does not match settings structure, %u != %u",
+                 (unsigned int)size,
+                 (unsigned int)expected_size);
+        return false;
+    }
+    return true;
+}
+
 void load_settings() {
     ESP_ERROR_CHECK(mutex == NULL ? ESP_OK : ESP_ERR_NO_MEM);
     mutex = xSemaphoreCreateMutex();
@@ -32,7 +50,7 @@ void load_settings() {
                                                        storage_1_partition,
                                                        storage_1_path,
                                                        settings_storage_name);
-    if (storage.size > 0) {
+    if (storage.size > 0 && stored_size_matched(storage.version, storage.size)) {
         version = storage.version;
         storedData = storage.data;
         storedSize = storage.size;
@@ -131,12 +149,6 @@ bool validate_settings(CurrentSettings::device_settings *settings) {
             return false;
         }
         pos++;
-    }
-    if (invalid_int(settings->wifi_station.connect_max_retry_count, -1, 7777)) {
-        ESP_LOGI(TAG_settings,
-                 "Invalid wifi_station.connect_max_retry_count, '%d'",
-                 (int)settings->wifi_station.connect_max_retry_count);
-        return false;
     }
     if (invalid_uint(settings->wifi_station.reconnect_delay_ms, 100, 10 * 60 * 1000)) {
         ESP_LOGI(TAG_settings,

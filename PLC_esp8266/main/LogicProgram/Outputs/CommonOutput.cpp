@@ -8,6 +8,8 @@
 #include "LogicProgram/Serializer/Record.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,49 +27,41 @@ void CommonOutput::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-IRAM_ATTR bool
-CommonOutput::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR void
+CommonOutput::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    bool res = true;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     auto bitmap = GetCurrentBitmap(state);
 
-    start_point->x -= label_max_width;
+    uint8_t line_w = std::max<uint8_t>(label_max_width, GetElementCursorWidth());
+    start_point->x -= line_w;
 
-    res = EditableElement::Render(fb, start_point);
+    EditableElement::Render(fb, start_point);
 
-    if (res) {
-        if (state == LogicItemState::lisActive) {
-            res = draw_active_network(fb, start_point->x, start_point->y, label_max_width);
-        } else {
-            res = draw_passive_network(fb, start_point->x, start_point->y, label_max_width, true);
-        }
+    bool active = state == LogicItemState::lisActive || state == LogicItemState::lisStop;
+    if (active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, line_w));
+    } else {
+        ASSERT(draw_passive_network(fb, start_point->x, start_point->y, line_w, true));
     }
 
-    if (res) {
-        bool blink_label_on_editing =
-            editable_state == EditableElement::ElementState::des_Editing
-            && (CommonOutput::EditingPropertyId)editing_property_id
-                   == CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr
-            && Blinking_50();
-        res = blink_label_on_editing
-           || (draw_text_f6X12(fb, start_point->x, start_point->y - get_text_f6X12_height(), label)
+    bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                               && (CommonOutput::EditingPropertyId)editing_property_id
+                                      == CommonOutput::EditingPropertyId::coepi_ConfigureOutputAdr
+                               && Blinking_50(fb);
+    if (!blink_label_on_editing) {
+        ASSERT(draw_text_f6X12(fb, start_point->x, start_point->y - get_text_f6X12_height(), label)
                > 0);
     }
 
     start_point->x -= bitmap->size.width;
-    if (res) {
-        bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
-                                    && (CommonOutput::EditingPropertyId)editing_property_id
-                                           == CommonOutput::EditingPropertyId::coepi_None
-                                    && Blinking_50();
-        if (!blink_bitmap_on_editing) {
-            draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
-        }
+    bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
+                                && (CommonOutput::EditingPropertyId)editing_property_id
+                                       == CommonOutput::EditingPropertyId::coepi_None
+                                && Blinking_50(fb);
+    if (!blink_bitmap_on_editing) {
+        draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
-
-    return res;
 }
 
 size_t CommonOutput::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -91,6 +85,10 @@ size_t CommonOutput::Deserialize(uint8_t *buffer, size_t buffer_size) {
         return 0;
     }
     if (!ValidateMapIO(_io_adr)) {
+        return 0;
+    }
+    auto allowed_outputs = GetAllowedOutputs();
+    if (FindAllowedIO(&allowed_outputs, _io_adr) < 0) {
         return 0;
     }
     SetIoAdr(_io_adr);

@@ -18,16 +18,20 @@
 #include "main/LogicProgram/Inputs/InputNC.h"
 #include "main/LogicProgram/Inputs/InputNO.h"
 
-static uint8_t frame_buffer[DISPLAY_HEIGHT_IN_BYTES * DISPLAY_WIDTH] = {};
+static FrameBuffer frame_buffer = {};
 
 static WiFiService *wifi_service;
-TEST_GROUP(LogicWiFiBindingTestsGroup){ //
-                                        TEST_SETUP(){ memset(frame_buffer, 0, sizeof(frame_buffer));
+static ProcessWakeupService *process_wakeup_service;
+
+TEST_GROUP(LogicWiFiBindingTestsGroup){
+    //
+    TEST_SETUP(){ memset(&frame_buffer.buffer, 0, sizeof(frame_buffer.buffer));
 
 mock().expectOneCall("vTaskDelay").ignoreOtherParameters();
 mock().expectOneCall("xTaskCreate").ignoreOtherParameters();
 wifi_service = new WiFiService();
-Controller::Start(NULL, wifi_service, NULL, NULL);
+process_wakeup_service = new ProcessWakeupService();
+Controller::Start(NULL, wifi_service, NULL, NULL, process_wakeup_service);
 }
 
 TEST_TEARDOWN() {
@@ -36,6 +40,7 @@ TEST_TEARDOWN() {
     Controller::V3.Unbind();
     Controller::V4.Unbind();
     Controller::Stop();
+    delete process_wakeup_service;
     delete wifi_service;
 }
 }
@@ -58,8 +63,8 @@ namespace {
         int *PublicMorozov_Get_editing_property_id() {
             return &editing_property_id;
         }
-        bool PublicMorozov_RenderEditedSsid(uint8_t *fb, uint8_t x, uint8_t y) {
-            return RenderEditedSsid(fb, x, y);
+        void PublicMorozov_RenderEditedSsid(FrameBuffer *fb, uint8_t x, uint8_t y) {
+            RenderEditedSsid(fb, x, y);
         }
         uint8_t *PublicMorozov_Get_ssid_size() {
             return &ssid_size;
@@ -77,6 +82,10 @@ TEST(LogicWiFiBindingTestsGroup, DoAction_skip_when_incoming_passive) {
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_active_also_switch_variable_binding_to_wifi) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -87,6 +96,9 @@ TEST(LogicWiFiBindingTestsGroup,
 
 TEST(LogicWiFiBindingTestsGroup,
      DoAction_change_state_to_passive_also_switch_variable_binding_to_default) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
 
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
@@ -98,7 +110,25 @@ TEST(LogicWiFiBindingTestsGroup,
     CHECK_FALSE(Controller::V1.BindedToWiFi());
 }
 
+TEST(LogicWiFiBindingTestsGroup, destructor_of_active_element_unbinds_variable) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
+
+    auto testable = new TestableWiFiBinding();
+    testable->SetIoAdr(MapIO::V1);
+    CHECK_TRUE(testable->DoAction(false, LogicItemState::lisActive));
+    CHECK_TRUE(Controller::V1.BindedToWiFi());
+
+    delete testable;
+    CHECK_FALSE(Controller::V1.BindedToWiFi());
+}
+
 TEST(LogicWiFiBindingTestsGroup, DoAction_change_state_only_by_reason) {
+    char break_bit[32];
+    sprintf(break_bit, "0x%08X", WiFiService::SCAN_BREAK_BIT);
+    mock(break_bit).expectNCalls(2, "xEventGroupSetBits").ignoreOtherParameters();
+
     TestableWiFiBinding testable;
     testable.SetIoAdr(MapIO::V1);
 
@@ -226,8 +256,12 @@ TEST(LogicWiFiBindingTestsGroup, Ssid_with_partial_length) {
 
 TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     volatile uint64_t os_us = 0x80000;
+
+    char buffer[32];
+    sprintf(buffer, "0x%08X", Controller::WAKEUP_PROCESS_TASK);
+    mock(buffer).expectNCalls(1, "xEventGroupSetBits").ignoreOtherParameters();
     mock()
-        .expectNCalls(24, "esp_timer_get_time")
+        .expectNCalls(1, "esp_timer_get_time")
         .withOutputParameterReturning("os_us", (const void *)&os_us, sizeof(os_us));
 
     TestableWiFiBinding testable;
@@ -237,10 +271,9 @@ TEST(LogicWiFiBindingTestsGroup, RenderEditedSsid_blink_in_ssid_symbols) {
     int property_id = WiFiBinding::EditingPropertyId::wbepi_Ssid_First_Char;
     for (size_t i = 0; i < 24; i++) {
         *testable.PublicMorozov_Get_editing_property_id() = property_id++;
-        CHECK_TRUE(
-            testable.PublicMorozov_RenderEditedSsid(frame_buffer,
-                                                    INCOME_RAIL_WIDTH,
-                                                    INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP));
+        testable.PublicMorozov_RenderEditedSsid(&frame_buffer,
+                                                INCOME_RAIL_WIDTH,
+                                                INCOME_RAIL_TOP + INCOME_RAIL_NETWORK_TOP);
     }
 }
 
@@ -498,6 +531,18 @@ TEST(LogicWiFiBindingTestsGroup, Deserialize_with_wrong_ssid_return_zero) {
     strcpy((char *)&buffer[2], "ssid");
     readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
     CHECK_EQUAL(26, readed);
+}
+
+TEST(LogicWiFiBindingTestsGroup, Deserialize_with_unterminated_ssid_return_zero) {
+    uint8_t buffer[27] = {};
+    *((TvElementType *)&buffer[0]) = TvElementType::et_WiFiBinding;
+    *((MapIO *)&buffer[1]) = MapIO::V3;
+    memset(&buffer[2], 's', 25);
+
+    TestableWiFiBinding testable;
+
+    size_t readed = testable.Deserialize(&buffer[1], sizeof(buffer) - 1);
+    CHECK_EQUAL(0, readed);
 }
 
 TEST(LogicWiFiBindingTestsGroup, GetElementType) {

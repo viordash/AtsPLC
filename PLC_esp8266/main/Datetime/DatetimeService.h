@@ -26,13 +26,13 @@ extern "C" {
 class DatetimeService {
   protected:
     TaskHandle_t task_handle;
+    CurrentSettings::datetime_settings sntp_settings;
 
     static void Task(void *parm);
     virtual void GetCurrent(timeval *tv);
     virtual void SetCurrent(const timeval *tv);
     bool EnableSntp();
     void StartSntp();
-    void StopSntp();
     bool SntpInProcess();
 
   public:
@@ -44,6 +44,7 @@ class DatetimeService {
     virtual ~DatetimeService();
 
     void Start();
+    void StopSntp();
 
     void SntpStateChanged();
     void StoreSystemDatetime();

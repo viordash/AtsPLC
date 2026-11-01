@@ -12,7 +12,10 @@ extern "C" {
 }
 #endif
 
+#include "ApClients.h"
+#include "ScannedSsid.h"
 #include "WiFiRequests.h"
+#include "config.h"
 #include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -21,8 +24,6 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unordered_map>
-#include <unordered_set>
 
 class WiFiService {
   public:
@@ -32,22 +33,26 @@ class WiFiService {
         const char *mac;
     };
 
-    using t_mac = uint64_t;
-
   protected:
     WiFiRequests requests;
 
     std::mutex scanned_ssid_lock_mutex;
-    std::unordered_map<const char *, uint8_t> scanned_ssid;
+    ScannedSsid scanned_ssids[WiFi_SsidLimit];
+    size_t scanned_ssids_count;
 
     uint8_t station_rssi;
+    uint8_t station_connect_failures;
 
     std::mutex ap_clients_lock_mutex;
-    std::unordered_map<const char *, std::unordered_set<t_mac>> ap_clients;
+    ApClients ap_clients[WiFi_SsidLimit];
+    size_t ap_clients_count;
 
-    TaskHandle_t task_handle;
+    EventGroupHandle_t events;
 
     std::mutex station_connect_status_lock_mutex;
+
+    bool WaitEvent(uint32_t *notified_flags, TickType_t ticks_to_wait);
+    bool ClearBreakFlags(uint32_t ignore_flags);
 
     void Connect(wifi_config_t *wifi_config);
     void Disconnect();
@@ -77,6 +82,8 @@ class WiFiService {
     ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
     uint8_t ScaleRssiToPercent04(int8_t rssi, int8_t max_rssi, int8_t min_rssi);
+    ScannedSsid *FindScanned(const char *ssid);
+    ApClients *FindApClients(const char *ssid);
     void AddScannedSsid(const char *ssid, uint8_t rssi);
     bool FindScannedSsid(const char *ssid, uint8_t *rssi);
     void RemoveScannedSsid(const char *ssid);
@@ -87,10 +94,13 @@ class WiFiService {
     void RemoveApClients(const char *ssid);
 
   public:
-    static const int STOP_BIT = BIT0;
-    static const int FAILED_BIT = BIT1;
-    static const int CONNECTED_BIT = BIT2;
-    static const int CANCEL_REQUEST_BIT = BIT3;
+    static const int STA_FAILED_BIT = BIT1;
+    static const int STA_CONNECTED_BIT = BIT2;
+    static const int STA_BREAK_BIT = BIT3;
+    static const int SCAN_BREAK_BIT = BIT4;
+    static const int AP_BREAK_BIT = BIT5;
+    static const int SETTINGS_CHANGED_BIT = BIT6;
+    static const int WAKEUP_BIT = BIT23;
 
     WiFiService();
     ~WiFiService();
@@ -104,5 +114,7 @@ class WiFiService {
     void CancelScan(const char *ssid);
 
     size_t AccessPoint(const char *ssid, const char *password, const char *mac);
-    void CancelAccessPoint(const char *ssid);
+    void CancelAccessPoint(const char *ssid, const char *password, const char *mac);
+
+    void RaiseSettingsChanged();
 };

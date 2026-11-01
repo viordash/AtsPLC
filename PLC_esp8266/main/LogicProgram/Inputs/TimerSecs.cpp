@@ -6,6 +6,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,12 +25,8 @@ TimerSecs::~TimerSecs() {
 }
 
 void TimerSecs::SetTime(uint32_t delay_time_s) {
-    if (delay_time_s < TimerSecs::min_delay_time_s) {
-        delay_time_s = TimerSecs::min_delay_time_s;
-    }
-    if (delay_time_s > TimerSecs::max_delay_time_s) {
-        delay_time_s = TimerSecs::max_delay_time_s;
-    }
+    delay_time_s =
+        std::clamp(delay_time_s, TimerSecs::min_delay_time_s, TimerSecs::max_delay_time_s);
     this->delay_time_us = delay_time_s * 1000000LL;
     str_size = sprintf(this->str_time, "%u", (unsigned int)delay_time_s);
 
@@ -43,6 +40,7 @@ uint64_t TimerSecs::GetTimeUs() {
 const Bitmap *TimerSecs::GetCurrentBitmap(LogicItemState state) {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &TimerSecs::bitmap_active;
 
         default:
@@ -96,40 +94,24 @@ TimerSecs *TimerSecs::TryToCast(CommonTimer *common_timer) {
 void TimerSecs::SelectPrior() {
     ESP_LOGI(TAG_TimerSecs, "SelectPrior");
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s <= TimerSecs::max_delay_time_s - step_s) {
-        SetTime(delay_time_s + step_s);
-    } else {
-        SetTime(TimerSecs::max_delay_time_s);
-    }
+    SetTime(delay_time_s + TimerSecs::step_s);
 }
 
 void TimerSecs::SelectNext() {
     ESP_LOGI(TAG_TimerSecs, "SelectNext");
 
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s >= TimerSecs::min_delay_time_s + step_s) {
-        SetTime(delay_time_s - step_s);
-    } else {
-        SetTime(TimerSecs::min_delay_time_s);
-    }
+    SetTime(std::max(delay_time_s, TimerSecs::step_s) - TimerSecs::step_s);
 }
 
 void TimerSecs::PageUp() {
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s <= TimerSecs::max_delay_time_s - faststep_s) {
-        SetTime(delay_time_s + faststep_s);
-    } else {
-        SetTime(TimerSecs::max_delay_time_s);
-    }
+    SetTime(delay_time_s + TimerSecs::faststep_s);
 }
 
 void TimerSecs::PageDown() {
     uint32_t delay_time_s = GetTimeUs() / 1000000LL;
-    if (delay_time_s >= TimerSecs::min_delay_time_s + faststep_s) {
-        SetTime(delay_time_s - faststep_s);
-    } else {
-        SetTime(TimerSecs::min_delay_time_s);
-    }
+    SetTime(std::max(delay_time_s, TimerSecs::faststep_s) - TimerSecs::faststep_s);
 }
 
 void TimerSecs::Change() {

@@ -26,6 +26,10 @@ extern "C" {
 #define INPUT_1_IO_CLOSE BIT8
 #define INPUT_1_IO_OPEN BIT9
 
+#define WORK_MODES_0 BIT10
+#define WORK_MODES_1 BIT11
+#define WORK_MODES_EVENTS_BITS (WORK_MODES_0 | WORK_MODES_1)
+
 typedef enum { OUTPUT_0 = 0x01, OUTPUT_1 = 0x02 } gpio_output;
 
 EventGroupHandle_t gpio_init();

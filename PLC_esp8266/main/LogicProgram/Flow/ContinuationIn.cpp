@@ -6,6 +6,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,62 +22,48 @@ ContinuationIn::~ContinuationIn() {
 bool ContinuationIn::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
     Controller::SetNetworkContinuation(prev_elem_state);
 
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
-    bool any_changes = false;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
-    LogicItemState prev_state = state;
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        state = LogicItemState::lisActive;
-    } else {
-        state = LogicItemState::lisPassive;
+    if (prev_elem_state == state) {
+        return false;
     }
 
-    if (state != prev_state) {
-        any_changes = true;
-        ESP_LOGD(TAG_ContinuationIn, ".");
-    }
+    state = prev_elem_state;
+    ESP_LOGD(TAG_ContinuationIn, ".");
 
-    return any_changes;
+    return true;
 }
 
-IRAM_ATTR bool
-ContinuationIn::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
+IRAM_ATTR void
+ContinuationIn::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
     (void)prev_elem_state;
-    bool res = true;
-    std::lock_guard<std::recursive_mutex> lock(lock_mutex);
 
     start_point->x -= RightPadding;
 
     auto bitmap = GetCurrentBitmap();
     start_point->x -= bitmap->size.width;
 
-    auto cursor_width = GetCursorWidth();
+    auto cursor_width = GetCursorWidth(fb);
     start_point->x -= cursor_width;
 
-    res = EditableElement::Render(fb, start_point);
-    if (!res) {
-        return res;
-    }
+    EditableElement::Render(fb, start_point);
     start_point->x += cursor_width;
 
     bool blink_bitmap_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                 && (EditableElement::EditingPropertyId)editing_property_id
                                        == EditableElement::EditingPropertyId::cepi_None
-                                && Blinking_50();
+                                && Blinking_50(fb);
     if (!blink_bitmap_on_editing) {
         draw_bitmap(fb, start_point->x, start_point->y - (bitmap->size.height / 2) + 1, bitmap);
     }
-    ESP_LOGD(TAG_ContinuationIn, "Render res:%u", res);
-    return res;
 }
 
 const Bitmap *ContinuationIn::GetCurrentBitmap() {
     switch (state) {
         case LogicItemState::lisActive:
+        case LogicItemState::lisStop:
             return &ContinuationIn::bitmap_active;
         default:
             return &ContinuationIn::bitmap_passive;

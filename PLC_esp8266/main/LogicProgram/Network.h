@@ -3,16 +3,21 @@
 #include "Display/EditableElement.h"
 #include "LogicProgram/LogicElement.h"
 #include "LogicProgram/LogicItemState.h"
+#include "LogicProgram/NetworkState.h"
+#include <atomic>
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
 
-class Network : public std::vector<LogicElement *>, public EditableElement {
+class Network : public EditableElement {
   protected:
-    LogicItemState state;
+    std::vector<LogicElement *> items;
+    NetworkState state;
     bool state_changed;
+    std::atomic<bool> frame_buffer_req_render;
     uint8_t fill_wire;
 
+    void RemoveAll();
     bool EnoughSpaceForNewElement(LogicElement *new_element);
     void AddSpaceForNewElement();
     void RemoveSpaceForNewElement();
@@ -25,14 +30,20 @@ class Network : public std::vector<LogicElement *>, public EditableElement {
     const static size_t MinElementsCount = 1;
     const static size_t MaxElementsCount = 5;
     explicit Network();
-    explicit Network(LogicItemState state);
+    explicit Network(NetworkState state);
     virtual ~Network();
 
-    void ChangeState(LogicItemState state);
-    LogicItemState GetState();
+    bool Empty() const;
+    size_t Size() const;
+    LogicElement *&At(size_t index);
+    LogicElement *&operator[](size_t index);
+    LogicElement *const &operator[](size_t index) const;
+
+    void ChangeState(NetworkState state);
+    NetworkState GetState();
 
     virtual bool DoAction();
-    virtual bool Render(uint8_t *fb, uint8_t network_number);
+    virtual void Render(FrameBuffer *fb, uint8_t network_number);
 
     void Append(LogicElement *element);
 

@@ -21,7 +21,7 @@ TEST_GROUP(LogicControllerDITestsGroup){ //
 namespace {
     class TestableControllerDI : public ControllerDI {
       public:
-        bool *PublicMorozov_Get_required_reading() {
+        std::atomic<bool> *PublicMorozov_Get_required_reading() {
             return &required_reading;
         }
     };

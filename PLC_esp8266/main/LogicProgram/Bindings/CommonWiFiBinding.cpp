@@ -1,5 +1,6 @@
 #include "LogicProgram/Bindings/CommonWiFiBinding.h"
 #include "Display/bitmaps/common_wifi_binding.h"
+#include "LogicProgram/Controller.h"
 #include "LogicProgram/Inputs/ComparatorEq.h"
 #include "LogicProgram/Inputs/ComparatorGE.h"
 #include "LogicProgram/Inputs/ComparatorGr.h"
@@ -11,6 +12,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +27,9 @@ CommonWiFiBinding::CommonWiFiBinding(const MapIO io_adr) : CommonWiFiBinding() {
 }
 
 CommonWiFiBinding::~CommonWiFiBinding() {
+    if (state == LogicItemState::lisActive) {
+        Controller::UnbindVariable(GetIoAdr());
+    }
 }
 
 void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
@@ -32,56 +37,39 @@ void CommonWiFiBinding::SetIoAdr(const MapIO io_adr) {
     SetLabel(MapIONames[io_adr]);
 }
 
-IRAM_ATTR bool
-CommonWiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+IRAM_ATTR void
+CommonWiFiBinding::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (CommonWiFiBinding::EditingPropertyId)editing_property_id
                                      == CommonWiFiBinding::EditingPropertyId::cwbepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
     }
 
     bool blink_label_on_editing = editable_state == EditableElement::ElementState::des_Editing
                                && (CommonWiFiBinding::EditingPropertyId)editing_property_id
                                       == CommonWiFiBinding::EditingPropertyId::cwbepi_ConfigureIOAdr
-                               && Blinking_50();
-    res =
-        blink_label_on_editing || (draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
-    if (!res) {
-        return res;
+                               && Blinking_50(fb);
+
+    if (!blink_label_on_editing) {
+        ASSERT(draw_text_f8X14(fb, top_left.x + 4, top_left.y + 4, label) > 0);
     }
     top_left.x += 22;
     if (!blink_body_on_editing) {
@@ -90,8 +78,7 @@ CommonWiFiBinding::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *st
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);
-    return res;
+    EditableElement::Render(fb, start_point);
 }
 
 size_t CommonWiFiBinding::Serialize(uint8_t *buffer, size_t buffer_size) {

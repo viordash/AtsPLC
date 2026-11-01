@@ -5,6 +5,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "lassert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +23,7 @@ SettingsElement::~SettingsElement() {
 }
 
 bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) {
-    if (!prev_elem_changed && prev_elem_state != LogicItemState::lisActive) {
+    if (!DoActionGuard(prev_elem_changed, prev_elem_state)) {
         return false;
     }
 
@@ -30,55 +31,36 @@ bool SettingsElement::DoAction(bool prev_elem_changed, LogicItemState prev_elem_
     return prev_elem_changed;
 }
 
-IRAM_ATTR bool
-SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) {
-    bool res = true;
-
-    if (prev_elem_state == LogicItemState::lisActive) {
-        res = draw_active_network(fb, start_point->x, start_point->y, LeftPadding);
+IRAM_ATTR void
+SettingsElement::Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) {
+    bool prev_elem_active =
+        prev_elem_state == LogicItemState::lisActive || prev_elem_state == LogicItemState::lisStop;
+    if (prev_elem_active) {
+        ASSERT(draw_active_network(fb, start_point->x, start_point->y, GetElementCursorWidth()));
     } else {
-        res = draw_passive_network(fb, start_point->x, start_point->y, LeftPadding, false);
-    }
-    if (!res) {
-        return res;
+        ASSERT(draw_passive_network(fb,
+                                    start_point->x,
+                                    start_point->y,
+                                    GetElementCursorWidth(),
+                                    false));
     }
 
-    start_point->x += LeftPadding;
+    start_point->x += GetElementCursorWidth();
 
     Point top_left = { start_point->x, (uint8_t)(start_point->y + Top) };
-    Point bottom_left = { start_point->x, (uint8_t)(top_left.y + Height) };
-    Point top_right = { (uint8_t)(start_point->x + Width), top_left.y };
 
     bool blink_body_on_editing = editable_state == EditableElement::ElementState::des_Editing
                               && (SettingsElement::EditingPropertyId)editing_property_id
                                      == SettingsElement::EditingPropertyId::cwbepi_None
-                              && Blinking_50();
+                              && Blinking_50(fb);
     if (!blink_body_on_editing) {
-        res = draw_horz_line(fb, top_left.x, top_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_horz_line(fb, bottom_left.x, bottom_left.y, Width);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_left.x, top_left.y, Height);
-        if (!res) {
-            return res;
-        }
-        res = draw_vert_line(fb, top_right.x, top_right.y, Height);
-        if (!res) {
-            return res;
-        }
+        ASSERT(draw_rectangle(fb, top_left.x, top_left.y, Width + 1, Height + 1));
         draw_bitmap(fb, top_left.x + 1, top_left.y + 6, &bitmap);
     }
 
     start_point->x += Width;
 
-    res = EditableElement::Render(fb, start_point);
-    if (!res) {
-        return res;
-    }
+    EditableElement::Render(fb, start_point);
 
     top_left.x += bitmap.size.width;
     top_left.y += 3;
@@ -86,13 +68,10 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
     bool blink_name = editable_state == EditableElement::ElementState::des_Editing
                    && (SettingsElement::EditingPropertyId)editing_property_id
                           == SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator
-                   && Blinking_50();
+                   && Blinking_50(fb);
 
     if (!blink_name) {
-        res = RenderName(fb, top_left.x, top_left.y);
-        if (!res) {
-            return res;
-        }
+        RenderName(fb, top_left.x, top_left.y);
     }
 
     top_left.x += 4;
@@ -103,15 +82,13 @@ SettingsElement::Render(uint8_t *fb, LogicItemState prev_elem_state, Point *star
                                != SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator;
 
     if (show_edit_value) {
-        res = RenderEditedValue(fb, top_left.x, top_left.y);
+        RenderEditedValue(fb, top_left.x, top_left.y);
     } else {
-        res = RenderValue(fb, top_left.x, top_left.y);
+        RenderValue(fb, top_left.x, top_left.y);
     }
-
-    return res;
 }
 
-bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
+void SettingsElement::RenderName(FrameBuffer *fb, uint8_t x, uint8_t y) {
     const char *name;
 
     switch (discriminator) {
@@ -123,9 +100,6 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
             name = "STA: password";
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            name = "STA: retry count max";
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             name = "STA: reconn pause,mS";
             break;
@@ -175,38 +149,31 @@ bool SettingsElement::RenderName(uint8_t *fb, uint8_t x, uint8_t y) {
             name = "ADC: scan period, mS";
             break;
         default:
-            return false;
+            return;
     }
 
-    bool res = draw_text_f4X7(fb, x, y - 2, name) > 0;
-    return res;
+    ASSERT(draw_text_f4X7(fb, x, y - 2, name) > 0);
 }
 
-bool SettingsElement::RenderValue(uint8_t *fb, uint8_t x, uint8_t y) {
+void SettingsElement::RenderValue(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char display_value[value_size + 1];
 
     ReadValue(display_value, true);
 
     size_t len = strlen(display_value);
     if (len == 0) {
-        return true;
+        return;
     }
-    bool res = true;
+
     if (len <= displayed_value_max_size) {
         x += (displayed_value_max_size - len) * get_text_f6X12_width() - 2;
-        res = draw_text_f6X12(fb, x, y + 6, display_value) > 0;
+        ASSERT(draw_text_f6X12(fb, x, y + 6, display_value) > 0);
     } else {
-        res = RenderValueWithElipsis(fb,
-                                     x,
-                                     y + 6,
-                                     displayed_value_max_size / 2 - 1,
-                                     display_value,
-                                     len);
+        RenderValueWithElipsis(fb, x, y + 6, displayed_value_max_size / 2 - 1, display_value, len);
     }
-    return res;
 }
 
-bool SettingsElement::RenderValueWithElipsis(uint8_t *fb,
+void SettingsElement::RenderValueWithElipsis(FrameBuffer *fb,
                                              uint8_t x,
                                              uint8_t y,
                                              int leverage,
@@ -217,15 +184,16 @@ bool SettingsElement::RenderValueWithElipsis(uint8_t *fb,
     int width = draw_text_f6X12(fb, x, y, display_value);
     display_value[leverage] = elipsis;
     if (width <= 0) {
-        return false;
+        return;
     }
     x += width;
     width = draw_text_f4X7(fb, x, y + 4, "...");
+    ASSERT(width > 0);
     x += width;
-    return draw_text_f6X12(fb, x, y, &display_value[len - leverage]) > 0;
+    ASSERT(draw_text_f6X12(fb, x, y, &display_value[len - leverage]) > 0);
 }
 
-bool SettingsElement::RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y) {
+void SettingsElement::RenderEditedValue(FrameBuffer *fb, uint8_t x, uint8_t y) {
     char blink_value[displayed_value_max_size + 1];
     int char_pos =
         editing_property_id - SettingsElement::EditingPropertyId::cwbepi_Value_First_Char;
@@ -240,11 +208,11 @@ bool SettingsElement::RenderEditedValue(uint8_t *fb, uint8_t x, uint8_t y) {
     }
     blink_value[sizeof(blink_value) - 1] = 0;
 
-    if (Blinking_50()) {
+    if (Blinking_50(fb)) {
         blink_value[char_pos] = ' ';
     }
 
-    return draw_text_f6X12(fb, x, y + 5, blink_value) > 0;
+    ASSERT(draw_text_f6X12(fb, x, y + 5, blink_value) > 0);
 }
 
 size_t SettingsElement::Serialize(uint8_t *buffer, size_t buffer_size) {
@@ -267,7 +235,7 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     if (!Record::Read(&_discriminator, sizeof(_discriminator), buffer, buffer_size, &readed)) {
         return 0;
     }
-    if (!ValidateDiscriminator(&_discriminator)) {
+    if (!ValidateDiscriminator(_discriminator)) {
         return 0;
     }
 
@@ -275,11 +243,10 @@ size_t SettingsElement::Deserialize(uint8_t *buffer, size_t buffer_size) {
     return readed;
 }
 
-bool SettingsElement::ValidateDiscriminator(Discriminator *discriminator) {
-    switch (*discriminator) {
+bool SettingsElement::ValidateDiscriminator(Discriminator discriminator) {
+    switch (discriminator) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
-        case t_wifi_station_settings_connect_max_retry_count:
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_max_rssi:
@@ -346,16 +313,6 @@ void SettingsElement::ReadValue(char *string_buffer, bool friendly_format) {
             }
             break;
         }
-        case t_wifi_station_settings_connect_max_retry_count:
-            if (friendly_format
-                && curr_settings.wifi_station.connect_max_retry_count == INFINITY_CONNECT_RETRY) {
-                strcpy(string_buffer, "infinity");
-            } else {
-                sprintf(string_buffer,
-                        "%d",
-                        (int)curr_settings.wifi_station.connect_max_retry_count);
-            }
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             sprintf(string_buffer,
                     "%u",
@@ -500,9 +457,6 @@ void SettingsElement::SelectPriorSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_password:
             SelectPriorStringSymbol(symbol);
             break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectPriorNumberSymbol(symbol, first ? '-' : 0);
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
         case t_wifi_station_settings_min_worktime_ms:
@@ -550,9 +504,6 @@ void SettingsElement::SelectNextSymbol(char *symbol, bool first) {
         case t_wifi_station_settings_ssid:
         case t_wifi_station_settings_password:
             SelectNextStringSymbol(symbol);
-            break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            SelectNextNumberSymbol(symbol, first ? '-' : 0);
             break;
         case t_wifi_station_settings_reconnect_delay_ms:
         case t_wifi_station_settings_scan_station_rssi_period_ms:
@@ -603,7 +554,7 @@ void SettingsElement::SelectPrior() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator - 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_adc_scan_period_ms;
             }
             discriminator = _discriminator;
@@ -627,7 +578,7 @@ void SettingsElement::SelectNext() {
             break;
         case SettingsElement::EditingPropertyId::cwbepi_SelectDiscriminator: {
             auto _discriminator = (Discriminator)(discriminator + 1);
-            if (!ValidateDiscriminator(&_discriminator)) {
+            if (!ValidateDiscriminator(_discriminator)) {
                 _discriminator = Discriminator::t_wifi_station_settings_ssid;
             }
             discriminator = _discriminator;
@@ -738,9 +689,6 @@ void SettingsElement::EndEditing() {
             WriteString(curr_settings.wifi_station.password,
                         sizeof(curr_settings.wifi_station.password));
             break;
-        case t_wifi_station_settings_connect_max_retry_count:
-            curr_settings.wifi_station.connect_max_retry_count = atoi(value);
-            break;
         case t_wifi_station_settings_reconnect_delay_ms:
             curr_settings.wifi_station.reconnect_delay_ms = atol(value);
             break;
@@ -811,6 +759,20 @@ void SettingsElement::EndEditing() {
                 case t_datetime_sntp_server_secondary:
                 case t_datetime_timezone:
                     Controller::RestartSntp();
+                    break;
+                case t_wifi_station_settings_ssid:
+                case t_wifi_station_settings_password:
+                case t_wifi_station_settings_reconnect_delay_ms:
+                case t_wifi_station_settings_scan_station_rssi_period_ms:
+                case t_wifi_station_settings_max_rssi:
+                case t_wifi_station_settings_min_rssi:
+                case t_wifi_station_settings_min_worktime_ms:
+                case t_wifi_scanner_settings_per_channel_scan_time_ms:
+                case t_wifi_scanner_settings_max_rssi:
+                case t_wifi_scanner_settings_min_rssi:
+                case t_wifi_access_point_settings_generation_time_ms:
+                case t_wifi_access_point_settings_ssid_hidden:
+                    Controller::RaiseWiFiSettingsChanged();
                     break;
                 default:
                     break;

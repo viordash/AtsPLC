@@ -18,19 +18,16 @@ class CommonWiFiBinding : public LogicElement, public InputElement, public Label
         cwbepi_ConfigureIOAdr
     } EditingPropertyId;
 
-    static const uint8_t LeftPadding = 12;
-    static const uint8_t RightPadding = 12;
-    static const uint8_t Width =
-        OUTCOME_RAIL_RIGHT - INCOME_RAIL_WIDTH - LeftPadding - RightPadding;
-    static const uint8_t Top = -13;
+    static const uint8_t Width = 97;
     static const uint8_t Height = 22;
+    static const uint8_t Top = -(Height / 2);
 
     explicit CommonWiFiBinding();
     explicit CommonWiFiBinding(const MapIO io_adr);
     virtual ~CommonWiFiBinding();
 
     void SetIoAdr(const MapIO io_adr) override final;
-    bool Render(uint8_t *fb, LogicItemState prev_elem_state, Point *start_point) override;
+    void Render(FrameBuffer *fb, LogicItemState prev_elem_state, Point *start_point) override;
 
     size_t Serialize(uint8_t *buffer, size_t buffer_size) override;
     size_t Deserialize(uint8_t *buffer, size_t buffer_size) override;
