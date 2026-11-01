@@ -70,7 +70,7 @@
         {
             "label": "build & ota",
             "type": "shell",
-            "command": "cd PLC_esp8266 && make -j $(nproc) ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://192.168.0.106/update",
+            "command": "cd PLC_esp8266 && make -j $(nproc) ota && curl -H 'Content-Type:application/octet-stream' --data-binary @./build/AtsPLC-esp8266.ota.bin http://${input:esp8266Ip}/update",
             "problemMatcher": [],
             "dependsOn": ["Web: build"],
             "dependsOrder": "sequence",
@@ -133,6 +133,14 @@
                 "showReuseMessage": true,
                 "clear": false
             }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "esp8266Ip",
+            "type": "promptString",
+            "description": "ESP8266 IP address for OTA update",
+            "default": "192.168.0.110"
         }
     ]
 }
