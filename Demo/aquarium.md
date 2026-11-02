@@ -78,44 +78,94 @@ The photo sensor limits (80 and 110) depend on your sensor and room. Look at the
 the screen (network 1) in a dark and in a bright room, and change the comparators in
 networks 9 and 10 if needed.
 
-## Networks
+## Ladder diagram
 
-Made with `Tools/ladder.py dump Demo/aquarium.dat`.
+Made with `Tools/ladder.py ascii Demo/aquarium.dat`. The symbols are explained in
+[README.md](README.md#ladder-diagram-symbols).
 
 ```
-work_mode: Run, networks: 32
- 1  Indicator[AI 0..255]
- 2  Indicator[V1 0..255]
- 3  Indicator[V2 0..255]
- 4  Indicator[V3 0..255]
- 5  DateTime[weekday -> V1]
- 6  DateTime[hour -> V2]
- 7  DateTime[minute -> V3]
- 8  V2>=13 -- ContIn
- 9  ContOut -- AI<=80 -- Timer[60s] -- Set(V4)
-10  ContOut -- AI>=110 -- Timer[180s] -- Reset(V4)
-11  V2<13 -- Set(V4)
-12  V1>=6 -- V1<=7 -- NO[V4] -- ContIn
-13  ContOut -- V2>=10 -- Set(O1)
-14  ContOut -- V2==0 -- V3>=5 -- Set(O1)
-15  ContOut -- V2==1 -- V3<=30 -- Set(O1)
-16  V1>=1 -- V1<=5 -- NO[V4] -- ContIn
-17  ContOut -- V2>=9 -- Set(O1)
-18  V2>=1 -- V2<9 -- ContIn
-19  ContOut -- V3>30 -- Reset(O1)
-20  NC[V4] -- Reset(O1)
-21  V1>=6 -- V1<=7 -- ContIn
-22  ContOut -- V2>=12 -- V2<18 -- Set(O2)
-23  V1>=1 -- V1<=5 -- ContIn
-24  ContOut -- V2>=11 -- V2<18 -- Set(O2)
-25  V2>=20 -- Set(O2)
-26  V2==0 -- V3>=5 -- Set(O2)
-27  V2==18 -- Reset(O2)
-28  V2==19 -- Reset(O2)
-29  V2==1 -- Reset(O2)
-30  Settings[current_date]
-31  Settings[current_time]
-32  NO[DI] -- Reset(O2)
+ 1  ||--[Indicator AI 0..255]---------||
+
+ 2  ||--[Indicator V1 0..255]---------||
+
+ 3  ||--[Indicator V2 0..255]---------||
+
+ 4  ||--[Indicator V3 0..255]---------||
+
+ 5  ||--[DateTime weekday -> V1]------||
+
+ 6  ||--[DateTime hour -> V2]---------||
+
+ 7  ||--[DateTime minute -> V3]-------||
+
+ 8  ||--[V2 >= 13]-------------------->>
+
+                                  V4
+ 9  >>--[AI <= 80]--[TON 60s]----(S)--||
+
+                                  V4
+10  >>--[AI >= 110]--[TON 180s]--(R)--||
+
+                                  V4
+11  ||--[V2 < 13]----------------(S)--||
+
+                               V4
+12  ||--[V1 >= 6]--[V1 <= 7]--] [----->>
+
+                                  O1
+13  >>--[V2 >= 10]---------------(S)--||
+
+                                  O1
+14  >>--[V2 == 0]--[V3 >= 5]-----(S)--||
+
+                                  O1
+15  >>--[V2 == 1]--[V3 <= 30]----(S)--||
+
+                               V4
+16  ||--[V1 >= 1]--[V1 <= 5]--] [----->>
+
+                                  O1
+17  >>--[V2 >= 9]----------------(S)--||
+
+18  ||--[V2 >= 1]--[V2 < 9]----------->>
+
+                                  O1
+19  >>--[V3 > 30]----------------(R)--||
+
+         V4                       O1
+20  ||--]/[----------------------(R)--||
+
+21  ||--[V1 >= 6]--[V1 <= 7]---------->>
+
+                                  O2
+22  >>--[V2 >= 12]--[V2 < 18]----(S)--||
+
+23  ||--[V1 >= 1]--[V1 <= 5]---------->>
+
+                                  O2
+24  >>--[V2 >= 11]--[V2 < 18]----(S)--||
+
+                                  O2
+25  ||--[V2 >= 20]---------------(S)--||
+
+                                  O2
+26  ||--[V2 == 0]--[V3 >= 5]-----(S)--||
+
+                                  O2
+27  ||--[V2 == 18]---------------(R)--||
+
+                                  O2
+28  ||--[V2 == 19]---------------(R)--||
+
+                                  O2
+29  ||--[V2 == 1]----------------(R)--||
+
+30  ||--[Settings current_date]-------||
+
+31  ||--[Settings current_time]-------||
+
+         DI                       O2
+32  ||--] [----------------------(R)--||
 ```
 
 ## Code for Ladder::InitialLoad()
@@ -127,7 +177,7 @@ Made with `Tools/ladder.py cpp Demo/aquarium.dat`.
 
 ```cpp
 void Ladder::InitialLoad() {
-    // 1: Indicator[AI 0..255]
+    //  1  ||--[Indicator AI 0..255]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto indicator = new Indicator(MapIO::AI);
@@ -138,7 +188,7 @@ void Ladder::InitialLoad() {
         network->Append(indicator);
         Append(network);
     }
-    // 2: Indicator[V1 0..255]
+    //  2  ||--[Indicator V1 0..255]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto indicator = new Indicator(MapIO::V1);
@@ -149,7 +199,7 @@ void Ladder::InitialLoad() {
         network->Append(indicator);
         Append(network);
     }
-    // 3: Indicator[V2 0..255]
+    //  3  ||--[Indicator V2 0..255]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto indicator = new Indicator(MapIO::V2);
@@ -160,7 +210,7 @@ void Ladder::InitialLoad() {
         network->Append(indicator);
         Append(network);
     }
-    // 4: Indicator[V3 0..255]
+    //  4  ||--[Indicator V3 0..255]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto indicator = new Indicator(MapIO::V3);
@@ -171,7 +221,7 @@ void Ladder::InitialLoad() {
         network->Append(indicator);
         Append(network);
     }
-    // 5: DateTime[weekday -> V1]
+    //  5  ||--[DateTime weekday -> V1]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto datetime = new DateTimeBinding(MapIO::V1);
@@ -179,7 +229,7 @@ void Ladder::InitialLoad() {
         network->Append(datetime);
         Append(network);
     }
-    // 6: DateTime[hour -> V2]
+    //  6  ||--[DateTime hour -> V2]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto datetime = new DateTimeBinding(MapIO::V2);
@@ -187,7 +237,7 @@ void Ladder::InitialLoad() {
         network->Append(datetime);
         Append(network);
     }
-    // 7: DateTime[minute -> V3]
+    //  7  ||--[DateTime minute -> V3]----||
     {
         auto network = new Network(NetworkState::nsActive);
         auto datetime = new DateTimeBinding(MapIO::V3);
@@ -195,14 +245,15 @@ void Ladder::InitialLoad() {
         network->Append(datetime);
         Append(network);
     }
-    // 8: V2>=13 -- ContIn
+    //  8  ||--[V2 >= 13]-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(13, MapIO::V2));
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 9: ContOut -- AI<=80 -- Timer[60s] -- Set(V4)
+    //                                 V4
+    //  9  >>--[AI <= 80]--[TON 60s]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -211,7 +262,8 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::V4));
         Append(network);
     }
-    // 10: ContOut -- AI>=110 -- Timer[180s] -- Reset(V4)
+    //                                   V4
+    // 10  >>--[AI >= 110]--[TON 180s]--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -220,14 +272,16 @@ void Ladder::InitialLoad() {
         network->Append(new ResetOutput(MapIO::V4));
         Append(network);
     }
-    // 11: V2<13 -- Set(V4)
+    //                     V4
+    // 11  ||--[V2 < 13]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorLs(13, MapIO::V2));
         network->Append(new SetOutput(MapIO::V4));
         Append(network);
     }
-    // 12: V1>=6 -- V1<=7 -- NO[V4] -- ContIn
+    //                                V4
+    // 12  ||--[V1 >= 6]--[V1 <= 7]--] [-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(6, MapIO::V1));
@@ -236,7 +290,8 @@ void Ladder::InitialLoad() {
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 13: ContOut -- V2>=10 -- Set(O1)
+    //                      O1
+    // 13  >>--[V2 >= 10]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -244,7 +299,8 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O1));
         Append(network);
     }
-    // 14: ContOut -- V2==0 -- V3>=5 -- Set(O1)
+    //                                O1
+    // 14  >>--[V2 == 0]--[V3 >= 5]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -253,7 +309,8 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O1));
         Append(network);
     }
-    // 15: ContOut -- V2==1 -- V3<=30 -- Set(O1)
+    //                                 O1
+    // 15  >>--[V2 == 1]--[V3 <= 30]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -262,7 +319,8 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O1));
         Append(network);
     }
-    // 16: V1>=1 -- V1<=5 -- NO[V4] -- ContIn
+    //                                V4
+    // 16  ||--[V1 >= 1]--[V1 <= 5]--] [-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(1, MapIO::V1));
@@ -271,7 +329,8 @@ void Ladder::InitialLoad() {
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 17: ContOut -- V2>=9 -- Set(O1)
+    //                     O1
+    // 17  >>--[V2 >= 9]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -279,7 +338,7 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O1));
         Append(network);
     }
-    // 18: V2>=1 -- V2<9 -- ContIn
+    // 18  ||--[V2 >= 1]--[V2 < 9]-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(1, MapIO::V2));
@@ -287,7 +346,8 @@ void Ladder::InitialLoad() {
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 19: ContOut -- V3>30 -- Reset(O1)
+    //                     O1
+    // 19  >>--[V3 > 30]--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -295,14 +355,15 @@ void Ladder::InitialLoad() {
         network->Append(new ResetOutput(MapIO::O1));
         Append(network);
     }
-    // 20: NC[V4] -- Reset(O1)
+    //          V4   O1
+    // 20  ||--]/[--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new InputNC(MapIO::V4));
         network->Append(new ResetOutput(MapIO::O1));
         Append(network);
     }
-    // 21: V1>=6 -- V1<=7 -- ContIn
+    // 21  ||--[V1 >= 6]--[V1 <= 7]-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(6, MapIO::V1));
@@ -310,7 +371,8 @@ void Ladder::InitialLoad() {
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 22: ContOut -- V2>=12 -- V2<18 -- Set(O2)
+    //                                 O2
+    // 22  >>--[V2 >= 12]--[V2 < 18]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -319,7 +381,7 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O2));
         Append(network);
     }
-    // 23: V1>=1 -- V1<=5 -- ContIn
+    // 23  ||--[V1 >= 1]--[V1 <= 5]-->>
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(1, MapIO::V1));
@@ -327,7 +389,8 @@ void Ladder::InitialLoad() {
         network->Append(new ContinuationIn());
         Append(network);
     }
-    // 24: ContOut -- V2>=11 -- V2<18 -- Set(O2)
+    //                                 O2
+    // 24  >>--[V2 >= 11]--[V2 < 18]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ContinuationOut());
@@ -336,14 +399,16 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O2));
         Append(network);
     }
-    // 25: V2>=20 -- Set(O2)
+    //                      O2
+    // 25  ||--[V2 >= 20]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorGE(20, MapIO::V2));
         network->Append(new SetOutput(MapIO::O2));
         Append(network);
     }
-    // 26: V2==0 -- V3>=5 -- Set(O2)
+    //                                O2
+    // 26  ||--[V2 == 0]--[V3 >= 5]--(S)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorEq(0, MapIO::V2));
@@ -351,40 +416,44 @@ void Ladder::InitialLoad() {
         network->Append(new SetOutput(MapIO::O2));
         Append(network);
     }
-    // 27: V2==18 -- Reset(O2)
+    //                      O2
+    // 27  ||--[V2 == 18]--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorEq(18, MapIO::V2));
         network->Append(new ResetOutput(MapIO::O2));
         Append(network);
     }
-    // 28: V2==19 -- Reset(O2)
+    //                      O2
+    // 28  ||--[V2 == 19]--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorEq(19, MapIO::V2));
         network->Append(new ResetOutput(MapIO::O2));
         Append(network);
     }
-    // 29: V2==1 -- Reset(O2)
+    //                     O2
+    // 29  ||--[V2 == 1]--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new ComparatorEq(1, MapIO::V2));
         network->Append(new ResetOutput(MapIO::O2));
         Append(network);
     }
-    // 30: Settings[current_date]
+    // 30  ||--[Settings current_date]----||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new SettingsElement(SettingsElement::Discriminator::t_current_date));
         Append(network);
     }
-    // 31: Settings[current_time]
+    // 31  ||--[Settings current_time]----||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new SettingsElement(SettingsElement::Discriminator::t_current_time));
         Append(network);
     }
-    // 32: NO[DI] -- Reset(O2)
+    //          DI   O2
+    // 32  ||--] [--(R)--||
     {
         auto network = new Network(NetworkState::nsActive);
         network->Append(new InputNO(MapIO::DI));

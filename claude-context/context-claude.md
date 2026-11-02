@@ -49,7 +49,7 @@ AtsPLC/
 +-- build-tools/mk/         # включаемые фрагменты Makefile
 +-- Docs/                   # документация и схемы
 +-- Demo/                   # демо-программы: <name>.dat + <name>.md с описанием
-+-- Tools/ladder.py         # .dat -> текст (dump) или код в стиле Ladder::InitialLoad() (cpp)
++-- Tools/ladder.py         # .dat -> ASCII ladder (ascii) / код в стиле Ladder::InitialLoad() (cpp)
 +-- Makefile                # корневая точка входа: web / app / flash / tests
 +-- claude-context/         # контекстные файлы для Claude Code
 ```

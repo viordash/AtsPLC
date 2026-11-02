@@ -72,7 +72,7 @@ AtsPLC/
 ├── Tools/                    # Utility applications
 │   ├── Bmp2Ssd1306/          # Bitmap-to-display converter
 │   ├── DisplayControls/      # Display control utilities
-│   └── ladder.py             # Program file (.dat) to text or C++ code
+│   └── ladder.py             # Program file (.dat) to ASCII ladder diagram or C++ code
 │
 └── .github/workflows/        # CI/CD pipeline (GitHub Actions)
 ```
