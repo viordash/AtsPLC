@@ -7,6 +7,7 @@ wiring and the logic, and shows the program as text and as C++ code.
 | Program | About |
 |---------|-------|
 | [aquarium](aquarium.md) | light and filter pump schedule with a photo sensor |
+| [security-alarm](security-alarm.md) | door alarm with a siren and a state LED, the owner's phone works as the key |
 
 ## How to load a program
 
