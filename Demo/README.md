@@ -8,6 +8,7 @@ wiring and the logic, and shows the program as text and as C++ code.
 |---------|-------|
 | [aquarium](aquarium.md) | light and filter pump schedule with a photo sensor |
 | [security-alarm](security-alarm.md) | door alarm with a siren and a state LED, the owner's phone works as the key |
+| [wifi-watchdog](wifi-watchdog.md) | restarts a WiFi router when its signal is weak or lost |
 
 ## How to load a program
 

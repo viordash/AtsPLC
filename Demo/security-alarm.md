@@ -116,9 +116,10 @@ Inc output adds 1 on each pulse, so the value of V2 also measures time.
   station, the access point turns off for that time and V1 can show a wrong number. The
   device connects to a station when an SNTP server is set, so clear both SNTP servers
   (networks 25-26). Do not add WiFi bindings to this program.
-- **No web interface.** The web interface needs a WiFi station connection, and without
-  SNTP servers the device does not connect to a station. To use the web interface again,
-  enter an SNTP server in network 25 and switch to Stop.
+- **No web interface in Run.** The web interface needs a WiFi station connection, and in
+  Run the access point holds the radio. Switch to Stop to use the web interface: with no
+  WiFi requests the device connects to the WiFi station from the settings, see
+  [WIFI.md](../Docs/WIFI.md#station-wifiservice_stationcpp).
 - **The phone must keep WiFi on.** If the phone drops the connection while you are at home,
   opening the door starts the 30-second wait. If it reconnects in time, nothing happens.
 - **Close the door before you walk away.** If the phone loses the access point while the
