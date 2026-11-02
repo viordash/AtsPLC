@@ -98,6 +98,8 @@ def FormatFloat(value):
     """The shortest text that gives the same float32 value back."""
     for precision in range(1, 10):
         text = f'{value:.{precision}g}'
+        if 'e' in text:
+            continue
         if struct.pack('<f', float(text)) == struct.pack('<f', value):
             return text
     return repr(value)
