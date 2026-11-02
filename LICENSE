@@ -1,9 +1,14 @@
 Required Notice: Copyright (c) 2024-2026 Vitalii Orazov (https://github.com/viordash/AtsPLC)
 
-This software is free for noncommercial use under the PolyForm Noncommercial
-License 1.0.0 below. Commercial use requires a separate commercial license,
-see COMMERCIAL_LICENSE.md. Third-party components keep their own licenses,
-see THIRD_PARTY_NOTICES.md.
+You may use this software under either of these licenses, at your choice:
+
+- the PolyForm Noncommercial License 1.0.0 below, for any noncommercial purpose;
+- the PolyForm Internal Use License 1.0.0 in LICENSE-INTERNAL-USE.md, for the
+  internal business operations of you and your company.
+
+Any other commercial use, including distribution of the software for a commercial
+purpose, requires a separate commercial license, see COMMERCIAL_LICENSE.md.
+Third-party components keep their own licenses, see THIRD_PARTY_NOTICES.md.
 
 ---
 

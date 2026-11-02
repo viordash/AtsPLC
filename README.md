@@ -2,7 +2,7 @@
 [![Ats PLC](https://github.com/viordash/AtsPLC/actions/workflows/actions.yml/badge.svg)](https://github.com/viordash/AtsPLC/actions/workflows/actions.yml)
 
 **Programmable Logic Controller** for ESP8266 with on-device ladder diagram programming.
-Source available, free for noncommercial use ([license](#license)).
+Source available, free for noncommercial use and for internal use in your own company ([license](#license)).
 
 AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcontroller with an OLED display and optional web interface. Program ladder diagrams directly on the device without requiring a separate computer.
 
@@ -299,11 +299,15 @@ GitHub Actions workflow includes:
 
 ## License
 
-AtsPLC is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE):
-you may use, modify and share it for any noncommercial purpose — hobby projects,
-personal study, research, education, charitable and public organizations.
+AtsPLC is free under either of two licenses, at your choice:
 
-Commercial use (selling devices, kits or services built on AtsPLC, using it in a business)
+- [PolyForm Noncommercial License 1.0.0](LICENSE): you may use, modify and share it for any
+  noncommercial purpose — hobby projects, personal study, research, education, charitable
+  and public organizations.
+- [PolyForm Internal Use License 1.0.0](LICENSE-INTERNAL-USE.md): you may use and modify it
+  inside your own company, for example to run a farm or a workshop, but not give it to others.
+
+Selling devices, kits or services built on AtsPLC, or installing it for customers for a fee,
 requires a separate commercial license — see [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
 
 Third-party components keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
@@ -317,5 +321,5 @@ Versions published before the license change remain available under the MIT Lice
 Contributions are welcome! Please feel free to submit pull requests or open issues.
 
 AtsPLC is dual-licensed, so by submitting a pull request you agree that your contribution
-is licensed to the author under terms that allow distributing it both under the
-PolyForm Noncommercial License and under commercial licenses.
+is licensed to the author under terms that allow distributing it under the
+PolyForm Noncommercial License, the PolyForm Internal Use License and commercial licenses.

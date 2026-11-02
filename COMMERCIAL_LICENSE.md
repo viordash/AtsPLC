@@ -1,18 +1,24 @@
 # Commercial License
 
-AtsPLC is free for noncommercial use under the
-[PolyForm Noncommercial License 1.0.0](LICENSE).
+AtsPLC is free under either of two licenses, at your choice:
 
-Any use with a commercial purpose needs a separate commercial license from the author.
-This includes, for example:
+- [PolyForm Noncommercial License 1.0.0](LICENSE) — hobby projects, personal study,
+  research, education, and use by charitable organizations, educational institutions and
+  public research organizations. You may also share modified versions for these purposes.
+- [PolyForm Internal Use License 1.0.0](LICENSE-INTERNAL-USE.md) — use inside your own
+  company for its business operations. For example, a farm or a workshop may run AtsPLC
+  controllers in its own production, modify the firmware and sell the goods it produces.
+  This license does not allow giving the software to anyone outside the company.
+
+A separate commercial license from the author is needed when AtsPLC, or a product built on
+it, goes to other people for a commercial purpose. For example:
 
 - selling devices or kits that run AtsPLC firmware, or firmware derived from it;
-- using AtsPLC in equipment, installations or services provided to customers for a fee;
-- using AtsPLC inside a company for its business operations;
+- installing AtsPLC in equipment, installations or services provided to customers for a fee;
 - distributing modified versions of AtsPLC as part of a commercial product.
 
-Hobby projects, personal study, research, education, and use by charitable organizations,
-educational institutions and public research organizations do not need a commercial license.
+A contractor who only sets up AtsPLC that the customer got and uses itself does not need
+a commercial license for this work.
 
 ## How to get a commercial license
 
@@ -24,5 +30,5 @@ the source code.
 ## Earlier versions
 
 Versions of AtsPLC published before the license change were distributed under the MIT
-License. Those copies stay under MIT; the PolyForm Noncommercial License applies to the
-code starting from the commit that introduced it.
+License. Those copies stay under MIT; the PolyForm licenses apply to the code starting from
+the commits that introduced them.
