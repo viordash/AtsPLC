@@ -34,6 +34,21 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 
 ---
 
+## Demo Programs
+
+The [Demo](Demo/README.md) folder has ready-to-use ladder programs. Each program has a `.dat`
+file to upload in the web interface and a `.md` file with the wiring, the logic, the ladder
+diagram and the C++ code.
+
+- [aquarium](Demo/aquarium.md) — light and filter pump schedule with a photo sensor
+- [security-alarm](Demo/security-alarm.md) — door alarm with a siren and a state LED, the owner's phone works as the key
+- [wifi-watchdog](Demo/wifi-watchdog.md) — restarts a WiFi router when its signal is weak or lost
+- [temperature-control](Demo/temperature-control.md) — keeps the temperature in a box with a heater and a fan
+
+`Tools/ladder.py` shows any `.dat` file as a text ladder diagram or as C++ code.
+
+---
+
 ## Project Structure
 
 ```
