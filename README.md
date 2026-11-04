@@ -2,7 +2,7 @@
 [![Ats PLC](https://github.com/viordash/AtsPLC/actions/workflows/actions.yml/badge.svg)](https://github.com/viordash/AtsPLC/actions/workflows/actions.yml)
 
 **Programmable Logic Controller** for ESP8266 with on-device ladder diagram programming.
-Source available, free for noncommercial use ([license](#license)).
+Source available, free for noncommercial use and for internal use in your own company ([license](#license)).
 
 AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcontroller with an OLED display and optional web interface. Program ladder diagrams directly on the device without requiring a separate computer.
 
@@ -18,6 +18,7 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 | [Docs/SERVICE_MODE.md](Docs/SERVICE_MODE.md) | Service mode: backup, restore, reset |
 | [Docs/WIFI.md](Docs/WIFI.md) | Station, scanner, access point |
 | [Docs/WEB_INTERFACE.md](Docs/WEB_INTERFACE.md) | Web interface and REST API |
+| [Demo/README.md](Demo/README.md) | Demo programs ready to upload |
 
 ---
 
@@ -30,6 +31,21 @@ AtsPLC provides a complete PLC implementation that runs on the ESP8266 microcont
 - **Backup/Restore** — Save and restore programs (up to 4 backup slots)
 - **Comprehensive Testing** — Unit tests with CI/CD pipeline
 - **OTA Updates** — Over-the-air firmware updates
+
+---
+
+## Demo Programs
+
+The [Demo](Demo/README.md) folder has ready-to-use ladder programs. Each program has a `.dat`
+file to upload in the web interface and a `.md` file with the wiring, the logic, the ladder
+diagram and the C++ code.
+
+- [aquarium](Demo/aquarium.md) — light and filter pump schedule with a photo sensor
+- [security-alarm](Demo/security-alarm.md) — door alarm with a siren and a state LED, the owner's phone works as the key
+- [wifi-watchdog](Demo/wifi-watchdog.md) — restarts a WiFi router when its signal is weak or lost
+- [temperature-control](Demo/temperature-control.md) — keeps the temperature in a box with a heater and a fan
+
+`Tools/ladder.py` shows any `.dat` file as a text ladder diagram or as C++ code.
 
 ---
 
@@ -66,9 +82,12 @@ AtsPLC/
 ├── TestsFramework/
 │   └── CppUTest/             # Unit testing framework (submodule)
 │
+├── Demo/                     # Demo programs (.dat) with descriptions (.md)
+│
 ├── Tools/                    # Utility applications
 │   ├── Bmp2Ssd1306/          # Bitmap-to-display converter
-│   └── DisplayControls/      # Display control utilities
+│   ├── DisplayControls/      # Display control utilities
+│   └── ladder.py             # Program file (.dat) to ASCII ladder diagram or C++ code
 │
 └── .github/workflows/        # CI/CD pipeline (GitHub Actions)
 ```
@@ -295,11 +314,15 @@ GitHub Actions workflow includes:
 
 ## License
 
-AtsPLC is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE):
-you may use, modify and share it for any noncommercial purpose — hobby projects,
-personal study, research, education, charitable and public organizations.
+AtsPLC is free under either of two licenses, at your choice:
 
-Commercial use (selling devices, kits or services built on AtsPLC, using it in a business)
+- [PolyForm Noncommercial License 1.0.0](LICENSE): you may use, modify and share it for any
+  noncommercial purpose — hobby projects, personal study, research, education, charitable
+  and public organizations.
+- [PolyForm Internal Use License 1.0.0](LICENSE-INTERNAL-USE.md): you may use and modify it
+  inside your own company, for example to run a farm or a workshop, but not give it to others.
+
+Selling devices, kits or services built on AtsPLC, or installing it for customers for a fee,
 requires a separate commercial license — see [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
 
 Third-party components keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
@@ -313,5 +336,5 @@ Versions published before the license change remain available under the MIT Lice
 Contributions are welcome! Please feel free to submit pull requests or open issues.
 
 AtsPLC is dual-licensed, so by submitting a pull request you agree that your contribution
-is licensed to the author under terms that allow distributing it both under the
-PolyForm Noncommercial License and under commercial licenses.
+is licensed to the author under terms that allow distributing it under the
+PolyForm Noncommercial License, the PolyForm Internal Use License and commercial licenses.

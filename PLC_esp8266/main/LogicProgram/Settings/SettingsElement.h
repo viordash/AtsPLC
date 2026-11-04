@@ -81,6 +81,7 @@ class SettingsElement : public LogicElement {
     static const uint8_t Top = -(Height / 2);
 
     explicit SettingsElement();
+    explicit SettingsElement(Discriminator discriminator);
     virtual ~SettingsElement();
 
     bool DoAction(bool prev_elem_changed, LogicItemState prev_elem_state) override;

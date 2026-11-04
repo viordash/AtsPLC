@@ -72,6 +72,19 @@ position means "any".
 Puts a part of the current time into the variable: second, minute, hour, day, weekday,
 month, or year. The element asks the controller to wake it up with the needed period.
 
+### Reading a bound variable
+
+Put a contact or a comparator that reads a bound variable first in the network, right
+after the incoming rail. When the element before a contact or a comparator becomes
+passive, the contact cancels the reading of its variable. For a WiFi binding this cancels
+the WiFi request: the scan, the access point or the station connection stops, and the
+variable drops to 0 until the next reading starts the request again. For a date and time
+binding the variable also drops to 0 until the next reading. For example,
+`AI>130 -- V1==0`, where V1 is bound to an access point, restarts the access point every
+time AI goes down to 130, and the connected clients are dropped. `V1==0 -- AI>130` does not
+have this problem. A network that starts with ContinuationOut has the same problem, because
+ContinuationOut can also be passive.
+
 ## Settings element (SettingsElement)
 
 Shows and edits one device settings field right in the chain: WiFi station, scanner, access

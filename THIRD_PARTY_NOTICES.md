@@ -1,7 +1,7 @@
 # Third-Party Notices
 
-The [PolyForm Noncommercial License](LICENSE) applies to the AtsPLC code only. The
-components below are distributed under their own licenses, which are not changed by it.
+The [AtsPLC licenses](LICENSE) apply to the AtsPLC code only. The components below are
+distributed under their own licenses, which are not changed by them.
 
 ## Bundled in the firmware source
 

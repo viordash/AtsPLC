@@ -274,6 +274,20 @@ TEST(LogicElementsBoxTestsGroup, takes_params_for_wire) {
     CHECK_COMPARE(matched, >, 0);
 }
 
+TEST(LogicElementsBoxTestsGroup, takes_params_for_wire_from_continuation_in) {
+    int matched = 0;
+    ContinuationIn stored_element;
+    TestableElementsBox testable(10, &stored_element, ElementsBox::Options::show_continuation_in);
+    for (auto *element : testable.PublicMorozov_Get_items()) {
+        auto *element_as_wire = Wire::TryToCast(element);
+        if (element_as_wire != NULL) {
+            CHECK_EQUAL(17, element_as_wire->GetWidth());
+            matched++;
+        }
+    }
+    CHECK_COMPARE(matched, >, 0);
+}
+
 TEST(LogicElementsBoxTestsGroup, copy_params_for_indicator_element) {
     int matched = 0;
     Indicator stored_element(MapIO::AI);

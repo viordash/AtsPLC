@@ -87,12 +87,14 @@ void ElementsBox::DetachElement(LogicElement *element) {
 
 void ElementsBox::CalcEntirePlaceWidth(LogicElement *source_element) {
     auto frame_buffer = new FrameBuffer();
-    uint8_t start_point_x = IsOutputElement(source_element->GetElementType()) //
+    bool element_right_to_left = IsOutputElement(source_element->GetElementType())
+                              || IsContinuationInElement(source_element->GetElementType());
+    uint8_t start_point_x = element_right_to_left //
                               ? DISPLAY_WIDTH / 2
                               : INCOME_RAIL_WIDTH;
     Point start_point = { start_point_x, DISPLAY_HEIGHT / 2 };
     source_element->Render(frame_buffer, LogicItemState::lisPassive, &start_point);
-    if (IsOutputElement(source_element->GetElementType())) {
+    if (element_right_to_left) {
         source_element_width = start_point_x - start_point.x;
     } else {
         source_element_width = start_point.x - start_point_x;
