@@ -16,10 +16,12 @@ forward its port 80 to the internet.
 ## Features
 
 - live device screen;
-- Up / Down / Select buttons from the keyboard;
+- Up / Ok / Down buttons on the page and from the keyboard;
 - downloading and uploading the program as a file;
-- switching the work mode;
-- OTA firmware update.
+- switching the work mode.
+
+The page has no firmware update. OTA works through the REST API only, see
+[OTA update](#ota-update).
 
 ## REST API
 
@@ -128,6 +130,15 @@ cycle.
 `POST /update` with the firmware file. The size is checked before writing starts: a file
 larger than the partition (`FIRMWARE_MAXSIZE`, 1 MB) is rejected with `400`. After a
 successful write the boot partition switches to the new one and the device reboots.
+
+```bash
+curl -H 'Content-Type:application/octet-stream' \
+     --data-binary @AtsPLC-esp8266.ota.bin http://192.168.1.100/update
+```
+
+`AtsPLC-esp8266.ota.bin` comes from `make ota` (`PLC_esp8266/build/`) or from the
+`Build-ota-bin` job artifact in GitHub Actions. The artifact downloads as a zip archive with
+the `.bin` file inside.
 
 ## Frontend
 
